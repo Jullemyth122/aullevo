@@ -41,20 +41,26 @@ export interface FormField {
     ariaLabel: string;
     autocomplete: string;
     required: boolean;
+    context?: string; // Surrounding text/header
+    section?: string; // Visual section name
+    options?: { label: string; value: string }[]; // For select fields
 }
 
 export interface FieldMapping {
     fieldId: string;
-    fieldType: keyof UserData;
+    fieldType: keyof UserData | 'custom_question' | string;
     confidence: number;
     reasoning?: string;
     id?: string;
     name?: string;
+    selectedValue?: string; // For select fields
+    headerContext?: string; // The specific context (e.g. "Additional Questions")
+    originalQuestion?: string; // For custom Q&A
 }
 
 // Message types for Chrome extension
 export interface ChromeMessage {
-    action: 'analyzeForm' | 'fillForm';
+    action: 'analyzeForm' | 'fillForm' | 'clickNext';
     data?: {
         fieldMappings?: FieldMapping[];
         userData?: UserData;
@@ -66,6 +72,8 @@ export interface ChromeResponse {
     fields?: FormField[];
     filledCount?: number;
     total?: number;
+    message?: string;
+    nextButtonFound?: boolean;
 }
 
 // Status for UI

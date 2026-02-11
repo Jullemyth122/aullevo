@@ -158,7 +158,8 @@ class GeminiService {
         ]
         }
 
-        If any field is not found, use an empty string "" or empty array [].
+        If any field is not found or is redacted/placeholder (e.g. "XXXX"), use an empty string "" or empty array [].
+        Do not return "XXXX" as a value.
 
         Resume text:
         ${resumeText}
@@ -170,9 +171,14 @@ class GeminiService {
             const responseText = await this.generateContent(prompt, "gemini-2.5-flash");
             const jsonText = this.extractJSON(responseText);
             return JSON.parse(jsonText) as Partial<UserData>;
-        } catch (error) {
+        } catch (error: any) {
             console.error('Gemini parsing error:', error);
-            throw new Error('Failed to parse resume with Gemini');
+            // Enhance error message to be visible to user
+            const msg = error.message || String(error);
+            if (msg.includes('SyntaxError')) {
+                 throw new Error(`Failed to parse AI response. The resume might be too complex or malformed.`);
+            }
+            throw new Error(`Failed to parse resume: ${msg}`);
         }
     }
 
@@ -192,13 +198,20 @@ class GeminiService {
         - ariaLabel
         - autocomplete (standard hints like "given-name", "email", etc.)
         - required
+        - context (surrounding text/header, e.g. "Add Candidate", "Contact Info")
+        - section (visual section name)
+        - options (for select fields: { label, value }[])
 
         Your task: For each field that clearly expects one of the allowed types below, create a mapping object.
 
         Allowed field types (use EXACTLY these strings):
         firstName, lastName, email, phone, address, city, state, zipCode, country, linkedin, portfolio, github, dateOfBirth, gender, summary, position, company, salary, startDate
+        OR "custom_question" (if the field asks a specific question not covered by the standard types, e.g. "Do you have 5 years experience?", "Are you authorized to work in US?")
 
         Special rules:
+        - PAY ATTENTION TO "context": If context is "Add Candidate" or similar, these fields are for the candidate, not the user.
+        - FOR SELECT FIELDS: You MUST choose the best matching "value" from the provided "options" array. Return the exact "value" string in a new "selectedValue" field in the output.
+        - FOR CUSTOM QUESTIONS: Set fieldType to "custom_question" and copy the exact question text into "originalQuestion".
         - Textareas asking about experience, motivation, cover letter, "why you're a great fit", etc. → use "summary"
         - Use autocomplete attribute as primary hint if present (e.g., "given-name" → firstName, "family-name" → lastName, "email" → email, "tel" → phone)
         - Also consider label, placeholder, and name text content
@@ -209,6 +222,8 @@ class GeminiService {
         - "name": the name attribute value if non-empty (optional, omit if empty)
         - "fieldType": one of the allowed types above
         - "confidence": number 0.0 to 1.0
+        - "selectedValue": string (optional, for select fields)
+        - "originalQuestion": string (optional, for custom_question)
 
         Example output format:
         [

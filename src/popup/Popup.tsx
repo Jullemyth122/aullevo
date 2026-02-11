@@ -110,9 +110,92 @@ function Popup() {
         }
     };
 
+    const processFormStep = async (tabId: number, step: number) => {
+        if (step > 5) {
+            setStatus({ message: '🛑 Max steps reached (safety limit).', type: 'info' });
+            setIsProcessing(false);
+            return;
+        }
+
+        setStatus({ message: `Step ${step + 1}: Analyzing...`, type: 'info' });
+
+        try {
+            // 1. Analyze Form
+            const response = await sendMessagePromise(tabId, { action: 'analyzeForm' });
+
+            if (!response?.success) {
+                setStatus({ message: '❌ Analysis failed or no form found.', type: 'error' });
+                setIsProcessing(false);
+                return;
+            }
+
+            const fields = response.fields || [];
+
+            if (fields.length > 0) {
+                // 2. Get AI Mappings
+                const fieldMappings = await geminiService.analyzeFormFields(fields);
+
+                // 3. Solve for Custom Questions
+                for (const mapping of fieldMappings) {
+                    if (mapping.fieldType === 'custom_question' && mapping.originalQuestion) {
+                        setStatus({ message: `🤔 Thinking: "${mapping.originalQuestion}"...`, type: 'info' });
+                        const answer = await geminiService.answerFormQuestion(mapping.originalQuestion, userData);
+                        mapping.selectedValue = answer; // Reuse selectedValue for the answer
+                    }
+                }
+
+                // 4. Fill Form
+                const fillResponse = await sendMessagePromise(tabId, {
+                    action: 'fillForm',
+                    data: { fieldMappings, userData }
+                });
+
+                if (fillResponse?.success) {
+                    setStatus({
+                        message: `✅ Step ${step + 1}: Filled ${fillResponse.filledCount} fields.`,
+                        type: 'success'
+                    });
+                }
+            }
+
+            // 5. Check & Click Next
+            // Small delay to let UI update
+            await new Promise(r => setTimeout(r, 1000));
+
+            const nextResponse = await sendMessagePromise(tabId, { action: 'clickNext' });
+
+            if (nextResponse?.success) {
+                setStatus({ message: `➡️ Moving to next step...`, type: 'info' });
+                // Wait for navigation/modal update
+                setTimeout(() => processFormStep(tabId, step + 1), 3000);
+            } else {
+                setIsProcessing(false);
+                setStatus({ message: '✨ Form filling complete!', type: 'success' });
+            }
+
+        } catch (error: any) {
+            console.error(error);
+            setStatus({ message: `❌ Error: ${error.message}`, type: 'error' });
+            setIsProcessing(false);
+        }
+    };
+
+    const sendMessagePromise = (tabId: number, message: any): Promise<ChromeResponse> => {
+        return new Promise((resolve) => {
+            chrome.tabs.sendMessage(tabId, message, (response) => {
+                if (chrome.runtime.lastError) {
+                    console.error(chrome.runtime.lastError);
+                    resolve({ success: false, message: chrome.runtime.lastError.message });
+                } else {
+                    resolve(response);
+                }
+            });
+        });
+    };
+
     const handleAIFillForm = async () => {
         setIsProcessing(true);
-        setStatus({ message: '🤖 Gemini is analyzing the form...', type: 'info' });
+        setStatus({ message: '🤖 Starting AI Form Filler...', type: 'info' });
 
         if (typeof chrome === 'undefined' || !chrome.tabs) {
             setStatus({
@@ -124,63 +207,18 @@ function Popup() {
         }
 
         try {
-            // Check for API key presence
             if (!apiKey && !(import.meta as any).env.VITE_GEMINI_API_KEY) {
                 throw new Error("Please set your Gemini API Key in Settings first.");
             }
 
-            // Update service key if we have one in state
-            if (apiKey) {
-                geminiService.setApiKey(apiKey);
-            }
+            if (apiKey) geminiService.setApiKey(apiKey);
 
             const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-
             if (!tab.id) throw new Error("No active tab found");
 
-            chrome.tabs.sendMessage(
-                tab.id,
-                { action: 'analyzeForm' },
-                async (response: ChromeResponse) => {
-                    if (chrome.runtime.lastError) {
-                        setStatus({ message: '❌ Refresh the page and try again.', type: 'error' });
-                        setIsProcessing(false);
-                        return;
-                    }
+            // Start recursive process
+            processFormStep(tab.id, 0);
 
-                    if (!response?.success) {
-                        setStatus({ message: '❌ No form found on this page', type: 'error' });
-                        setIsProcessing(false);
-                        return;
-                    }
-
-                    const { fields } = response;
-                    try {
-                        const fieldMappings = await geminiService.analyzeFormFields(fields!);
-
-                        chrome.tabs.sendMessage(
-                            tab.id!,
-                            {
-                                action: 'fillForm',
-                                data: { fieldMappings, userData }
-                            },
-                            (fillResponse: ChromeResponse) => {
-                                if (fillResponse?.success) {
-                                    setStatus({
-                                        message: `✅ Filled ${fillResponse.filledCount}/${fillResponse.total} fields!`,
-                                        type: 'success'
-                                    });
-                                }
-                                setIsProcessing(false);
-                            }
-                        );
-                    } catch (err) {
-                        console.error(err);
-                        setStatus({ message: '❌ AI Analysis failed', type: 'error' });
-                        setIsProcessing(false);
-                    }
-                }
-            );
         } catch (error: any) {
             console.error(error);
             setStatus({ message: `❌ ${error.message || 'Error filling form'}`, type: 'error' });
