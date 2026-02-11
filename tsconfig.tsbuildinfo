@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/errorboundar.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/content/content.ts","./src/popup/popup.tsx","./src/services/formanalyzer.ts","./src/services/geminiservice.ts","./src/services/resumeparser.ts","./src/types/index.ts"],"version":"5.9.3"}

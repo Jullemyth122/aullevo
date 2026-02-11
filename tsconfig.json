@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    // CHANGE 1: "ES2020" is safe, but Chrome supports newer features. 
+    // "ES2022" allows for top-level await and cleaner class fields.
+    "target": "ES2022",
+    
+    "useDefineForClassFields": true,
+    
+    // CHANGE 2: Update lib to match the target or use ESNext
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "types": ["chrome", "vite/client"],
+
+    // This is the MODERN setting for Vite/Webpack 5. Keep this!
+    "moduleResolution": "bundler",
+    
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src"],
+  // "references": [{ "path": "./tsconfig.node.json" }]
+}
