@@ -190,57 +190,46 @@ class GeminiService {
         You are an expert at mapping HTML form fields to personal information types for job applications.
 
         You will receive a JSON array of form fields. Each field contains:
-        - id (unique identifier, may be native or fallback like "field_0")
-        - name (attribute value, often present)
-        - type (e.g., text, email, tel, textarea)
-        - placeholder
-        - label (text from associated <label> or nearby text)
-        - ariaLabel
-        - autocomplete (standard hints like "given-name", "email", etc.)
-        - required
-        - context (surrounding text/header, e.g. "Add Candidate", "Contact Info")
+        - id (unique identifier)
+        - name, type, placeholder, label, ariaLabel
+        - context (surrounding text/header, e.g. "Project 1", "Add Experience")
         - section (visual section name)
-        - options (for select fields: { label, value }[])
+        - options (for select fields)
 
-        Your task: For each field that clearly expects one of the allowed types below, create a mapping object.
+        Your task is to create a mapping plan to fill this form. 
+        
+        **CRITICAL NEW INSTRUCTION: DYNAMIC SECTIONS**
+        - Identify if fields belong to a repeated group (e.g. Experience #1, Project #2).
+        - If you see an "Add" button (e.g. "Add Project", "+ Add Another"), map it with action="click_add".
+        - Map fields to their specific index.
 
-        Allowed field types (use EXACTLY these strings):
-        firstName, lastName, email, phone, address, city, state, zipCode, country, linkedin, portfolio, github, dateOfBirth, gender, summary, position, company, salary, startDate
-        OR "custom_question" (if the field asks a specific question not covered by the standard types, e.g. "Do you have 5 years experience?", "Are you authorized to work in US?")
+        **Allowed field types:**
+        firstName, lastName, email, phone, address, city, state, zipCode, country, linkedin, portfolio, github, dateOfBirth, gender, summary,
+        position, company, salary, startDate, endDate, description, skill
+        OR "custom_question"
 
-        Special rules:
-        - PAY ATTENTION TO "context": If context is "Add Candidate" or similar, these fields are for the candidate, not the user.
-        - FOR SELECT FIELDS: You MUST choose the best matching "value" from the provided "options" array. Return the exact "value" string in a new "selectedValue" field in the output.
-        - FOR CUSTOM QUESTIONS: Set fieldType to "custom_question" and copy the exact question text into "originalQuestion".
-        - Textareas asking about experience, motivation, cover letter, "why you're a great fit", etc. → use "summary"
-        - Use autocomplete attribute as primary hint if present (e.g., "given-name" → firstName, "family-name" → lastName, "email" → email, "tel" → phone)
-        - Also consider label, placeholder, and name text content
-        - Only include mappings where confidence ≥ 0.7
+        **Allowed group types:**
+        experience, education, project, skill
 
-        Return ONLY a valid JSON array of objects with these exact keys:
-        - "id": the EXACT id from the input structure (do not change or invent)
-        - "name": the name attribute value if non-empty (optional, omit if empty)
-        - "fieldType": one of the allowed types above
-        - "confidence": number 0.0 to 1.0
-        - "selectedValue": string (optional, for select fields)
-        - "originalQuestion": string (optional, for custom_question)
+        **Special Rules:**
+        1. **Select Fields**: You MUST chose the best matching "value" from "options" and set it as "selectedValue".
+        2. **Repeater Groups**:
+           - If a header says "Project 1" or "Experience 1", set groupType="project" and groupIndex=0.
+           - If "Project 2", groupIndex=1.
+        3. **Buttons**:
+           - If a button's label contains "Add" or "Plus" and seems to add a new section for Experience/Education/Projects, return:
+             { "id": "btn_id", "action": "click_add", "groupType": "project", "confidence": 0.9 }
+        4. **Custom Questions**: Set fieldType="custom_question" and "originalQuestion" to the question text.
 
-        Example output format:
-        [
-        {
-            "id": "field_0",
-            "name": "firstName",
-            "fieldType": "firstName",
-            "confidence": 0.99
-        },
-        {
-            "id": "summary_textarea",
-            "fieldType": "summary",
-            "confidence": 0.95
-        }
-        ]
-
-        If no confident matches, return empty array [].
+        Return ONLY a valid JSON array of objects with these keys:
+        - "id": EXACT id from input
+        - "fieldType": one of the allowed types (or omit if action is click_add)
+        - "confidence": 0.0 to 1.0
+        - "selectedValue": string (optional)
+        - "originalQuestion": string (optional)
+        - "groupType": string (optional)
+        - "groupIndex": number (optional, default 0)
+        - "action": "fill" (default) or "click_add"
 
         Form fields:
         ${JSON.stringify(formFields, null, 2)}
