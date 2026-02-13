@@ -56,6 +56,11 @@ export interface FieldMapping {
     selectedValue?: string; // For select fields
     headerContext?: string; // The specific context (e.g. "Additional Questions")
     originalQuestion?: string; // For custom Q&A
+    
+    // Dynamic / Repeater support
+    groupType?: 'experience' | 'education' | 'project' | 'skill'; 
+    groupIndex?: number; // 0-based index for repeater items
+    action?: 'fill' | 'click_add'; // 'fill' is default. 'click_add' means this mapping targets an "Add" button.
 }
 
 // Message types for Chrome extension

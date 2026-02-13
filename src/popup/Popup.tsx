@@ -111,7 +111,7 @@ function Popup() {
     };
 
     const processFormStep = async (tabId: number, step: number) => {
-        if (step > 5) {
+        if (step > 15) { // Increased safety limit for dynamic forms
             setStatus({ message: '🛑 Max steps reached (safety limit).', type: 'info' });
             setIsProcessing(false);
             return;
@@ -131,23 +131,41 @@ function Popup() {
 
             const fields = response.fields || [];
 
+            let needsReAnalysis = false;
+
             if (fields.length > 0) {
                 // 2. Get AI Mappings
                 const fieldMappings = await geminiService.analyzeFormFields(fields);
 
-                // 3. Solve for Custom Questions
+                // 3. Solve for Custom Questions & Prepare Data
                 for (const mapping of fieldMappings) {
                     if (mapping.fieldType === 'custom_question' && mapping.originalQuestion) {
                         setStatus({ message: `🤔 Thinking: "${mapping.originalQuestion}"...`, type: 'info' });
                         const answer = await geminiService.answerFormQuestion(mapping.originalQuestion, userData);
-                        mapping.selectedValue = answer; // Reuse selectedValue for the answer
+                        mapping.selectedValue = answer;
+                    }
+
+                    // Handle Array Mapping (e.g. project[0].name)
+                    if (mapping.groupType && typeof mapping.groupIndex === 'number' && mapping.action !== 'click_add') {
+                        // Map specific array item to this field
+                        let arraySource: any[] = [];
+                        if (mapping.groupType === 'experience') arraySource = userData.experience || [];
+                        if (mapping.groupType === 'education') arraySource = userData.education || [];
+                        if (mapping.groupType === 'project') arraySource = userData.portfolio ? JSON.parse(JSON.stringify(userData.portfolio)) : []; // Todo: standardized portfolio array
+                        if (mapping.groupType === 'skill') arraySource = userData.skills || [];
+
+                        if (arraySource[mapping.groupIndex] && mapping.fieldType in arraySource[mapping.groupIndex]) {
+                            // Override the simple matching logic with specific array item
+                            mapping.selectedValue = arraySource[mapping.groupIndex][mapping.fieldType];
+                        }
                     }
                 }
 
-                // 4. Fill Form
+                // 4. Fill Form (Fields)
+                const fillMappings = fieldMappings.filter(m => m.action !== 'click_add');
                 const fillResponse = await sendMessagePromise(tabId, {
                     action: 'fillForm',
-                    data: { fieldMappings, userData }
+                    data: { fieldMappings: fillMappings, userData }
                 });
 
                 if (fillResponse?.success) {
@@ -156,9 +174,49 @@ function Popup() {
                         type: 'success'
                     });
                 }
+
+                // 5. Handle "Add" Buttons (Dynamic Sections)
+                const addButtons = fieldMappings.filter(m => m.action === 'click_add');
+                for (const btn of addButtons) {
+                    if (!btn.groupType) continue;
+
+                    // Check if we need to add more items
+                    // Find max index currently mapped for this group
+                    const currentIndices = fieldMappings
+                        .filter(m => m.groupType === btn.groupType && typeof m.groupIndex === 'number')
+                        .map(m => m.groupIndex!);
+
+                    const maxIndex = currentIndices.length > 0 ? Math.max(...currentIndices) : -1;
+
+                    let totalDataItems = 0;
+                    if (btn.groupType === 'experience') totalDataItems = (userData.experience || []).length;
+                    if (btn.groupType === 'education') totalDataItems = (userData.education || []).length;
+
+                    // If we have more data items than currently visible fields, CLICK ADD
+                    if (totalDataItems > maxIndex + 1) {
+                        setStatus({ message: `➕ Adding another ${btn.groupType}...`, type: 'info' });
+                        await sendMessagePromise(tabId, {
+                            action: 'fillForm',
+                            data: {
+                                fieldMappings: [{ ...btn }] // Send just the click action
+                            }
+                        });
+
+                        // Wait for UI animation
+                        await new Promise(r => setTimeout(r, 1500));
+                        needsReAnalysis = true; // Loop back to analyze the new fields
+                        break; // One add at a time to be safe
+                    }
+                }
             }
 
-            // 5. Check & Click Next
+            if (needsReAnalysis) {
+                // Loop back to same step index (or increment, doesn't matter much) to re-analyze
+                setTimeout(() => processFormStep(tabId, step + 1), 500);
+                return;
+            }
+
+            // 6. Check & Click Next
             // Small delay to let UI update
             await new Promise(r => setTimeout(r, 1000));
 

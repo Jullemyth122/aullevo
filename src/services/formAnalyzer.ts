@@ -1,9 +1,6 @@
 import type { FormField, FieldMapping } from '../types';
 
 /**
- * Extracts all form fields from the current page
- */
-/**
  * Extracts all form fields from the current page, prioritizing visible and modal fields
  */
 export function extractFormFields(): FormField[] {
@@ -12,8 +9,8 @@ export function extractFormFields(): FormField[] {
     
     // 2. Select inputs - scope to modal if exists, otherwise document
     const rootElement = activeModal || document.body;
-    const inputs = rootElement.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(
-        'input, textarea, select'
+    const inputs = rootElement.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | HTMLButtonElement>(
+        'input, textarea, select, button'
     );
 
     const fields: FormField[] = [];
@@ -24,10 +21,17 @@ export function extractFormFields(): FormField[] {
             return;
         }
 
-        if (input instanceof HTMLInputElement) {
-            if (input.type === 'hidden' || input.type === 'submit' || input.type === 'button') {
-                return;
-            }
+        const isButton = input.tagName === 'BUTTON' || (input instanceof HTMLInputElement && (input.type === 'submit' || input.type === 'button'));
+        
+        if (isButton) {
+            // Only include buttons that look like "Add" actions
+            const text = (input.textContent || (input as HTMLInputElement).value || '').trim().toLowerCase();
+            const aria = (input.getAttribute('aria-label') || '').trim().toLowerCase();
+            const isAddBtn = ['add', 'plus', 'create', 'new', 'more'].some(k => text.includes(k) || aria.includes(k));
+            
+            if (!isAddBtn) return; 
+        } else if (input instanceof HTMLInputElement && input.type === 'hidden') {
+            return;
         }
 
         const context = findFieldContext(input);
@@ -48,10 +52,10 @@ export function extractFormFields(): FormField[] {
             placeholder: input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement 
                 ? input.placeholder || '' 
                 : '',
-            label: findLabel(input),
+            label: isButton ? (input.textContent || (input as HTMLInputElement).value || '').trim() : findLabel(input),
             ariaLabel: input.getAttribute('aria-label') || '',
             autocomplete: input.getAttribute('autocomplete') || '',
-            required: input.required,
+            required: (input as HTMLInputElement).required || false,
             context: context,
             section: section,
             options: options
@@ -187,7 +191,7 @@ function findLabel(input: HTMLElement): string {
  */
 export function fillFormField(fieldIdentifier: FieldMapping, value: string | boolean): boolean {
     let input: HTMLElement | null = null;
-
+    
     if (fieldIdentifier.id) {
         input = document.getElementById(fieldIdentifier.id);
     }
@@ -259,6 +263,18 @@ function triggerEvents(input: HTMLElement): void {
             input.dispatchEvent(new Event('input', { bubbles: true }));
         }
     }
+}
+
+/**
+ * Click a general element by ID
+ */
+export function clickElement(id: string): { success: boolean, message: string } {
+    const el = document.getElementById(id);
+    if (el) {
+        el.click();
+        return { success: true, message: `Clicked element #${id}` };
+    }
+    return { success: false, message: `Element #${id} not found` };
 }
 
 /**
