@@ -1,3 +1,64 @@
+/* ============================================
+   AULLEVO — Premium Dark Theme Design System
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+    /* Core palette */
+    --bg-primary: #12141a;
+    --bg-secondary: #1a1d25;
+    --bg-tertiary: #22262f;
+    --bg-elevated: #272b36;
+    --bg-hover: #2d3240;
+
+    /* Accent */
+    --accent-primary: #7c5cfc;
+    --accent-secondary: #9b7dff;
+    --accent-glow: rgba(124, 92, 252, 0.25);
+    --accent-gradient: linear-gradient(135deg, #7c5cfc 0%, #a78bfa 100%);
+
+    /* Text */
+    --text-primary: #e8eaf0;
+    --text-secondary: #9ca3b4;
+    --text-muted: #636b7e;
+    --text-label: #b0b8cc;
+
+    /* Borders */
+    --border-subtle: rgba(255, 255, 255, 0.06);
+    --border-default: rgba(255, 255, 255, 0.1);
+    --border-focus: rgba(124, 92, 252, 0.5);
+
+    /* Status */
+    --success: #34d399;
+    --success-bg: rgba(52, 211, 153, 0.1);
+    --error: #f87171;
+    --error-bg: rgba(248, 113, 113, 0.1);
+    --info: #60a5fa;
+    --info-bg: rgba(96, 165, 250, 0.1);
+
+    /* Button gradients */
+    --btn-save: linear-gradient(135deg, #059669 0%, #34d399 100%);
+    --btn-fill: linear-gradient(135deg, #7c5cfc 0%, #ec4899 100%);
+    --btn-fill-hover: linear-gradient(135deg, #6d4de8 0%, #db2777 100%);
+
+    /* Sizing */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 18px;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+    --shadow-glow: 0 0 20px var(--accent-glow);
+}
+
+/* ============================================
+   BASE RESET & LAYOUT
+   ============================================ */
+
 * {
     margin: 0;
     padding: 0;
@@ -5,35 +66,136 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-    width: 400px;
-    max-height: 600px;
+    margin: 0;
+    padding: 0;
+    min-width: 420px;
 }
 
 .popup-container {
-    padding: 20px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    width: 420px;
+    max-height: 600px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    padding: 20px 16px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--bg-hover) transparent;
 }
+
+.popup-container::-webkit-scrollbar {
+    width: 5px;
+}
+
+.popup-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.popup-container::-webkit-scrollbar-thumb {
+    background: var(--bg-hover);
+    border-radius: 10px;
+}
+
+.popup-container::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
 
 .header {
     text-align: center;
     margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-subtle);
+    position: relative;
 }
 
 .header h1 {
-    font-size: 28px;
-    color: #1a73e8;
-    margin-bottom: 5px;
+    font-size: 24px;
+    font-weight: 700;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.3px;
+}
+
+.settings-btn {
+    position: absolute;
+    top: 2px;
+    right: 0;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 6px 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s ease;
+    color: var(--text-secondary);
+    line-height: 1;
+}
+
+.settings-btn:hover {
+    background: var(--bg-hover);
+    border-color: var(--border-focus);
+    box-shadow: var(--shadow-glow);
 }
 
 .tagline {
-    font-size: 12px;
-    color: #666;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    font-style: italic;
+    letter-spacing: 0.3px;
 }
 
+/* ============================================
+   SETTINGS SECTION
+   ============================================ */
+
+.settings-section {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.settings-section h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+}
+
+.settings-section .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.settings-section .input-group label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.settings-section .save-btn.small {
+    padding: 8px 16px;
+    font-size: 12px;
+    width: auto;
+    align-self: flex-end;
+}
+
+/* ============================================
+   UPLOAD SECTION
+   ============================================ */
+
 .upload-section {
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 }
 
 .upload-btn {
@@ -42,60 +204,426 @@ body {
     justify-content: center;
     gap: 8px;
     width: 100%;
-    padding: 12px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 12px 16px;
+    background: var(--accent-gradient);
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    transition: transform 0.2s;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    transition: all 0.25s ease;
+    box-shadow: var(--shadow-sm);
 }
 
 .upload-btn:hover {
-    transform: translateY(-2px);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md), var(--shadow-glow);
 }
 
 .upload-btn:active {
     transform: translateY(0);
 }
 
+/* ============================================
+   STATUS BAR
+   ============================================ */
+
+.status {
+    margin-top: 12px;
+    padding: 10px 14px;
+    border-radius: var(--radius-md);
+    font-size: 12px;
+    font-weight: 500;
+    animation: fadeSlideIn 0.3s ease;
+}
+
+.status-info {
+    background: var(--info-bg);
+    color: var(--info);
+    border: 1px solid rgba(96, 165, 250, 0.2);
+}
+
+.status-success {
+    background: var(--success-bg);
+    color: var(--success);
+    border: 1px solid rgba(52, 211, 153, 0.2);
+}
+
+.status-error {
+    background: var(--error-bg);
+    color: var(--error);
+    border: 1px solid rgba(248, 113, 113, 0.2);
+}
+
+@keyframes fadeSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================
+   COLLAPSIBLE SECTIONS
+   ============================================ */
+
+.section-group {
+    margin-bottom: 10px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--bg-secondary);
+    transition: border-color 0.2s ease;
+}
+
+.section-group:hover {
+    border-color: var(--border-default);
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    background: var(--bg-secondary);
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s ease;
+}
+
+.section-header:hover {
+    background: var(--bg-tertiary);
+}
+
+.section-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.section-icon {
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+}
+
+.section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
+
+.section-chevron {
+    font-size: 10px;
+    color: var(--text-muted);
+    transition: transform 0.3s ease;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.section-chevron.open {
+    transform: rotate(180deg);
+}
+
+.section-body {
+    padding: 0 14px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    animation: expandIn 0.25s ease;
+}
+
+@keyframes expandIn {
+    from {
+        opacity: 0;
+        max-height: 0;
+    }
+
+    to {
+        opacity: 1;
+        max-height: 600px;
+    }
+}
+
+/* ============================================
+   FORM FIELDS — Floating Label Style
+   ============================================ */
+
 .form-section {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    margin-bottom: 15px;
+    gap: 8px;
+    margin-bottom: 0;
 }
 
 .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 8px;
 }
 
+.field-wrapper {
+    position: relative;
+}
+
+.field-wrapper input,
+.field-wrapper textarea {
+    width: 100%;
+    padding: 12px 12px 8px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.field-wrapper input:focus,
+.field-wrapper textarea:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+    background: var(--bg-elevated);
+}
+
+.field-wrapper input::placeholder,
+.field-wrapper textarea::placeholder {
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.field-wrapper .field-label {
+    position: absolute;
+    top: -7px;
+    left: 10px;
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-muted);
+    background: var(--bg-secondary);
+    padding: 0 4px;
+    pointer-events: none;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+.field-wrapper input:focus~.field-label,
+.field-wrapper textarea:focus~.field-label {
+    color: var(--accent-secondary);
+}
+
+/* Non-wrapped inputs (fallback) */
 input,
 textarea,
 select {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 14px;
-    transition: border-color 0.2s;
+    padding: 10px 12px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+    font-family: inherit;
 }
 
 input:focus,
 textarea:focus,
 select:focus {
     outline: none;
-    border-color: #1a73e8;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: var(--text-muted);
 }
 
 textarea {
     resize: vertical;
-    font-family: inherit;
+    min-height: 60px;
 }
+
+/* Skills label */
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.input-group label {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+/* ============================================
+   EXTENDED FIELDS GRID
+   ============================================ */
+
+.extended-fields-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+/* ============================================
+   CUSTOM FIELDS
+   ============================================ */
+
+.custom-fields-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.custom-field-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 10px 12px;
+    transition: all 0.2s ease;
+}
+
+.custom-field-item:hover {
+    border-color: var(--border-default);
+    background: var(--bg-elevated);
+}
+
+.custom-field-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.custom-field-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent-secondary);
+    margin-bottom: 2px;
+}
+
+.custom-field-value {
+    font-size: 12px;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.custom-field-context {
+    font-size: 10px;
+    color: var(--text-muted);
+    font-style: italic;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.no-custom-fields {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 12px;
+    background: var(--bg-tertiary);
+    border: 1px dashed var(--border-subtle);
+    border-radius: var(--radius-md);
+}
+
+/* Add custom field form */
+.add-custom-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+}
+
+.add-custom-field-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.add-custom-field input {
+    font-size: 12px;
+    padding: 8px 10px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    flex: 1;
+}
+
+.add-custom-field input:focus {
+    border-color: var(--accent-primary);
+}
+
+.add-custom-field .context-input {
+    width: 100%;
+}
+
+/* ============================================
+   ICON BUTTONS
+   ============================================ */
+
+.icon-btn {
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.icon-btn.add {
+    background: rgba(52, 211, 153, 0.15);
+    color: var(--success);
+    padding: 8px;
+    border-radius: var(--radius-sm);
+}
+
+.icon-btn.add:hover {
+    background: rgba(52, 211, 153, 0.25);
+    transform: scale(1.05);
+}
+
+.icon-btn.delete {
+    background: transparent;
+    color: var(--text-muted);
+    padding: 4px;
+}
+
+.icon-btn.delete:hover {
+    color: var(--error);
+    background: var(--error-bg);
+}
+
+/* ============================================
+   ACTION BUTTONS
+   ============================================ */
 
 .save-btn,
 .fill-btn {
@@ -104,41 +632,51 @@ textarea {
     justify-content: center;
     gap: 8px;
     width: 100%;
-    padding: 12px;
+    padding: 12px 16px;
     border: none;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 500;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s;
-    margin-bottom: 10px;
+    transition: all 0.25s ease;
+    margin-bottom: 8px;
+    letter-spacing: 0.2px;
 }
 
 .save-btn {
-    background-color: #34a853;
+    background: var(--btn-save);
     color: white;
+    box-shadow: 0 2px 8px rgba(5, 150, 105, 0.3);
 }
 
 .save-btn:hover {
-    background-color: #2d8e47;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(5, 150, 105, 0.4);
 }
 
 .fill-btn {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: var(--btn-fill);
     color: white;
+    box-shadow: 0 2px 8px rgba(124, 92, 252, 0.3);
 }
 
 .fill-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
+    background: var(--btn-fill-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(124, 92, 252, 0.5), var(--shadow-glow);
 }
 
 .fill-btn:disabled,
 .save-btn:disabled {
-    opacity: 0.6;
+    opacity: 0.4;
     cursor: not-allowed;
-    transform: none;
+    transform: none !important;
+    box-shadow: none !important;
 }
+
+/* ============================================
+   SPINNER
+   ============================================ */
 
 .spinning {
     animation: spin 1s linear infinite;
@@ -154,33 +692,16 @@ textarea {
     }
 }
 
-.status {
-    padding: 10px;
-    border-radius: 6px;
-    font-size: 13px;
-    text-align: center;
-    margin-top: 10px;
-}
-
-.status-info {
-    background-color: #e3f2fd;
-    color: #1565c0;
-}
-
-.status-success {
-    background-color: #e8f5e9;
-    color: #2e7d32;
-}
-
-.status-error {
-    background-color: #ffebee;
-    color: #c62828;
-}
+/* ============================================
+   FOOTER
+   ============================================ */
 
 .footer {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-subtle);
     text-align: center;
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px solid #e0e0e0;
-    color: #999;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.3px;
 }

@@ -1,34 +1,40 @@
 {
   "manifest_version": 3,
-  "name": "Aulle",
-  "version": "0.0.1",
-  "description": "AI-Powered Form Filler by Gemini",
-  "action": {
-    "default_popup": "index.html",
-    "default_icon": "vite.svg"
-  },
+  "name": "Aullevo - AI Form Filler",
+  "version": "1.1.0",
+  "description": "Auto-fill forms using your resume data powered by Gemini AI. Press Ctrl+M to open the sidebar!",
   "permissions": [
-    "storage",
     "activeTab",
-    "tabs"
+    "scripting",
+    "storage"
   ],
-  "host_permissions": [
-    "<all_urls>"
-  ],
+  "background": {
+    "service_worker": "assets/background.js",
+    "type": "module"
+  },
+  "commands": {
+    "toggle-sidebar": {
+      "suggested_key": {
+        "default": "Ctrl+M",
+        "mac": "Command+M"
+      },
+      "description": "Activate the extension"
+    }
+  },
+  "action": {
+    "default_title": "Aullevo — Toggle Sidebar (Ctrl+M)"
+  },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["assets/content.js"],
-      "run_at": "document_idle"
+      "js": ["assets/content.js"]
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["pdf.worker.min.js"],
+      "resources": ["pdf.worker.min.js", "assets/content.css"],
       "matches": ["<all_urls>"]
     }
-  ],
-  "icons": {
-    "128": "vite.svg"
-  }
+  ]
 }
+
