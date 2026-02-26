@@ -1,15 +1,30 @@
 {
   "manifest_version": 3,
   "name": "Aullevo - AI Form Filler",
-  "version": "1.0.0",
-  "description": "Auto-fill forms using your resume data powered by Gemini AI",
+  "version": "1.1.0",
+  "description": "Auto-fill forms using your resume data powered by Gemini AI. Press Ctrl+M to fill instantly!",
   "permissions": [
     "activeTab",
+    "tabs",
     "scripting",
     "storage"
   ],
+  "background": {
+    "service_worker": "assets/background.js",
+    "type": "module"
+  },
+  "commands": {
+    "trigger-ai-fill": {
+      "suggested_key": {
+        "default": "Ctrl+M",
+        "mac": "Command+M"
+      },
+      "description": "Trigger AI Form Fill on the current page"
+    }
+  },
+  "options_page": "options.html",
   "action": {
-    "default_popup": "index.html",
+    "default_title": "Aullevo",
     "default_icon": {
       "16": "assets/icon16.png",
       "48": "assets/icon48.png",
@@ -19,12 +34,19 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js"]
+      "js": ["assets/content.js"],
+      "run_at": "document_idle"
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["pdf.worker.min.js"],
+      "resources": [
+        "pdf.worker.min.js",
+        "assets/content.css",
+        "assets/icon16.png",
+        "assets/icon48.png",
+        "assets/icon128.png"
+      ],
       "matches": ["<all_urls>"]
     }
   ],
@@ -34,3 +56,4 @@
     "128": "assets/icon128.png"
   }
 }
+
