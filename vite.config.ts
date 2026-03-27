@@ -21,7 +21,12 @@ export default defineConfig(({ mode }) => {
         rollupOptions: {
           output: {
             inlineDynamicImports: true,
-            assetFileNames: 'assets/[name].[ext]',
+            assetFileNames: (assetInfo) => {
+              if (assetInfo.name?.endsWith('.css')) {
+                return 'assets/content.css';
+              }
+              return 'assets/[name].[ext]';
+            },
           },
         },
       },

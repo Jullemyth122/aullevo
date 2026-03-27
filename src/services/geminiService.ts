@@ -218,10 +218,10 @@ class GeminiService {
         - **Add Buttons**: If you see an "Add" button (e.g. "Add Project", "+ Add Another"), map it with action="click_add".
 
         **Allowed field types:**
-        firstName, lastName, email, phone, address, city, state, zipCode, country, 
+        firstName, lastName, email, phone, phoneCountryCode, address, city, state, zipCode, country, 
         linkedin, portfolio, github, headline, dateOfBirth, gender, summary,
         salaryExpectation, noticePeriod, workAuthorization, yearsOfExperience,
-        position, company, salary, startDate, endDate, description, skill${customFieldsPrompt}
+        position, company, salary, startDate, endDate, description, skill, resumeUpload${customFieldsPrompt}
         OR "custom_question" (for questions the AI should answer using the user's profile)
 
         **Allowed group types:**

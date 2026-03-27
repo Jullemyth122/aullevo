@@ -1,4 +1,3 @@
-// Custom field with label, value, and AI context hint
 export interface CustomField {
     label: string;    // e.g. "Pronouns"
     value: string;    // e.g. "He/Him"
@@ -59,6 +58,8 @@ export interface FormField {
     required: boolean;
     context?: string; // Surrounding text/header
     section?: string; // Visual section name
+    accept?: string;  // For file inputs: e.g. ".pdf,.doc,.docx"
+    multiple?: boolean; // For file inputs: whether multiple files are allowed
     options?: { label: string; value: string }[]; // For select fields
 }
 
@@ -77,15 +78,34 @@ export interface FieldMapping {
     groupType?: 'experience' | 'education' | 'project' | 'skill'; 
     groupIndex?: number; // 0-based index for repeater items
     action?: 'fill' | 'click_add'; // 'fill' is default. 'click_add' means this mapping targets an "Add" button.
+    
+    // Custom File Injection Support
+    fileData?: string; // Data URL bridging (for Content script injection)
+    fileName?: string; // Real file original name
+    files?: { name: string; dataUrl: string }[]; // Array of files for multiple injection
+}
+
+export interface SavedFile {
+    id: string;
+    name: string;
+    size: number;
+    type: string;
+    dataUrl: string;
+    savedAt: string;
 }
 
 // Message types for Chrome extension
 export interface ChromeMessage {
-    action: 'analyzeForm' | 'fillForm' | 'clickNext';
+    action: 'analyzeForm' | 'fillForm' | 'clickNext' | 'domChanged' | 'urlChanged' | 'toggleSidebar' | 'triggerFillFromPopup' | 'triggerFillFromSidebar' | 'processFieldsAI';
     data?: {
         fieldMappings?: FieldMapping[];
-        userData?: UserData;
+        userData?: Partial<UserData>;
+        resumeFileData?: string;
+        resumeFileName?: string;
     };
+    fields?: FormField[];
+    tabUrl?: string; // Current URL for AI domain cache
+    url?: string; // Used by urlChanged
 }
 
 export interface ChromeResponse {
@@ -95,6 +115,12 @@ export interface ChromeResponse {
     total?: number;
     message?: string;
     nextButtonFound?: boolean;
+    error?: string;
+    mappings?: FieldMapping[];
+    addButtons?: FieldMapping[];
+    userData?: Partial<UserData>;
+    resumeFileData?: string;
+    resumeFileName?: string;
 }
 
 // Status for UI

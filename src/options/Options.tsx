@@ -1,17 +1,16 @@
-import { useState, useEffect, type ChangeEvent } from 'react';
+import { useState, useEffect, useRef, type ChangeEvent } from 'react';
 import { createRoot } from 'react-dom/client';
 import { storageService } from '../services/storageService';
-import type { UserData } from '../types';
+import type { UserData, SavedFile } from '../types';
 import './Options.css';
 
-/* ─────────────────────────────────────────────────────
+
+/*
    TYPES
-───────────────────────────────────────────────────── */
-type NavSection = 'api' | 'profiles' | 'privacy' | 'shortcuts' | 'about';
+ */
+type NavSection = 'api' | 'profiles' | 'files' | 'privacy' | 'shortcuts' | 'about';
 type StatusType = 'success' | 'error' | 'info' | '';
-
 interface StatusMsg { text: string; type: StatusType; }
-
 const EMPTY_USER: UserData = {
     firstName: '', lastName: '', email: '', phone: '',
     address: '', city: '', state: '', zipCode: '', country: '',
@@ -21,20 +20,86 @@ const EMPTY_USER: UserData = {
     skills: [], experience: [], education: [], customFields: [],
 };
 
-/* ─────────────────────────────────────────────────────
+/*
+   SVG ICON COMPONENTS
+ */
+const SvgKey = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+);
+const SvgUser = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+);
+const SvgFolder = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+);
+const SvgLock = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+);
+const SvgKeyboard = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" ry="2"/><line x1="6" y1="8" x2="6" y2="8"/><line x1="10" y1="8" x2="10" y2="8"/><line x1="14" y1="8" x2="14" y2="8"/><line x1="18" y1="8" x2="18" y2="8"/><line x1="8" y1="12" x2="8" y2="12"/><line x1="12" y1="12" x2="12" y2="12"/><line x1="16" y1="12" x2="16" y2="12"/><line x1="7" y1="16" x2="17" y2="16"/></svg>
+);
+const SvgInfo = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+);
+
+/* File type SVG icons */
+const SvgImage = () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7c5cfc" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+);
+const SvgFilePdf = () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+);
+const SvgFileDoc = () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+);
+const SvgFileGeneric = () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b949e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+);
+const SvgArchive = () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+);
+const SvgX = () => (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+);
+const SvgUploadCloud = () => (
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/><polyline points="16 16 12 12 8 16"/></svg>
+);
+const SvgTrash = () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+);
+
+function fileIconForType(type: string) {
+    if (type.startsWith('image/')) return <SvgImage />;
+    if (type === 'application/pdf') return <SvgFilePdf />;
+    if (type.includes('word') || type.includes('document')) return <SvgFileDoc />;
+    if (type.includes('zip') || type.includes('archive') || type.includes('compressed')) return <SvgArchive />;
+    return <SvgFileGeneric />;
+}
+
+function fileSizeStr(bytes: number) {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+let fileUid = 0;
+const newFileId = () => `sf-${Date.now()}-${fileUid++}`;
+
+/*
    NAV ITEMS
-───────────────────────────────────────────────────── */
-const NAV: { id: NavSection; icon: string; label: string }[] = [
-    { id: 'api', icon: '🔑', label: 'API Key' },
-    { id: 'profiles', icon: '👤', label: 'Profiles' },
-    { id: 'privacy', icon: '🔒', label: 'Privacy' },
-    { id: 'shortcuts', icon: '⌨️', label: 'Shortcuts' },
-    { id: 'about', icon: 'ℹ️', label: 'About' },
+ */
+const NAV_ITEMS: { id: NavSection; icon: React.ReactNode; label: string }[] = [
+    { id: 'api', icon: <SvgKey />, label: 'API Key' },
+    { id: 'profiles', icon: <SvgUser />, label: 'Profiles' },
+    { id: 'files', icon: <SvgFolder />, label: 'File Vault' },
+    { id: 'privacy', icon: <SvgLock />, label: 'Privacy' },
+    { id: 'shortcuts', icon: <SvgKeyboard />, label: 'Shortcuts' },
+    { id: 'about', icon: <SvgInfo />, label: 'About' },
 ];
 
-/* ─────────────────────────────────────────────────────
+/*
    STATUS COMPONENT
-───────────────────────────────────────────────────── */
+ */
 function StatusBanner({ status }: { status: StatusMsg }) {
     if (!status.text) return null;
     return (
@@ -42,9 +107,9 @@ function StatusBanner({ status }: { status: StatusMsg }) {
     );
 }
 
-/* ─────────────────────────────────────────────────────
+/*
    OPTIONS ROOT
-───────────────────────────────────────────────────── */
+ */
 function Options() {
     const [section, setSection] = useState<NavSection>('api');
     const [status, setStatus] = useState<StatusMsg>({ text: '', type: '' });
@@ -63,6 +128,11 @@ function Options() {
     // Privacy
     const [allowQAContext, setAllowQAContext] = useState(true);
 
+    // File Vault
+    const [fileLibrary, setFileLibrary] = useState<SavedFile[]>([]);
+    const [fileDragging, setFileDragging] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
     const flash = (text: string, type: StatusType = 'success', ms = 3000) => {
         setStatus({ text, type });
         setTimeout(() => setStatus({ text: '', type: '' }), ms);
@@ -75,7 +145,55 @@ function Options() {
             if (r.allowQAContext !== undefined) setAllowQAContext(r.allowQAContext as boolean);
         });
         refreshProfileList();
+        loadFileLibrary();
     }, []);
+
+    const loadFileLibrary = async () => {
+        chrome.storage.local.get('fileLibrary', (r) => {
+            setFileLibrary((r.fileLibrary as SavedFile[]) || []);
+        });
+    };
+
+    const addFilesToVault = async (files: File[]) => {
+        // Convert each File to a base64 data URL before saving
+        const entries: SavedFile[] = [];
+        for (const f of files) {
+            const dataUrl = await new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result as string);
+                reader.onerror = () => reject(reader.error);
+                reader.readAsDataURL(f);
+            });
+            entries.push({
+                id: newFileId(),
+                name: f.name,
+                size: f.size,
+                type: f.type || 'application/octet-stream',
+                dataUrl,
+                savedAt: new Date().toLocaleTimeString('en-US', { hour12: false }),
+            });
+        }
+        const updated = [...fileLibrary, ...entries];
+        chrome.storage.local.set({ fileLibrary: updated }, () => {
+            setFileLibrary(updated);
+            flash(`Saved ${entries.length} file${entries.length !== 1 ? 's' : ''} to vault`);
+        });
+    };
+
+    const removeFileFromVault = (id: string) => {
+        const updated = fileLibrary.filter(f => f.id !== id);
+        chrome.storage.local.set({ fileLibrary: updated }, () => {
+            setFileLibrary(updated);
+            flash('File removed from vault');
+        });
+    };
+
+    const clearAllFiles = () => {
+        chrome.storage.local.set({ fileLibrary: [] }, () => {
+            setFileLibrary([]);
+            flash('All files cleared from vault');
+        });
+    };
 
     const refreshProfileList = async () => {
         // Run migration of legacy plaintext data first
@@ -199,10 +317,10 @@ function Options() {
             {/* ── Nav ── */}
             <nav className="options-nav">
                 <div className="nav-brand">
-                    <span style={{ fontSize: '22px' }}>🚗</span>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3"/><rect x="9" y="11" width="14" height="10" rx="2"/><circle cx="16" cy="16" r="1"/></svg>
                     <span className="nav-brand-name">Aullevo</span>
                 </div>
-                {NAV.map(n => (
+                {NAV_ITEMS.map(n => (
                     <button
                         key={n.id}
                         className={`nav-item ${section === n.id ? 'active' : ''}`}
@@ -482,6 +600,93 @@ function Options() {
                     </>
                 )}
 
+                {/* ────── FILE VAULT ────── */}
+                {section === 'files' && (
+                    <>
+                        <div className="page-header">
+                            <h1 className="page-title">File Vault</h1>
+                            <p className="page-subtitle">Store resumes, cover letters, photos, and documents. Aullevo will auto-fill file inputs by matching filenames to form labels.</p>
+                        </div>
+
+                        <div className="card">
+                            <div className="card-title">
+                                <SvgFolder /> File Library
+                                <span className="vault-count">{fileLibrary.length} saved</span>
+                            </div>
+
+                            {/* Drag-and-drop zone */}
+                            <div
+                                className={`vault-dropzone ${fileDragging ? 'drag-over' : ''}`}
+                                onDragOver={(e) => { e.preventDefault(); setFileDragging(true); }}
+                                onDragLeave={() => setFileDragging(false)}
+                                onDrop={(e) => {
+                                    e.preventDefault();
+                                    setFileDragging(false);
+                                    addFilesToVault(Array.from(e.dataTransfer.files));
+                                }}
+                                onClick={() => fileInputRef.current?.click()}
+                            >
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    multiple
+                                    style={{ display: 'none' }}
+                                    onChange={(e) => {
+                                        addFilesToVault(Array.from(e.target.files || []));
+                                        e.target.value = '';
+                                    }}
+                                />
+                                <div className="vault-dropzone-inner">
+                                    <SvgUploadCloud />
+                                    <span className="vault-drop-text">Drop files here or click to browse</span>
+                                    <span className="vault-drop-sub">Supports PDF, DOCX, images, and any file type</span>
+                                </div>
+                            </div>
+
+                            {/* File list */}
+                            {fileLibrary.length > 0 && (
+                                <div className="vault-file-list">
+                                    {fileLibrary.map((sf) => (
+                                        <div key={sf.id} className="vault-file-item">
+                                            <span className="vault-file-icon">{fileIconForType(sf.type)}</span>
+                                            <div className="vault-file-info">
+                                                <span className="vault-file-name">{sf.name}</span>
+                                                <span className="vault-file-meta">{fileSizeStr(sf.size)} &middot; {sf.savedAt}</span>
+                                            </div>
+                                            <span className="vault-file-type-tag">{sf.type.split('/').pop()}</span>
+                                            <button className="vault-file-remove" onClick={(e) => { e.stopPropagation(); removeFileFromVault(sf.id); }} title="Remove file">
+                                                <SvgX />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {fileLibrary.length > 0 && (
+                            <div className="card">
+                                <div className="card-title"><SvgTrash /> Danger Zone</div>
+                                <p style={{ fontSize: '12px', color: 'var(--muted)', marginBottom: '14px' }}>
+                                    Remove all files from the vault. This action cannot be undone.
+                                </p>
+                                <button className="btn btn-danger" onClick={clearAllFiles}>Clear All Files</button>
+                            </div>
+                        )}
+
+                        <div className="card" style={{ background: 'rgba(124,92,252,0.05)', borderColor: 'rgba(124,92,252,0.2)' }}>
+                            <div className="card-title" style={{ color: '#c5b3ff' }}><SvgInfo /> How Auto-Fill Matching Works</div>
+                            <div style={{ fontSize: '13px', color: 'var(--muted)', lineHeight: '1.8' }}>
+                                <p>When Aullevo encounters a file upload input on a form, it compares the <strong style={{ color: 'var(--text)' }}>input label</strong> with your <strong style={{ color: 'var(--text)' }}>saved filenames</strong> using fuzzy keyword matching.</p>
+                                <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                    <div className="vault-hint-row"><code>profile_photo.jpg</code> <span style={{ color: 'var(--accent)' }}>matches</span> "Profile Photo" input</div>
+                                    <div className="vault-hint-row"><code>my_resume_2024.pdf</code> <span style={{ color: 'var(--accent)' }}>matches</span> "Resume Upload" input</div>
+                                    <div className="vault-hint-row"><code>cover_letter.docx</code> <span style={{ color: 'var(--accent)' }}>matches</span> "Cover Letter" input</div>
+                                </div>
+                            </div>
+                        </div>
+                    </>
+                )}
+
                 {/* ────── ABOUT ────── */}
                 {section === 'about' && (
                     <>
@@ -519,8 +724,8 @@ function Options() {
     );
 }
 
-/* ─────────────────────────────────────────────────────
+/*
    MOUNT
-───────────────────────────────────────────────────── */
+ */
 const container = document.getElementById('options-root')!;
 createRoot(container).render(<Options />);
