@@ -1,7 +1,25 @@
 import { createRoot } from 'react-dom/client';
 import Sidebar from './Sidebar';
-import { extractFormFields, fillFormField, clickNextButton, clickElement } from '../services/formAnalyzer';
-import type { ChromeMessage, ChromeResponse, CustomField, FieldMapping, UserData } from '../types';
+import {
+    extractFormFields,
+    fillFormField,
+    clickNextButton,
+    clickElement,
+    detectPageCaptcha,
+    registerIframeFieldResponder,
+    extractIframeFields,
+} from '../services/formAnalyzer';
+import type { ChromeMessage, ChromeResponse, FieldMapping, UserData } from '../types';
+
+import './sidebar.css';
+
+/* ═══════════════════════════════════════════════════
+   IFRAME RESPONDER — must run first
+   If this script is running inside an iframe, register
+   the postMessage listener so the parent frame can
+   request fields from us.
+   ═══════════════════════════════════════════════════ */
+registerIframeFieldResponder();
 
 /* ═══════════════════════════════════════════════════
    REACT SIDEBAR INJECTION (Shadow DOM)
@@ -18,7 +36,6 @@ function injectSidebar() {
 
     const shadowRoot = host.attachShadow({ mode: 'open' });
 
-    // Inject compiled CSS into the Shadow DOM
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = chrome.runtime.getURL('assets/content.css');
@@ -53,7 +70,6 @@ function getToastShadowRoot(): ShadowRoot {
     }
 
     const shadow = toastHost.shadowRoot || toastHost.attachShadow({ mode: 'open' });
-    // Inject base styles
     if (!shadow.querySelector('style')) {
         const style = document.createElement('style');
         style.textContent = `
@@ -109,8 +125,6 @@ function showToast(text: string, type: 'info' | 'success' | 'error' = 'info', du
     _toastEl.style.background = colors[type];
     _toastEl.textContent = text;
     _toastEl.classList.remove('visible');
-
-    // Force reflow to restart CSS transition
     void _toastEl.offsetHeight;
     _toastEl.classList.add('visible');
 
@@ -119,9 +133,7 @@ function showToast(text: string, type: 'info' | 'success' | 'error' = 'info', du
 }
 
 function hideToast() {
-    if (_toastEl) {
-        _toastEl.classList.remove('visible');
-    }
+    if (_toastEl) _toastEl.classList.remove('visible');
 }
 
 /* ═══════════════════════════════════════════════════
@@ -132,19 +144,15 @@ function initSPAWatcher() {
     let lastUrl = location.href;
     let mutationTimer: ReturnType<typeof setTimeout> | null = null;
 
-    // 1. DOM mutation observer — debounced, notifies sidebar to rescan
     const domObserver = new MutationObserver(() => {
         if (mutationTimer) clearTimeout(mutationTimer);
         mutationTimer = setTimeout(() => {
-            // Let sidebar know it should rescan (it has its own MutationObserver too)
-            // This is belt-and-suspenders for iframes / lazy sections
-            chrome.runtime.sendMessage({ action: 'domChanged' }).catch(() => {/* background may not be ready */ });
+            chrome.runtime.sendMessage({ action: 'domChanged' }).catch(() => { });
         }, 1000);
     });
 
     domObserver.observe(document.body, { childList: true, subtree: true });
 
-    // 2. URL change polling — catches pushState / replaceState SPA navigation
     const urlCheckInterval = setInterval(() => {
         if (location.href !== lastUrl) {
             lastUrl = location.href;
@@ -152,7 +160,6 @@ function initSPAWatcher() {
         }
     }, 600);
 
-    // 3. Patch history API to catch immediate navigation events
     const _push = history.pushState.bind(history);
     const _replace = history.replaceState.bind(history);
     history.pushState = (...args) => {
@@ -167,7 +174,6 @@ function initSPAWatcher() {
         chrome.runtime.sendMessage({ action: 'urlChanged', url: location.href }).catch(() => { });
     });
 
-    // Cleanup on page unload (best effort)
     window.addEventListener('beforeunload', () => {
         domObserver.disconnect();
         clearInterval(urlCheckInterval);
@@ -179,8 +185,11 @@ function initSPAWatcher() {
    ═══════════════════════════════════════════════════ */
 
 function init() {
-    injectSidebar();
-    initSPAWatcher();
+    // Only inject sidebar in the top-level frame, not inside iframes
+    if (window === window.top) {
+        injectSidebar();
+        initSPAWatcher();
+    }
 }
 
 if (document.readyState === 'loading') {
@@ -190,62 +199,93 @@ if (document.readyState === 'loading') {
 }
 
 /* ═══════════════════════════════════════════════════
+   FIELD AGGREGATION — main frame + all iframes
+   ═══════════════════════════════════════════════════ */
+
+/**
+ * Extract form fields from the main frame and all child iframes,
+ * then merge them into a single deduplicated list.
+ */
+async function extractAllFields(): Promise<{ fields: import('../types').FormField[]; hasCaptcha: boolean; captchaTypes: string[] }> {
+    // 1. Main frame fields
+    const mainFields = extractFormFields();
+
+    // 2. Iframe fields (collected via postMessage, 2s timeout)
+    const iframeFields = await extractIframeFields(2000);
+
+    // 3. Merge — deduplicate by id
+    const seen = new Set(mainFields.map(f => f.id));
+    const merged = [...mainFields];
+    for (const f of iframeFields) {
+        if (!seen.has(f.id)) {
+            seen.add(f.id);
+            merged.push(f);
+        }
+    }
+
+    // 4. Detect CAPTCHA on page (iframes included in detectPageCaptcha)
+    const captchaResult = detectPageCaptcha();
+
+    return {
+        fields: merged,
+        hasCaptcha: captchaResult.found,
+        captchaTypes: captchaResult.types,
+    };
+}
+
+/* ═══════════════════════════════════════════════════
    MESSAGE HANDLER — popup / background orchestration
    ═══════════════════════════════════════════════════ */
 
 chrome.runtime.onMessage.addListener(
     (request: ChromeMessage, _sender, sendResponse: (response: ChromeResponse) => void) => {
+
         if (request.action === 'analyzeForm') {
-            const fields = extractFormFields();
-            sendResponse({ success: true, fields });
+            // Use async aggregation (main frame + iframes)
+            extractAllFields().then(({ fields, hasCaptcha, captchaTypes }) => {
+                if (hasCaptcha) {
+                    showToast(
+                        `🔒 CAPTCHA detected (${captchaTypes.join(', ')}) — manual input required`,
+                        'error',
+                        6000
+                    );
+                }
+                sendResponse({ success: true, fields });
+            });
+            return true;
         }
 
         if (request.action === 'fillForm') {
-            const { fieldMappings, userData } = request.data!;
-            let filledCount = 0;
-
-            fieldMappings?.forEach(mapping => {
-                // Handle button clicks for dynamic forms
-                if (mapping.action === 'click_add' && mapping.id) {
-                    const { success } = clickElement(mapping.id);
-                    if (success) filledCount++;
-                    return;
+            (async () => {
+                try {
+                    const mappings = (request.data?.fieldMappings || []) as FieldMapping[];
+                    const resumeFileData = request.data?.resumeFileData;
+                    const resumeFileName = request.data?.resumeFileName;
+                    let filledCount = 0;
+                    for (const mapping of mappings) {
+                        try {
+                            if (mapping.selectedValue !== undefined) {
+                                if (fillFormField(mapping, mapping.selectedValue, { resumeFileData, resumeFileName })) {
+                                    filledCount++;
+                                }
+                            }
+                        } catch (err) { }
+                    }
+                    sendResponse({ success: true, filledCount, total: mappings.length });
+                } catch (err: any) {
+                    sendResponse({ success: false, error: err.message });
                 }
-
-                // Priority: Selected Value (for selects) -> Custom Fields -> User Data
-                let value = mapping.selectedValue;
-
-                // Resolve custom_field:LABEL
-                if (!value && mapping.fieldType?.startsWith('custom_field:') && userData?.customFields) {
-                    const label = mapping.fieldType.slice('custom_field:'.length);
-                    const customFields = userData.customFields as unknown as CustomField[];
-                    const match = customFields.find(cf => cf.label === label);
-                    if (match) value = match.value;
-                }
-
-                if (!value && userData && mapping.fieldType && mapping.fieldType in userData) {
-                    value = String(userData[mapping.fieldType as keyof typeof userData]);
-                }
-
-                if (value) {
-                    const success = fillFormField(mapping, value);
-                    if (success) filledCount++;
-                }
-            });
-
-            sendResponse({
-                success: true,
-                filledCount,
-                total: fieldMappings?.length || 0
-            });
+            })();
+            return true;
         }
 
         if (request.action === 'clickNext') {
             const { success, message } = clickNextButton();
             sendResponse({ success, message });
+            return false;
         }
 
-        return true;
+        return false;
     }
 );
 
@@ -276,19 +316,31 @@ async function runShortcutFill() {
     let totalFilled = 0;
 
     for (let step = 0; step < 10; step++) {
-        const fields = extractFormFields();
+        // ── Collect fields from main frame + all iframes ──
+        const { fields, hasCaptcha, captchaTypes } = await extractAllFields();
+
+        // ── CAPTCHA warning ──
+        if (hasCaptcha) {
+            showToast(
+                `🔒 CAPTCHA detected (${captchaTypes.join(', ')}) — fill the CAPTCHA manually, then press Alt+F again`,
+                'error',
+                8000
+            );
+            return; // Stop — user must solve CAPTCHA first
+        }
+
         if (fields.length === 0) {
-            if (step === 0) {
-                showToast('❌ No form fields found on this page', 'error');
-            }
+            if (step === 0) showToast('❌ No form fields found on this page', 'error');
             break;
         }
 
-        showToast(`🤖 Analyzing ${fields.length} fields...`, 'info', 8000);
+        showToast(`🤖 Analyzing ${fields.length} field${fields.length !== 1 ? 's' : ''}...`, 'info', 8000);
 
+        // Pass current tab URL so background can key the cache correctly
         const aiResponse = await sendToBackground({
             action: 'processFieldsAI',
-            fields: fields
+            fields,
+            tabUrl: location.href,
         });
 
         if (!aiResponse?.success) {
