@@ -261,8 +261,30 @@ export function extractFormFields(): FormField[] {
       input instanceof HTMLInputElement &&
       (input.type === "radio" || input.type === "checkbox")
     ) {
-      const name = input.name;
-      if (!name) return;
+      let name = input.name;
+
+      // RC1 FIX: When checkboxes/radios have no `name`, synthesize a group key
+      // from the closest container element's id (e.g. <div class="checkbox-group" id="techskills">)
+      if (!name) {
+        const container = input.closest(
+          '.checkbox-group, .radio-group, fieldset, [role="group"], ' +
+            '[role="radiogroup"], [class*="checkbox"], [class*="radio"], ' +
+            '[class*="check-group"], [class*="radio-group"]',
+        ) as HTMLElement | null;
+        if (container?.id) {
+          name = container.id;
+        } else {
+          // Fallback: walk up to find any parent with an id
+          const wrapper = input.closest(
+            "div, fieldset, section",
+          ) as HTMLElement;
+          if (wrapper) {
+            name = wrapper.id || `unnamed_group_${index}`;
+            if (!wrapper.id) wrapper.id = name;
+          }
+        }
+        if (!name) return; // Truly orphaned, skip
+      }
 
       if (!groupMap.has(name)) {
         const groupType =
@@ -312,6 +334,9 @@ export function extractFormFields(): FormField[] {
     if (!input.id) input.id = fieldId;
     processedIds.add(fieldId);
 
+    const isRangeInput =
+      input instanceof HTMLInputElement && input.type === "range";
+
     const fieldInfo: FormField = {
       id: fieldId,
       name: input.name || "",
@@ -334,9 +359,15 @@ export function extractFormFields(): FormField[] {
         input.getAttribute("aria-required") === "true",
       context: context,
       section: section,
-      accept: isFileInput ? (input as HTMLInputElement).accept || "" : undefined,
+      accept: isFileInput
+        ? (input as HTMLInputElement).accept || ""
+        : undefined,
       multiple: isFileInput ? (input as HTMLInputElement).multiple : undefined,
       options: options,
+      // RC3 FIX: Include range metadata so AI knows valid bounds
+      min: isRangeInput ? (input as HTMLInputElement).min : undefined,
+      max: isRangeInput ? (input as HTMLInputElement).max : undefined,
+      step: isRangeInput ? (input as HTMLInputElement).step : undefined,
     };
 
     fields.push(fieldInfo);
@@ -397,6 +428,52 @@ export function extractFormFields(): FormField[] {
       context: context,
       section: section,
       options: options.length > 0 ? options : undefined,
+    });
+  });
+
+  // ── RC2 FIX: Detect div-based toggle switches (not real inputs) ──
+  const toggleSelectors = [
+    '[role="switch"]',
+    ".toggle:not(input):not(button)",
+    '[class*="toggle-switch"]',
+  ];
+  const toggleEls = rootElement.querySelectorAll<HTMLElement>(
+    toggleSelectors.join(","),
+  );
+  toggleEls.forEach((el, idx) => {
+    if (!isVisible(el)) return;
+    if (isCaptchaField(el)) return;
+
+    const elId = el.id || `toggle_${idx}`;
+    if (!el.id) el.id = elId;
+    if (processedIds.has(elId)) return;
+
+    // Skip if this element contains actual inputs (already processed)
+    if (el.querySelector("input, select, textarea")) return;
+
+    // Determine current state
+    const isOn =
+      el.classList.contains("on") ||
+      el.getAttribute("aria-checked") === "true" ||
+      el.classList.contains("active");
+
+    const label = findLabel(el);
+    const context = findFieldContext(el);
+    const section = findFieldSection(el);
+
+    processedIds.add(elId);
+    fields.push({
+      id: elId,
+      name: el.getAttribute("name") || "",
+      type: "toggle",
+      placeholder: "",
+      label: label,
+      ariaLabel: el.getAttribute("aria-label") || "",
+      autocomplete: "",
+      required: false,
+      context: context,
+      section: section,
+      currentValue: isOn ? "true" : "false",
     });
   });
 
@@ -502,13 +579,13 @@ function findLabel(input: HTMLElement): string {
     if (innerInput) innerInput.remove();
     return clone.textContent?.trim() || "";
   }
-  
+
   // Custom UI components often place the label text in a generic div right before the input container
   let el: HTMLElement | null = input;
   for (let i = 0; i < 4 && el; i++) {
     let prev = el.previousElementSibling as HTMLElement;
     while (prev) {
-      if (!prev.matches('input, select, textarea, button, form')) {
+      if (!prev.matches("input, select, textarea, button, form")) {
         const text = prev.textContent?.trim() || "";
         if (text && text.length < 100 && text.length > 2) return text;
       }
@@ -577,6 +654,45 @@ function findGroupLabel(input: HTMLElement): string {
       return firstCell.textContent?.trim() || "";
     }
   }
+
+  // RC6 FIX: Check parent/sibling divs with label-like classes
+  // Modern UIs use divs not fieldsets, e.g.:
+  //   <div class="field">
+  //     <div class="field-label">Technical Skills</div>
+  //     <div class="checkbox-group" id="techskills">...</div>
+  //   </div>
+  const container = input.closest(
+    '.field, .form-group, .form-field, [class*="field-wrapper"], ' +
+      '[class*="form-item"], [class*="field-container"]',
+  ) as HTMLElement | null;
+  if (container) {
+    const labelEl = container.querySelector(
+      '.field-label, .label, [class*="label"], [class*="Label"], legend, label',
+    );
+    if (
+      labelEl &&
+      !labelEl.contains(input) &&
+      (labelEl.textContent?.length || 0) < 100
+    ) {
+      return labelEl.textContent?.trim() || "";
+    }
+  }
+
+  // Also check immediate previous sibling of the group container
+  const groupContainer = input.closest(
+    '.checkbox-group, .radio-group, [role="group"], [role="radiogroup"]',
+  ) as HTMLElement | null;
+  if (groupContainer) {
+    const prevSib = groupContainer.previousElementSibling;
+    if (
+      prevSib &&
+      (prevSib.textContent?.length || 0) < 100 &&
+      (prevSib.textContent?.length || 0) > 2
+    ) {
+      return prevSib.textContent?.trim() || "";
+    }
+  }
+
   return "";
 }
 
@@ -590,6 +706,41 @@ export function fillFormField(
 
   if (fieldIdentifier.id) {
     input = document.getElementById(fieldIdentifier.id);
+
+    // RC4+RC5 FIX: If the id resolves to a container div (not an input),
+    // check if it wraps radio/checkbox inputs and handle as a group
+    if (
+      input &&
+      !(input instanceof HTMLInputElement) &&
+      !(input instanceof HTMLSelectElement) &&
+      !(input instanceof HTMLTextAreaElement) &&
+      !(input instanceof HTMLButtonElement)
+    ) {
+      const childRadios = input.querySelectorAll<HTMLInputElement>(
+        'input[type="radio"]',
+      );
+      const childCheckboxes = input.querySelectorAll<HTMLInputElement>(
+        'input[type="checkbox"]',
+      );
+
+      if (childRadios.length > 0) {
+        return fillRadioGroup(childRadios, value);
+      }
+      if (childCheckboxes.length > 0) {
+        return fillCheckboxGroup(childCheckboxes, value);
+      }
+
+      // RC2 FIX: Handle toggle/switch divs
+      if (
+        input.classList.contains("toggle") ||
+        input.getAttribute("role") === "switch" ||
+        input.classList.contains("switch") ||
+        input.classList.contains("toggle-switch")
+      ) {
+        return fillToggle(input, value);
+      }
+    }
+
     if (!input) {
       inputs = document.querySelectorAll(`[name="${fieldIdentifier.id}"]`);
       if (inputs.length === 0) inputs = null;
@@ -620,20 +771,29 @@ export function fillFormField(
     inputs.forEach((el) => {
       if (el instanceof HTMLInputElement) {
         if (el.type === "radio") {
-          const valStr = String(value).toLowerCase();
-          const label = findLabel(el).toLowerCase();
-          if (el.value.toLowerCase() === valStr || label.includes(valStr)) {
-            el.checked = true;
-            triggerEvents(el);
+          const valStr = String(value).toLowerCase().trim();
+          const label = findLabel(el).toLowerCase().trim();
+          if (
+            el.value.toLowerCase() === valStr ||
+            label.includes(valStr) ||
+            valStr.includes(label) ||
+            fuzzyMatch(label, valStr) ||
+            fuzzyMatch(el.value, valStr)
+          ) {
+            setCheckboxState(el, true);
             filledAny = true;
           }
         } else if (el.type === "checkbox") {
           let valuesToCheck: string[] = [];
           if (Array.isArray(value))
-            valuesToCheck = value.map((v) => String(v).toLowerCase());
+            valuesToCheck = value.map((v) => String(v).toLowerCase().trim());
           else if (typeof value === "boolean")
             valuesToCheck = value ? ["true", "on", "yes", "1"] : [];
-          else valuesToCheck = [String(value).toLowerCase()];
+          else
+            valuesToCheck = String(value)
+              .split(",")
+              .map((s) => s.trim().toLowerCase())
+              .filter(Boolean);
 
           const isPositiveString = [
             "true",
@@ -642,18 +802,22 @@ export function fillFormField(
             "1",
             "checked",
           ].includes(String(value).toLowerCase());
-          const valStr = el.value.toLowerCase();
-          const label = findLabel(el).toLowerCase();
+          const valStr = el.value.toLowerCase().trim();
+          const label = findLabel(el).toLowerCase().trim();
 
           if (
             isPositiveString ||
-            valuesToCheck.some((v) => valStr === v || label.includes(v))
+            valuesToCheck.some(
+              (v) =>
+                valStr === v ||
+                label.includes(v) ||
+                v.includes(label) ||
+                fuzzyMatch(label, v) ||
+                fuzzyMatch(valStr, v),
+            )
           ) {
-            if (!el.checked) {
-              el.checked = true;
-              triggerEvents(el);
-              filledAny = true;
-            }
+            setCheckboxState(el, true);
+            filledAny = true;
           }
         }
       }
@@ -673,13 +837,7 @@ export function fillFormField(
         const isPositive = ["true", "yes", "on", "1", "checked"].includes(
           valLower,
         );
-        if (isPositive && !input.checked) {
-          input.checked = true;
-          triggerEvents(input);
-        } else if (!isPositive && input.checked) {
-          input.checked = false;
-          triggerEvents(input);
-        }
+        setCheckboxState(input, isPositive);
       } else if (input.type === "file") {
         if (value === "FILE_UPLOAD") {
           if (fieldIdentifier.files && fieldIdentifier.files.length > 0) {
@@ -696,6 +854,22 @@ export function fillFormField(
         return false;
       } else if (input.type === "radio") {
         fillRadio(input, value as string);
+      } else if (input.type === "range") {
+        // RC3 FIX: Dedicated range slider handler
+        const numVal = Number(value);
+        if (!isNaN(numVal)) {
+          const min = Number(input.min) || 0;
+          const max = Number(input.max) || 100;
+          const clamped = Math.max(min, Math.min(max, numVal));
+          const nativeSetter = Object.getOwnPropertyDescriptor(
+            HTMLInputElement.prototype,
+            "value",
+          )?.set;
+          if (nativeSetter) nativeSetter.call(input, String(clamped));
+          else input.value = String(clamped);
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+          input.dispatchEvent(new Event("change", { bubbles: true }));
+        }
       } else {
         // Use native setter for React text inputs too
         const nativeSetter = Object.getOwnPropertyDescriptor(
@@ -857,10 +1031,15 @@ function fillMultiFileInput(
     if (!dropzone) {
       let el: HTMLElement | null = input.parentElement;
       for (let i = 0; i < 3 && el; i++) {
-        const cls = (el.className || '').toLowerCase();
-        const testId = (el.getAttribute('data-testid') || '').toLowerCase();
-        if (cls.includes('upload') || cls.includes('drop') || cls.includes('file') ||
-            testId.includes('upload') || testId.includes('file')) {
+        const cls = (el.className || "").toLowerCase();
+        const testId = (el.getAttribute("data-testid") || "").toLowerCase();
+        if (
+          cls.includes("upload") ||
+          cls.includes("drop") ||
+          cls.includes("file") ||
+          testId.includes("upload") ||
+          testId.includes("file")
+        ) {
           dropzone = el;
           break;
         }
@@ -869,13 +1048,16 @@ function fillMultiFileInput(
     }
 
     if (dropzone && dropzone !== input) {
-      const dropEvent = new DragEvent('drop', {
+      const dropEvent = new DragEvent("drop", {
         bubbles: true,
         cancelable: true,
         dataTransfer: dt,
       });
       dropzone.dispatchEvent(dropEvent);
-      console.log('Aullevo: Also dispatched drop event on wrapper:', dropzone.className);
+      console.log(
+        "Aullevo: Also dispatched drop event on wrapper:",
+        dropzone.className,
+      );
     }
 
     return true;
@@ -915,16 +1097,137 @@ function fillSelect(select: HTMLSelectElement, value: string): void {
 
 function fillRadio(radio: HTMLInputElement, value: string): void {
   const name = radio.name;
+  if (!name) return;
   const radios = document.querySelectorAll<HTMLInputElement>(
     `input[type="radio"][name="${name}"]`,
   );
   radios.forEach((r) => {
-    if (r.value.toLowerCase() === value.toLowerCase()) {
-      r.checked = true;
-      triggerEvents(r);
+    if (r.value.toLowerCase().trim() === value.toLowerCase().trim()) {
+      setCheckboxState(r, true);
     }
   });
-  triggerEvents(radio);
+}
+
+function fuzzyMatch(a: string, b: string): boolean {
+  if (!a || !b) return false;
+  const aNorm = a.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const bNorm = b.toLowerCase().replace(/[^a-z0-9]/g, "");
+  if (!aNorm || !bNorm) return false;
+  return aNorm.includes(bNorm) || bNorm.includes(aNorm);
+}
+
+/**
+ * RC4+RC5 FIX: Fill a group of radio buttons found inside a container div.
+ * Matches by value or label text (fuzzy).
+ */
+function fillRadioGroup(
+  radios: NodeListOf<HTMLInputElement>,
+  value: string | boolean | string[],
+): boolean {
+  const valStr = String(value).toLowerCase().trim();
+  for (const radio of Array.from(radios)) {
+    const radioLabel = findLabel(radio).toLowerCase().trim();
+    const radioVal = radio.value.toLowerCase().trim();
+    if (
+      radioVal === valStr ||
+      radioLabel === valStr ||
+      radioLabel.includes(valStr) ||
+      valStr.includes(radioLabel) ||
+      fuzzyMatch(radioLabel, valStr) ||
+      fuzzyMatch(radioVal, valStr)
+    ) {
+      if (!radio.checked) {
+        setCheckboxState(radio, true);
+      }
+
+      // Fallback: Toggle CSS classes on parent label for custom UI frameworks if click didn't do it
+      const parentLabel = radio.closest("label");
+      if (parentLabel && !parentLabel.classList.contains("selected")) {
+        const groupContainer = radio.closest(
+          '.radio-group, [role="radiogroup"], fieldset',
+        );
+        groupContainer
+          ?.querySelectorAll("label")
+          .forEach((l) => l.classList.remove("selected"));
+        parentLabel.classList.add("selected");
+      }
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * RC4 FIX: Fill a group of checkboxes found inside a container div.
+ * Matches by value or label text (fuzzy). Supports arrays and comma-separated strings.
+ */
+function fillCheckboxGroup(
+  checkboxes: NodeListOf<HTMLInputElement>,
+  value: string | boolean | string[],
+): boolean {
+  let valuesToCheck: string[] = [];
+  if (Array.isArray(value)) {
+    valuesToCheck = value.map((v) => String(v).toLowerCase().trim());
+  } else if (typeof value === "boolean") {
+    valuesToCheck = value ? ["true", "on", "yes", "1"] : [];
+  } else {
+    // Could be comma-separated or single value
+    valuesToCheck = String(value)
+      .split(",")
+      .map((v) => v.trim().toLowerCase())
+      .filter(Boolean);
+  }
+
+  if (valuesToCheck.length === 0) return false;
+
+  let filledAny = false;
+  for (const cb of Array.from(checkboxes)) {
+    const cbVal = cb.value.toLowerCase().trim();
+    const cbLabel = findLabel(cb).toLowerCase().trim();
+
+    const shouldCheck = valuesToCheck.some(
+      (v) =>
+        cbVal === v ||
+        cbLabel === v ||
+        cbLabel.includes(v) ||
+        v.includes(cbLabel) ||
+        fuzzyMatch(cbLabel, v) ||
+        fuzzyMatch(cbVal, v),
+    );
+
+    if (shouldCheck && !cb.checked) {
+      setCheckboxState(cb, true);
+
+      // Fallback: Toggle CSS class on parent label for custom UI if click didn't do it
+      const parentLabel = cb.closest("label");
+      if (parentLabel && !parentLabel.classList.contains("selected")) {
+        parentLabel.classList.add("selected");
+      }
+      filledAny = true;
+    }
+  }
+  return filledAny;
+}
+
+/**
+ * RC2 FIX: Fill a div-based toggle/switch element.
+ */
+function fillToggle(
+  el: HTMLElement,
+  value: string | boolean | string[],
+): boolean {
+  const valStr = String(value).toLowerCase().trim();
+  const shouldBeOn = ["true", "yes", "on", "1", "checked"].includes(valStr);
+  const isCurrentlyOn =
+    el.classList.contains("on") ||
+    el.getAttribute("aria-checked") === "true" ||
+    el.classList.contains("active");
+
+  if (shouldBeOn !== isCurrentlyOn) {
+    el.click(); // Trigger the toggle's own click handler
+    el.setAttribute("aria-checked", String(shouldBeOn));
+  }
+  return true;
 }
 
 function triggerEvents(input: HTMLElement): void {
@@ -962,6 +1265,30 @@ function triggerEvents(input: HTMLElement): void {
   input.dispatchEvent(new Event("input", { bubbles: true }));
   input.dispatchEvent(new Event("change", { bubbles: true }));
   input.dispatchEvent(new Event("blur", { bubbles: true }));
+}
+
+/**
+ * Universal helper to safely set check state for checkboxes or radios natively and in React
+ */
+function setCheckboxState(input: HTMLInputElement, desiredState: boolean) {
+  if (input.checked === desiredState) return;
+
+  const parentLabel =
+    input.closest("label") ||
+    (input.id ? document.querySelector(`label[for="${input.id}"]`) : null);
+  if (parentLabel) (parentLabel as HTMLElement).click();
+  else input.click();
+
+  if (input.checked !== desiredState) {
+    input.checked = desiredState;
+    const nativeSetter = Object.getOwnPropertyDescriptor(
+      window.HTMLInputElement.prototype,
+      "checked",
+    )?.set;
+    if (nativeSetter) nativeSetter.call(input, desiredState);
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  }
 }
 
 function extractCustomSelectOptions(

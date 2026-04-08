@@ -56,6 +56,8 @@ export default function Sidebar() {
     const [pageFields, setPageFields] = useState<FormField[]>([]);
     const [fillStatus, setFillStatus] = useState<FillStatus>({ message: '', type: 'idle' });
     const [isProcessing, setIsProcessing] = useState(false);
+    const [matchingMode, setMatchingMode] = useState<'ai' | 'heuristic'>('heuristic');
+    const [skillsInput, setSkillsInput] = useState<string | null>(null);
     const scanTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const [userData, setUserData] = useState<Partial<UserData>>({
@@ -153,13 +155,15 @@ export default function Sidebar() {
     /* ── Load from storage on mount ── */
     useEffect(() => {
         if (typeof chrome === 'undefined' || !chrome.storage) return;
-        chrome.storage.local.get(['userData', 'geminiApiKey'], (result) => {
+        chrome.storage.local.get(['userData', 'geminiApiKey', 'matchingMode'], (result) => {
             if (result.userData) {
                 const loaded = result.userData as any;
                 loaded.customFields = migrateCustomFields(loaded.customFields);
                 setUserData(loaded);
+                setSkillsInput((loaded.skills || []).join(', '));
             }
             if (result.geminiApiKey) setApiKey(result.geminiApiKey as string);
+            if (result.matchingMode) setMatchingMode(result.matchingMode as 'ai' | 'heuristic');
         });
         loadFileLibrary();
     }, []);
@@ -285,15 +289,21 @@ export default function Sidebar() {
     };
 
     const handleFill = async () => {
-        if (!apiKey) {
+        if (matchingMode === 'ai' && !apiKey) {
             setFillStatus({ message: 'Add your Gemini API key in Settings first.', type: 'error' });
             setActiveTab('settings');
             return;
         }
         setIsProcessing(true);
-        setFillStatus({ message: 'Scanning form fields…', type: 'scanning' });
+        setFillStatus({ message: matchingMode === 'heuristic' ? 'Matching fields by keyword…' : 'Scanning form fields…', type: 'scanning' });
         try {
             chrome.runtime.sendMessage({ action: 'triggerFillFromSidebar' }, (response) => {
+                if (chrome.runtime?.lastError) {
+                    console.warn('Aullevo: Extension context error (safe to ignore)', chrome.runtime.lastError);
+                    setFillStatus({ message: 'Extension reloaded. Please refresh the page.', type: 'error' });
+                    setIsProcessing(false);
+                    return;
+                }
                 if (response?.success) {
                     setFillStatus({ message: `Filled ${response.filledCount ?? '?'} fields successfully!`, type: 'success' });
                 } else {
@@ -390,7 +400,11 @@ export default function Sidebar() {
                     ) : (
                         <>
                             <span className="av-fill-btn__icon"><Sparkles size={14} /></span>
-                            {fieldCount > 0 ? `Fill ${fieldCount} Fields with AI` : 'No Fields Detected'}
+                            {fieldCount > 0
+                                ? (matchingMode === 'heuristic'
+                                    ? `Fill ${fieldCount} Fields (Keyword)`
+                                    : `Fill ${fieldCount} Fields with AI`)
+                                : 'No Fields Detected'}
                         </>
                     )}
                 </button>
@@ -402,8 +416,8 @@ export default function Sidebar() {
                     </div>
                 )}
 
-                {/* No API key warning */}
-                {!apiKey && (
+                {/* No API key warning (only relevant in AI mode) */}
+                {matchingMode === 'ai' && !apiKey && (
                     <div className="av-api-warn" onClick={() => setActiveTab('settings')}>
                         <AlertTriangle size={14} /> No API key set. Click here to add your Gemini API key.
                     </div>
@@ -584,8 +598,12 @@ export default function Sidebar() {
                         <textarea
                             className="av-input"
                             placeholder="React, TypeScript, Node.js…"
-                            value={userData.skills?.join(', ') || ''}
-                            onChange={(e) => setUserData(p => ({ ...p, skills: e.target.value.split(',').map(s => s.trim()).filter(Boolean) }))}
+                            value={skillsInput !== null ? skillsInput : (userData.skills?.join(', ') || '')}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                setSkillsInput(val);
+                                setUserData(p => ({ ...p, skills: val.split(',').map(s => s.trim()).filter(Boolean) }));
+                            }}
                             rows={3}
                         />
                     </div>
@@ -743,6 +761,32 @@ export default function Sidebar() {
                 <button className={`av-toggle ${isDark ? 'av-toggle--active' : ''}`} onClick={() => setIsDark(d => !d)}>
                     <span className="av-toggle__thumb">
                         {isDark ? <Moon size={10} /> : <Sun size={10} />}
+                    </span>
+                </button>
+            </div>
+
+            {/* Matching Mode toggle */}
+            <div className="av-toggle-row">
+                <div>
+                    <div className="av-toggle-row__label">Form Matching Mode</div>
+                    <div className="av-toggle-row__hint">
+                        {matchingMode === 'heuristic'
+                            ? 'Keyword Match (Fast & Free)'
+                            : 'Gemini AI (Smart)'}
+                    </div>
+                </div>
+                <button
+                    className={`av-toggle ${matchingMode === 'heuristic' ? 'av-toggle--active' : ''}`}
+                    onClick={() => {
+                        const newMode = matchingMode === 'heuristic' ? 'ai' : 'heuristic';
+                        setMatchingMode(newMode);
+                        if (typeof chrome !== 'undefined' && chrome?.storage) {
+                            chrome.storage.local.set({ matchingMode: newMode });
+                        }
+                    }}
+                >
+                    <span className="av-toggle__thumb">
+                        {matchingMode === 'heuristic' ? <Check size={10} /> : <Sparkles size={10} />}
                     </span>
                 </button>
             </div>

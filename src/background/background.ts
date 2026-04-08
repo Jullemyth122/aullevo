@@ -1,4 +1,5 @@
 import { geminiService } from "../services/geminiService";
+import { matchFieldsHeuristically } from "../services/heuristicMatcher";
 import { fileMatchesField, _tokenize } from "../utils/fileMatch";
 import type {
   UserData,
@@ -141,6 +142,7 @@ async function resolveFieldValues(
   userData: Partial<UserData>,
   customFields: CustomField[],
   virtualLibrary: SavedFile[],
+  useAI = true,
 ): Promise<void> {
   const hasCountryCodeField = fieldMappings.some(
     (m) => m.fieldType === "phoneCountryCode",
@@ -149,15 +151,20 @@ async function resolveFieldValues(
   for (const mapping of fieldMappings) {
     if (mapping.action === "click_add") continue;
 
-    // A. Custom questions — ask AI
+    // A. Custom questions — ask AI only if in AI mode
     if (mapping.fieldType === "custom_question" && mapping.originalQuestion) {
-      try {
-        mapping.selectedValue = await geminiService.answerFormQuestion(
-          mapping.originalQuestion,
-          userData,
-        );
-      } catch (e: any) {
-        console.warn("Aullevo: Failed to answer question:", e.message);
+      if (useAI) {
+        try {
+          mapping.selectedValue = await geminiService.answerFormQuestion(
+            mapping.originalQuestion,
+            userData,
+          );
+        } catch (e: any) {
+          console.warn("Aullevo: Failed to answer question:", e.message);
+          mapping.selectedValue = "[MANUAL_INPUT_NEEDED]";
+        }
+      } else {
+        mapping.selectedValue = "[MANUAL_INPUT_NEEDED]";
       }
       continue;
     }
@@ -165,8 +172,16 @@ async function resolveFieldValues(
     // B. Custom fields — user-defined key/value pairs
     if (mapping.fieldType?.startsWith("custom_field:")) {
       const label = mapping.fieldType.slice("custom_field:".length);
-      const match = customFields.find((cf: CustomField) => cf.label === label);
-      if (match) mapping.selectedValue = match.value;
+      const matches = customFields.filter(
+        (cf: CustomField) => cf.label === label,
+      );
+      if (matches.length > 0) {
+        if (matches.length === 1) {
+          mapping.selectedValue = matches[0].value;
+        } else {
+          mapping.selectedValue = matches.map((m) => m.value);
+        }
+      }
       continue;
     }
 
@@ -199,7 +214,8 @@ async function resolveFieldValues(
     if (
       !mapping.selectedValue &&
       mapping.fieldType &&
-      STANDARD_FIELD_KEYS.has(mapping.fieldType)
+      (STANDARD_FIELD_KEYS.has(mapping.fieldType) ||
+        mapping.fieldType === "skill")
     ) {
       if (mapping.fieldType === "phoneCountryCode") {
         const match = userData.phone?.match(/\+(\d+)/);
@@ -208,6 +224,11 @@ async function resolveFieldValues(
         let val = userData.phone || "";
         if (hasCountryCodeField) val = val.replace(/^\+\d+[- ]?/, "");
         mapping.selectedValue = val;
+      } else if (
+        mapping.fieldType === "skill" &&
+        mapping.groupType !== "skill"
+      ) {
+        mapping.selectedValue = userData.skills || [];
       } else {
         const val = (userData as any)[mapping.fieldType];
         if (val !== undefined && val !== null && val !== "") {
@@ -376,8 +397,9 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   }
 
   if (request.action === "urlChanged") {
-    const hostname = getHostname(request.url || "");
-    if (hostname) invalidateCache(hostname);
+    // DO NOT invalidate cache on url reload.
+    // This fixes the 429 Too Many Requests error on page refresh.
+    // Field signature comparison handles actual form changes.
     sendResponse({ success: true });
     return false;
   }
@@ -389,7 +411,7 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
 });
 
 /* ═══════════════════════════════════════════════════
-   CORE AI PROCESSING (uses shared resolveFieldValues)
+   CORE PROCESSING (AI or Heuristic, based on user setting)
    ═══════════════════════════════════════════════════ */
 
 async function processFieldsAI(fields: FormField[], hostname = "") {
@@ -400,47 +422,67 @@ async function processFieldsAI(fields: FormField[], hostname = "") {
       "resumeFileData",
       "resumeFileName",
       "fileLibrary",
+      "matchingMode",
     ]);
     const userData = (stored.userData || {}) as Partial<UserData>;
     const apiKey = (stored.geminiApiKey || "") as string;
     const resumeFileData = stored.resumeFileData as string | undefined;
     const resumeFileName = stored.resumeFileName as string | undefined;
-
-    if (apiKey) geminiService.setApiKey(apiKey);
-    if (!apiKey)
-      return {
-        success: false,
-        error:
-          "No API key found. Save your Gemini API key in the extension settings.",
-      };
-    if (!checkRateLimit())
-      return {
-        success: false,
-        error: "Please wait a moment before requesting another fill.",
-      };
+    const matchingMode = (stored.matchingMode || "heuristic") as string;
+    const useAI = matchingMode === "ai";
 
     const customFields = migrateCustomFields(userData.customFields);
 
-    // Check domain cache before calling Gemini
-    const signature = buildFieldSignature(fields);
-    let fieldMappings = hostname
-      ? getCachedMappings(hostname, signature)
-      : null;
+    let fieldMappings: any[] | null = null;
 
-    if (!fieldMappings) {
-      fieldMappings = await geminiService.analyzeFormFields(
-        fields,
-        customFields,
-      );
+    if (useAI) {
+      // ── AI Mode: requires API key, uses Gemini ──
+      if (apiKey) geminiService.setApiKey(apiKey);
+      if (!apiKey)
+        return {
+          success: false,
+          error:
+            "No API key found. Save your Gemini API key in the extension settings.",
+        };
+      if (!checkRateLimit())
+        return {
+          success: false,
+          error: "Please wait a moment before requesting another fill.",
+        };
+
+      // Check domain cache before calling Gemini
+      const signature = buildFieldSignature(fields);
+      fieldMappings = hostname
+        ? getCachedMappings(hostname, signature)
+        : null;
+
+      if (!fieldMappings) {
+        fieldMappings = await geminiService.analyzeFormFields(
+          fields,
+          customFields,
+        );
+        if (!fieldMappings || fieldMappings.length === 0) {
+          console.warn(
+            "Aullevo: AI returned 0 mappings for",
+            fields.length,
+            "fields",
+          );
+          return { success: true, mappings: [], addButtons: [], userData };
+        }
+        if (hostname) setCachedMappings(hostname, signature, fieldMappings);
+      }
+    } else {
+      // ── Heuristic Mode: instant, zero API calls ──
+      console.log(`Aullevo: Using HEURISTIC matching for ${fields.length} fields`);
+      fieldMappings = matchFieldsHeuristically(fields, customFields);
       if (!fieldMappings || fieldMappings.length === 0) {
         console.warn(
-          "Aullevo: AI returned 0 mappings for",
+          "Aullevo: Heuristic returned 0 mappings for",
           fields.length,
           "fields",
         );
         return { success: true, mappings: [], addButtons: [], userData };
       }
-      if (hostname) setCachedMappings(hostname, signature, fieldMappings);
     }
 
     // Build virtual library (real library + legacy resume)
@@ -466,6 +508,7 @@ async function processFieldsAI(fields: FormField[], hostname = "") {
       userData,
       customFields,
       virtualLibrary,
+      useAI,
     );
 
     const fillMappings = fieldMappings.filter(
@@ -476,7 +519,7 @@ async function processFieldsAI(fields: FormField[], hostname = "") {
     );
 
     console.log(
-      `Aullevo AI: ${fillMappings.length} fill mappings, ${addButtons.length} add buttons`,
+      `Aullevo ${useAI ? 'AI' : 'Heuristic'}: ${fillMappings.length} fill mappings, ${addButtons.length} add buttons`,
     );
 
     return {
@@ -506,7 +549,7 @@ async function processFieldsAI(fields: FormField[], hostname = "") {
         error: "🔧 Gemini server error. Try again in a moment.",
       };
     }
-    return { success: false, error: msg || "AI processing failed" };
+    return { success: false, error: msg || "Processing failed" };
   }
 }
 
@@ -575,17 +618,25 @@ async function processFormStep(
     let needsReAnalysis = false;
 
     if (fields.length > 0) {
+      const storedMode = await chrome.storage.local.get(["matchingMode"]);
+      const matchingMode = (storedMode.matchingMode || "heuristic") as string;
+      const useAI = matchingMode === "ai";
       const customFields = migrateCustomFields(userData.customFields);
-      const signature = buildFieldSignature(fields);
-      let fieldMappings = getCachedMappings(hostname, signature);
+      let fieldMappings: any[] | null = null;
 
-      if (!fieldMappings) {
-        fieldMappings = await geminiService.analyzeFormFields(
-          fields,
-          customFields,
-        );
-        if (hostname && fieldMappings?.length)
-          setCachedMappings(hostname, signature, fieldMappings);
+      if (useAI) {
+        const signature = buildFieldSignature(fields);
+        fieldMappings = getCachedMappings(hostname, signature);
+        if (!fieldMappings) {
+          fieldMappings = await geminiService.analyzeFormFields(
+            fields,
+            customFields,
+          );
+          if (hostname && fieldMappings?.length)
+            setCachedMappings(hostname, signature, fieldMappings);
+        }
+      } else {
+        fieldMappings = matchFieldsHeuristically(fields, customFields);
       }
       if (!fieldMappings) fieldMappings = [];
 

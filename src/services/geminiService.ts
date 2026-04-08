@@ -212,8 +212,10 @@ class GeminiService {
         Your task is to create a mapping plan to fill this form. 
         
         **CRITICAL: DYNAMIC SECTIONS & GROUPS**
-        - **Radio Groups**: Type "radio_group". "options" contains available choices. Pick ONE "value" for "selectedValue".
-        - **Checkbox Groups**: Type "checkbox_group". "options" contains choices. Pick MULTIPLE "value"s for "selectedValue" (as an array of strings).
+        - **Radio Groups**: Type "radio_group". Map it to the correct "fieldType" (e.g. gender, custom_field).
+        - **Checkbox Groups**: Type "checkbox_group". Map it to the correct "fieldType" (e.g. resumeUpload, custom_field).
+        - **Toggle/Switch**: Type "toggle". Map it to the correct "fieldType".
+        - **Range Slider**: Type "range". Map it to the correct "fieldType".
         - **Repeater Groups**: Identify if fields belong to a repeated group (e.g. Experience #1, Project #2).
         - **Add Buttons**: If you see an "Add" button (e.g. "Add Project", "+ Add Another"), map it with action="click_add".
 
@@ -221,7 +223,8 @@ class GeminiService {
         firstName, lastName, email, phone, phoneCountryCode, address, city, state, zipCode, country, 
         linkedin, portfolio, github, headline, dateOfBirth, gender, summary,
         salaryExpectation, noticePeriod, workAuthorization, yearsOfExperience,
-        position, company, salary, startDate, endDate, description, skill, resumeUpload${customFieldsPrompt}
+        position, company, salary, startDate, endDate, description, skill, resumeUpload,
+        toggle, range${customFieldsPrompt}
         OR "custom_question" (for questions the AI should answer using the user's profile)
 
         **Allowed group types:**
@@ -240,9 +243,7 @@ class GeminiService {
         10. For custom fields: Match by comparing the field's label/context with each custom field's context description.
 
         **Special Rules:**
-        1. **Select/Radio/Checkbox**: You MUST choose valid "value"s from "options".
-           - For "radio_group", "selectedValue" must be a single string.
-           - For "checkbox_group", "selectedValue" must be an array of strings e.g. ["Mon", "Tue"].
+        1. **Select/Radio/Checkbox/Toggle/Range**: DO NOT pick a "selectedValue". Only return the "fieldType" and any necessary grouping metadata. The extension will automatically map your selected "fieldType" to the user's saved profile data.
         2. **Repeater Groups**:
            - If a header says "Project 1" or "Experience 1", set groupType="project" and groupIndex=0.
            - If "Project 2", groupIndex=1.
