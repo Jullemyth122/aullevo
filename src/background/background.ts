@@ -426,6 +426,55 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     sendResponse({ success: true });
     return false;
   }
+  if (request.action === "openAutopilotLink") {
+    chrome.tabs.create({ url: request.url }, (tab) => {
+      if (tab.id) {
+        chrome.storage.local.set({ autopilotTabId: tab.id });
+      }
+    });
+    sendResponse({ success: true });
+    return false;
+  }
+});
+
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  if (changeInfo.status === "complete") {
+    chrome.storage.local.get(["autopilotTabId"], (result) => {
+      if (result.autopilotTabId === tabId) {
+        // Clear to avoid running on every refresh
+        chrome.storage.local.remove(["autopilotTabId"]);
+        
+        console.log("🚗 Aullevo Autopilot: Tab loaded, initiating auto-fill...");
+        showBadge("⏳", "#7c5cfc");
+        
+        // Wait for SPA frameworks to render
+        setTimeout(async () => {
+          try {
+            const stored = await chrome.storage.local.get([
+              "userData",
+              "resumeFileData",
+              "resumeFileName",
+            ]);
+            const userData = (stored.userData || {}) as Partial<UserData>;
+            const hostname = getHostname(tab.url || "");
+            
+            await processFormStep(
+              tabId,
+              userData,
+              0,
+              hostname,
+              stored.resumeFileData as string | undefined,
+              stored.resumeFileName as string | undefined
+            );
+          } catch (error) {
+            console.error("Autopilot fill error:", error);
+            showBadge("✗", "#f87171");
+            setTimeout(clearBadge, 3000);
+          }
+        }, 2000); // 2 second delay for React/Angular/Vue to mount inputs
+      }
+    });
+  }
 });
 
 /* ═══════════════════════════════════════════════════

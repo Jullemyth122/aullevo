@@ -249,7 +249,7 @@ class GeminiService {
         salaryExpectation, noticePeriod, workAuthorization, yearsOfExperience,
         position, company, salary, startDate, endDate, description, skill, resumeUpload,
         toggle, range${customFieldsPrompt}
-        OR "custom_question" (for questions the AI should answer using the user's profile)
+        OR "custom_question" (for questions the AI should answer using the user's profile, OR for chat automation)
 
         **Allowed group types:**
         experience, education, project, skill
@@ -274,7 +274,9 @@ class GeminiService {
         3. **Buttons**:
            - If a button's label contains "Add" or "Plus" and seems to add a new section, return:
              { "id": "btn_id", "action": "click_add", "groupType": "project", "confidence": 0.9 }
-        4. **Custom Questions**: Set fieldType="custom_question" and "originalQuestion" to the question text.
+        4. **Custom Questions & Chat**: 
+           - If it's a question, set fieldType="custom_question" and "originalQuestion" to the question text.
+           - If it's a chat box (type="contenteditable"), set fieldType="custom_question" and "originalQuestion" to the last message from the 'chatContext' array.
         5. **Custom Fields**: If a form field matches a custom field's context, set fieldType="custom_field:LABEL".
 
         Return ONLY a valid JSON array of objects with these keys:
@@ -345,6 +347,15 @@ class GeminiService {
         `Education: ${latest.degree} from ${latest.school} (${latest.year})`,
       );
     }
+    
+    // Inject Memories (RAG Knowledge Base)
+    if (userData.memories && userData.memories.length > 0) {
+      contextParts.push("\n--- SAVED MEMORIES (KNOWLEDGE BASE) ---");
+      userData.memories.forEach((mem) => {
+        contextParts.push(`[${mem.title}]: ${mem.content}`);
+      });
+      contextParts.push("---------------------------------------");
+    }
 
     const contextString = contextParts.join("\n");
 
@@ -353,10 +364,12 @@ You are helping fill out a job application form. The user is asked:
 
 "${question}"
 
-User context (career summary only — no personal data):
+User context (career summary and saved memories):
 ${contextString || "No context available."}
 
-Provide a SHORT, professional answer (1-3 sentences). If you cannot answer from the context, reply exactly: [MANUAL_INPUT_NEEDED]
+Provide a SHORT, professional, and friendly answer (1-3 sentences). 
+If the question is answered by the SAVED MEMORIES, prioritize that information!
+If you cannot answer from the context, reply exactly: [MANUAL_INPUT_NEEDED]
 
 Return ONLY the answer text, nothing else.
 `;

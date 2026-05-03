@@ -192,12 +192,9 @@ export function extractFormFields(): FormField[] {
   // 1. Select all inputs from the entire document
   // (Hidden inputs will be filtered out by the isVisible check below)
   const inputs = Array.from(
-    document.body.querySelectorAll<
-      | HTMLInputElement
-      | HTMLTextAreaElement
-      | HTMLSelectElement
-      | HTMLButtonElement
-    >("input, textarea, select, button"),
+    document.body.querySelectorAll<HTMLElement>(
+      "input, textarea, select, button, [contenteditable='true'], [role='textbox'], [role='radio'], [role='checkbox']"
+    ),
   );
 
   const fields: FormField[] = [];
@@ -256,11 +253,11 @@ export function extractFormFields(): FormField[] {
     }
 
     // Logic for distinct handling of Radios/Checkboxes
-    if (
-      input instanceof HTMLInputElement &&
-      (input.type === "radio" || input.type === "checkbox")
-    ) {
-      let name = input.name;
+    const isRadio = (input instanceof HTMLInputElement && input.type === "radio") || input.getAttribute("role") === "radio";
+    const isCheckbox = (input instanceof HTMLInputElement && input.type === "checkbox") || input.getAttribute("role") === "checkbox";
+
+    if (isRadio || isCheckbox) {
+      let name = input.getAttribute("name") || "";
 
       // RC1 FIX: When checkboxes/radios have no `name`, synthesize a group key
       // from the closest container element's id (e.g. <div class="checkbox-group" id="techskills">)
@@ -286,8 +283,7 @@ export function extractFormFields(): FormField[] {
       }
 
       if (!groupMap.has(name)) {
-        const groupType =
-          input.type === "radio" ? "radio_group" : "checkbox_group";
+        const groupType = isRadio ? "radio_group" : "checkbox_group";
         const groupLabel = findGroupLabel(input) || findLabel(input);
         const context = findFieldContext(input);
         const section = findFieldSection(input);
@@ -300,18 +296,19 @@ export function extractFormFields(): FormField[] {
           label: groupLabel,
           ariaLabel: input.getAttribute("aria-label") || "",
           autocomplete: input.getAttribute("autocomplete") || "",
-          required: input.required,
+          required: (input as HTMLInputElement).required || input.getAttribute("aria-required") === "true",
           context: context,
           section: section,
           options: [],
         });
       }
 
-      const optionLabel = findLabel(input) || input.value;
+      const inputValue = (input as HTMLInputElement).value || input.getAttribute("value") || input.textContent?.trim() || "on";
+      const optionLabel = findLabel(input) || inputValue;
       const group = groupMap.get(name)!;
       group.options?.push({
         label: optionLabel,
-        value: input.value || "on",
+        value: inputValue,
       });
 
       return;
@@ -335,12 +332,19 @@ export function extractFormFields(): FormField[] {
 
     const isRangeInput =
       input instanceof HTMLInputElement && input.type === "range";
+    
+    const isContentEditable = input.isContentEditable || input.getAttribute("role") === "textbox";
+    let chatContext: string[] | undefined = undefined;
+    if (isContentEditable) {
+      chatContext = extractChatContext(input);
+    }
 
     const fieldInfo: FormField = {
       id: fieldId,
       name: input.getAttribute("name") || "",
-      type:
-        input instanceof HTMLInputElement
+      type: isContentEditable 
+          ? "contenteditable"
+          : input instanceof HTMLInputElement
           ? input.type
           : input.tagName.toLowerCase(),
       placeholder:
@@ -367,6 +371,7 @@ export function extractFormFields(): FormField[] {
       min: isRangeInput ? (input as HTMLInputElement).min : undefined,
       max: isRangeInput ? (input as HTMLInputElement).max : undefined,
       step: isRangeInput ? (input as HTMLInputElement).step : undefined,
+      chatContext: chatContext,
     };
 
     fields.push(fieldInfo);
@@ -917,6 +922,11 @@ export function fillFormField(
       } else {
         input.value = value as string;
       }
+      triggerEvents(input);
+    } else if (input.isContentEditable || input.getAttribute("role") === "textbox") {
+      // Modern chat automation (Messenger, Slack, etc.)
+      input.focus();
+      document.execCommand("insertText", false, value as string);
       triggerEvents(input);
     } else {
       return fillCustomSelect(fieldIdentifier.id || "", String(value));
@@ -1619,4 +1629,32 @@ export function clickPrevButton(): { success: boolean; message: string } {
     };
   }
   return { success: false, message: 'No "Previous" or "Back" button found.' };
+}
+
+/**
+ * Extracts recent chat context from the DOM near a contenteditable input.
+ */
+export function extractChatContext(input: HTMLElement): string[] {
+  const context: string[] = [];
+  
+  // Try to find the closest chat container
+  const chatContainer = input.closest(
+    '[role="log"], [role="main"], .chat-history, .message-list, [class*="chat"], [class*="message"]'
+  ) || document.body;
+
+  // Look for message bubbles
+  const messageNodes = chatContainer.querySelectorAll(
+    '[role="row"], .message, [class*="bubble"], [class*="message"]'
+  );
+
+  // Take the last 5 messages
+  const recentMessages = Array.from(messageNodes).slice(-5);
+  recentMessages.forEach((msg) => {
+    const text = msg.textContent?.trim();
+    if (text && text.length > 0 && text.length < 500) {
+      context.push(text);
+    }
+  });
+
+  return context;
 }

@@ -3,7 +3,7 @@ import { extractFormFields } from '../services/formAnalyzer';
 import { geminiService } from '../services/geminiService';
 import { resumeParser } from '../services/resumeParser';
 import { fileMatchesField } from '../utils/fileMatch';
-import type { UserData, CustomField, SavedFile, FormField } from '../types';
+import type { UserData, CustomField, SavedFile, FormField, Memory, SavedLink } from '../types';
 import {
     FileText, FolderOpen, Image, FileType, Paperclip, Archive,
     MapPin, Save, AlertTriangle, ShieldCheck, Moon, Sun,
@@ -13,7 +13,7 @@ import {
 /* ────────────────────────────────────────────────────────────
    TYPES
 ──────────────────────────────────────────────────────────── */
-type Tab = 'fill' | 'profile' | 'settings';
+type Tab = 'fill' | 'profile' | 'knowledge' | 'links' | 'settings';
 
 interface FillStatus {
     message: string;
@@ -79,6 +79,12 @@ export default function Sidebar() {
     const [openSections, setOpenSections] = useState<Record<string, boolean>>({
         personal: true, filelib: true, links: false, skills: false, job: false, custom: true,
     });
+
+    const [newMemTitle, setNewMemTitle] = useState('');
+    const [newMemContent, setNewMemContent] = useState('');
+    const [newLinkTitle, setNewLinkTitle] = useState('');
+    const [newLinkUrl, setNewLinkUrl] = useState('');
+    const [newLinkAutoFill, setNewLinkAutoFill] = useState(true);
 
     // ── File Library state ──
     const [fileLibrary, setFileLibrary] = useState<SavedFile[]>([]);
@@ -283,6 +289,35 @@ export default function Sidebar() {
 
     const removeCustomField = (i: number) => {
         setUserData(p => ({ ...p, customFields: ((p.customFields as CustomField[]) || []).filter((_, idx) => idx !== i) }));
+    };
+
+    const addMemory = () => {
+        if (!newMemTitle.trim() || !newMemContent.trim()) return;
+        const memory: Memory = { id: Date.now().toString(), title: newMemTitle.trim(), content: newMemContent.trim() };
+        setUserData(p => ({ ...p, memories: [...((p.memories as Memory[]) || []), memory] }));
+        setNewMemTitle(''); setNewMemContent('');
+    };
+
+    const removeMemory = (id: string) => {
+        setUserData(p => ({ ...p, memories: ((p.memories as Memory[]) || []).filter(m => m.id !== id) }));
+    };
+
+    const addLink = () => {
+        if (!newLinkTitle.trim() || !newLinkUrl.trim()) return;
+        const link: SavedLink = { id: Date.now().toString(), title: newLinkTitle.trim(), url: newLinkUrl.trim(), autoFill: newLinkAutoFill };
+        setUserData(p => ({ ...p, savedLinks: [...((p.savedLinks as SavedLink[]) || []), link] }));
+        setNewLinkTitle(''); setNewLinkUrl(''); setNewLinkAutoFill(true);
+    };
+
+    const removeLink = (id: string) => {
+        setUserData(p => ({ ...p, savedLinks: ((p.savedLinks as SavedLink[]) || []).filter(l => l.id !== id) }));
+    };
+
+    const triggerAutopilot = (url: string) => {
+        if (typeof chrome !== 'undefined') {
+            chrome.runtime.sendMessage({ action: 'openAutopilotLink', url });
+        }
+        setIsOpen(false);
     };
 
     const handleResumeUpload = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -740,6 +775,87 @@ export default function Sidebar() {
     );
 
     /* ═══════════════════════════════════════
+       KNOWLEDGE BASE TAB
+    ═══════════════════════════════════════ */
+    const renderKnowledgeTab = () => {
+        const memories = (userData.memories as Memory[]) || [];
+        return (
+            <div className="av-profile-tab">
+                <div className="av-settings__how-card" style={{marginBottom: 10}}>
+                    <div className="av-settings__how-title">Knowledge Base (RAG)</div>
+                    <p>Save common answers, FAQs, or chat replies here. Aullevo's AI will prioritize these memories when answering chat questions or custom fields.</p>
+                </div>
+                
+                {memories.length === 0 && (
+                    <p className="av-cf-empty">No memories yet. Add your first memory below.</p>
+                )}
+                {memories.map(m => (
+                    <div key={m.id} className="av-cf-card">
+                        <div>
+                            <div className="av-cf-card__label">{m.title}</div>
+                            <div className="av-cf-card__context">{m.content}</div>
+                        </div>
+                        <button className="av-cf-card__remove" onClick={() => removeMemory(m.id)}>×</button>
+                    </div>
+                ))}
+                
+                <div className="av-cf-form" style={{marginTop: 10}}>
+                    <input className="av-input" placeholder="Title (e.g. Late Policy)" value={newMemTitle} onChange={e => setNewMemTitle(e.target.value)} />
+                    <textarea className="av-input" placeholder="Content/Response text..." rows={3} value={newMemContent} onChange={e => setNewMemContent(e.target.value)} />
+                    <button className="av-save-btn" style={{marginTop: 5}} onClick={addMemory}>+ Add Memory</button>
+                </div>
+                
+                <button className="av-save-btn" style={{marginTop: 15}} onClick={handleSave}>
+                    <Save size={14} /> {saveMsg || 'Save Changes'}
+                </button>
+            </div>
+        );
+    };
+
+    /* ═══════════════════════════════════════
+       LINKS TAB
+    ═══════════════════════════════════════ */
+    const renderLinksTab = () => {
+        const links = (userData.savedLinks as SavedLink[]) || [];
+        return (
+            <div className="av-profile-tab">
+                <div className="av-settings__how-card" style={{marginBottom: 10}}>
+                    <div className="av-settings__how-title">Autopilot Links</div>
+                    <p>Save URLs here to quickly open them and have Aullevo automatically fill them instantly.</p>
+                </div>
+                
+                {links.length === 0 && (
+                    <p className="av-cf-empty">No quick links saved yet.</p>
+                )}
+                {links.map(l => (
+                    <div key={l.id} className="av-cf-card" style={{ display: 'flex', flexDirection: 'column' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                            <div>
+                                <div className="av-cf-card__label">{l.title}</div>
+                                <div className="av-cf-card__context" style={{color: 'var(--av-violet)'}}>{l.url}</div>
+                            </div>
+                            <button className="av-cf-card__remove" onClick={() => removeLink(l.id)}>×</button>
+                        </div>
+                        <button className="av-save-btn" style={{marginTop: 10, background: 'var(--av-surface)'}} onClick={() => triggerAutopilot(l.url)}>
+                            <Sparkles size={12}/> Open & Autofill
+                        </button>
+                    </div>
+                ))}
+                
+                <div className="av-cf-form" style={{marginTop: 10}}>
+                    <input className="av-input" placeholder="Title (e.g. Daily Check-in)" value={newLinkTitle} onChange={e => setNewLinkTitle(e.target.value)} />
+                    <input className="av-input" type="url" placeholder="https://example.com/form" value={newLinkUrl} onChange={e => setNewLinkUrl(e.target.value)} />
+                    <button className="av-save-btn" style={{marginTop: 5}} onClick={addLink}>+ Add Link</button>
+                </div>
+                
+                <button className="av-save-btn" style={{marginTop: 15}} onClick={handleSave}>
+                    <Save size={14} /> {saveMsg || 'Save Changes'}
+                </button>
+            </div>
+        );
+    };
+
+    /* ═══════════════════════════════════════
        SETTINGS TAB
     ═══════════════════════════════════════ */
     const renderSettingsTab = () => (
@@ -866,6 +982,8 @@ export default function Sidebar() {
                         {([
                             { id: 'fill', label: 'Fill Form' },
                             { id: 'profile', label: 'My Profile' },
+                            { id: 'knowledge', label: 'Memories' },
+                            { id: 'links', label: 'Links' },
                             { id: 'settings', label: 'Settings' },
                         ] as { id: Tab; label: string }[]).map(t => (
                             <button
@@ -882,6 +1000,8 @@ export default function Sidebar() {
                     <div className="av-panel__body">
                         {activeTab === 'fill' && renderFillTab()}
                         {activeTab === 'profile' && renderProfileTab()}
+                        {activeTab === 'knowledge' && renderKnowledgeTab()}
+                        {activeTab === 'links' && renderLinksTab()}
                         {activeTab === 'settings' && renderSettingsTab()}
                     </div>
 
