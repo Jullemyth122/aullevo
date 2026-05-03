@@ -171,9 +171,9 @@ async function resolveFieldValues(
 
     // B. Custom fields — user-defined key/value pairs
     if (mapping.fieldType?.startsWith("custom_field:")) {
-      const label = mapping.fieldType.slice("custom_field:".length);
+      const label = mapping.fieldType.slice("custom_field:".length).toLowerCase();
       const matches = customFields.filter(
-        (cf: CustomField) => cf.label === label,
+        (cf: CustomField) => cf.label.toLowerCase() === label || cf.label.toLowerCase().includes(label),
       );
       if (matches.length > 0) {
         if (matches.length === 1) {
@@ -235,6 +235,24 @@ async function resolveFieldValues(
           mapping.selectedValue = Array.isArray(val)
             ? val.join(", ")
             : String(val);
+        }
+        
+        // ✨ FALLBACK TO CUSTOM FIELDS: 
+        // If the standard field was empty in the user's profile, check if they created a Custom Field for it!
+        // This solves the issue where users create a Custom Field for "Birthdate" or "Expected Salary" instead of using the standard profile input.
+        if (!mapping.selectedValue && customFields.length > 0) {
+            // Fuzzy match the standard fieldType literal against custom field labels
+            const ftypeLower = mapping.fieldType.toLowerCase();
+            const cfMatch = customFields.find((cf) => {
+              const lbl = cf.label.toLowerCase();
+              return lbl.includes(ftypeLower) || 
+                (ftypeLower.includes("salary") && lbl.includes("salary")) ||
+                (ftypeLower.includes("birth") && lbl.includes("birth")) ||
+                (ftypeLower.includes("country") && (lbl.includes("country") || lbl.includes("national") || lbl.includes("region"))) ||
+                (ftypeLower.includes("address") && (lbl.includes("location") || lbl.includes("address") || lbl.includes("city"))) ||
+                (ftypeLower.includes("degree") && (lbl.includes("degree") || lbl.includes("diploma")));
+            });
+            if (cfMatch) mapping.selectedValue = cfMatch.value;
         }
       }
     }
@@ -517,6 +535,10 @@ async function processFieldsAI(fields: FormField[], hostname = "") {
     const addButtons = fieldMappings.filter(
       (m: any) => m.action === "click_add",
     );
+
+    if (useAI && fillMappings.length === 0 && fields.length > 0) {
+        throw new Error("AI analysis returned zero mappings. The form configuration may be too complex or confused the AI.");
+    }
 
     console.log(
       `Aullevo ${useAI ? 'AI' : 'Heuristic'}: ${fillMappings.length} fill mappings, ${addButtons.length} add buttons`,

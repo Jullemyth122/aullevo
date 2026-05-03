@@ -4,6 +4,7 @@ import {
     extractFormFields,
     fillFormField,
     clickNextButton,
+    clickPrevButton,
     clickElement,
     detectPageCaptcha,
     registerIframeFieldResponder,
@@ -140,6 +141,16 @@ function hideToast() {
    SPA WATCHER — detect route changes and form mutations
    ═══════════════════════════════════════════════════ */
 
+function safeSendMessage(msg: any) {
+    if (typeof chrome !== 'undefined' && chrome.runtime?.id) {
+        try {
+            chrome.runtime.sendMessage(msg).catch(() => { });
+        } catch (e) {
+            // context invalidated, ignore
+        }
+    }
+}
+
 function initSPAWatcher() {
     let lastUrl = location.href;
     let mutationTimer: ReturnType<typeof setTimeout> | null = null;
@@ -147,7 +158,7 @@ function initSPAWatcher() {
     const domObserver = new MutationObserver(() => {
         if (mutationTimer) clearTimeout(mutationTimer);
         mutationTimer = setTimeout(() => {
-            chrome.runtime.sendMessage({ action: 'domChanged' }).catch(() => { });
+            safeSendMessage({ action: 'domChanged' });
         }, 1000);
     });
 
@@ -156,7 +167,7 @@ function initSPAWatcher() {
     const urlCheckInterval = setInterval(() => {
         if (location.href !== lastUrl) {
             lastUrl = location.href;
-            chrome.runtime.sendMessage({ action: 'urlChanged', url: location.href }).catch(() => { });
+            safeSendMessage({ action: 'urlChanged', url: location.href });
         }
     }, 600);
 
@@ -164,14 +175,14 @@ function initSPAWatcher() {
     const _replace = history.replaceState.bind(history);
     history.pushState = (...args) => {
         _push(...args);
-        chrome.runtime.sendMessage({ action: 'urlChanged', url: location.href }).catch(() => { });
+        safeSendMessage({ action: 'urlChanged', url: location.href });
     };
     history.replaceState = (...args) => {
         _replace(...args);
-        chrome.runtime.sendMessage({ action: 'urlChanged', url: location.href }).catch(() => { });
+        safeSendMessage({ action: 'urlChanged', url: location.href });
     };
     window.addEventListener('popstate', () => {
-        chrome.runtime.sendMessage({ action: 'urlChanged', url: location.href }).catch(() => { });
+        safeSendMessage({ action: 'urlChanged', url: location.href });
     });
 
     window.addEventListener('beforeunload', () => {
@@ -281,6 +292,12 @@ chrome.runtime.onMessage.addListener(
 
         if (request.action === 'clickNext') {
             const { success, message } = clickNextButton();
+            sendResponse({ success, message });
+            return false;
+        }
+
+        if (request.action === 'clickPrev') {
+            const { success, message } = clickPrevButton();
             sendResponse({ success, message });
             return false;
         }

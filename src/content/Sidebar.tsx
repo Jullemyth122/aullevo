@@ -206,6 +206,37 @@ export default function Sidebar() {
         return () => document.removeEventListener('keydown', handler);
     }, []);
 
+    /* ── Global Error Catching ── */
+    useEffect(() => {
+        const handleGlobalError = (event: ErrorEvent) => {
+            // Ignore benign React ResizeObserver loop errors and Chrome extension reload errors
+            if (event.message === 'ResizeObserver loop limit exceeded' || event.message === 'ResizeObserver loop completed with undelivered notifications.') return;
+            if (event.message.includes('Extension context invalidated')) return;
+
+            console.error('Aullevo Global Error Caught:', event.error);
+            setFillStatus({ message: `Whoops! Extension error: ${event.message}`, type: 'error' });
+            setIsProcessing(false);
+        };
+
+        const handlePromiseRejection = (event: PromiseRejectionEvent) => {
+            console.error('Aullevo Unhandled Promise Rejection:', event.reason);
+            const msg = event.reason?.message || String(event.reason);
+            // Don't show rate-limit as global crash, handled gracefully
+            if (!msg.includes('Rate limit') && !msg.toLowerCase().includes('already running')) {
+                setFillStatus({ message: `Aullevo task failed: ${msg}`, type: 'error' });
+            }
+            setIsProcessing(false);
+        };
+
+        window.addEventListener('error', handleGlobalError);
+        window.addEventListener('unhandledrejection', handlePromiseRejection);
+
+        return () => {
+            window.removeEventListener('error', handleGlobalError);
+            window.removeEventListener('unhandledrejection', handlePromiseRejection);
+        };
+    }, []);
+
     /* ── Helpers ── */
     const scanFields = () => {
         try {

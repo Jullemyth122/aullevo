@@ -104,6 +104,7 @@ export interface ChromeMessage {
     | "analyzeForm"
     | "fillForm"
     | "clickNext"
+    | "clickPrev"
     | "domChanged"
     | "urlChanged"
     | "toggleSidebar"
@@ -128,6 +129,7 @@ export interface ChromeResponse {
   total?: number;
   message?: string;
   nextButtonFound?: boolean;
+  prevButtonFound?: boolean;
   error?: string;
   mappings?: FieldMapping[];
   addButtons?: FieldMapping[];

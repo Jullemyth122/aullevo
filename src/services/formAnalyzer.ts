@@ -189,17 +189,16 @@ export function registerIframeFieldResponder(): void {
  * CAPTCHA fields are automatically detected and skipped.
  */
 export function extractFormFields(): FormField[] {
-  // 1. Detect active modal
-  const activeModal = findActiveModal();
-
-  // 2. Select inputs - scope to modal if exists, otherwise document
-  const rootElement = activeModal || document.body;
-  const inputs = rootElement.querySelectorAll<
-    | HTMLInputElement
-    | HTMLTextAreaElement
-    | HTMLSelectElement
-    | HTMLButtonElement
-  >("input, textarea, select, button");
+  // 1. Select all inputs from the entire document
+  // (Hidden inputs will be filtered out by the isVisible check below)
+  const inputs = Array.from(
+    document.body.querySelectorAll<
+      | HTMLInputElement
+      | HTMLTextAreaElement
+      | HTMLSelectElement
+      | HTMLButtonElement
+    >("input, textarea, select, button"),
+  );
 
   const fields: FormField[] = [];
 
@@ -225,7 +224,7 @@ export function extractFormFields(): FormField[] {
     ) {
       console.log(
         "Aullevo: CAPTCHA field detected — skipping:",
-        input.id || input.name,
+        input.id || input.getAttribute("name"),
       );
       return;
     }
@@ -339,7 +338,7 @@ export function extractFormFields(): FormField[] {
 
     const fieldInfo: FormField = {
       id: fieldId,
-      name: input.name || "",
+      name: input.getAttribute("name") || "",
       type:
         input instanceof HTMLInputElement
           ? input.type
@@ -390,7 +389,7 @@ export function extractFormFields(): FormField[] {
     '[class*="select-container"]',
   ];
 
-  const customSelects = rootElement.querySelectorAll<HTMLElement>(
+  const customSelects = document.querySelectorAll<HTMLElement>(
     customSelectSelectors.join(","),
   );
   customSelects.forEach((el, idx) => {
@@ -437,7 +436,7 @@ export function extractFormFields(): FormField[] {
     ".toggle:not(input):not(button)",
     '[class*="toggle-switch"]',
   ];
-  const toggleEls = rootElement.querySelectorAll<HTMLElement>(
+  const toggleEls = document.querySelectorAll<HTMLElement>(
     toggleSelectors.join(","),
   );
   toggleEls.forEach((el, idx) => {
@@ -504,7 +503,7 @@ function isVisible(element: HTMLElement): boolean {
   return true;
 }
 
-function findActiveModal(): HTMLElement | null {
+function findActiveModals(): HTMLElement[] {
   const modalSelectors = [
     '[role="dialog"]',
     ".modal",
@@ -516,9 +515,7 @@ function findActiveModal(): HTMLElement | null {
   const potentials = document.querySelectorAll<HTMLElement>(
     modalSelectors.join(","),
   );
-  const visibleModals = Array.from(potentials).filter(isVisible);
-  if (visibleModals.length === 0) return null;
-  return visibleModals[visibleModals.length - 1];
+  return Array.from(potentials).filter(isVisible);
 }
 
 function findFieldContext(input: HTMLElement): string {
@@ -869,6 +866,33 @@ export function fillFormField(
           else input.value = String(clamped);
           input.dispatchEvent(new Event("input", { bubbles: true }));
           input.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+      } else if (input.type === "number") {
+        // RC7 FIX: Number inputs reject non-numeric strings like "2026-2027".
+        // Extract the first valid number from the value and clamp to min/max.
+        const valStr = String(value);
+        const numMatch = valStr.match(/-?\d+(\.\d+)?/);
+        const numVal = numMatch ? Number(numMatch[0]) : NaN;
+        if (!isNaN(numVal)) {
+          const min = input.min !== "" ? Number(input.min) : -Infinity;
+          const max = input.max !== "" ? Number(input.max) : Infinity;
+          const clamped = Math.max(min, Math.min(max, numVal));
+          const nativeSetter = Object.getOwnPropertyDescriptor(
+            HTMLInputElement.prototype,
+            "value",
+          )?.set;
+          if (nativeSetter) nativeSetter.call(input, String(clamped));
+          else input.value = String(clamped);
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+          input.dispatchEvent(new Event("change", { bubbles: true }));
+          console.log(
+            `Aullevo number: "${valStr}" → ${clamped} (min=${min}, max=${max})`,
+          );
+        } else {
+          console.warn(
+            `Aullevo: Could not extract number from "${valStr}" for input#${input.id}`,
+          );
+          return false;
         }
       } else {
         // Use native setter for React text inputs too
@@ -1436,8 +1460,11 @@ export function clickElement(id: string): {
 
 export function findNextButton(): HTMLElement | null {
   // Always prefer scoping to active modal (LinkedIn Easy Apply, Workday, etc.)
-  const activeModal = findActiveModal();
-  const root = activeModal || document.body;
+  const activeModals = findActiveModals();
+  const root =
+    activeModals.length > 0
+      ? activeModals[activeModals.length - 1]
+      : document.body;
 
   const buttons = root.querySelectorAll<HTMLElement>(
     'button, input[type="submit"], input[type="button"], [role="button"], a.btn, a.button',
@@ -1508,4 +1535,88 @@ export function clickNextButton(): { success: boolean; message: string } {
     };
   }
   return { success: false, message: 'No "Next" button found.' };
+}
+
+export function findPrevButton(): HTMLElement | null {
+  const activeModals = findActiveModals();
+  const root =
+    activeModals.length > 0
+      ? activeModals[activeModals.length - 1]
+      : document.body;
+
+  const buttons = root.querySelectorAll<HTMLElement>(
+    'button, input[type="button"], [role="button"], a.btn, a.button',
+  );
+
+  const PREV_KEYWORDS = [
+    "back",
+    "previous",
+    "prev",
+    "go back",
+    "previous step",
+    "previous page",
+    "return",
+  ];
+
+  const EXCLUDE_KEYWORDS = [
+    "next",
+    "continue",
+    "submit",
+    "apply",
+    "cancel",
+    "close",
+    "skip",
+    "dismiss",
+    "sign in",
+    "login",
+  ];
+
+  const candidates = Array.from(buttons).filter((btn) => {
+    if (!isVisible(btn as HTMLElement)) return false;
+    const text = (btn.textContent || (btn as HTMLInputElement).value || "")
+      .trim()
+      .toLowerCase();
+    const ariaLabel = (btn.getAttribute("aria-label") || "")
+      .trim()
+      .toLowerCase();
+    const combined = text || ariaLabel;
+    if (!combined) return false;
+
+    // Check exclusions first
+    if (
+      EXCLUDE_KEYWORDS.some(
+        (k) => combined === k || combined.startsWith(k) || combined.includes(k),
+      )
+    )
+      return false;
+
+    return PREV_KEYWORDS.some(
+      (keyword) => combined === keyword || combined.includes(keyword),
+    );
+  });
+
+  if (candidates.length === 0) return null;
+  if (candidates.length === 1) return candidates[0] as HTMLElement;
+
+  // Multiple candidates: prefer bottommost + leftmost (standard Back button placement)
+  const scored = candidates.map((btn) => {
+    const rect = (btn as HTMLElement).getBoundingClientRect();
+    // Prefer right at the bottom but more left aligned
+    const score = rect.bottom - rect.left;
+    return { btn, score };
+  });
+  scored.sort((a, b) => b.score - a.score);
+  return scored[0].btn as HTMLElement;
+}
+
+export function clickPrevButton(): { success: boolean; message: string } {
+  const btn = findPrevButton();
+  if (btn) {
+    btn.click();
+    return {
+      success: true,
+      message: `Clicked "${btn.textContent || "Previous"}" button.`,
+    };
+  }
+  return { success: false, message: 'No "Previous" or "Back" button found.' };
 }
