@@ -171,9 +171,9 @@ async function resolveFieldValues(
 
     // B. Custom fields — user-defined key/value pairs
     if (mapping.fieldType?.startsWith("custom_field:")) {
-      const label = mapping.fieldType.slice("custom_field:".length);
+      const label = mapping.fieldType.slice("custom_field:".length).toLowerCase();
       const matches = customFields.filter(
-        (cf: CustomField) => cf.label === label,
+        (cf: CustomField) => cf.label.toLowerCase() === label || cf.label.toLowerCase().includes(label),
       );
       if (matches.length > 0) {
         if (matches.length === 1) {
@@ -235,6 +235,24 @@ async function resolveFieldValues(
           mapping.selectedValue = Array.isArray(val)
             ? val.join(", ")
             : String(val);
+        }
+        
+        // ✨ FALLBACK TO CUSTOM FIELDS: 
+        // If the standard field was empty in the user's profile, check if they created a Custom Field for it!
+        // This solves the issue where users create a Custom Field for "Birthdate" or "Expected Salary" instead of using the standard profile input.
+        if (!mapping.selectedValue && customFields.length > 0) {
+            // Fuzzy match the standard fieldType literal against custom field labels
+            const ftypeLower = mapping.fieldType.toLowerCase();
+            const cfMatch = customFields.find((cf) => {
+              const lbl = cf.label.toLowerCase();
+              return lbl.includes(ftypeLower) || 
+                (ftypeLower.includes("salary") && lbl.includes("salary")) ||
+                (ftypeLower.includes("birth") && lbl.includes("birth")) ||
+                (ftypeLower.includes("country") && (lbl.includes("country") || lbl.includes("national") || lbl.includes("region"))) ||
+                (ftypeLower.includes("address") && (lbl.includes("location") || lbl.includes("address") || lbl.includes("city"))) ||
+                (ftypeLower.includes("degree") && (lbl.includes("degree") || lbl.includes("diploma")));
+            });
+            if (cfMatch) mapping.selectedValue = cfMatch.value;
         }
       }
     }
@@ -408,6 +426,55 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     sendResponse({ success: true });
     return false;
   }
+  if (request.action === "openAutopilotLink") {
+    chrome.tabs.create({ url: request.url }, (tab) => {
+      if (tab.id) {
+        chrome.storage.local.set({ autopilotTabId: tab.id });
+      }
+    });
+    sendResponse({ success: true });
+    return false;
+  }
+});
+
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  if (changeInfo.status === "complete") {
+    chrome.storage.local.get(["autopilotTabId"], (result) => {
+      if (result.autopilotTabId === tabId) {
+        // Clear to avoid running on every refresh
+        chrome.storage.local.remove(["autopilotTabId"]);
+        
+        console.log("🚗 Aullevo Autopilot: Tab loaded, initiating auto-fill...");
+        showBadge("⏳", "#7c5cfc");
+        
+        // Wait for SPA frameworks to render
+        setTimeout(async () => {
+          try {
+            const stored = await chrome.storage.local.get([
+              "userData",
+              "resumeFileData",
+              "resumeFileName",
+            ]);
+            const userData = (stored.userData || {}) as Partial<UserData>;
+            const hostname = getHostname(tab.url || "");
+            
+            await processFormStep(
+              tabId,
+              userData,
+              0,
+              hostname,
+              stored.resumeFileData as string | undefined,
+              stored.resumeFileName as string | undefined
+            );
+          } catch (error) {
+            console.error("Autopilot fill error:", error);
+            showBadge("✗", "#f87171");
+            setTimeout(clearBadge, 3000);
+          }
+        }, 2000); // 2 second delay for React/Angular/Vue to mount inputs
+      }
+    });
+  }
 });
 
 /* ═══════════════════════════════════════════════════
@@ -517,6 +584,10 @@ async function processFieldsAI(fields: FormField[], hostname = "") {
     const addButtons = fieldMappings.filter(
       (m: any) => m.action === "click_add",
     );
+
+    if (useAI && fillMappings.length === 0 && fields.length > 0) {
+        throw new Error("AI analysis returned zero mappings. The form configuration may be too complex or confused the AI.");
+    }
 
     console.log(
       `Aullevo ${useAI ? 'AI' : 'Heuristic'}: ${fillMappings.length} fill mappings, ${addButtons.length} add buttons`,

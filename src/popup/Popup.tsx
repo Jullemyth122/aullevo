@@ -1,8 +1,8 @@
 import { useState, useEffect, type ChangeEvent } from 'react';
-import { Upload, Save, Sparkles, Loader2, ChevronDown, Plus, Trash2, User, Link, Briefcase, PenTool } from 'lucide-react';
+import { Upload, Save, Sparkles, Loader2, ChevronDown, Plus, Trash2, User, Link, Briefcase, PenTool, Database, Zap } from 'lucide-react';
 import { geminiService } from '../services/geminiService';
 import { resumeParser } from '../services/resumeParser';
-import type { UserData, CustomField, Status, ChromeResponse } from '../types';
+import type { UserData, CustomField, Status, ChromeResponse, Memory, SavedLink } from '../types';
 import './Popup.css';
 
 /* ─── helpers ─── */
@@ -130,6 +130,12 @@ function Popup() {
     const [newCFValue, setNewCFValue] = useState('');
     const [newCFContext, setNewCFContext] = useState('');
 
+    const [newMemTitle, setNewMemTitle] = useState('');
+    const [newMemContent, setNewMemContent] = useState('');
+    const [newLinkTitle, setNewLinkTitle] = useState('');
+    const [newLinkUrl, setNewLinkUrl] = useState('');
+    const [newLinkAutoFill, setNewLinkAutoFill] = useState(true);
+
     useEffect(() => {
         if (typeof chrome !== 'undefined' && chrome?.storage) {
             chrome.storage.local.get(['userData', 'geminiApiKey'], (result) => {
@@ -169,6 +175,36 @@ function Popup() {
             ...prev,
             customFields: (prev.customFields as CustomField[] || []).filter((_, i) => i !== index)
         }));
+    };
+
+    /* ── Memories CRUD ── */
+    const addMemory = () => {
+        if (!newMemTitle.trim() || !newMemContent.trim()) return;
+        const memory: Memory = { id: Date.now().toString(), title: newMemTitle.trim(), content: newMemContent.trim() };
+        setUserData(prev => ({ ...prev, memories: [...((prev.memories as Memory[]) || []), memory] }));
+        setNewMemTitle(''); setNewMemContent('');
+    };
+
+    const removeMemory = (id: string) => {
+        setUserData(prev => ({ ...prev, memories: ((prev.memories as Memory[]) || []).filter(m => m.id !== id) }));
+    };
+
+    /* ── Links CRUD ── */
+    const addLink = () => {
+        if (!newLinkTitle.trim() || !newLinkUrl.trim()) return;
+        const link: SavedLink = { id: Date.now().toString(), title: newLinkTitle.trim(), url: newLinkUrl.trim(), autoFill: newLinkAutoFill };
+        setUserData(prev => ({ ...prev, savedLinks: [...((prev.savedLinks as SavedLink[]) || []), link] }));
+        setNewLinkTitle(''); setNewLinkUrl(''); setNewLinkAutoFill(true);
+    };
+
+    const removeLink = (id: string) => {
+        setUserData(prev => ({ ...prev, savedLinks: ((prev.savedLinks as SavedLink[]) || []).filter(l => l.id !== id) }));
+    };
+
+    const triggerAutopilot = (url: string) => {
+        if (typeof chrome !== 'undefined') {
+            chrome.runtime.sendMessage({ action: 'openAutopilotLink', url });
+        }
     };
 
     /* ── Resume Upload ── */
@@ -582,6 +618,97 @@ function Popup() {
                                 placeholder="AI Context (e.g. Use when asked about preferred pronouns)"
                                 value={newCFContext}
                                 onChange={(e) => setNewCFContext(e.target.value)}
+                            />
+                        </div>
+                    </Section>
+
+                    {/* ── SECTION: Knowledge Base ── */}
+                    <Section icon={<Database size={14} />} title={`Knowledge Base (${((userData.memories as Memory[]) || []).length})`} defaultOpen={false}>
+                        <div className="custom-fields-list">
+                            {((userData.memories as Memory[]) || []).length === 0 && (
+                                <p className="no-custom-fields">
+                                    No memories yet. Add common chat answers or FAQs here.
+                                </p>
+                            )}
+                            {((userData.memories as Memory[]) || []).map((m) => (
+                                <div key={m.id} className="custom-field-item">
+                                    <div className="custom-field-info">
+                                        <div className="custom-field-label">{m.title}</div>
+                                        <div className="custom-field-value">{m.content}</div>
+                                    </div>
+                                    <button className="icon-btn delete" onClick={() => removeMemory(m.id)}>
+                                        <Trash2 size={14} />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="add-custom-field">
+                            <div className="add-custom-field-row">
+                                <input
+                                    type="text"
+                                    placeholder="Title (e.g. Greeting)"
+                                    value={newMemTitle}
+                                    onChange={(e) => setNewMemTitle(e.target.value)}
+                                />
+                                <button className="icon-btn add" onClick={addMemory} title="Add Memory">
+                                    <Plus size={16} />
+                                </button>
+                            </div>
+                            <input
+                                type="text"
+                                className="context-input"
+                                placeholder="Content (e.g. Hello, how can I help you today?)"
+                                value={newMemContent}
+                                onChange={(e) => setNewMemContent(e.target.value)}
+                            />
+                        </div>
+                    </Section>
+
+                    {/* ── SECTION: Autopilot Links ── */}
+                    <Section icon={<Zap size={14} />} title={`Autopilot Links (${((userData.savedLinks as SavedLink[]) || []).length})`} defaultOpen={false}>
+                        <div className="custom-fields-list">
+                            {((userData.savedLinks as SavedLink[]) || []).length === 0 && (
+                                <p className="no-custom-fields">
+                                    No autopilot links yet.
+                                </p>
+                            )}
+                            {((userData.savedLinks as SavedLink[]) || []).map((l) => (
+                                <div key={l.id} className="custom-field-item" style={{display: 'flex', flexDirection: 'column'}}>
+                                    <div style={{display: 'flex', justifyContent: 'space-between', width: '100%'}}>
+                                        <div className="custom-field-info">
+                                            <div className="custom-field-label">{l.title}</div>
+                                            <div className="custom-field-context">{l.url}</div>
+                                        </div>
+                                        <button className="icon-btn delete" onClick={() => removeLink(l.id)}>
+                                            <Trash2 size={14} />
+                                        </button>
+                                    </div>
+                                    <button className="save-btn small" style={{marginTop: 5, background: 'var(--av-surface)', color: 'var(--av-primary)'}} onClick={() => triggerAutopilot(l.url)}>
+                                        <Sparkles size={12} style={{marginRight: 5}}/> Open & Autofill
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="add-custom-field">
+                            <div className="add-custom-field-row">
+                                <input
+                                    type="text"
+                                    placeholder="Title (e.g. Messenger)"
+                                    value={newLinkTitle}
+                                    onChange={(e) => setNewLinkTitle(e.target.value)}
+                                />
+                                <button className="icon-btn add" onClick={addLink} title="Add Link">
+                                    <Plus size={16} />
+                                </button>
+                            </div>
+                            <input
+                                type="url"
+                                className="context-input"
+                                placeholder="URL (e.g. https://www.messenger.com/)"
+                                value={newLinkUrl}
+                                onChange={(e) => setNewLinkUrl(e.target.value)}
                             />
                         </div>
                     </Section>

@@ -4,6 +4,19 @@ export interface CustomField {
   context: string; // e.g. "Use when form asks about preferred pronouns"
 }
 
+export interface Memory {
+  id: string;
+  title: string;
+  content: string;
+}
+
+export interface SavedLink {
+  id: string;
+  title: string;
+  url: string;
+  autoFill: boolean;
+}
+
 // User data structure
 export interface UserData {
   firstName: string;
@@ -31,6 +44,8 @@ export interface UserData {
   workAuthorization?: string;
   yearsOfExperience?: string;
   customFields: CustomField[];
+  memories: Memory[];
+  savedLinks: SavedLink[];
 }
 
 export interface Experience {
@@ -65,6 +80,7 @@ export interface FormField {
   max?: string; // For range inputs
   step?: string; // For range inputs
   currentValue?: string; // For toggles: current on/off state
+  chatContext?: string[]; // Array of previous chat messages for context
 }
 
 export interface FieldMapping {
@@ -104,12 +120,14 @@ export interface ChromeMessage {
     | "analyzeForm"
     | "fillForm"
     | "clickNext"
+    | "clickPrev"
     | "domChanged"
     | "urlChanged"
     | "toggleSidebar"
     | "triggerFillFromPopup"
     | "triggerFillFromSidebar"
-    | "processFieldsAI";
+    | "processFieldsAI"
+    | "openAutopilotLink";
   data?: {
     fieldMappings?: FieldMapping[];
     userData?: Partial<UserData>;
@@ -128,6 +146,7 @@ export interface ChromeResponse {
   total?: number;
   message?: string;
   nextButtonFound?: boolean;
+  prevButtonFound?: boolean;
   error?: string;
   mappings?: FieldMapping[];
   addButtons?: FieldMapping[];

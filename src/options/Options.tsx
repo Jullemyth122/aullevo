@@ -18,6 +18,7 @@ const EMPTY_USER: UserData = {
     headline: '', dateOfBirth: '', gender: '',
     salaryExpectation: '', noticePeriod: '', workAuthorization: '', yearsOfExperience: '',
     skills: [], experience: [], education: [], customFields: [],
+    memories: [], savedLinks: [],
 };
 
 /*
