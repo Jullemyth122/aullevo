@@ -3,12 +3,16 @@ import { createRoot } from 'react-dom/client';
 import { storageService } from '../services/storageService';
 import type { UserData, SavedFile } from '../types';
 import './Options.css';
+import { LogoA } from '../components/LogoA';
+import { auth, db } from '../config/firebase';
+import { signInWithPopup, signOut, onAuthStateChanged, GoogleAuthProvider } from 'firebase/auth';
+import { doc, onSnapshot } from 'firebase/firestore';
 
 
 /*
    TYPES
  */
-type NavSection = 'api' | 'profiles' | 'files' | 'privacy' | 'shortcuts' | 'about';
+type NavSection = 'account' | 'api' | 'profiles' | 'files' | 'privacy' | 'shortcuts' | 'about';
 type StatusType = 'success' | 'error' | 'info' | '';
 interface StatusMsg { text: string; type: StatusType; }
 const EMPTY_USER: UserData = {
@@ -25,48 +29,48 @@ const EMPTY_USER: UserData = {
    SVG ICON COMPONENTS
  */
 const SvgKey = () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" /></svg>
 );
 const SvgUser = () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
 );
 const SvgFolder = () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" /></svg>
 );
 const SvgLock = () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
 );
 const SvgKeyboard = () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" ry="2"/><line x1="6" y1="8" x2="6" y2="8"/><line x1="10" y1="8" x2="10" y2="8"/><line x1="14" y1="8" x2="14" y2="8"/><line x1="18" y1="8" x2="18" y2="8"/><line x1="8" y1="12" x2="8" y2="12"/><line x1="12" y1="12" x2="12" y2="12"/><line x1="16" y1="12" x2="16" y2="12"/><line x1="7" y1="16" x2="17" y2="16"/></svg>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" ry="2" /><line x1="6" y1="8" x2="6" y2="8" /><line x1="10" y1="8" x2="10" y2="8" /><line x1="14" y1="8" x2="14" y2="8" /><line x1="18" y1="8" x2="18" y2="8" /><line x1="8" y1="12" x2="8" y2="12" /><line x1="12" y1="12" x2="12" y2="12" /><line x1="16" y1="12" x2="16" y2="12" /><line x1="7" y1="16" x2="17" y2="16" /></svg>
 );
 const SvgInfo = () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>
 );
 
 /* File type SVG icons */
 const SvgImage = () => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7c5cfc" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
 );
 const SvgFilePdf = () => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="9" y1="15" x2="15" y2="15" /></svg>
 );
 const SvgFileDoc = () => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" /></svg>
 );
 const SvgFileGeneric = () => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b949e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b949e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
 );
 const SvgArchive = () => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="21 8 21 21 3 21 3 8" /><rect x="1" y="3" width="22" height="5" /><line x1="10" y1="12" x2="14" y2="12" /></svg>
 );
 const SvgX = () => (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
 );
 const SvgUploadCloud = () => (
-    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/><polyline points="16 16 12 12 8 16"/></svg>
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 16 12 12 8 16" /><line x1="12" y1="12" x2="12" y2="21" /><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" /><polyline points="16 16 12 12 8 16" /></svg>
 );
 const SvgTrash = () => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
 );
 
 function fileIconForType(type: string) {
@@ -90,6 +94,7 @@ const newFileId = () => `sf-${Date.now()}-${fileUid++}`;
    NAV ITEMS
  */
 const NAV_ITEMS: { id: NavSection; icon: React.ReactNode; label: string }[] = [
+    { id: 'account', icon: <span style={{ fontSize: '14px' }}>✨</span>, label: 'Pro Account' },
     { id: 'api', icon: <SvgKey />, label: 'API Key' },
     { id: 'profiles', icon: <SvgUser />, label: 'Profiles' },
     { id: 'files', icon: <SvgFolder />, label: 'File Vault' },
@@ -112,8 +117,12 @@ function StatusBanner({ status }: { status: StatusMsg }) {
    OPTIONS ROOT
  */
 function Options() {
-    const [section, setSection] = useState<NavSection>('api');
+    const [section, setSection] = useState<NavSection>('account');
     const [status, setStatus] = useState<StatusMsg>({ text: '', type: '' });
+
+    // Auth & Pro Status
+    const [user, setUser] = useState<any>(null);
+    const [isPro, setIsPro] = useState(false);
 
     // API Key
     const [apiKey, setApiKey] = useState('');
@@ -128,6 +137,7 @@ function Options() {
 
     // Privacy
     const [allowQAContext, setAllowQAContext] = useState(true);
+    const [autoSubmit, setAutoSubmit] = useState(false);
 
     // File Vault
     const [fileLibrary, setFileLibrary] = useState<SavedFile[]>([]);
@@ -141,13 +151,59 @@ function Options() {
 
     /* ── Load initial data ── */
     useEffect(() => {
-        chrome.storage.local.get(['geminiApiKey', 'allowQAContext'], (r) => {
+        chrome.storage.local.get(['geminiApiKey', 'allowQAContext', 'autoSubmit', 'isPro'], (r) => {
             if (r.geminiApiKey) setApiKey(r.geminiApiKey as string);
             if (r.allowQAContext !== undefined) setAllowQAContext(r.allowQAContext as boolean);
+            if (r.autoSubmit !== undefined) setAutoSubmit(r.autoSubmit as boolean);
+            if (r.isPro !== undefined) setIsPro(r.isPro as boolean);
         });
         refreshProfileList();
         loadFileLibrary();
+
+        // Listen to Auth State
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+            if (currentUser) {
+                setUser(currentUser);
+                const userRef = doc(db, 'users', currentUser.uid);
+                
+                // Real-time listener for Pro status changes in Firestore
+                const unsubSnap = onSnapshot(userRef, (docSnap) => {
+                    if (docSnap.exists()) {
+                        const proStatus = !!docSnap.data().isPro;
+                        setIsPro(proStatus);
+                        chrome.storage.local.set({ isPro: proStatus, userUid: currentUser.uid });
+                    }
+                });
+                return () => unsubSnap();
+            } else {
+                setUser(null);
+                setIsPro(false);
+                chrome.storage.local.set({ isPro: false, userUid: null });
+            }
+        });
+        return () => unsubscribe();
     }, []);
+
+    const handleGoogleLogin = async () => {
+        try {
+            const provider = new GoogleAuthProvider();
+            provider.setCustomParameters({ prompt: 'select_account' });
+            await signInWithPopup(auth, provider);
+            flash('Signed in successfully!');
+        } catch (error: any) {
+            console.error("Sign in failed", error);
+            flash(`Sign in failed: ${error.message}`, 'error', 5000);
+        }
+    };
+
+    const handleGoogleLogout = async () => {
+        try {
+            await signOut(auth);
+            flash('Signed out successfully!');
+        } catch (error: any) {
+            flash(`Logout failed: ${error.message}`, 'error');
+        }
+    };
 
     const loadFileLibrary = async () => {
         chrome.storage.local.get('fileLibrary', (r) => {
@@ -156,6 +212,10 @@ function Options() {
     };
 
     const addFilesToVault = async (files: File[]) => {
+        // Enforce Pro Limit (Max 2 files on free tier)
+        if (!isPro && fileLibrary.length + files.length > 2) {
+            return flash('🔒 File Vault is limited to 2 files on the Free tier. Please upgrade to Pro!', 'error', 5000);
+        }
         // Convert each File to a base64 data URL before saving
         const entries: SavedFile[] = [];
         for (const f of files) {
@@ -227,6 +287,10 @@ function Options() {
 
     /* ── Profile section ── */
     const createProfile = async () => {
+        // Enforce Pro Limit (Max 1 profile on free tier)
+        if (!isPro && profiles.length >= 1) {
+            return flash('🔒 Profiles are limited to 1 on the Free tier. Please upgrade to Pro!', 'error', 5000);
+        }
         const name = newProfileName.trim();
         if (!name) return flash('⚠️ Enter a profile name.', 'error');
         if (profiles.includes(name)) return flash('⚠️ Profile name already exists.', 'error');
@@ -297,10 +361,10 @@ function Options() {
         e.target.value = '';
     };
 
-    /* ── Privacy ── */
+    /* ── Privacy & Auto-Submit ── */
     const savePrivacy = () => {
-        chrome.storage.local.set({ allowQAContext: allowQAContext }, () => {
-            flash('✅ Privacy settings saved!');
+        chrome.storage.local.set({ allowQAContext, autoSubmit }, () => {
+            flash('✅ Settings saved!');
         });
     };
 
@@ -317,8 +381,8 @@ function Options() {
         <div className="options-layout">
             {/* ── Nav ── */}
             <nav className="options-nav">
-                <div className="nav-brand">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3"/><rect x="9" y="11" width="14" height="10" rx="2"/><circle cx="16" cy="16" r="1"/></svg>
+                <div className="nav-brand" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <LogoA size={22} />
                     <span className="nav-brand-name">Aullevo</span>
                 </div>
                 {NAV_ITEMS.map(n => (
@@ -336,6 +400,61 @@ function Options() {
             {/* ── Main ── */}
             <main className="options-main">
                 <StatusBanner status={status} />
+
+                {/* ────── PRO ACCOUNT ────── */}
+                {section === 'account' && (
+                    <>
+                        <div className="page-header">
+                            <h1 className="page-title">✨ Aullevo Pro Account</h1>
+                            <p className="page-subtitle">Sync your lifetime membership and unlock all advanced features.</p>
+                        </div>
+                        <div className="card">
+                            <div className="card-title">Profile Status</div>
+                            {user ? (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                        <div style={{
+                                            width: '50px', height: '50px', borderRadius: '50%',
+                                            background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            fontWeight: '700', fontSize: '18px', color: 'white', overflow: 'hidden'
+                                        }}>
+                                            {user.photoURL ? <img src={user.photoURL} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : user.displayName?.charAt(0).toUpperCase() || 'U'}
+                                        </div>
+                                        <div>
+                                            <div style={{ fontWeight: '600', fontSize: '16px' }}>{user.displayName}</div>
+                                            <div style={{ color: 'var(--muted)', fontSize: '13px' }}>{user.email}</div>
+                                        </div>
+                                    </div>
+                                    <div className={`pro-status-badge ${isPro ? 'pro' : 'free'}`} style={{
+                                        display: 'inline-flex', padding: '6px 16px', borderRadius: '99px',
+                                        fontSize: '13px', fontWeight: '700', width: 'fit-content',
+                                        background: isPro ? 'rgba(139, 92, 246, 0.15)' : 'rgba(255, 255, 255, 0.05)',
+                                        border: isPro ? '1px solid rgba(139, 92, 246, 0.3)' : '1px solid rgba(255,255,255,0.1)',
+                                        color: isPro ? '#c084fc' : 'var(--muted)'
+                                    }}>
+                                        {isPro ? '✨ Pro Lifetime Active' : 'Free Tier'}
+                                    </div>
+                                    {!isPro && (
+                                        <div style={{ background: 'rgba(255,255,255,0.02)', padding: '15px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                                            <p style={{ margin: 0, fontSize: '13px', color: 'var(--muted)' }}>
+                                                Upgrade to Pro on the <a href="https://aullevo-data.firebaseapp.com/login" target="_blank" style={{ color: 'var(--accent)' }}>Aullevo Web App</a> to unlock unlimited profiles, files, memories, and smart AI matching.
+                                            </p>
+                                        </div>
+                                    )}
+                                    <button className="btn btn-secondary" onClick={handleGoogleLogout}>Sign Out</button>
+                                </div>
+                            ) : (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                                    <p style={{ margin: 0, fontSize: '13px', color: 'var(--muted)' }}>
+                                        Sign in with the Google account you used on the web app to activate your Pro features.
+                                    </p>
+                                    <button className="btn btn-primary" onClick={handleGoogleLogin}>Sign In with Google</button>
+                                </div>
+                            )}
+                        </div>
+                    </>
+                )}
 
                 {/* ────── API KEY ────── */}
                 {section === 'api' && (
@@ -444,74 +563,190 @@ function Options() {
                             <h1 className="page-title">✏️ Editing: {editingProfile}</h1>
                             <p className="page-subtitle">Fill in the fields you want Aullevo to auto-fill on your behalf.</p>
                         </div>
+
+                        {/* Profile Type selection */}
                         <div className="card">
-                            <div className="card-title">👤 Personal Information</div>
-                            <div className="input-row">
-                                <div className="input-group">
-                                    <label>First Name</label>
-                                    <input name="firstName" value={profileData.firstName} onChange={handleField} placeholder="John" />
-                                </div>
-                                <div className="input-group">
-                                    <label>Last Name</label>
-                                    <input name="lastName" value={profileData.lastName} onChange={handleField} placeholder="Smith" />
-                                </div>
-                            </div>
+                            <div className="card-title">⚙️ Profile Category</div>
                             <div className="input-group">
-                                <label>Email</label>
-                                <input name="email" type="email" value={profileData.email} onChange={handleField} placeholder="john@example.com" />
-                            </div>
-                            <div className="input-group">
-                                <label>Phone</label>
-                                <input name="phone" type="tel" value={profileData.phone} onChange={handleField} placeholder="+1 555 000 0000" />
-                            </div>
-                            <div className="input-group">
-                                <label>Professional Headline</label>
-                                <input name="headline" value={profileData.headline || ''} onChange={handleField} placeholder="Full-Stack Developer" />
-                            </div>
-                            <div className="input-row">
-                                <div className="input-group">
-                                    <label>City</label>
-                                    <input name="city" value={profileData.city} onChange={handleField} />
-                                </div>
-                                <div className="input-group">
-                                    <label>Country</label>
-                                    <input name="country" value={profileData.country} onChange={handleField} placeholder="Philippines" />
-                                </div>
+                                <label>Select Profile Type</label>
+                                <select
+                                    style={{
+                                        width: '100%',
+                                        padding: '10.5px 12px',
+                                        background: 'var(--bg-input)',
+                                        border: '1px solid var(--border-glass)',
+                                        borderRadius: '8px',
+                                        color: 'var(--text)',
+                                        outline: 'none',
+                                        fontFamily: 'inherit',
+                                        fontSize: '14px',
+                                        cursor: 'pointer',
+                                    }}
+                                    value={profileData.profileType || 'job'}
+                                    onChange={e => setProfileData(prev => ({ ...prev, profileType: e.target.value as any }))}
+                                >
+                                    <option value="job">Job Application / Resume</option>
+                                    <option value="medical">Medical Form</option>
+                                    <option value="survey">Survey</option>
+                                    <option value="custom">Custom / General (Custom Fields Only)</option>
+                                </select>
                             </div>
                         </div>
-                        <div className="card">
-                            <div className="card-title">🔗 Links</div>
-                            <div className="input-group"><label>LinkedIn</label><input name="linkedin" type="url" value={profileData.linkedin} onChange={handleField} placeholder="https://linkedin.com/in/..." /></div>
-                            <div className="input-group"><label>GitHub</label><input name="github" type="url" value={profileData.github} onChange={handleField} placeholder="https://github.com/..." /></div>
-                            <div className="input-group"><label>Portfolio</label><input name="portfolio" type="url" value={profileData.portfolio} onChange={handleField} placeholder="https://yourportfolio.com" /></div>
-                        </div>
-                        <div className="card">
-                            <div className="card-title">💼 Job Platform Fields</div>
-                            <div className="input-row">
-                                <div className="input-group"><label>Years of Experience</label><input name="yearsOfExperience" value={profileData.yearsOfExperience || ''} onChange={handleField} placeholder="5" /></div>
-                                <div className="input-group"><label>Salary Expectation</label><input name="salaryExpectation" value={profileData.salaryExpectation || ''} onChange={handleField} placeholder="$80,000" /></div>
+
+                        {profileData.profileType !== 'custom' && (
+                            <div className="card">
+                                <div className="card-title">👤 Personal Information</div>
+                                <div className="input-row">
+                                    <div className="input-group">
+                                        <label>First Name</label>
+                                        <input name="firstName" value={profileData.firstName || ''} onChange={handleField} placeholder="John" />
+                                    </div>
+                                    <div className="input-group">
+                                        <label>Last Name</label>
+                                        <input name="lastName" value={profileData.lastName || ''} onChange={handleField} placeholder="Smith" />
+                                    </div>
+                                </div>
+                                <div className="input-group">
+                                    <label>Email</label>
+                                    <input name="email" type="email" value={profileData.email || ''} onChange={handleField} placeholder="john@example.com" />
+                                </div>
+                                <div className="input-group">
+                                    <label>Phone</label>
+                                    <input name="phone" type="tel" value={profileData.phone || ''} onChange={handleField} placeholder="+1 555 000 0000" />
+                                </div>
+                                {profileData.profileType === 'job' && (
+                                    <div className="input-group">
+                                        <label>Professional Headline</label>
+                                        <input name="headline" value={profileData.headline || ''} onChange={handleField} placeholder="Full-Stack Developer" />
+                                    </div>
+                                )}
+                                <div className="input-row">
+                                    <div className="input-group">
+                                        <label>City</label>
+                                        <input name="city" value={profileData.city || ''} onChange={handleField} />
+                                    </div>
+                                    <div className="input-group">
+                                        <label>Country</label>
+                                        <input name="country" value={profileData.country || ''} onChange={handleField} placeholder="Philippines" />
+                                    </div>
+                                </div>
                             </div>
-                            <div className="input-row">
-                                <div className="input-group"><label>Notice Period</label><input name="noticePeriod" value={profileData.noticePeriod || ''} onChange={handleField} placeholder="2 weeks" /></div>
-                                <div className="input-group"><label>Work Authorization</label><input name="workAuthorization" value={profileData.workAuthorization || ''} onChange={handleField} placeholder="Authorized to work" /></div>
+                        )}
+
+                        {profileData.profileType === 'job' && (
+                            <>
+                                <div className="card">
+                                    <div className="card-title">🔗 Links</div>
+                                    <div className="input-group"><label>LinkedIn</label><input name="linkedin" type="url" value={profileData.linkedin || ''} onChange={handleField} placeholder="https://linkedin.com/in/..." /></div>
+                                    <div className="input-group"><label>GitHub</label><input name="github" type="url" value={profileData.github || ''} onChange={handleField} placeholder="https://github.com/..." /></div>
+                                    <div className="input-group"><label>Portfolio</label><input name="portfolio" type="url" value={profileData.portfolio || ''} onChange={handleField} placeholder="https://yourportfolio.com" /></div>
+                                </div>
+                                <div className="card">
+                                    <div className="card-title">💼 Job Platform Fields</div>
+                                    <div className="input-row">
+                                        <div className="input-group"><label>Years of Experience</label><input name="yearsOfExperience" value={profileData.yearsOfExperience || ''} onChange={handleField} placeholder="5" /></div>
+                                        <div className="input-group"><label>Salary Expectation</label><input name="salaryExpectation" value={profileData.salaryExpectation || ''} onChange={handleField} placeholder="$80,000" /></div>
+                                    </div>
+                                    <div className="input-row">
+                                        <div className="input-group"><label>Notice Period</label><input name="noticePeriod" value={profileData.noticePeriod || ''} onChange={handleField} placeholder="2 weeks" /></div>
+                                        <div className="input-group"><label>Work Authorization</label><input name="workAuthorization" value={profileData.workAuthorization || ''} onChange={handleField} placeholder="Authorized to work" /></div>
+                                    </div>
+                                    <div className="input-group">
+                                        <label>Summary</label>
+                                        <textarea name="summary" value={profileData.summary || ''} onChange={handleField} rows={4} placeholder="Professional summary..." />
+                                    </div>
+                                    <div className="input-group">
+                                        <label>Skills (comma-separated)</label>
+                                        <textarea
+                                            placeholder="React, TypeScript, Node.js..."
+                                            value={profileData.skills?.join(', ') || ''}
+                                            onChange={e => setProfileData(prev => ({
+                                                ...prev,
+                                                skills: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
+                                            }))}
+                                            rows={3}
+                                        />
+                                    </div>
+                                </div>
+                            </>
+                        )}
+
+                        {profileData.profileType === 'medical' && (
+                            <div className="card">
+                                <div className="card-title">🏥 Medical Information</div>
+                                <div className="input-row">
+                                    <div className="input-group">
+                                        <label>Blood Type</label>
+                                        <input name="bloodType" value={profileData.bloodType || ''} onChange={handleField} placeholder="O+" />
+                                    </div>
+                                    <div className="input-group">
+                                        <label>Allergies</label>
+                                        <input name="allergies" value={profileData.allergies || ''} onChange={handleField} placeholder="e.g. Peanuts, Penicillin" />
+                                    </div>
+                                </div>
+                                <div className="input-group">
+                                    <label>Medical Conditions</label>
+                                    <textarea name="medicalConditions" value={profileData.medicalConditions || ''} onChange={handleField} placeholder="e.g. Asthma, Hypertension" rows={2} />
+                                </div>
+                                <div className="input-group">
+                                    <label>Current Medications</label>
+                                    <textarea name="medications" value={profileData.medications || ''} onChange={handleField} placeholder="e.g. Albuterol daily" rows={2} />
+                                </div>
+                                <div style={{ margin: '20px 0', borderTop: '1px solid rgba(255,255,255,0.08)' }} />
+                                <div className="input-group">
+                                    <label>Emergency Contact Name</label>
+                                    <input name="emergencyContactName" value={profileData.emergencyContactName || ''} onChange={handleField} placeholder="Jane Doe Sr." />
+                                </div>
+                                <div className="input-row">
+                                    <div className="input-group">
+                                        <label>Relationship</label>
+                                        <input name="emergencyContactRelationship" value={profileData.emergencyContactRelationship || ''} onChange={handleField} placeholder="Mother" />
+                                    </div>
+                                    <div className="input-group">
+                                        <label>Contact Phone</label>
+                                        <input name="emergencyContactPhone" type="tel" value={profileData.emergencyContactPhone || ''} onChange={handleField} placeholder="+1 555 000 0000" />
+                                    </div>
+                                </div>
+                                <div style={{ margin: '20px 0', borderTop: '1px solid rgba(255,255,255,0.08)' }} />
+                                <div className="input-row">
+                                    <div className="input-group">
+                                        <label>Insurance Provider</label>
+                                        <input name="insuranceProvider" value={profileData.insuranceProvider || ''} onChange={handleField} placeholder="Blue Cross" />
+                                    </div>
+                                    <div className="input-group">
+                                        <label>Policy Number</label>
+                                        <input name="policyNumber" value={profileData.policyNumber || ''} onChange={handleField} placeholder="X1234567" />
+                                    </div>
+                                </div>
                             </div>
-                            <div className="input-group">
-                                <label>Summary</label>
-                                <textarea name="summary" value={profileData.summary} onChange={handleField} rows={4} placeholder="Professional summary..." />
+                        )}
+
+                        {profileData.profileType === 'survey' && (
+                            <div className="card">
+                                <div className="card-title">📊 Survey Details</div>
+                                <div className="input-row">
+                                    <div className="input-group">
+                                        <label>Occupation</label>
+                                        <input name="occupation" value={profileData.occupation || ''} onChange={handleField} placeholder="Software Engineer" />
+                                    </div>
+                                    <div className="input-group">
+                                        <label>Industry</label>
+                                        <input name="industry" value={profileData.industry || ''} onChange={handleField} placeholder="Tech" />
+                                    </div>
+                                </div>
+                                <div className="input-row">
+                                    <div className="input-group">
+                                        <label>Education Level</label>
+                                        <input name="educationLevel" value={profileData.educationLevel || ''} onChange={handleField} placeholder="Bachelor's Degree" />
+                                    </div>
+                                    <div className="input-group">
+                                        <label>Marital Status</label>
+                                        <input name="maritalStatus" value={profileData.maritalStatus || ''} onChange={handleField} placeholder="Single" />
+                                    </div>
+                                </div>
                             </div>
-                            <div className="input-group">
-                                <label>Skills (comma-separated)</label>
-                                <textarea
-                                    placeholder="React, TypeScript, Node.js..."
-                                    value={profileData.skills?.join(', ') || ''}
-                                    onChange={e => setProfileData(prev => ({
-                                        ...prev,
-                                        skills: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
-                                    }))}
-                                    rows={3}
-                                />
-                            </div>
-                        </div>
+                        )}
+
                         <div className="btn-group" style={{ marginBottom: '40px' }}>
                             <button className="btn btn-primary" onClick={saveEditedProfile}>💾 Save Profile</button>
                             <button className="btn btn-secondary" onClick={() => setEditingProfile(null)}>← Back</button>
@@ -523,12 +758,12 @@ function Options() {
                 {section === 'privacy' && (
                     <>
                         <div className="page-header">
-                            <h1 className="page-title">🔒 Privacy Settings</h1>
-                            <p className="page-subtitle">Control exactly what Aullevo sends to Gemini AI.</p>
+                            <h1 className="page-title">🔒 Privacy & Auto-Submit</h1>
+                            <p className="page-subtitle">Control exactly what Aullevo sends to Gemini AI and automate submission.</p>
                         </div>
                         <div className="card">
-                            <div className="card-title">🛡️ Data Handling</div>
-                            <div className="toggle-row">
+                            <div className="card-title">🛡️ Data Handling & Automation</div>
+                            <div className="toggle-row" style={{ marginBottom: '16px' }}>
                                 <div>
                                     <div className="toggle-label">Allow career context for Q&A fields</div>
                                     <div className="toggle-desc">Sends a brief career summary (no PII) to answer custom interview questions</div>
@@ -542,6 +777,23 @@ function Options() {
                                     />
                                     <span style={{ fontSize: '12px', color: allowQAContext ? 'var(--success)' : 'var(--muted)' }}>
                                         {allowQAContext ? 'Enabled' : 'Disabled'}
+                                    </span>
+                                </label>
+                            </div>
+                            <div className="toggle-row">
+                                <div>
+                                    <div className="toggle-label">Auto-Submit Forms</div>
+                                    <div className="toggle-desc">Automatically clicks Next/Submit after filling fields. Chat boxes will automatically send.</div>
+                                </div>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                                    <input
+                                        type="checkbox"
+                                        checked={autoSubmit}
+                                        onChange={e => setAutoSubmit(e.target.checked)}
+                                        style={{ width: '16px', height: '16px', accentColor: 'var(--accent)' }}
+                                    />
+                                    <span style={{ fontSize: '12px', color: autoSubmit ? 'var(--success)' : 'var(--muted)' }}>
+                                        {autoSubmit ? 'Enabled' : 'Disabled'}
                                     </span>
                                 </label>
                             </div>

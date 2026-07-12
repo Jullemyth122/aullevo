@@ -1,0 +1,48 @@
+============================================================
+           AULLEVO - AI FORM FILLER INSTALLATION
+============================================================
+
+Thank you for downloading Aullevo! Follow these simple steps 
+to install Aullevo in your web browser (Chrome, Brave, Edge, Opera, etc.).
+
+Step 1: Extract the ZIP file
+----------------------------
+If you haven't already, extract this ZIP file:
+- On Windows: Right-click the ZIP file and select "Extract All...", then click "Extract".
+- On macOS: Double-click the ZIP file to extract it.
+
+You will see a folder named "dist" containing the extension files.
+
+Step 2: Open Extensions Page in your browser
+--------------------------------------------
+Open your browser and type one of the following in the address bar:
+- Google Chrome:   chrome://extensions
+- Brave Browser:   brave://extensions
+- Microsoft Edge:  edge://extensions
+- Opera Browser:   opera://extensions
+
+Step 3: Enable Developer Mode
+-----------------------------
+In the top-right corner of the Extensions page, toggle the switch 
+that says "Developer mode" to ON.
+
+Step 4: Load the Extension
+--------------------------
+1. Click the "Load unpacked" button in the top-left corner.
+2. Select the "dist" folder (the folder containing "manifest.json" that you extracted in Step 1).
+3. Click "Select Folder" or "Open".
+
+Congratulations! Aullevo is now installed. 
+You will see the Aullevo icon in your toolbar.
+
+Step 5: Set up your API Key
+---------------------------
+To use Aullevo, you need a free Google Gemini API Key:
+1. Visit https://aistudio.google.com/app/apikey (free tier available).
+2. Click "Create API key" and copy it.
+3. Open the Aullevo extension popup/sidebar (click the extension icon in your toolbar or press Ctrl+M / Command+M).
+4. Go to the Settings tab, paste your key, and you're ready to automate!
+
+Need Help?
+----------
+Visit the official documentation at: https://aullevo-web.vercel.app/docs

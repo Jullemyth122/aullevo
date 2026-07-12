@@ -11,20 +11,20 @@
 }
 
 :root {
-    --bg: #0d1117;
-    --surface: #161b22;
-    --surface2: #1c2128;
-    --border: rgba(124, 92, 252, 0.2);
-    --accent: #7c5cfc;
-    --accent2: #5b3fd4;
-    --grad: linear-gradient(135deg, #7c5cfc, #5b3fd4);
-    --text: #e6edf3;
-    --muted: #8b949e;
-    --success: #34d399;
-    --error: #f87171;
-    --warn: #fbbf24;
+    --bg: #05050A;
+    --surface: #0A0F1F;
+    --surface2: #0D1224;
+    --border: rgba(59, 130, 246, 0.2);
+    --accent: #3B82F6;
+    --accent2: #2563EB;
+    --grad: linear-gradient(135deg, #3B82F6, #6366F1);
+    --text: #FFFFFF;
+    --muted: #94A3B8;
+    --success: #10B981;
+    --error: #EF4444;
+    --warn: #FBBF24;
     --radius: 14px;
-    --input-bg: #0d1117;
+    --input-bg: #05050A;
 }
 
 body {

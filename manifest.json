@@ -27,16 +27,25 @@
   "action": {
     "default_title": "Aullevo",
     "default_icon": {
-      "16": "assets/icon16.png",
-      "48": "assets/icon48.png",
-      "128": "assets/icon128.png"
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
     }
   },
+  "host_permissions": [
+    "https://www.messenger.com/*",
+    "https://www.facebook.com/*",
+    "https://mail.google.com/*",
+    "https://chat.google.com/*",
+    "https://hangouts.google.com/*"
+  ],
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
       "js": ["assets/content.js"],
-      "run_at": "document_idle"
+      "run_at": "document_idle",
+      "all_frames": true,
+      "match_about_blank": true
     }
   ],
   "web_accessible_resources": [
@@ -44,17 +53,16 @@
       "resources": [
         "pdf.worker.min.js",
         "assets/content.css",
-        "assets/icon16.png",
-        "assets/icon48.png",
-        "assets/icon128.png"
+        "icon16.png",
+        "icon48.png",
+        "icon128.png"
       ],
       "matches": ["<all_urls>"]
     }
   ],
   "icons": {
-    "16": "assets/icon16.png",
-    "48": "assets/icon48.png",
-    "128": "assets/icon128.png"
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
   }
 }
-

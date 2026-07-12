@@ -1,8 +1,23 @@
-import type { FormField, CustomField, FieldMapping } from "../types";
+import type { FormField, CustomField, FieldMapping, UserData, Memory, SavedLink } from "../types";
+
+function isDynamicId(id: string): boolean {
+  if (!id) return true;
+  const dynamicPatterns = [
+    /^\d+$/,                           // pure digits
+    /^u_[0-9]/i,                       // Facebook style u_0_a
+    /^_r_/i,                           // Facebook style _r_
+    /^react-aria/i,                    // React Aria
+    /^ember/i,                         // Ember
+    /^input-\d+$/i,                    // generic dynamic input-123
+    /^[a-f0-9-]{20,}$/i                // Long UUID or hash
+  ];
+  return dynamicPatterns.some((pat) => pat.test(id));
+}
 
 export function matchFieldsHeuristically(
   fields: FormField[],
   customFields: CustomField[] = [],
+  userData: Partial<UserData> = {},
 ): FieldMapping[] {
   const mappings: FieldMapping[] = [];
 
@@ -30,6 +45,19 @@ export function matchFieldsHeuristically(
       /work\s*authorization|visa|sponsorship|eligible\s*to\s*work|签证|工作/i,
     yearsOfExperience: /years\s*of\s*experience|experience|经验/i,
     resumeUpload: /resume|cv|upload|简历/i,
+    emergencyContactName: /emergency\s*contact\s*name/i,
+    emergencyContactRelationship: /emergency\s*contact\s*relationship/i,
+    emergencyContactPhone: /emergency\s*contact\s*(phone|number|cell)/i,
+    bloodType: /blood\s*(type|group)/i,
+    allergies: /allergies|allergy/i,
+    medicalConditions: /medical\s*(conditions|history|illness)/i,
+    medications: /medications|medicine|drugs/i,
+    insuranceProvider: /insurance\s*(provider|carrier|company)/i,
+    policyNumber: /policy\s*(number|no|id)/i,
+    occupation: /occupation|job\s*title|profession/i,
+    industry: /industry|sector/i,
+    educationLevel: /education\s*level|highest\s*degree|education/i,
+    maritalStatus: /marital\s*status|relationship\s*status|married/i,
   };
 
   // Education sub-field rules — matched when context indicates an education section
@@ -48,14 +76,14 @@ export function matchFieldsHeuristically(
       const labelLogic = cf.label.toLowerCase();
       const contextLogic = cf.context?.toLowerCase() || "";
 
-      // 1. Exact substring match
-      if (lowerText.includes(labelLogic)) return cf;
-      if (contextLogic && lowerText.includes(contextLogic)) return cf;
+      // 1. Exact substring match (either direction)
+      if (lowerText.length > 3 && labelLogic.length > 3 && (lowerText.includes(labelLogic) || labelLogic.includes(lowerText))) return cf;
+      if (contextLogic && lowerText.length > 3 && contextLogic.length > 3 && (lowerText.includes(contextLogic) || contextLogic.includes(lowerText))) return cf;
 
       // 2. Semantic word match (order-independent)
       // Removes stop words to match "Years of Experience in React" against "How many years of work experience do you have with React.js"
       const stopWords = new Set([
-        "in", "of", "the", "a", "an", "to", "with", "do", "you", "how", "many", 
+        "in", "of", "the", "a", "an", "to", "with", "do", "you", "how", "many",
         "have", "for", "and", "or", "is", "are", "what", "level", "your", "whether", "if"
       ]);
 
@@ -69,31 +97,122 @@ export function matchFieldsHeuristically(
       // Handle bilingual custom field labels (e.g., "Employed / 在职")
       const BILINGUAL_SEPARATORS = /[/|·•]/;
       const labelParts = labelLogic.split(BILINGUAL_SEPARATORS).map(p => p.trim()).filter(Boolean);
-      
+
       const textWords = getSignificantWords(lowerText);
-      
+
       for (const part of labelParts) {
         // Exact substring match (if it's a reasonably long specific phrase, avoids "Yes" matching randomly)
-        if (part.length > 4 && lowerText.includes(part)) return cf;
-        
+        if (part.length > 3 && (lowerText.includes(part) || part.includes(lowerText))) return cf;
+
         const cfWords = getSignificantWords(part);
-        if (cfWords.length > 0) {
-          let matchedAll = true;
+        if (cfWords.length > 0 && textWords.length > 0) {
+          // Check if all cfWords are in textWords
+          let matchedAllCF = true;
           for (const cw of cfWords) {
             const wordMatched = textWords.some(
-              (tw) => 
-                tw === cw || 
+              (tw) =>
+                tw === cw ||
                 // Only allow partial matches if both words are substantial (>= 4 chars)
                 (tw.length >= 4 && cw.length >= 4 && (tw.includes(cw) || cw.includes(tw)))
             );
             if (!wordMatched) {
-              matchedAll = false;
+              matchedAllCF = false;
               break;
             }
           }
-          if (matchedAll) return cf;
+
+          // Check if all textWords are in cfWords
+          let matchedAllText = true;
+          for (const tw of textWords) {
+            const wordMatched = cfWords.some(
+              (cw) =>
+                tw === cw ||
+                (tw.length >= 4 && cw.length >= 4 && (tw.includes(cw) || cw.includes(tw)))
+            );
+            if (!wordMatched) {
+              matchedAllText = false;
+              break;
+            }
+          }
+
+          if (matchedAllCF || matchedAllText) return cf;
         }
       }
+    }
+    return null;
+  }
+
+  // Helper to evaluate text against all memories using a semantic word match
+  function matchMemory(text: string): Memory | null {
+    if (!text || !userData.memories || userData.memories.length === 0) return null;
+    const lowerText = text.toLowerCase();
+
+    let bestMem: Memory | null = null;
+    let bestScore = 0;
+
+    for (const mem of userData.memories) {
+      const titleLogic = mem.title.toLowerCase();
+
+      // 1. Exact substring match
+      if (lowerText.includes(titleLogic)) {
+        const score = (titleLogic.length / lowerText.length) + 1.0;
+        if (score > bestScore) {
+          bestScore = score;
+          bestMem = mem;
+        }
+        continue;
+      }
+
+      // 2. Semantic word match (order-independent)
+      const stopWords = new Set([
+        "in", "of", "the", "a", "an", "to", "with", "do", "you", "how", "many",
+        "have", "for", "and", "or", "is", "are", "what", "level", "your", "whether", "if"
+      ]);
+
+      const getSignificantWords = (str: string) => {
+        return str
+          .replace(/[^a-z0-9\s]/gi, " ")
+          .split(/\s+/)
+          .filter((w) => w.length > 1 && !stopWords.has(w));
+      };
+
+      const titleWords = getSignificantWords(titleLogic);
+      const textWords = getSignificantWords(lowerText);
+
+      if (titleWords.length > 0) {
+        let matchCount = 0;
+        for (const cw of titleWords) {
+          const wordMatched = textWords.some(
+            (tw) =>
+              tw === cw ||
+              (tw.length >= 4 && cw.length >= 4 && (tw.includes(cw) || cw.includes(tw)))
+          );
+          if (wordMatched) matchCount++;
+        }
+
+        const matchRatio = matchCount / titleWords.length;
+        // Require at least 50% of the significant words in the memory title to match the form field label
+        if (matchRatio >= 0.5) {
+          if (matchRatio > bestScore) {
+            bestScore = matchRatio;
+            bestMem = mem;
+          }
+        }
+      }
+    }
+    return bestMem;
+  }
+
+  // Helper to evaluate text against saved links
+  function matchSavedLink(text: string): SavedLink | null {
+    if (!text || !userData.savedLinks || userData.savedLinks.length === 0) return null;
+    const lowerText = text.toLowerCase();
+
+    // Check specific fields like 'portfolio' or 'github' vs the standard links, but here we match the title
+    for (const link of userData.savedLinks) {
+      const titleLogic = link.title.toLowerCase();
+      // Simple substring match for links
+      if (lowerText.includes(titleLogic)) return link;
     }
     return null;
   }
@@ -134,12 +253,18 @@ export function matchFieldsHeuristically(
       continue;
     }
 
+    // Ignore dynamic/auto-generated IDs to prevent them from causing bad matches
+    const idToUse = field.id && !isDynamicId(field.id) ? field.id : "";
+    const nameToUse = field.name && !isDynamicId(field.name) ? field.name : "";
+
     const compositeText = [
       field.label,
+      field.ariaLabel,
       field.placeholder,
-      field.name,
+      nameToUse,
       field.context,
-      field.id,
+      idToUse,
+      ...(field.chatContext || [])
     ]
       .join(" ")
       .toLowerCase();
@@ -172,7 +297,7 @@ export function matchFieldsHeuristically(
       groupType = "education";
     }
 
-    // Priority 3: Custom fields mapping (Needs to override Standard rules and Textareas)
+    // Priority 3: Custom fields, Memories, and Links mapping (Needs to override Standard rules and Textareas)
     const matchedCustom = matchCustomField(compositeText);
     if (matchedCustom) {
       mappings.push({
@@ -186,8 +311,34 @@ export function matchFieldsHeuristically(
       continue;
     }
 
-    // Priority 4: Custom Question Text Areas (fallback manual input)
-    if (field.type === "textarea") {
+    const matchedMemory = matchMemory(compositeText);
+    if (matchedMemory) {
+      mappings.push({
+        fieldId: field.id,
+        id: field.id,
+        fieldType: `memory:${matchedMemory.id}`,
+        confidence: 0.85,
+        groupType,
+        groupIndex: groupType ? groupIndex : undefined,
+      });
+      continue;
+    }
+
+    const matchedLink = matchSavedLink(compositeText);
+    if (matchedLink) {
+      mappings.push({
+        fieldId: field.id,
+        id: field.id,
+        fieldType: `link:${matchedLink.id}`,
+        confidence: 0.85,
+        groupType,
+        groupIndex: groupType ? groupIndex : undefined,
+      });
+      continue;
+    }
+
+    // Priority 4: Custom Question Text Areas & Chat Inputs (fallback manual input)
+    if (field.type === "textarea" || field.type === "contenteditable") {
       let matchedRule: string | null = null;
       for (const [key, regex] of Object.entries(STANDARD_RULES)) {
         if (regex.test(compositeText)) {
@@ -196,24 +347,28 @@ export function matchFieldsHeuristically(
         }
       }
       if (!matchedRule) {
-        // If it's asking a custom question
+        // If it's asking a custom question or is a chat input
         if (
+          field.type === "contenteditable" ||
           compositeText.includes("why") ||
           compositeText.includes("describe") ||
           compositeText.includes("explain") ||
           compositeText.includes("essay")
         ) {
+          const lastChatMsg = field.chatContext && field.chatContext.length > 0 
+            ? field.chatContext[field.chatContext.length - 1] 
+            : null;
           mappings.push({
             fieldId: field.id,
             id: field.id,
             fieldType: "custom_question",
             confidence: 0.8,
             originalQuestion:
-              field.label || field.placeholder || "Unknown question",
+              lastChatMsg || field.label || field.placeholder || "Unknown question/chat",
             selectedValue: "[MANUAL_INPUT_NEEDED]",
           });
         }
-        continue; // Do not map a long textarea to a random field
+        continue; // Do not map a long textarea/chat to a random field
       }
     }
 
@@ -272,8 +427,8 @@ export function matchFieldsHeuristically(
 
     // Priority 6: Specific array groups (Skills, Language) inside Checkbox/Radio/Select
     if (
-      (field.type === "checkbox_group" || field.type === "radio_group" || 
-       field.type === "select" || field.type === "custom_select" || field.type.includes("select")) &&
+      (field.type === "checkbox_group" || field.type === "radio_group" ||
+        field.type === "select" || field.type === "custom_select" || field.type.includes("select")) &&
       !bestMatch
     ) {
       if (

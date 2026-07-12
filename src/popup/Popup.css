@@ -6,41 +6,41 @@
 
 :root {
     /* Core palette */
-    --bg-primary: #12141a;
-    --bg-secondary: #1a1d25;
-    --bg-tertiary: #22262f;
-    --bg-elevated: #272b36;
-    --bg-hover: #2d3240;
+    --bg-primary: #05050A;
+    --bg-secondary: #0A0F1F;
+    --bg-tertiary: #0D1224;
+    --bg-elevated: #161F30;
+    --bg-hover: rgba(30, 35, 60, 0.8);
 
     /* Accent */
-    --accent-primary: #7c5cfc;
-    --accent-secondary: #9b7dff;
-    --accent-glow: rgba(124, 92, 252, 0.25);
-    --accent-gradient: linear-gradient(135deg, #7c5cfc 0%, #a78bfa 100%);
+    --accent-primary: #3B82F6;
+    --accent-secondary: #60A5FA;
+    --accent-glow: rgba(59, 130, 246, 0.25);
+    --accent-gradient: linear-gradient(135deg, #3B82F6 0%, #6366F1 100%);
 
     /* Text */
-    --text-primary: #e8eaf0;
-    --text-secondary: #9ca3b4;
-    --text-muted: #636b7e;
-    --text-label: #b0b8cc;
+    --text-primary: #FFFFFF;
+    --text-secondary: #94A3B8;
+    --text-muted: #64748B;
+    --text-label: #CBD5E1;
 
     /* Borders */
-    --border-subtle: rgba(255, 255, 255, 0.06);
-    --border-default: rgba(255, 255, 255, 0.1);
-    --border-focus: rgba(124, 92, 252, 0.5);
+    --border-subtle: rgba(255, 255, 255, 0.04);
+    --border-default: rgba(255, 255, 255, 0.08);
+    --border-focus: rgba(59, 130, 246, 0.5);
 
     /* Status */
-    --success: #34d399;
-    --success-bg: rgba(52, 211, 153, 0.1);
-    --error: #f87171;
-    --error-bg: rgba(248, 113, 113, 0.1);
-    --info: #60a5fa;
-    --info-bg: rgba(96, 165, 250, 0.1);
+    --success: #10B981;
+    --success-bg: rgba(16, 185, 129, 0.1);
+    --error: #EF4444;
+    --error-bg: rgba(239, 68, 68, 0.1);
+    --info: #3B82F6;
+    --info-bg: rgba(59, 130, 246, 0.1);
 
     /* Button gradients */
-    --btn-save: linear-gradient(135deg, #059669 0%, #34d399 100%);
-    --btn-fill: linear-gradient(135deg, #7c5cfc 0%, #ec4899 100%);
-    --btn-fill-hover: linear-gradient(135deg, #6d4de8 0%, #db2777 100%);
+    --btn-save: linear-gradient(135deg, #059669 0%, #10B981 100%);
+    --btn-fill: linear-gradient(135deg, #3B82F6 0%, #10B981 100%);
+    --btn-fill-hover: linear-gradient(135deg, #2563EB 0%, #059669 100%);
 
     /* Sizing */
     --radius-sm: 6px;

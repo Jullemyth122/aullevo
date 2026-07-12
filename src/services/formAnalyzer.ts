@@ -88,99 +88,6 @@ export function detectPageCaptcha(): { found: boolean; types: string[] } {
 }
 
 /* ═══════════════════════════════════════════════════
-   IFRAME FIELD EXTRACTION
-   ═══════════════════════════════════════════════════ */
-
-/**
- * Request form fields from all child iframes via postMessage.
- * Returns a Promise that resolves with all collected iframe fields.
- * The iframe content scripts must have the IFRAME_FIELD_RESPONDER
- * listener active (injected via manifest all_frames: true).
- *
- * Usage: const iframeFields = await extractIframeFields(2000);
- */
-export function extractIframeFields(timeoutMs = 2000): Promise<FormField[]> {
-  return new Promise((resolve) => {
-    const collected: FormField[] = [];
-    const iframes = Array.from(
-      document.querySelectorAll<HTMLIFrameElement>("iframe"),
-    );
-
-    if (iframes.length === 0) return resolve([]);
-
-    let pending = iframes.length;
-    const REQUEST_ID = `aullevo_iframe_${Date.now()}`;
-
-    const onMessage = (event: MessageEvent) => {
-      if (
-        event.data?.type === "AULLEVO_IFRAME_FIELDS_RESPONSE" &&
-        event.data?.requestId === REQUEST_ID
-      ) {
-        const fields: FormField[] = event.data.fields || [];
-        // Tag each field so we know it came from an iframe
-        fields.forEach((f) => {
-          (f as any)._fromIframe = true;
-        });
-        collected.push(...fields);
-        pending--;
-        if (pending === 0) finish();
-      }
-    };
-
-    window.addEventListener("message", onMessage);
-
-    // Send request to each iframe
-    iframes.forEach((iframe) => {
-      try {
-        iframe.contentWindow?.postMessage(
-          { type: "AULLEVO_EXTRACT_FIELDS", requestId: REQUEST_ID },
-          "*",
-        );
-      } catch {
-        // cross-origin iframe — can't reach, just decrement
-        pending--;
-        if (pending === 0) finish();
-      }
-    });
-
-    // Timeout fallback
-    const timer = setTimeout(finish, timeoutMs);
-
-    function finish() {
-      clearTimeout(timer);
-      window.removeEventListener("message", onMessage);
-      resolve(collected);
-    }
-  });
-}
-
-/**
- * Register this content script as an iframe responder.
- * Call this once when the content script loads inside an iframe.
- * It listens for AULLEVO_EXTRACT_FIELDS and replies with fields.
- */
-export function registerIframeFieldResponder(): void {
-  // Only activate inside actual iframes, not the top frame
-  if (window === window.top) return;
-
-  window.addEventListener("message", (event: MessageEvent) => {
-    if (event.data?.type !== "AULLEVO_EXTRACT_FIELDS") return;
-
-    const fields = extractFormFields();
-
-    // Reply to parent
-    window.parent.postMessage(
-      {
-        type: "AULLEVO_IFRAME_FIELDS_RESPONSE",
-        requestId: event.data.requestId,
-        fields,
-      },
-      "*",
-    );
-  });
-}
-
-/* ═══════════════════════════════════════════════════
    FORM FIELD EXTRACTION (with CAPTCHA skip)
    ═══════════════════════════════════════════════════ */
 
@@ -189,11 +96,49 @@ export function registerIframeFieldResponder(): void {
  * CAPTCHA fields are automatically detected and skipped.
  */
 export function extractFormFields(): FormField[] {
+  // Find all candidate label elements on the page once to cache their positions and text
+  const labelCandidates = Array.from(
+    document.querySelectorAll<HTMLElement>(
+      'label, .x-lbl, .label, [class*="label" i], [class*="lbl" i], [class*="title" i], span, div',
+    ),
+  ).filter((el) => {
+    if (
+      el.tagName === "INPUT" ||
+      el.tagName === "SELECT" ||
+      el.tagName === "TEXTAREA" ||
+      el.tagName === "BUTTON" ||
+      el.tagName === "FORM"
+    ) {
+      return false;
+    }
+    const text = el.textContent?.trim() || "";
+    if (text.length < 2 || text.length > 80) return false;
+
+    // Skip if it contains inputs (we only want actual text labels/headers)
+    if (el.querySelector("input, select, textarea, button")) return false;
+
+    return true;
+  });
+
+  const labelRects = labelCandidates
+    .map((el) => {
+      return {
+        element: el,
+        rect: el.getBoundingClientRect(),
+        text: cleanLabelText(el.textContent || ""),
+      };
+    })
+    .filter((item) => {
+      return (
+        item.rect.width > 0 && item.rect.height > 0 && item.text.length >= 2
+      );
+    });
+
   // 1. Select all inputs from the entire document
   // (Hidden inputs will be filtered out by the isVisible check below)
   const inputs = Array.from(
     document.body.querySelectorAll<HTMLElement>(
-      "input, textarea, select, button, [contenteditable='true'], [role='textbox'], [role='radio'], [role='checkbox']"
+      "input, textarea, select, button, [contenteditable='true'], [role='textbox'], [role='radio'], [role='checkbox']",
     ),
   );
 
@@ -209,6 +154,15 @@ export function extractFormFields(): FormField[] {
     const isFileInput =
       input.tagName === "INPUT" && (input as HTMLInputElement).type === "file";
     if (!isVisible(input) && !isFileInput) return;
+
+    // ── HONEYPOT SKIP ──
+    if (isHoneypot(input)) {
+      console.log(
+        "Aullevo: honeypot field detected — skipping:",
+        input.id || input.getAttribute("name"),
+      );
+      return;
+    }
 
     // ── CAPTCHA SKIP ──
     // Check the input itself and its closest wrapper container
@@ -253,8 +207,12 @@ export function extractFormFields(): FormField[] {
     }
 
     // Logic for distinct handling of Radios/Checkboxes
-    const isRadio = (input instanceof HTMLInputElement && input.type === "radio") || input.getAttribute("role") === "radio";
-    const isCheckbox = (input instanceof HTMLInputElement && input.type === "checkbox") || input.getAttribute("role") === "checkbox";
+    const isRadio =
+      (input instanceof HTMLInputElement && input.type === "radio") ||
+      input.getAttribute("role") === "radio";
+    const isCheckbox =
+      (input instanceof HTMLInputElement && input.type === "checkbox") ||
+      input.getAttribute("role") === "checkbox";
 
     if (isRadio || isCheckbox) {
       let name = input.getAttribute("name") || "";
@@ -284,7 +242,8 @@ export function extractFormFields(): FormField[] {
 
       if (!groupMap.has(name)) {
         const groupType = isRadio ? "radio_group" : "checkbox_group";
-        const groupLabel = findGroupLabel(input) || findLabel(input);
+        const groupLabel =
+          findGroupLabel(input, labelRects) || findLabel(input, labelRects);
         const context = findFieldContext(input);
         const section = findFieldSection(input);
 
@@ -296,15 +255,21 @@ export function extractFormFields(): FormField[] {
           label: groupLabel,
           ariaLabel: input.getAttribute("aria-label") || "",
           autocomplete: input.getAttribute("autocomplete") || "",
-          required: (input as HTMLInputElement).required || input.getAttribute("aria-required") === "true",
+          required:
+            (input as HTMLInputElement).required ||
+            input.getAttribute("aria-required") === "true",
           context: context,
           section: section,
           options: [],
         });
       }
 
-      const inputValue = (input as HTMLInputElement).value || input.getAttribute("value") || input.textContent?.trim() || "on";
-      const optionLabel = findLabel(input) || inputValue;
+      const inputValue =
+        (input as HTMLInputElement).value ||
+        input.getAttribute("value") ||
+        input.textContent?.trim() ||
+        "on";
+      const optionLabel = findLabel(input, labelRects) || inputValue;
       const group = groupMap.get(name)!;
       group.options?.push({
         label: optionLabel,
@@ -332,8 +297,9 @@ export function extractFormFields(): FormField[] {
 
     const isRangeInput =
       input instanceof HTMLInputElement && input.type === "range";
-    
-    const isContentEditable = input.isContentEditable || input.getAttribute("role") === "textbox";
+
+    const isContentEditable =
+      input.isContentEditable || input.getAttribute("role") === "textbox";
     let chatContext: string[] | undefined = undefined;
     if (isContentEditable) {
       chatContext = extractChatContext(input);
@@ -342,9 +308,9 @@ export function extractFormFields(): FormField[] {
     const fieldInfo: FormField = {
       id: fieldId,
       name: input.getAttribute("name") || "",
-      type: isContentEditable 
-          ? "contenteditable"
-          : input instanceof HTMLInputElement
+      type: isContentEditable
+        ? "contenteditable"
+        : input instanceof HTMLInputElement
           ? input.type
           : input.tagName.toLowerCase(),
       placeholder:
@@ -354,7 +320,7 @@ export function extractFormFields(): FormField[] {
           : "",
       label: isButton
         ? (input.textContent || (input as HTMLInputElement).value || "").trim()
-        : findLabel(input),
+        : findLabel(input, labelRects),
       ariaLabel: input.getAttribute("aria-label") || "",
       autocomplete: input.getAttribute("autocomplete") || "",
       required:
@@ -409,7 +375,8 @@ export function extractFormFields(): FormField[] {
     if (processedIds.has(elId)) return;
     if (el.querySelector("select")) return;
 
-    const label = findLabel(el) || el.getAttribute("aria-label") || "";
+    const label =
+      findLabel(el, labelRects) || el.getAttribute("aria-label") || "";
     const context = findFieldContext(el);
     const section = findFieldSection(el);
     const placeholder =
@@ -461,7 +428,7 @@ export function extractFormFields(): FormField[] {
       el.getAttribute("aria-checked") === "true" ||
       el.classList.contains("active");
 
-    const label = findLabel(el);
+    const label = findLabel(el, labelRects);
     const context = findFieldContext(el);
     const section = findFieldSection(el);
 
@@ -490,22 +457,87 @@ function isVisible(element: HTMLElement): boolean {
   if (!element) return false;
   const style = window.getComputedStyle(element);
   if (style.display === "none") return false;
+  if (style.visibility === "hidden") return false;
+  if (parseFloat(style.opacity || "1") === 0) return false;
 
-  if (element.offsetParent === null) {
-    if (style.position !== "fixed" && style.position !== "absolute") {
-      let p = element.parentElement;
-      let isNone = false;
-      while (p) {
-        if (window.getComputedStyle(p).display === "none") {
-          isNone = true;
-          break;
-        }
-        p = p.parentElement;
+  const rect = element.getBoundingClientRect();
+  const isZeroSize = rect.width === 0 && rect.height === 0;
+
+  const isFileInput = element instanceof HTMLInputElement && element.type === "file";
+  if (isZeroSize && !isFileInput) return false;
+
+  const isOffScreen =
+    rect.right < -500 ||
+    rect.bottom < -500 ||
+    rect.left > window.innerWidth + 500 ||
+    rect.top > window.innerHeight + 500;
+
+  if (isOffScreen && style.position === "absolute" && !isFileInput) {
+    return false;
+  }
+
+  if (element.offsetParent === null && style.position !== "fixed" && style.position !== "absolute") {
+    let p = element.parentElement;
+    let isNone = false;
+    while (p) {
+      const pStyle = window.getComputedStyle(p);
+      if (pStyle.display === "none" || pStyle.visibility === "hidden" || parseFloat(pStyle.opacity || "1") === 0) {
+        isNone = true;
+        break;
       }
-      if (isNone) return false;
+      p = p.parentElement;
+    }
+    if (isNone) return false;
+  }
+
+  if (element.getAttribute("aria-hidden") === "true") return false;
+
+  let parent = element.parentElement;
+  while (parent) {
+    if (parent.getAttribute("aria-hidden") === "true") return false;
+    parent = parent.parentElement;
+  }
+
+  return true;
+}
+
+function isHoneypot(element: HTMLElement): boolean {
+  if (!element) return false;
+
+  const HONEYPOT_KEYWORDS = [
+    "honeypot",
+    "spambot",
+    "bot-check",
+    "prevent-bot",
+    "nobot",
+    "fake-field",
+    "contact_me_by_fax_only",
+    "email_address_confirm",
+  ];
+
+  const name = (element.getAttribute("name") || "").toLowerCase();
+  const id = (element.id || "").toLowerCase();
+  const className = (element.className || "").toLowerCase();
+  const autocomplete = (element.getAttribute("autocomplete") || "").toLowerCase();
+
+  const isMatchedKeyword = HONEYPOT_KEYWORDS.some(
+    (kw) => name.includes(kw) || id.includes(kw) || className.includes(kw),
+  );
+  if (isMatchedKeyword) return true;
+
+  if (autocomplete === "nope" || autocomplete === "off-bot") return true;
+
+  const style = window.getComputedStyle(element);
+  if (style.position === "absolute") {
+    const left = parseInt(style.left || "0", 10);
+    const top = parseInt(style.top || "0", 10);
+    const zIndex = parseInt(style.zIndex || "0", 10);
+    if ((left < -100 || top < -100 || zIndex < -100) && (style.opacity === "0" || style.display === "none")) {
+      return true;
     }
   }
-  return true;
+
+  return false;
 }
 
 function findActiveModals(): HTMLElement[] {
@@ -567,57 +599,211 @@ function findFieldSection(input: HTMLElement): string {
   return "";
 }
 
-function findLabel(input: HTMLElement): string {
+export function cleanLabelText(text: string): string {
+  if (!text) return "";
+  // Strip all newlines and carriage returns completely
+  let cleaned = text.replace(/[\r\n]+/g, "");
+  // Replace multiple spaces with a single space
+  cleaned = cleaned.replace(/\s+/g, " ").trim();
+
+  // If the result contains spaced-out characters like "U s e r n a m e" or "S e c u r e   T o k e n", collapse them
+  const parts = cleaned.split(/ {2,}/);
+  const processedParts = parts.map((part) => {
+    const words = part.split(" ");
+    const singleLetterCount = words.filter((w) => w.length === 1).length;
+    if (words.length > 1 && singleLetterCount / words.length > 0.6) {
+      return words.join("");
+    }
+    return part;
+  });
+  cleaned = processedParts.join(" ");
+
+  if (
+    /^([A-Za-z]\s)+[A-Za-z]?$/.test(cleaned) ||
+    /^([A-Z]\s)+[A-Z]?$/i.test(cleaned)
+  ) {
+    cleaned = cleaned.replace(/\s+/g, "");
+  }
+
+  return cleaned;
+}
+
+function findVisualLabelForInput(
+  input: HTMLElement,
+  labelRects: Array<{ element: HTMLElement; rect: DOMRect; text: string }>,
+): string {
+  const inputRect = input.getBoundingClientRect();
+  if (inputRect.width === 0 || inputRect.height === 0) return "";
+
+  let bestLabel = "";
+  let minScore = Infinity;
+
+  const inputCenterY = inputRect.top + inputRect.height / 2;
+
+  for (const item of labelRects) {
+    const labelRect = item.rect;
+    const labelCenterY = labelRect.top + labelRect.height / 2;
+
+    // Check if the label is the input itself or contains the input (unlikely, but safety first)
+    if (item.element.contains(input) || input.contains(item.element)) continue;
+
+    // 1. Above Layout: Label is above the input
+    // Label's bottom is above input's top (with 5px buffer)
+    const isAbove = labelRect.bottom <= inputRect.top + 5;
+    const distYAbove = inputRect.top - labelRect.bottom;
+    // Horizontal overlap or close alignment
+    const overlapX =
+      Math.min(labelRect.right, inputRect.right) -
+      Math.max(labelRect.left, inputRect.left);
+    const distXAbove = Math.abs(labelRect.left - inputRect.left);
+
+    // 2. Left Layout: Label is to the left of the input
+    // Label's right is to the left of input's left (with 5px buffer)
+    const isLeft = labelRect.right <= inputRect.left + 5;
+    const distXLeft = inputRect.left - labelRect.right;
+    const distYLeft = Math.abs(labelCenterY - inputCenterY);
+
+    // 3. Right Layout (mainly for checkboxes/radios)
+    const isRight = labelRect.left >= inputRect.right - 5;
+    const distXRight = labelRect.left - inputRect.right;
+    const distYRight = Math.abs(labelCenterY - inputCenterY);
+
+    let score = Infinity;
+
+    if (isAbove && distYAbove < 120) {
+      // Score based on vertical distance and horizontal alignment
+      // We want to penalize horizontal misalignment
+      const alignmentPenalty = overlapX > -10 ? distXAbove : distXAbove * 3;
+      score = distYAbove + alignmentPenalty;
+    } else if (isLeft && distXLeft < 250 && distYLeft < 30) {
+      // Score based on horizontal distance and vertical alignment
+      score = distXLeft + distYLeft * 2;
+    } else if (isRight && distXRight < 150 && distYRight < 20) {
+      // Score for checkboxes/radios
+      score = distXRight + distYRight * 3;
+    }
+
+    if (score < minScore) {
+      minScore = score;
+      bestLabel = item.text;
+    }
+  }
+
+  // Only return if the score is reasonably close
+  return minScore < 150 ? bestLabel : "";
+}
+
+function findLabel(
+  input: HTMLElement,
+  labelRects?: Array<{ element: HTMLElement; rect: DOMRect; text: string }>,
+): string {
+  // 1. Direct ARIA attributes and placeholders (crucial for modern obfuscated forms like Facebook/Workday)
+  const ariaLabel = input.getAttribute("aria-label");
+  if (ariaLabel) {
+    const cleaned = cleanLabelText(ariaLabel);
+    if (cleaned && cleaned.length > 1) return cleaned;
+  }
+
+  const ariaLabelledby = input.getAttribute("aria-labelledby");
+  if (ariaLabelledby) {
+    const ids = ariaLabelledby.split(/\s+/);
+    let combinedText = "";
+    for (const id of ids) {
+      const el = document.getElementById(id);
+      if (el) {
+        combinedText += " " + (el.textContent || "");
+      }
+    }
+    const cleaned = cleanLabelText(combinedText);
+    if (cleaned && cleaned.length > 1) return cleaned;
+  }
+
+  const placeholder = input.getAttribute("placeholder");
+  if (placeholder) {
+    const cleaned = cleanLabelText(placeholder);
+    if (cleaned && cleaned.length > 1) return cleaned;
+  }
+
+  const title = input.getAttribute("title");
+  if (title) {
+    const cleaned = cleanLabelText(title);
+    if (cleaned && cleaned.length > 1) return cleaned;
+  }
+
+  const dataLabel =
+    input.getAttribute("data-label") || input.getAttribute("data-field-label");
+  if (dataLabel) {
+    const cleaned = cleanLabelText(dataLabel);
+    if (cleaned && cleaned.length > 1) return cleaned;
+  }
+
+  // 2. Standard Label elements
   if (input.id) {
     const label = document.querySelector<HTMLLabelElement>(
       `label[for="${input.id}"]`,
     );
-    if (label) return label.textContent?.trim() || "";
+    if (label) return cleanLabelText(label.textContent || "");
   }
   const parentLabel = input.closest("label");
   if (parentLabel) {
     const clone = parentLabel.cloneNode(true) as HTMLElement;
     const innerInput = clone.querySelector("input, select, textarea");
     if (innerInput) innerInput.remove();
-    return clone.textContent?.trim() || "";
+    return cleanLabelText(clone.textContent || "");
   }
 
-  // Custom UI components often place the label text in a generic div right before the input container
+  // 3. Attempt spatial/visual positioning label matching
+  if (labelRects) {
+    const visualLabel = findVisualLabelForInput(input, labelRects);
+    if (visualLabel) return visualLabel;
+  }
+
+  // 4. Custom UI / Nested components parent scanning (e.g., Facebook login/register nested hierarchy)
   let el: HTMLElement | null = input;
-  for (let i = 0; i < 4 && el; i++) {
+  for (let i = 0; i < 5 && el; i++) {
+    // Check all previous siblings of the current level
     let prev = el.previousElementSibling as HTMLElement;
     while (prev) {
       if (!prev.matches("input, select, textarea, button, form")) {
-        const text = prev.textContent?.trim() || "";
+        const text = cleanLabelText(prev.textContent || "");
         if (text && text.length < 100 && text.length > 2) return text;
       }
       prev = prev.previousElementSibling as HTMLElement;
+    }
+
+    // Check descendants of parent if they are span/div/p that act as floating/placeholder labels
+    if (el !== input) {
+      const children = Array.from(el.querySelectorAll("span, p, div, label"));
+      for (const child of children) {
+        if (child !== input && !child.contains(input)) {
+          const text = cleanLabelText(child.textContent || "");
+          if (text && text.length < 100 && text.length > 2 && !child.querySelector("input, select, textarea")) {
+            return text;
+          }
+        }
+      }
     }
     el = el.parentElement;
   }
 
   const prevSibling = input.previousElementSibling;
   if (prevSibling && prevSibling.tagName === "LABEL") {
-    return prevSibling.textContent?.trim() || "";
+    return cleanLabelText(prevSibling.textContent || "");
   }
   if (
     prevSibling &&
     (prevSibling.tagName === "SPAN" || prevSibling.tagName === "DIV")
   ) {
-    return prevSibling.textContent?.trim() || "";
+    return cleanLabelText(prevSibling.textContent || "");
   }
   const describedBy = input.getAttribute("aria-describedby");
   if (describedBy) {
     const descEl = document.getElementById(describedBy);
     if (descEl && (descEl.textContent?.length || 0) < 80) {
-      return descEl.textContent?.trim() || "";
+      return cleanLabelText(descEl.textContent || "");
     }
   }
-  const title = input.getAttribute("title");
-  if (title) return title;
-  const dataLabel =
-    input.getAttribute("data-label") || input.getAttribute("data-field-label");
-  if (dataLabel) return dataLabel;
+
   const parentEl = input.parentElement;
   if (parentEl) {
     const sibLabel = parentEl.querySelector(
@@ -628,7 +814,7 @@ function findLabel(input: HTMLElement): string {
       sibLabel !== input &&
       (sibLabel.textContent?.length || 0) < 60
     ) {
-      return sibLabel.textContent?.trim() || "";
+      return cleanLabelText(sibLabel.textContent || "");
     }
   }
   const cell = input.closest("td");
@@ -636,24 +822,27 @@ function findLabel(input: HTMLElement): string {
     const prevCell = cell.previousElementSibling;
     if (prevCell && (prevCell.tagName === "TD" || prevCell.tagName === "TH")) {
       if ((prevCell.textContent?.length || 0) < 50) {
-        return prevCell.textContent?.trim() || "";
+        return cleanLabelText(prevCell.textContent || "");
       }
     }
   }
   return "";
 }
 
-function findGroupLabel(input: HTMLElement): string {
+function findGroupLabel(
+  input: HTMLElement,
+  labelRects?: Array<{ element: HTMLElement; rect: DOMRect; text: string }>,
+): string {
   const fieldset = input.closest("fieldset");
   if (fieldset) {
     const legend = fieldset.querySelector("legend");
-    if (legend) return legend.textContent?.trim() || "";
+    if (legend) return cleanLabelText(legend.textContent || "");
   }
   const row = input.closest("tr");
   if (row) {
     const firstCell = row.firstElementChild;
     if (firstCell && !firstCell.contains(input)) {
-      return firstCell.textContent?.trim() || "";
+      return cleanLabelText(firstCell.textContent || "");
     }
   }
 
@@ -676,8 +865,14 @@ function findGroupLabel(input: HTMLElement): string {
       !labelEl.contains(input) &&
       (labelEl.textContent?.length || 0) < 100
     ) {
-      return labelEl.textContent?.trim() || "";
+      return cleanLabelText(labelEl.textContent || "");
     }
+  }
+
+  // Attempt spatial/visual positioning label matching
+  if (labelRects) {
+    const visualLabel = findVisualLabelForInput(input, labelRects);
+    if (visualLabel) return visualLabel;
   }
 
   // Also check immediate previous sibling of the group container
@@ -691,20 +886,30 @@ function findGroupLabel(input: HTMLElement): string {
       (prevSib.textContent?.length || 0) < 100 &&
       (prevSib.textContent?.length || 0) > 2
     ) {
-      return prevSib.textContent?.trim() || "";
+      return cleanLabelText(prevSib.textContent || "");
     }
   }
 
   return "";
 }
 
-export function fillFormField(
+export async function fillFormField(
   fieldIdentifier: FieldMapping,
-  value: string | boolean | string[],
-  resumeFileInfo?: { resumeFileData?: string; resumeFileName?: string },
-): boolean {
-  let input: HTMLElement | null = null;
-  let inputs: NodeListOf<HTMLElement> | null = null;
+  value: string | string[] | boolean,
+  contextOpts?: {
+    resumeFileData?: string;
+    resumeFileName?: string;
+    autoSubmit?: boolean;
+  },
+): Promise<boolean> {
+  if (
+    value === undefined ||
+    value === null ||
+    value === "[MANUAL_INPUT_NEEDED]"
+  )
+    return false;
+  let input = document.getElementById(fieldIdentifier.id || "");
+  let inputs: NodeListOf<Element> | null = null;
 
   if (fieldIdentifier.id) {
     input = document.getElementById(fieldIdentifier.id);
@@ -757,6 +962,18 @@ export function fillFormField(
     }
   }
 
+  // Fallback for Messenger/React chat boxes that strip IDs on re-render
+  if (
+    !input &&
+    !inputs &&
+    (fieldIdentifier.fieldType === "contenteditable" ||
+      fieldIdentifier.fieldType === "custom_question")
+  ) {
+    input = document.querySelector(
+      '[role="textbox"], [contenteditable="true"]',
+    );
+  }
+
   if (!input && !inputs && fieldIdentifier.id) {
     const isCustomSelect =
       fieldIdentifier.id.startsWith("custom_select_") ||
@@ -803,7 +1020,11 @@ export function fillFormField(
             "on",
             "1",
             "checked",
-          ].includes(String(value).toLowerCase());
+            "agree",
+            "accept",
+            "consent",
+            "confirm",
+          ].some((w) => String(value).toLowerCase().includes(w));
           const valStr = el.value.toLowerCase().trim();
           const label = findLabel(el).toLowerCase().trim();
 
@@ -815,7 +1036,9 @@ export function fillFormField(
                 label.includes(v) ||
                 v.includes(label) ||
                 fuzzyMatch(label, v) ||
-                fuzzyMatch(valStr, v),
+                fuzzyMatch(valStr, v) ||
+                smartMatch(label, v) ||
+                smartMatch(valStr, v),
             )
           ) {
             setCheckboxState(el, true);
@@ -836,19 +1059,25 @@ export function fillFormField(
     } else if (input instanceof HTMLInputElement) {
       if (input.type === "checkbox") {
         const valLower = String(value).toLowerCase();
-        const isPositive = ["true", "yes", "on", "1", "checked"].includes(
-          valLower,
-        );
+        const isPositive = [
+          "true",
+          "yes",
+          "on",
+          "1",
+          "checked",
+          "agree",
+          "accept",
+          "consent",
+          "confirm",
+        ].some((w) => valLower.includes(w));
         setCheckboxState(input, isPositive);
       } else if (input.type === "file") {
         if (value === "FILE_UPLOAD") {
           if (fieldIdentifier.files && fieldIdentifier.files.length > 0) {
             return fillMultiFileInput(input, fieldIdentifier.files);
           }
-          const fData =
-            fieldIdentifier.fileData || resumeFileInfo?.resumeFileData;
-          const fName =
-            fieldIdentifier.fileName || resumeFileInfo?.resumeFileName;
+          const fData = fieldIdentifier.fileData || contextOpts?.resumeFileData;
+          const fName = fieldIdentifier.fileName || contextOpts?.resumeFileName;
           if (fData && fName) {
             return fillFileInput(input, fData, fName);
           }
@@ -899,10 +1128,102 @@ export function fillFormField(
           );
           return false;
         }
+      } else if (
+        input.type === "date" ||
+        fieldIdentifier.fieldType === "dateOfBirth" ||
+        input.id.toLowerCase().includes("date") ||
+        input.id.toLowerCase().includes("dob") ||
+        input.name.toLowerCase().includes("date") ||
+        input.name.toLowerCase().includes("dob") ||
+        findLabel(input).toLowerCase().includes("date") ||
+        findLabel(input).toLowerCase().includes("dob")
+      ) {
+        const valStr = String(value);
+        const isoDate = parseDateString(valStr);
+        if (isoDate) {
+          let setVal = isoDate;
+          if (input.type === "text") {
+            setVal = formatDateForDisplay(isoDate);
+          }
+
+          const nativeSetter = Object.getOwnPropertyDescriptor(
+            Object.getPrototypeOf(input),
+            "value",
+          )?.set;
+          if (nativeSetter) {
+            nativeSetter.call(input, setVal);
+          } else {
+            input.value = setVal;
+          }
+          triggerEvents(input);
+
+          // For custom date pickers, if there is a sibling hidden input, fill that too!
+          const container = input.closest(
+            ".field-block, .form-group, .date-trigger-container, div",
+          );
+          if (container) {
+            const hiddenInputs = container.querySelectorAll(
+              'input[type="hidden"]',
+            );
+            hiddenInputs.forEach((hiddenInput) => {
+              if (hiddenInput instanceof HTMLInputElement) {
+                const hiddenSetter = Object.getOwnPropertyDescriptor(
+                  HTMLInputElement.prototype,
+                  "value",
+                )?.set;
+                if (hiddenSetter) {
+                  hiddenSetter.call(hiddenInput, isoDate);
+                } else {
+                  hiddenInput.value = isoDate;
+                }
+                hiddenInput.dispatchEvent(
+                  new Event("input", { bubbles: true }),
+                );
+                hiddenInput.dispatchEvent(
+                  new Event("change", { bubbles: true }),
+                );
+              }
+            });
+          }
+        } else {
+          const nativeSetter = Object.getOwnPropertyDescriptor(
+            Object.getPrototypeOf(input),
+            "value",
+          )?.set;
+          if (nativeSetter) {
+            nativeSetter.call(input, valStr);
+          } else {
+            input.value = valStr;
+          }
+          triggerEvents(input);
+        }
       } else {
-        // Use native setter for React text inputs too
+        const storage = await chrome.storage.local.get("stealthMode");
+        const isStealth = storage.stealthMode !== false;
+        if (isStealth) {
+          await humanTypeValue(input, value as string);
+        } else {
+          // Use native setter for React text inputs too
+          const nativeSetter = Object.getOwnPropertyDescriptor(
+            Object.getPrototypeOf(input),
+            "value",
+          )?.set;
+          if (nativeSetter) {
+            nativeSetter.call(input, value as string);
+          } else {
+            input.value = value as string;
+          }
+          triggerEvents(input);
+        }
+      }
+    } else if (input instanceof HTMLTextAreaElement) {
+      const storage = await chrome.storage.local.get("stealthMode");
+      const isStealth = storage.stealthMode !== false;
+      if (isStealth) {
+        await humanTypeValue(input, value as string);
+      } else {
         const nativeSetter = Object.getOwnPropertyDescriptor(
-          Object.getPrototypeOf(input),
+          HTMLTextAreaElement.prototype,
           "value",
         )?.set;
         if (nativeSetter) {
@@ -912,22 +1233,22 @@ export function fillFormField(
         }
         triggerEvents(input);
       }
-    } else if (input instanceof HTMLTextAreaElement) {
-      const nativeSetter = Object.getOwnPropertyDescriptor(
-        HTMLTextAreaElement.prototype,
-        "value",
-      )?.set;
-      if (nativeSetter) {
-        nativeSetter.call(input, value as string);
-      } else {
-        input.value = value as string;
-      }
-      triggerEvents(input);
-    } else if (input.isContentEditable || input.getAttribute("role") === "textbox") {
+    } else if (
+      input.isContentEditable ||
+      input.getAttribute("role") === "textbox"
+    ) {
       // Modern chat automation (Messenger, Slack, etc.)
-      input.focus();
-      document.execCommand("insertText", false, value as string);
-      triggerEvents(input);
+      const injected = fillChatInputField(input, value as string);
+
+      const isError =
+        String(value).includes("[Error") || String(value).includes("I'm sorry");
+
+      if (injected && contextOpts?.autoSubmit && !isError) {
+        setTimeout(() => {
+          if (!input) return;
+          submitChatField(input);
+        }, 300);
+      }
     } else {
       return fillCustomSelect(fieldIdentifier.id || "", String(value));
     }
@@ -982,6 +1303,8 @@ function scoreOptionMatch(
   const vl = optValue.toLowerCase().trim();
 
   if (vl === valLower || tl === valLower) return 100;
+  if (smartMatch(optText, valLower) || smartMatch(optValue, valLower))
+    return 95;
 
   // Strip parenthetical parts like "(+63)" from option text
   const strippedText = tl.replace(/\s*\([^)]*\)\s*/g, "").trim();
@@ -1151,6 +1474,204 @@ function fuzzyMatch(a: string, b: string): boolean {
 }
 
 /**
+ * Helper to parse various date string formats and return standard YYYY-MM-DD.
+ */
+function parseDateString(str: string): string | null {
+  if (!str) return null;
+  const trimmed = str.trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+    return trimmed;
+  }
+
+  const monthNames = [
+    "jan",
+    "feb",
+    "mar",
+    "apr",
+    "may",
+    "jun",
+    "jul",
+    "aug",
+    "sep",
+    "oct",
+    "nov",
+    "dec",
+  ];
+  const fullMonthNames = [
+    "january",
+    "february",
+    "march",
+    "april",
+    "may",
+    "june",
+    "july",
+    "august",
+    "september",
+    "october",
+    "november",
+    "december",
+  ];
+
+  let normalized = trimmed.toLowerCase();
+
+  let monthIdx = -1;
+  for (let i = 0; i < 12; i++) {
+    if (
+      normalized.includes(fullMonthNames[i]) ||
+      normalized.includes(monthNames[i])
+    ) {
+      monthIdx = i;
+      normalized = normalized
+        .replace(fullMonthNames[i], ` ${i + 1} `)
+        .replace(monthNames[i], ` ${i + 1} `);
+      break;
+    }
+  }
+
+  const parts = normalized
+    .split(/[^0-9]+/)
+    .filter(Boolean)
+    .map(Number);
+  if (parts.length < 3) return null;
+
+  let year = -1;
+  let month = -1;
+  let day = -1;
+
+  const yearIdx = parts.findIndex((p) => p >= 1000 && p <= 9999);
+  if (yearIdx !== -1) {
+    year = parts[yearIdx];
+    parts.splice(yearIdx, 1);
+  } else {
+    const lastPart = parts[parts.length - 1];
+    if (lastPart < 100) {
+      year = lastPart + (lastPart < 50 ? 2000 : 1900);
+      parts.splice(parts.length - 1, 1);
+    }
+  }
+
+  if (year === -1) return null;
+
+  if (monthIdx !== -1) {
+    month = monthIdx + 1;
+    day = parts[0];
+  } else {
+    const [first, second] = parts;
+    if (first > 12) {
+      day = first;
+      month = second;
+    } else if (second > 12) {
+      day = second;
+      month = first;
+    } else {
+      day = first;
+      month = second;
+    }
+  }
+
+  if (month < 1 || month > 12 || day < 1 || day > 31) return null;
+
+  const mm = String(month).padStart(2, "0");
+  const dd = String(day).padStart(2, "0");
+  return `${year}-${mm}-${dd}`;
+}
+
+/**
+ * Format a YYYY-MM-DD date to a human readable display format like "November 20, 2003".
+ */
+function formatDateForDisplay(isoDate: string): string {
+  const parts = isoDate.split("-");
+  if (parts.length !== 3) return isoDate;
+  const year = parts[0];
+  const month = parseInt(parts[1], 10);
+  const day = parseInt(parts[2], 10);
+
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  if (month >= 1 && month <= 12) {
+    return `${monthNames[month - 1]} ${day}, ${year}`;
+  }
+  return isoDate;
+}
+
+/**
+ * Smart matching helper for checkbox labels/values.
+ */
+function smartMatch(label: string, value: string): boolean {
+  if (!label || !value) return false;
+  const lLower = label.toLowerCase().trim();
+  const vLower = value.toLowerCase().trim();
+
+  if (lLower === vLower || lLower.includes(vLower) || vLower.includes(lLower)) {
+    return true;
+  }
+
+  const lNorm = lLower.replace(/[^a-z0-9]/g, "");
+  const vNorm = vLower.replace(/[^a-z0-9]/g, "");
+  if (lNorm.includes(vNorm) || vNorm.includes(lNorm)) {
+    return true;
+  }
+
+  const stopWords = new Set([
+    "in",
+    "of",
+    "the",
+    "a",
+    "an",
+    "to",
+    "with",
+    "do",
+    "you",
+    "how",
+    "many",
+    "have",
+    "for",
+    "and",
+    "or",
+    "is",
+    "are",
+    "what",
+    "level",
+    "your",
+    "whether",
+    "if",
+  ]);
+
+  const getWords = (str: string) =>
+    str
+      .replace(/[^a-z0-9\s]/gi, " ")
+      .split(/\s+/)
+      .filter((w) => w.length > 1 && !stopWords.has(w));
+
+  const labelWords = getWords(lLower);
+  const valWords = getWords(vLower);
+
+  if (labelWords.length > 0 && valWords.length > 0) {
+    const intersection = labelWords.filter((w) => valWords.includes(w));
+    const ratio =
+      intersection.length / Math.min(labelWords.length, valWords.length);
+    if (ratio >= 0.75) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
  * RC4+RC5 FIX: Fill a group of radio buttons found inside a container div.
  * Matches by value or label text (fuzzy).
  */
@@ -1219,15 +1740,33 @@ function fillCheckboxGroup(
     const cbVal = cb.value.toLowerCase().trim();
     const cbLabel = findLabel(cb).toLowerCase().trim();
 
-    const shouldCheck = valuesToCheck.some(
-      (v) =>
-        cbVal === v ||
-        cbLabel === v ||
-        cbLabel.includes(v) ||
-        v.includes(cbLabel) ||
-        fuzzyMatch(cbLabel, v) ||
-        fuzzyMatch(cbVal, v),
-    );
+    const isPositiveString =
+      checkboxes.length === 1 &&
+      [
+        "true",
+        "yes",
+        "on",
+        "1",
+        "checked",
+        "agree",
+        "accept",
+        "consent",
+        "confirm",
+      ].some((w) => String(value).toLowerCase().includes(w));
+
+    const shouldCheck =
+      isPositiveString ||
+      valuesToCheck.some(
+        (v) =>
+          cbVal === v ||
+          cbLabel === v ||
+          cbLabel.includes(v) ||
+          v.includes(cbLabel) ||
+          fuzzyMatch(cbLabel, v) ||
+          fuzzyMatch(cbVal, v) ||
+          smartMatch(cbLabel, v) ||
+          smartMatch(cbVal, v),
+      );
 
     if (shouldCheck && !cb.checked) {
       setCheckboxState(cb, true);
@@ -1297,6 +1836,103 @@ function triggerEvents(input: HTMLElement): void {
   input.dispatchEvent(new KeyboardEvent("keyup", { bubbles: true, key: "a" }));
 
   input.dispatchEvent(new Event("input", { bubbles: true }));
+  input.dispatchEvent(new Event("change", { bubbles: true }));
+  input.dispatchEvent(new Event("blur", { bubbles: true }));
+}
+
+async function humanTriggerEvents(input: HTMLElement): Promise<void> {
+  const rect = input.getBoundingClientRect();
+  const x = rect.left + Math.random() * rect.width;
+  const y = rect.top + Math.random() * rect.height;
+
+  const eventOpts = {
+    bubbles: true,
+    cancelable: true,
+    view: window,
+    clientX: x,
+    clientY: y,
+    screenX: x + window.screenX,
+    screenY: y + window.screenY,
+  };
+
+  input.dispatchEvent(new MouseEvent("mousedown", eventOpts));
+  await new Promise((r) => setTimeout(r, Math.floor(Math.random() * 50) + 15));
+
+  input.dispatchEvent(new MouseEvent("mouseup", eventOpts));
+  await new Promise((r) => setTimeout(r, Math.floor(Math.random() * 30) + 10));
+
+  input.click();
+  await new Promise((r) => setTimeout(r, Math.floor(Math.random() * 50) + 20));
+
+  input.dispatchEvent(new Event("focus", { bubbles: true }));
+  await new Promise((r) => setTimeout(r, Math.floor(Math.random() * 50) + 10));
+}
+
+async function humanTypeValue(
+  input: HTMLInputElement | HTMLTextAreaElement,
+  value: string,
+): Promise<void> {
+  await humanTriggerEvents(input);
+  await new Promise((r) => setTimeout(r, Math.floor(Math.random() * 150) + 50));
+
+  const nativeSetter = Object.getOwnPropertyDescriptor(
+    Object.getPrototypeOf(input),
+    "value",
+  )?.set;
+  if (nativeSetter) {
+    nativeSetter.call(input, "");
+  } else {
+    input.value = "";
+  }
+  input.dispatchEvent(new Event("input", { bubbles: true }));
+
+  for (let i = 0; i < value.length; i++) {
+    const char = value[i];
+
+    const keydownEvent = new KeyboardEvent("keydown", {
+      key: char,
+      code: `Key${char.toUpperCase()}`,
+      bubbles: true,
+      cancelable: true,
+    });
+    input.dispatchEvent(keydownEvent);
+
+    const beforeInputEvent = new InputEvent("beforeinput", {
+      data: char,
+      inputType: "insertText",
+      bubbles: true,
+      cancelable: true,
+    });
+    input.dispatchEvent(beforeInputEvent);
+
+    const currentValue = input.value;
+    const newValue = currentValue + char;
+    if (nativeSetter) {
+      nativeSetter.call(input, newValue);
+    } else {
+      input.value = newValue;
+    }
+
+    const inputEvent = new InputEvent("input", {
+      data: char,
+      inputType: "insertText",
+      bubbles: true,
+      cancelable: true,
+    });
+    input.dispatchEvent(inputEvent);
+
+    const keyupEvent = new KeyboardEvent("keyup", {
+      key: char,
+      code: `Key${char.toUpperCase()}`,
+      bubbles: true,
+      cancelable: true,
+    });
+    input.dispatchEvent(keyupEvent);
+
+    const delay = Math.floor(Math.random() * 55) + 20;
+    await new Promise((resolve) => setTimeout(resolve, delay));
+  }
+
   input.dispatchEvent(new Event("change", { bubbles: true }));
   input.dispatchEvent(new Event("blur", { bubbles: true }));
 }
@@ -1438,15 +2074,58 @@ function clickMatchingOption(
   }
 
   if (bestOpt && bestScore >= 50) {
+    // 1. Dispatch events on the option element itself
     bestOpt.dispatchEvent(
       new MouseEvent("mousedown", { bubbles: true, cancelable: true }),
     );
     bestOpt.dispatchEvent(
       new MouseEvent("mouseup", { bubbles: true, cancelable: true }),
     );
-    bestOpt.dispatchEvent(
-      new MouseEvent("click", { bubbles: true, cancelable: true }),
+    bestOpt.click(); // Trigger native click
+
+    // 2. Dispatch events on the option's children (spans, divs) as listeners might be bound there
+    const innerTextEl = bestOpt.querySelector("span, p, div");
+    if (innerTextEl) {
+      innerTextEl.dispatchEvent(
+        new MouseEvent("mousedown", { bubbles: true, cancelable: true }),
+      );
+      innerTextEl.dispatchEvent(
+        new MouseEvent("mouseup", { bubbles: true, cancelable: true }),
+      );
+      (innerTextEl as HTMLElement).click();
+    }
+
+    // 3. Fallback: Manually update display value & attributes for pure-CSS mockup dropdowns
+    const displayTextEl =
+      container.querySelector(
+        '.current-value, [class*="value"], [class*="singleValue"], [class*="placeholder"]',
+      ) ||
+      container.querySelector("span") ||
+      container;
+
+    if (displayTextEl && displayTextEl !== bestOpt) {
+      displayTextEl.textContent = bestOpt.textContent?.trim() || "";
+    }
+
+    // Update ARIA expand state
+    container.setAttribute("aria-expanded", "false");
+
+    // Clear other selections and mark this option as selected
+    const siblingOptions = container.querySelectorAll(
+      '[role="option"], [class*="option"]',
     );
+    siblingOptions.forEach((opt) => {
+      opt.setAttribute("aria-selected", "false");
+    });
+    bestOpt.setAttribute("aria-selected", "true");
+
+    // Blur dropdown to close list (unfocuses pure CSS :focus-within dropdown menu)
+    container.blur();
+    const activeEl = document.activeElement as HTMLElement | null;
+    if (activeEl && (container.contains(activeEl) || activeEl === container)) {
+      activeEl.blur();
+    }
+
     console.log(
       `Aullevo custom select matched: ${bestOpt.textContent?.trim()} (score: ${bestScore})`,
     );
@@ -1515,12 +2194,60 @@ export function findNextButton(): HTMLElement | null {
       .trim()
       .toLowerCase();
     const combined = text || ariaLabel;
-    if (!combined) return false;
-    if (EXCLUDE_KEYWORDS.some((k) => combined === k || combined.startsWith(k)))
+
+    const classAndId = (
+      String(btn.className || "") +
+      " " +
+      String(btn.id || "")
+    ).toLowerCase();
+    const combinedWithMeta = (combined + " " + classAndId).trim();
+
+    if (
+      EXCLUDE_KEYWORDS.some(
+        (k) =>
+          combinedWithMeta === k ||
+          combinedWithMeta.startsWith(k) ||
+          combined.includes(k) ||
+          classAndId.includes(k),
+      )
+    ) {
       return false;
-    return NEXT_KEYWORDS.some(
+    }
+
+    // 1. Keyword match on visible text / aria-label
+    const matchesKeyword = NEXT_KEYWORDS.some(
       (keyword) => combined === keyword || combined.includes(keyword),
     );
+    if (matchesKeyword) return true;
+
+    // 2. Class/ID naming patterns (common next/continue class names)
+    const matchesClassOrId = [
+      "btn-next",
+      "btn_next",
+      "button-next",
+      "button_next",
+      "next-btn",
+      "next_btn",
+      "btn-continue",
+      "btn_continue",
+      "continue-btn",
+      "continue_btn",
+      "arrow-right",
+      "arrowright",
+      "arrow_right",
+      "btn-submit",
+      "submit-btn",
+    ].some((term) => classAndId.includes(term));
+    if (matchesClassOrId) return true;
+
+    // 3. Arrow characters in text or aria-label
+    const ARROW_SYMBOLS = ["→", "▶", "›", ">", "»", "arrow"];
+    const matchesArrow = ARROW_SYMBOLS.some((symbol) =>
+      combined.includes(symbol),
+    );
+    if (matchesArrow) return true;
+
+    return false;
   });
 
   if (candidates.length === 0) return null;
@@ -1590,19 +2317,59 @@ export function findPrevButton(): HTMLElement | null {
       .trim()
       .toLowerCase();
     const combined = text || ariaLabel;
-    if (!combined) return false;
+
+    const classAndId = (
+      String(btn.className || "") +
+      " " +
+      String(btn.id || "")
+    ).toLowerCase();
+    const combinedWithMeta = (combined + " " + classAndId).trim();
 
     // Check exclusions first
     if (
       EXCLUDE_KEYWORDS.some(
-        (k) => combined === k || combined.startsWith(k) || combined.includes(k),
+        (k) =>
+          combinedWithMeta === k ||
+          combinedWithMeta.startsWith(k) ||
+          combined.includes(k) ||
+          classAndId.includes(k),
       )
-    )
+    ) {
       return false;
+    }
 
-    return PREV_KEYWORDS.some(
+    // 1. Keyword match on visible text / aria-label
+    const matchesKeyword = PREV_KEYWORDS.some(
       (keyword) => combined === keyword || combined.includes(keyword),
     );
+    if (matchesKeyword) return true;
+
+    // 2. Class/ID naming patterns (common back/prev class names)
+    const matchesClassOrId = [
+      "btn-prev",
+      "btn_prev",
+      "button-prev",
+      "button_prev",
+      "prev-btn",
+      "prev_btn",
+      "btn-back",
+      "btn_back",
+      "back-btn",
+      "back_btn",
+      "arrow-left",
+      "arrowleft",
+      "arrow_left",
+    ].some((term) => classAndId.includes(term));
+    if (matchesClassOrId) return true;
+
+    // 3. Arrow characters in text or aria-label
+    const ARROW_SYMBOLS = ["←", "◀", "‹", "<", "«"];
+    const matchesArrow = ARROW_SYMBOLS.some((symbol) =>
+      combined.includes(symbol),
+    );
+    if (matchesArrow) return true;
+
+    return false;
   });
 
   if (candidates.length === 0) return null;
@@ -1632,29 +2399,228 @@ export function clickPrevButton(): { success: boolean; message: string } {
 }
 
 /**
+ * Detects if the current page has an active chat or email composition field.
+ * Looks for modern rich text frameworks (Messenger, Gmail, Google Chat)
+ */
+export function findChatInputField(): HTMLElement | null {
+  let active = document.activeElement as HTMLElement | null;
+  if (
+    active &&
+    (active.isContentEditable ||
+      active.getAttribute("role") === "textbox" ||
+      active.tagName === "TEXTAREA")
+  ) {
+    return active;
+  }
+  return document.querySelector(
+    '[contenteditable="true"][role="textbox"], [contenteditable="true"], textarea[placeholder*="message" i], textarea[placeholder*="reply" i]',
+  ) as HTMLElement | null;
+}
+
+// export function fillChatInputField(el: HTMLElement | null, text: string): boolean {
+//     // 1. Handle the null case safely (fixes the findChatInputField mismatch)
+//     if (!el) {
+//         console.warn("Aullevo: No chat input field found on this page.");
+//         return false;
+//     }
+
+//     try {
+//         el.focus();
+
+//         // 2. Clear existing text based on the element type to prevent duplication
+//         if (el.isContentEditable) {
+//             el.innerHTML = '';
+//         } else if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
+//             el.value = '';
+//         }
+
+//         // 3. Inject text using execCommand (forces React/Draft.js to see it as a user action)
+//         document.execCommand('insertText', false, text);
+
+//         // 4. Dispatch events, bypassing TS strictness with 'as any'
+
+//         // Standard event to wake up React's onChange handler
+//         el.dispatchEvent(new Event('input', { bubbles: true }));
+
+//         // Specific InputEvents to finalize the DOM update
+//         el.dispatchEvent(new InputEvent('beforeinput', {
+//             bubbles: true,
+//             cancelable: true,
+//             inputType: 'insertText',
+//             data: text
+//         } as any)); // <-- 'as any' silences the TS compiler error here
+
+//         el.dispatchEvent(new InputEvent('input', {
+//             bubbles: true,
+//             cancelable: true,
+//             inputType: 'insertText',
+//             data: text
+//         } as any));
+
+//         return true;
+//     } catch (error) {
+//         console.error("Aullevo Modern Chat Injection Failure:", error);
+//         return false;
+//     }
+// }
+
+/**
  * Extracts recent chat context from the DOM near a contenteditable input.
  */
 export function extractChatContext(input: HTMLElement): string[] {
   const context: string[] = [];
-  
-  // Try to find the closest chat container
-  const chatContainer = input.closest(
-    '[role="log"], [role="main"], .chat-history, .message-list, [class*="chat"], [class*="message"]'
-  ) || document.body;
 
-  // Look for message bubbles
-  const messageNodes = chatContainer.querySelectorAll(
-    '[role="row"], .message, [class*="bubble"], [class*="message"]'
+  // Find the closest parent chat container shell
+  let chatContainer = input.closest(
+    '[role="log"], [role="main"], [role="presentation"], .chat-history, .message-list, [class*="chat" i], [class*="message" i]',
+  ) as HTMLElement | null;
+
+  if (!chatContainer) chatContainer = document.body;
+
+  // Look for historical text bubbles or rows containing messages
+  let messageNodes = chatContainer.querySelectorAll(
+    '[role="row"] [dir="auto"], [role="listitem"] [dir="auto"], .message, [class*="bubble" i], [class*="message-text" i], [data-message-id] div[dir="auto"], div[data-scope="message"]',
   );
 
-  // Take the last 5 messages
-  const recentMessages = Array.from(messageNodes).slice(-5);
-  recentMessages.forEach((msg) => {
-    const text = msg.textContent?.trim();
-    if (text && text.length > 0 && text.length < 500) {
+  if (messageNodes.length === 0) {
+    // Fallback for general divs that might be text
+    messageNodes = chatContainer.querySelectorAll('div[dir="auto"]');
+  }
+
+  const validNodes = Array.from(messageNodes).filter((node) => {
+    // Exclude the input field itself or its descendants
+    if (input === node || input.contains(node) || node.contains(input))
+      return false;
+
+    const tagName = node.tagName.toLowerCase();
+    // Exclude inputs
+    if (
+      tagName === "input" ||
+      tagName === "textarea" ||
+      node.getAttribute("contenteditable") === "true"
+    )
+      return false;
+
+    const text = node.textContent?.trim() || "";
+    // Exclude time stamps and metadata
+    if (!text || text.length === 0) return false;
+    if (text.match(/^[0-9]{1,2}:[0-9]{2}\s*[AP]M$/i)) return false;
+    if (text.match(/^Active [0-9]+[mhd] ago$/i)) return false;
+    if (text === "Seen" || text === "Delivered" || text === "Sent")
+      return false;
+    if (text.startsWith("You sent")) return false;
+
+    const style = window.getComputedStyle(node);
+    if (
+      style.display === "none" ||
+      style.visibility === "hidden" ||
+      style.opacity === "0"
+    )
+      return false;
+
+    return true;
+  });
+
+  const recentNodes = validNodes.slice(-20);
+  let lastText = "";
+
+  recentNodes.forEach((node) => {
+    const text = node.textContent?.trim();
+    if (text && text !== lastText) {
       context.push(text);
+      lastText = text;
     }
   });
 
-  return context;
+  return context.slice(-10);
+}
+
+/**
+ * Safely inserts the generated AI text response directly into state-driven chat components
+ */
+export function fillChatInputField(
+  el: HTMLElement | null,
+  text: string,
+): boolean {
+  // 1. Handle the null case safely (fixes the findChatInputField mismatch)
+  if (!el) {
+    console.warn("Aullevo: No chat input field found on this page.");
+    return false;
+  }
+
+  try {
+    el.focus();
+
+    // 2. Clear existing text based on the element type to prevent duplication
+    if (el.isContentEditable) {
+      el.innerHTML = "";
+    } else if (
+      el instanceof HTMLInputElement ||
+      el instanceof HTMLTextAreaElement
+    ) {
+      el.value = "";
+    }
+
+    // 3. Inject text using execCommand (forces React/Draft.js to see it as a user action)
+    document.execCommand("insertText", false, text);
+
+    // 4. Dispatch events, bypassing TS strictness with 'as any'
+
+    // Standard event to wake up React's onChange handler
+    el.dispatchEvent(new Event("input", { bubbles: true }));
+
+    // Specific InputEvents to finalize the DOM update
+    el.dispatchEvent(
+      new InputEvent("beforeinput", {
+        bubbles: true,
+        cancelable: true,
+        inputType: "insertText",
+        data: text,
+      } as any),
+    ); // <-- 'as any' silences the TS compiler error here
+
+    el.dispatchEvent(
+      new InputEvent("input", {
+        bubbles: true,
+        cancelable: true,
+        inputType: "insertText",
+        data: text,
+      } as any),
+    );
+
+    return true;
+  } catch (error) {
+    console.error("Aullevo Modern Chat Injection Failure:", error);
+    return false;
+  }
+}
+
+export function submitChatField(input: HTMLElement) {
+  const keyOpts = {
+    bubbles: true,
+    cancelable: true,
+    key: "Enter",
+    code: "Enter",
+    keyCode: 13,
+    which: 13,
+  };
+  input.dispatchEvent(new KeyboardEvent("keydown", keyOpts));
+  input.dispatchEvent(new KeyboardEvent("keypress", keyOpts));
+  input.dispatchEvent(new KeyboardEvent("keyup", keyOpts));
+
+  const sendButtonSelectors = [
+    '[aria-label="Send"]',
+    '[aria-label="Send message"]',
+    '[aria-label="Press Enter to send"]',
+    '[data-tooltip="Send"]',
+    'path[d^="M16.6915"]',
+  ];
+  for (const sel of sendButtonSelectors) {
+    const btn = document.querySelector(sel);
+    if (btn) {
+      const clickTarget = btn.closest('div[role="button"], button') || btn;
+      (clickTarget as HTMLElement).click();
+      break;
+    }
+  }
 }

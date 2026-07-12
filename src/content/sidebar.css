@@ -6,41 +6,41 @@
 
 /* ── Light (default) ── */
 :host {
-  --av-violet:         #5535d4;
-  --av-violet-dark:    #3d22b0;
-  --av-violet-mid:     #7157e0;
-  --av-violet-light:   #ede8ff;
-  --av-violet-xlight:  #f5f3ff;
+  --av-violet:         #2563EB;
+  --av-violet-dark:    #1D4ED8;
+  --av-violet-mid:     #3B82F6;
+  --av-violet-light:   #EFF6FF;
+  --av-violet-xlight:  #F5F9FF;
 
-  --av-yellow:         #e8a80c;
-  --av-yellow-dark:    #b07e00;
-  --av-yellow-light:   #fff8e1;
-  --av-yellow-mid:     #fdd96a;
+  --av-yellow:         #D97706;
+  --av-yellow-dark:    #B45309;
+  --av-yellow-light:   #FEF3C7;
+  --av-yellow-mid:     #FDE68A;
 
-  --av-bg:             #f7f6fb;
-  --av-surface:        #ffffff;
-  --av-surface-alt:    #f0edf9;
-  --av-surface-hover:  #e9e4f7;
-  --av-border:         #ddd8f0;
-  --av-border-soft:    #eae6f5;
+  --av-bg:             #E8ECF1;
+  --av-surface:        #FFFFFF;
+  --av-surface-alt:    #DAE0E8;
+  --av-surface-hover:  #E2E8F0;
+  --av-border:         rgba(15, 23, 42, 0.09);
+  --av-border-soft:    rgba(15, 23, 42, 0.05);
 
-  --av-text:           #1a1535;
-  --av-text-mid:       #3e3666;
-  --av-text-muted:     #8a82ac;
+  --av-text:           #0F172A;
+  --av-text-mid:       #475569;
+  --av-text-muted:     #64748B;
   --av-text-on-dark:   #ffffff;
-  --av-text-on-yellow: #2a1f00;
+  --av-text-on-yellow: #78350F;
 
-  --av-success:        #1a9e6e;
-  --av-success-bg:     #edfaf5;
-  --av-error:          #d03232;
-  --av-error-bg:       #fff0f0;
-  --av-info:           #2562c4;
-  --av-info-bg:        #edf3ff;
-  --av-warning:        #b86a00;
-  --av-warning-bg:     #fff8ed;
+  --av-success:        #059669;
+  --av-success-bg:     #ECFDF5;
+  --av-error:          #DC2626;
+  --av-error-bg:       #FEF2F2;
+  --av-info:           #2563EB;
+  --av-info-bg:        #EFF6FF;
+  --av-warning:        #D97706;
+  --av-warning-bg:     #FFFBEB;
 
-  --av-shadow:         rgba(85, 53, 212, 0.10);
-  --av-shadow-panel:   rgba(20, 10, 60, 0.13);
+  --av-shadow:         rgba(37, 99, 235, 0.08);
+  --av-shadow-panel:   rgba(15, 23, 42, 0.08);
 
   --av-font:           'Inter', 'Helvetica Neue', Arial, sans-serif;
   --av-font-mono:      'Fira Code', 'Consolas', monospace;
@@ -50,38 +50,38 @@
    The av-dark class is on a wrapper div inside the shadow root,
    so we use a regular class selector (not :host). */
 .av-dark {
-  --av-violet:         #8066f0;
-  --av-violet-dark:    #6347d4;
-  --av-violet-mid:     #9b85f7;
-  --av-violet-light:   #2a2248;
-  --av-violet-xlight:  #201c3a;
+  --av-violet:         #3B82F6;
+  --av-violet-dark:    #1E40AF;
+  --av-violet-mid:     #60A5FA;
+  --av-violet-light:   #172554;
+  --av-violet-xlight:  #0F1E36;
 
-  --av-yellow:         #f0bc30;
-  --av-yellow-dark:    #c49010;
-  --av-yellow-light:   #2a2200;
-  --av-yellow-mid:     #a07800;
+  --av-yellow:         #FBBF24;
+  --av-yellow-dark:    #D97706;
+  --av-yellow-light:   #451A03;
+  --av-yellow-mid:     #B45309;
 
-  --av-bg:             #100e1f;
-  --av-surface:        #1a1730;
-  --av-surface-alt:    #231f3a;
-  --av-surface-hover:  #2c2848;
-  --av-border:         #302b50;
-  --av-border-soft:    #2a2545;
+  --av-bg:             #05050A;
+  --av-surface:        #0A0F1F;
+  --av-surface-alt:    #0D1224;
+  --av-surface-hover:  rgba(30, 35, 60, 0.8);
+  --av-border:         rgba(255, 255, 255, 0.08);
+  --av-border-soft:    rgba(255, 255, 255, 0.04);
 
-  --av-text:           #eeeaff;
-  --av-text-mid:       #c0b8e8;
-  --av-text-muted:     #7870a0;
+  --av-text:           #FFFFFF;
+  --av-text-mid:       #94A3B8;
+  --av-text-muted:     #64748B;
   --av-text-on-dark:   #ffffff;
-  --av-text-on-yellow: #1e1500;
+  --av-text-on-yellow: #451A03;
 
-  --av-success:        #28c484;
-  --av-success-bg:     #0e2820;
-  --av-error:          #f06060;
-  --av-error-bg:       #2a1010;
-  --av-info:           #6090f0;
-  --av-info-bg:        #101830;
-  --av-warning:        #e8a020;
-  --av-warning-bg:     #241800;
+  --av-success:        #10B981;
+  --av-success-bg:     #064E3B;
+  --av-error:          #EF4444;
+  --av-error-bg:       #7F1D1D;
+  --av-info:           #3B82F6;
+  --av-info-bg:        #1E3A8A;
+  --av-warning:        #FBBF24;
+  --av-warning-bg:     #78350F;
 
   --av-shadow:         rgba(0,0,0,0.4);
   --av-shadow-panel:   rgba(0,0,0,0.5);

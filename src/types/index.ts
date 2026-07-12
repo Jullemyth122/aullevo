@@ -19,6 +19,7 @@ export interface SavedLink {
 
 // User data structure
 export interface UserData {
+  profileType?: 'job' | 'medical' | 'survey' | 'custom';
   firstName: string;
   lastName: string;
   email: string;
@@ -43,6 +44,21 @@ export interface UserData {
   noticePeriod?: string;
   workAuthorization?: string;
   yearsOfExperience?: string;
+  // Medical-specific fields
+  emergencyContactName?: string;
+  emergencyContactRelationship?: string;
+  emergencyContactPhone?: string;
+  bloodType?: string;
+  allergies?: string;
+  medicalConditions?: string;
+  medications?: string;
+  insuranceProvider?: string;
+  policyNumber?: string;
+  // Survey-specific fields
+  occupation?: string;
+  industry?: string;
+  educationLevel?: string;
+  maritalStatus?: string;
   customFields: CustomField[];
   memories: Memory[];
   savedLinks: SavedLink[];

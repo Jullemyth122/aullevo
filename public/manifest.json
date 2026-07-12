@@ -21,20 +21,47 @@
       "description": "Activate the extension"
     }
   },
-  "action": {
-    "default_title": "Aullevo — Toggle Sidebar (Ctrl+M)"
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
   },
+  "action": {
+    "default_title": "Aullevo — Toggle Sidebar (Ctrl+M)",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  },
+  "host_permissions": [
+    "https://www.messenger.com/*",
+    "https://www.facebook.com/*",
+    "https://mail.google.com/*",
+    "https://chat.google.com/*",
+    "https://hangouts.google.com/*"
+  ],
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["assets/content.js"]
+      "js": ["assets/content.js"],
+      "run_at": "document_idle",
+      "all_frames": true,
+      "match_about_blank": true
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["pdf.worker.min.js", "assets/content.css"],
+      "resources": [
+        "pdf.worker.min.js",
+        "assets/content.css",
+        "icon16.png",
+        "icon48.png",
+        "icon128.png"
+      ],
       "matches": ["<all_urls>"]
     }
   ]
 }
+
 

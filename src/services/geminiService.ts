@@ -247,8 +247,10 @@ class GeminiService {
         firstName, lastName, email, phone, phoneCountryCode, address, city, state, zipCode, country, 
         linkedin, portfolio, github, headline, dateOfBirth, gender, summary,
         salaryExpectation, noticePeriod, workAuthorization, yearsOfExperience,
-        position, company, salary, startDate, endDate, description, skill, resumeUpload,
-        toggle, range${customFieldsPrompt}
+        emergencyContactName, emergencyContactRelationship, emergencyContactPhone, bloodType, allergies,
+        medicalConditions, medications, insuranceProvider, policyNumber, occupation, industry,
+        educationLevel, maritalStatus, position, company, salary, startDate, endDate, description,
+        skill, resumeUpload, toggle, range${customFieldsPrompt}
         OR "custom_question" (for questions the AI should answer using the user's profile, OR for chat automation)
 
         **Allowed group types:**
@@ -347,7 +349,7 @@ class GeminiService {
         `Education: ${latest.degree} from ${latest.school} (${latest.year})`,
       );
     }
-    
+
     // Inject Memories (RAG Knowledge Base)
     if (userData.memories && userData.memories.length > 0) {
       contextParts.push("\n--- SAVED MEMORIES (KNOWLEDGE BASE) ---");
@@ -384,6 +386,58 @@ Return ONLY the answer text, nothing else.
     } catch (error) {
       console.error("Gemini answer error:", error);
       return "[ERROR]";
+    }
+  }
+
+  async generateChatReply(
+    chatHistory: string[],
+    userData: Partial<UserData>, // Matches what background.ts is sending
+  ): Promise<string> {
+    if (!chatHistory || chatHistory.length === 0) {
+      return "[Error: No chat messages found to reply to. Please click inside the chat box first.]";
+    }
+
+    // Safely map the memories array into a readable string format
+    const memoriesBlock = userData.memories && userData.memories.length > 0
+      ? userData.memories.map((m) => `- ${m.title}: ${m.content}`).join("\n")
+      : "No specific memories stored.";
+
+    const summaryBlock = userData.summary || "Not provided.";
+    const skillsBlock = userData.skills?.join(", ") || "Not provided.";
+
+    const prompt = `
+You are an intelligent extension acting on behalf of the user to write conversational replies. 
+
+--- USER PROFILE CONTEXT ---
+Summary: ${summaryBlock}
+Core Skills: ${skillsBlock}
+
+--- USER MEMORIES & KNOWLEDGE BASE ---
+${memoriesBlock}
+
+--- RECENT CHAT THREAD (Chronological, bottom is newest message) ---
+${chatHistory.map((line) => `> ${line}`).join("\n")}
+
+--- TASK ---
+Draft a natural, context-aware reply to the latest message on behalf of the user.
+1. Prioritize Memories: If the knowledge base contains an answer, you MUST use it.
+2. Tone Matching: Reply in the EXACT SAME language and casual/professional tone as the thread.
+3. Return ONLY the text of the reply. Do not use quotes.
+    `;
+
+    try {
+      const responseText = await this.generateContent(
+        prompt,
+        "gemini-2.5-flash",
+        {
+          responseMimeType: "text/plain",
+          temperature: 0.7 // Keeps the model creative but grounded
+        }
+      );
+      return responseText.trim();
+    } catch (error) {
+      console.error("Gemini conversational engine execution error:", error);
+      return "[Error generating automated response]";
     }
   }
 
