@@ -65,7 +65,7 @@ function getCachedMappings(hostname: string, signature: string): any[] | null {
   console.log(
     `Aullevo cache HIT for ${hostname} (age: ${Math.round(age / 1000)}s)`,
   );
-  return entry.mappings;
+  return JSON.parse(JSON.stringify(entry.mappings));
 }
 
 function setCachedMappings(
@@ -75,7 +75,7 @@ function setCachedMappings(
 ): void {
   domainCache.set(hostname, {
     fieldSignature: signature,
-    mappings,
+    mappings: JSON.parse(JSON.stringify(mappings)),
     timestamp: Date.now(),
   });
   console.log(
@@ -129,6 +129,19 @@ const STANDARD_FIELD_KEYS = new Set([
   "workAuthorization",
   "yearsOfExperience",
   "resumeUpload",
+  "emergencyContactName",
+  "emergencyContactRelationship",
+  "emergencyContactPhone",
+  "bloodType",
+  "allergies",
+  "medicalConditions",
+  "medications",
+  "insuranceProvider",
+  "policyNumber",
+  "occupation",
+  "industry",
+  "educationLevel",
+  "maritalStatus",
 ]);
 
 /**
@@ -151,14 +164,24 @@ async function resolveFieldValues(
   for (const mapping of fieldMappings) {
     if (mapping.action === "click_add") continue;
 
-    // A. Custom questions — ask AI only if in AI mode
+    // A. Custom questions — ask AI only if in AI mode (OR if it is a chat input)
     if (mapping.fieldType === "custom_question" && mapping.originalQuestion) {
-      if (useAI) {
+      const originalField = fields.find((f) => f.id === mapping.fieldId || f.id === mapping.id);
+      const isChat = originalField?.type === "contenteditable" || (originalField?.chatContext && originalField.chatContext.length > 0);
+
+      if (useAI || isChat) {
         try {
-          mapping.selectedValue = await geminiService.answerFormQuestion(
-            mapping.originalQuestion,
-            userData,
-          );
+          if (isChat) {
+            mapping.selectedValue = await geminiService.generateChatReply(
+              originalField?.chatContext || [],
+              userData,
+            );
+          } else {
+            mapping.selectedValue = await geminiService.answerFormQuestion(
+              mapping.originalQuestion,
+              userData,
+            );
+          }
         } catch (e: any) {
           console.warn("Aullevo: Failed to answer question:", e.message);
           mapping.selectedValue = "[MANUAL_INPUT_NEEDED]";
@@ -169,11 +192,15 @@ async function resolveFieldValues(
       continue;
     }
 
-    // B. Custom fields — user-defined key/value pairs
+    // B. Custom fields, Memories, and Links
     if (mapping.fieldType?.startsWith("custom_field:")) {
-      const label = mapping.fieldType.slice("custom_field:".length).toLowerCase();
+      const label = mapping.fieldType
+        .slice("custom_field:".length)
+        .toLowerCase();
       const matches = customFields.filter(
-        (cf: CustomField) => cf.label.toLowerCase() === label || cf.label.toLowerCase().includes(label),
+        (cf: CustomField) =>
+          cf.label.toLowerCase() === label ||
+          cf.label.toLowerCase().includes(label),
       );
       if (matches.length > 0) {
         if (matches.length === 1) {
@@ -182,6 +209,20 @@ async function resolveFieldValues(
           mapping.selectedValue = matches.map((m) => m.value);
         }
       }
+      continue;
+    }
+
+    if (mapping.fieldType?.startsWith("memory:")) {
+      const memoryId = mapping.fieldType.slice("memory:".length);
+      const match = (userData.memories || []).find((m) => m.id === memoryId);
+      if (match) mapping.selectedValue = match.content;
+      continue;
+    }
+
+    if (mapping.fieldType?.startsWith("link:")) {
+      const linkId = mapping.fieldType.slice("link:".length);
+      const match = (userData.savedLinks || []).find((l) => l.id === linkId);
+      if (match) mapping.selectedValue = match.url;
       continue;
     }
 
@@ -236,23 +277,32 @@ async function resolveFieldValues(
             ? val.join(", ")
             : String(val);
         }
-        
-        // ✨ FALLBACK TO CUSTOM FIELDS: 
+
+        // ✨ FALLBACK TO CUSTOM FIELDS:
         // If the standard field was empty in the user's profile, check if they created a Custom Field for it!
         // This solves the issue where users create a Custom Field for "Birthdate" or "Expected Salary" instead of using the standard profile input.
         if (!mapping.selectedValue && customFields.length > 0) {
-            // Fuzzy match the standard fieldType literal against custom field labels
-            const ftypeLower = mapping.fieldType.toLowerCase();
-            const cfMatch = customFields.find((cf) => {
-              const lbl = cf.label.toLowerCase();
-              return lbl.includes(ftypeLower) || 
-                (ftypeLower.includes("salary") && lbl.includes("salary")) ||
-                (ftypeLower.includes("birth") && lbl.includes("birth")) ||
-                (ftypeLower.includes("country") && (lbl.includes("country") || lbl.includes("national") || lbl.includes("region"))) ||
-                (ftypeLower.includes("address") && (lbl.includes("location") || lbl.includes("address") || lbl.includes("city"))) ||
-                (ftypeLower.includes("degree") && (lbl.includes("degree") || lbl.includes("diploma")));
-            });
-            if (cfMatch) mapping.selectedValue = cfMatch.value;
+          // Fuzzy match the standard fieldType literal against custom field labels
+          const ftypeLower = mapping.fieldType.toLowerCase();
+          const cfMatch = customFields.find((cf) => {
+            const lbl = cf.label.toLowerCase();
+            return (
+              lbl.includes(ftypeLower) ||
+              (ftypeLower.includes("salary") && lbl.includes("salary")) ||
+              (ftypeLower.includes("birth") && lbl.includes("birth")) ||
+              (ftypeLower.includes("country") &&
+                (lbl.includes("country") ||
+                  lbl.includes("national") ||
+                  lbl.includes("region"))) ||
+              (ftypeLower.includes("address") &&
+                (lbl.includes("location") ||
+                  lbl.includes("address") ||
+                  lbl.includes("city"))) ||
+              (ftypeLower.includes("degree") &&
+                (lbl.includes("degree") || lbl.includes("diploma")))
+            );
+          });
+          if (cfMatch) mapping.selectedValue = cfMatch.value;
         }
       }
     }
@@ -363,40 +413,45 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
 
         const tabId = tab.id;
         const tabHostname = getHostname(tab.url || "");
-        showBadge("⏳", "#7c5cfc");
 
-        const analyzeResp = await sendToTab(tabId, { action: "analyzeForm" });
-        if (!analyzeResp?.success)
-          return sendResponse({
-            success: false,
-            error: "Could not analyze form",
+        const stored = await chrome.storage.local.get([
+          "userData",
+          "resumeFileData",
+          "resumeFileName",
+          "autoSubmit",
+        ]);
+        const userData = (stored.userData || {}) as Partial<UserData>;
+        const autoSubmit = !!stored.autoSubmit;
+
+        if (autoSubmit) {
+          await chrome.storage.local.set({
+            autopilotSession: {
+              tabId: tabId,
+              step: 0,
+              hostname: tabHostname,
+              fingerprints: []
+            }
           });
+        } else {
+          await chrome.storage.local.remove(["autopilotSession"]);
+        }
 
-        const fields = analyzeResp.fields || [];
-        if (fields.length === 0)
-          return sendResponse({
-            success: false,
-            error: "No form fields found on this page",
-          });
+        showBadge("⏳", "#3B82F6");
 
-        const aiResult = await processFieldsAI(fields, tabHostname);
-        if (!aiResult.success)
-          return sendResponse({ success: false, error: aiResult.error });
-
-        const fillResp = await sendToTab(tabId, {
-          action: "fillForm",
-          data: {
-            fieldMappings: aiResult.mappings,
-            userData: aiResult.userData,
-            resumeFileData: aiResult.resumeFileData,
-            resumeFileName: aiResult.resumeFileName,
-          },
+        // Kick off recursive processFormStep asynchronously so callback completes immediately
+        processFormStep(
+          tabId,
+          userData,
+          0,
+          tabHostname,
+          stored.resumeFileData as string | undefined,
+          stored.resumeFileName as string | undefined,
+        ).catch((err) => {
+          console.error("Sidebar initiated fill failed:", err);
+          sendSidebarStatus(tabId, err.message || "Filling failed", "error");
         });
 
-        const filledCount = fillResp?.filledCount ?? 0;
-        showBadge(`${filledCount}`, "#34d399");
-        setTimeout(clearBadge, 4000);
-        sendResponse({ success: true, filledCount });
+        sendResponse({ success: true });
       } catch (err: any) {
         showBadge("✗", "#f87171");
         setTimeout(clearBadge, 3000);
@@ -411,6 +466,29 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     processFieldsAI(request.fields, hostname)
       .then((result) => sendResponse(result))
       .catch((err) => sendResponse({ success: false, error: err.message }));
+    return true;
+  }
+
+  if (request.action === "processChatAI") {
+    (async () => {
+      try {
+        const stored = await chrome.storage.local.get(["userData", "geminiApiKey"]);
+        const userData = (stored.userData || {}) as Partial<UserData>;
+        const apiKey = (stored.geminiApiKey || "") as string;
+
+        if (!apiKey) {
+          sendResponse({ success: false, error: "No API key found. Save your Gemini API key in the extension settings." });
+          return;
+        }
+
+        geminiService.setApiKey(apiKey);
+        const replyText = await geminiService.generateChatReply(request.conversationHistory || [], userData);
+
+        sendResponse({ success: true, replyText });
+      } catch (err: any) {
+        sendResponse({ success: false, error: err.message });
+      }
+    })();
     return true;
   }
 
@@ -429,7 +507,13 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   if (request.action === "openAutopilotLink") {
     chrome.tabs.create({ url: request.url }, (tab) => {
       if (tab.id) {
-        chrome.storage.local.set({ autopilotTabId: tab.id });
+        chrome.storage.local.set({
+          autopilotSession: {
+            tabId: tab.id,
+            step: 0,
+            hostname: getHostname(request.url || "")
+          }
+        });
       }
     });
     sendResponse({ success: true });
@@ -439,14 +523,22 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.status === "complete") {
-    chrome.storage.local.get(["autopilotTabId"], (result) => {
-      if (result.autopilotTabId === tabId) {
-        // Clear to avoid running on every refresh
-        chrome.storage.local.remove(["autopilotTabId"]);
-        
-        console.log("🚗 Aullevo Autopilot: Tab loaded, initiating auto-fill...");
-        showBadge("⏳", "#7c5cfc");
-        
+    chrome.storage.local.get(["autopilotSession"], (result) => {
+      const session = result.autopilotSession as any;
+      if (session && session.tabId === tabId) {
+        const currentHostname = getHostname(tab.url || "");
+        if (session.hostname && currentHostname !== session.hostname) {
+          // Navigated away, clear session
+          chrome.storage.local.remove(["autopilotSession"]);
+          clearBadge();
+          return;
+        }
+
+        console.log(
+          `🚗 Aullevo Autopilot: Tab loaded, resuming auto-fill step ${session.step}...`,
+        );
+        showBadge("⏳", "#3B82F6");
+
         // Wait for SPA frameworks to render
         setTimeout(async () => {
           try {
@@ -456,20 +548,33 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
               "resumeFileName",
             ]);
             const userData = (stored.userData || {}) as Partial<UserData>;
-            const hostname = getHostname(tab.url || "");
-            
+
+            // Save next step to session first so if it reloads we can resume
+            const nextStep = session.step + 1;
+            if (nextStep > 30) {
+              chrome.storage.local.remove(["autopilotSession"]);
+              showBadge("✓", "#34d399");
+              setTimeout(clearBadge, 4000);
+              return;
+            }
+
+            await chrome.storage.local.set({
+              autopilotSession: { ...session, step: nextStep }
+            });
+
             await processFormStep(
               tabId,
               userData,
-              0,
-              hostname,
+              session.step,
+              currentHostname,
               stored.resumeFileData as string | undefined,
-              stored.resumeFileName as string | undefined
+              stored.resumeFileName as string | undefined,
             );
           } catch (error) {
             console.error("Autopilot fill error:", error);
             showBadge("✗", "#f87171");
             setTimeout(clearBadge, 3000);
+            chrome.storage.local.remove(["autopilotSession"]);
           }
         }, 2000); // 2 second delay for React/Angular/Vue to mount inputs
       }
@@ -497,6 +602,14 @@ async function processFieldsAI(fields: FormField[], hostname = "") {
     const resumeFileName = stored.resumeFileName as string | undefined;
     const matchingMode = (stored.matchingMode || "heuristic") as string;
     const useAI = matchingMode === "ai";
+    const isPro = !!stored.isPro;
+
+    if (useAI && !isPro) {
+      return {
+        success: false,
+        error: "🔒 Gemini AI matching is a Pro feature. Please upgrade to unlock!",
+      };
+    }
 
     const customFields = migrateCustomFields(userData.customFields);
 
@@ -519,9 +632,7 @@ async function processFieldsAI(fields: FormField[], hostname = "") {
 
       // Check domain cache before calling Gemini
       const signature = buildFieldSignature(fields);
-      fieldMappings = hostname
-        ? getCachedMappings(hostname, signature)
-        : null;
+      fieldMappings = hostname ? getCachedMappings(hostname, signature) : null;
 
       if (!fieldMappings) {
         fieldMappings = await geminiService.analyzeFormFields(
@@ -540,8 +651,10 @@ async function processFieldsAI(fields: FormField[], hostname = "") {
       }
     } else {
       // ── Heuristic Mode: instant, zero API calls ──
-      console.log(`Aullevo: Using HEURISTIC matching for ${fields.length} fields`);
-      fieldMappings = matchFieldsHeuristically(fields, customFields);
+      console.log(
+        `Aullevo: Using HEURISTIC matching for ${fields.length} fields`,
+      );
+      fieldMappings = matchFieldsHeuristically(fields, customFields, userData);
       if (!fieldMappings || fieldMappings.length === 0) {
         console.warn(
           "Aullevo: Heuristic returned 0 mappings for",
@@ -586,11 +699,13 @@ async function processFieldsAI(fields: FormField[], hostname = "") {
     );
 
     if (useAI && fillMappings.length === 0 && fields.length > 0) {
-        throw new Error("AI analysis returned zero mappings. The form configuration may be too complex or confused the AI.");
+      throw new Error(
+        "AI analysis returned zero mappings. The form configuration may be too complex or confused the AI.",
+      );
     }
 
     console.log(
-      `Aullevo ${useAI ? 'AI' : 'Heuristic'}: ${fillMappings.length} fill mappings, ${addButtons.length} add buttons`,
+      `Aullevo ${useAI ? "AI" : "Heuristic"}: ${fillMappings.length} fill mappings, ${addButtons.length} add buttons`,
     );
 
     return {
@@ -633,6 +748,7 @@ async function runAIFill() {
       "geminiApiKey",
       "resumeFileData",
       "resumeFileName",
+      "autoSubmit",
     ]);
     const userData = (stored.userData || {}) as Partial<UserData>;
     const apiKey = (stored.geminiApiKey || "") as string;
@@ -647,12 +763,29 @@ async function runAIFill() {
       return;
     }
 
-    showBadge("⏳", "#7c5cfc");
+    const tabId = tab.id;
+    const tabHostname = getHostname(tab.url || "");
+    const autoSubmit = !!stored.autoSubmit;
+
+    if (autoSubmit) {
+      await chrome.storage.local.set({
+        autopilotSession: {
+          tabId: tabId,
+          step: 0,
+          hostname: tabHostname,
+          fingerprints: []
+        }
+      });
+    } else {
+      await chrome.storage.local.remove(["autopilotSession"]);
+    }
+
+    showBadge("⏳", "#3B82F6");
     await processFormStep(
-      tab.id,
+      tabId,
       userData,
       0,
-      getHostname(tab.url || ""),
+      tabHostname,
       stored.resumeFileData as string | undefined,
       stored.resumeFileName as string | undefined,
     );
@@ -671,27 +804,39 @@ async function processFormStep(
   resumeFileData?: string,
   resumeFileName?: string,
 ) {
-  if (step > 10) {
+  if (step > 30) {
     showBadge("✓", "#34d399");
     setTimeout(clearBadge, 4000);
+    chrome.storage.local.remove(["autopilotSession"]);
+    sendSidebarStatus(tabId, "Form filling completed (maximum step limit reached).", "success");
     return;
   }
 
   try {
+    sendSidebarStatus(tabId, `Scanning page fields (Step ${step + 1})...`, "scanning");
     const response = await sendToTab(tabId, { action: "analyzeForm" });
     if (!response?.success) {
       showBadge("✗", "#f87171");
       setTimeout(clearBadge, 3000);
+      sendSidebarStatus(tabId, `Could not analyze form: ${response?.message || "unknown"}`, "error");
       return;
     }
 
     const fields: FormField[] = response.fields || [];
     let needsReAnalysis = false;
+    let filledCount = 0;
 
     if (fields.length > 0) {
       const storedMode = await chrome.storage.local.get(["matchingMode"]);
       const matchingMode = (storedMode.matchingMode || "heuristic") as string;
       const useAI = matchingMode === "ai";
+
+      sendSidebarStatus(
+        tabId,
+        useAI ? `Matching ${fields.length} field(s) with Gemini AI...` : `Matching ${fields.length} field(s) by keyword...`,
+        "scanning"
+      );
+
       const customFields = migrateCustomFields(userData.customFields);
       let fieldMappings: any[] | null = null;
 
@@ -707,7 +852,11 @@ async function processFormStep(
             setCachedMappings(hostname, signature, fieldMappings);
         }
       } else {
-        fieldMappings = matchFieldsHeuristically(fields, customFields);
+        fieldMappings = matchFieldsHeuristically(
+          fields,
+          customFields,
+          userData,
+        );
       }
       if (!fieldMappings) fieldMappings = [];
 
@@ -736,11 +885,38 @@ async function processFormStep(
         userData,
         customFields,
         virtualLibrary,
+        useAI,
       );
 
       const fillMappings = fieldMappings.filter(
         (m: any) => m.action !== "click_add",
       );
+
+      // Loop safety / Fingerprint check
+      const currentFingerprint = JSON.stringify(
+        fillMappings.map((m: any) => ({ id: m.id, value: m.selectedValue }))
+      );
+      const sessionData = await chrome.storage.local.get(["autopilotSession"]);
+      const session = sessionData.autopilotSession as any;
+      if (session) {
+        const fingerprints = session.fingerprints || [];
+        if (fingerprints.includes(currentFingerprint)) {
+          console.warn("Aullevo Autopilot: Stuck step detected. Stopping.");
+          showBadge("✗", "#f87171");
+          setTimeout(clearBadge, 3000);
+          chrome.storage.local.remove(["autopilotSession"]);
+          sendSidebarStatus(tabId, "Autopilot stopped: stuck step detected (same values in same fields).", "error");
+          return;
+        }
+        await chrome.storage.local.set({
+          autopilotSession: {
+            ...session,
+            fingerprints: [...fingerprints, currentFingerprint]
+          }
+        });
+      }
+
+      sendSidebarStatus(tabId, `Filling ${fillMappings.length} matched field(s)...`, "filling");
       const fillResponse = await sendToTab(tabId, {
         action: "fillForm",
         data: {
@@ -751,12 +927,22 @@ async function processFormStep(
         },
       });
 
-      const filledCount = fillResponse?.filledCount ?? 0;
-      if (fillResponse?.success) showBadge(`${filledCount}`, "#34d399");
+      filledCount = fillResponse?.filledCount ?? 0;
+      if (fillResponse?.success) {
+        showBadge(`${filledCount}`, "#34d399");
+      } else {
+        showBadge("✗", "#f87171");
+        setTimeout(clearBadge, 3000);
+        sendSidebarStatus(tabId, `Fill action failed: ${fillResponse?.error || "unknown"}`, "error");
+        chrome.storage.local.remove(["autopilotSession"]);
+        return;
+      }
 
       if (filledCount === 0 && !needsReAnalysis) {
         showBadge("✓", "#34d399");
         setTimeout(clearBadge, 4000);
+        chrome.storage.local.remove(["autopilotSession"]);
+        sendSidebarStatus(tabId, "Form filling complete!", "success");
         return;
       }
 
@@ -780,6 +966,7 @@ async function processFormStep(
           totalDataItems = (userData.education || []).length;
 
         if (totalDataItems > maxIndex + 1) {
+          sendSidebarStatus(tabId, `Adding another ${btn.groupType} entry...`, "info");
           await sendToTab(tabId, {
             action: "fillForm",
             data: { fieldMappings: [{ ...btn }] },
@@ -790,6 +977,12 @@ async function processFormStep(
           break;
         }
       }
+    } else {
+      showBadge("✓", "#34d399");
+      setTimeout(clearBadge, 4000);
+      chrome.storage.local.remove(["autopilotSession"]);
+      sendSidebarStatus(tabId, "Form filling complete! No fields found.", "success");
+      return;
     }
 
     if (needsReAnalysis) {
@@ -798,10 +991,28 @@ async function processFormStep(
       return;
     }
 
+    const storedSessSettings = await chrome.storage.local.get(["autoSubmit"]);
+    const autoSubmit = !!storedSessSettings.autoSubmit;
+
+    if (!autoSubmit) {
+      showBadge("✓", "#34d399");
+      setTimeout(clearBadge, 4000);
+      chrome.storage.local.remove(["autopilotSession"]);
+      sendSidebarStatus(tabId, `Filled ${filledCount} field(s) successfully!`, "success");
+      return;
+    }
+
     await sleep(1000);
+    sendSidebarStatus(tabId, "➡️ Moving to next step...", "info");
     const nextResponse = await sendToTab(tabId, { action: "clickNext" });
     if (nextResponse?.success) {
       invalidateCache(hostname);
+      const storedSess = await chrome.storage.local.get(["autopilotSession"]);
+      if (storedSess.autopilotSession) {
+        await chrome.storage.local.set({
+          autopilotSession: { ...storedSess.autopilotSession, step: step + 1 }
+        });
+      }
       await sleep(3000);
       await processFormStep(
         tabId,
@@ -814,11 +1025,15 @@ async function processFormStep(
     } else {
       showBadge("✓", "#34d399");
       setTimeout(clearBadge, 4000);
+      chrome.storage.local.remove(["autopilotSession"]);
+      sendSidebarStatus(tabId, "Form filling complete! (Next page not found).", "success");
     }
   } catch (error: any) {
     console.error("Aullevo fill step error:", error);
     showBadge("✗", "#f87171");
     setTimeout(clearBadge, 3000);
+    sendSidebarStatus(tabId, `Filling failed: ${error.message || error}`, "error");
+    chrome.storage.local.remove(["autopilotSession"]);
   }
 }
 
@@ -849,5 +1064,22 @@ function showBadge(text: string, color: string) {
 function clearBadge() {
   chrome.action.setBadgeText({ text: "" });
 }
+
+function sendSidebarStatus(
+  tabId: number,
+  message: string,
+  statusType: "idle" | "scanning" | "filling" | "success" | "error" | "info",
+) {
+  sendToTab(tabId, { action: "sidebarStatus", message, statusType }).catch(() => { });
+}
+
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName === "local") {
+    if (changes.userData || changes.matchingMode || changes.geminiApiKey) {
+      domainCache.clear();
+      console.log("Aullevo: domainCache cleared due to configuration/profile change.");
+    }
+  }
+});
 
 console.log("🚗 Aullevo background service worker loaded!");

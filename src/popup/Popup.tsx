@@ -4,6 +4,7 @@ import { geminiService } from '../services/geminiService';
 import { resumeParser } from '../services/resumeParser';
 import type { UserData, CustomField, Status, ChromeResponse, Memory, SavedLink } from '../types';
 import './Popup.css';
+import { LogoA } from '../components/LogoA';
 
 /* ─── helpers ─── */
 
@@ -123,6 +124,7 @@ function Popup() {
     const [uploadedFileName, setUploadedFileName] = useState<string>('');
 
     const [apiKey, setApiKey] = useState<string>('');
+    const [isPro, setIsPro] = useState<boolean>(false);
     const [showSettings, setShowSettings] = useState<boolean>(false);
 
     // Custom field add form
@@ -138,7 +140,7 @@ function Popup() {
 
     useEffect(() => {
         if (typeof chrome !== 'undefined' && chrome?.storage) {
-            chrome.storage.local.get(['userData', 'geminiApiKey'], (result) => {
+            chrome.storage.local.get(['userData', 'geminiApiKey', 'isPro'], (result) => {
                 if (result?.userData) {
                     const loaded = result.userData as any;
                     // Migrate old customFields format
@@ -148,7 +150,21 @@ function Popup() {
                 if (result?.geminiApiKey) {
                     setApiKey(result.geminiApiKey as string);
                 }
+                if (result?.isPro !== undefined) {
+                    setIsPro(!!result.isPro);
+                }
             });
+
+            // Listen to live changes to local storage (e.g. options page sign-in)
+            const storageListener = (changes: any, areaName: string) => {
+                if (areaName === 'local' && changes.isPro !== undefined) {
+                    setIsPro(!!changes.isPro.newValue);
+                }
+            };
+            chrome.storage.onChanged.addListener(storageListener);
+            return () => {
+                chrome.storage.onChanged.removeListener(storageListener);
+            };
         }
     }, []);
 
@@ -179,6 +195,10 @@ function Popup() {
 
     /* ── Memories CRUD ── */
     const addMemory = () => {
+        if (!isPro && ((userData.memories as Memory[]) || []).length >= 2) {
+            setStatus({ message: '🔒 Memories are limited to 2 on the Free tier. Please upgrade to Pro!', type: 'error' });
+            return;
+        }
         if (!newMemTitle.trim() || !newMemContent.trim()) return;
         const memory: Memory = { id: Date.now().toString(), title: newMemTitle.trim(), content: newMemContent.trim() };
         setUserData(prev => ({ ...prev, memories: [...((prev.memories as Memory[]) || []), memory] }));
@@ -191,6 +211,10 @@ function Popup() {
 
     /* ── Links CRUD ── */
     const addLink = () => {
+        if (!isPro && ((userData.savedLinks as SavedLink[]) || []).length >= 2) {
+            setStatus({ message: '🔒 Links are limited to 2 on the Free tier. Please upgrade to Pro!', type: 'error' });
+            return;
+        }
         if (!newLinkTitle.trim() || !newLinkUrl.trim()) return;
         const link: SavedLink = { id: Date.now().toString(), title: newLinkTitle.trim(), url: newLinkUrl.trim(), autoFill: newLinkAutoFill };
         setUserData(prev => ({ ...prev, savedLinks: [...((prev.savedLinks as SavedLink[]) || []), link] }));
@@ -410,6 +434,10 @@ function Popup() {
     };
 
     const handleAIFillForm = async () => {
+        if (!isPro) {
+            setStatus({ message: '🔒 Gemini AI matching is a Pro feature. Please upgrade!', type: 'error' });
+            return;
+        }
         setIsProcessing(true);
         setStatus({ message: '🤖 Starting AI Form Filler...', type: 'info' });
 
@@ -455,7 +483,10 @@ function Popup() {
     return (
         <div className="popup-container">
             <header className="header">
-                <h1>🚗 Aullevo</h1>
+                <h1 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <LogoA size={22} />
+                    <span>Aullevo</span>
+                </h1>
                 <button
                     className="settings-btn"
                     onClick={() => setShowSettings(!showSettings)}

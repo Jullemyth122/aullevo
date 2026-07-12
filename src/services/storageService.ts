@@ -1,22 +1,22 @@
 /**
  * storageService.ts
- * ─────────────────────────────────────────────────────────
+ * 
  * AES-256-GCM encrypted storage for all user profile data.
  * Multi-profile vault with import/export support.
  *
  * Architecture Design System — Layer 4: Data Layer
- * ─────────────────────────────────────────────────────────
+ * 
  */
 
 import type { UserData } from '../types';
 
 const PROFILES_KEY = 'aullevo_profiles';       // encrypted profiles vault
-const ACTIVE_KEY   = 'aullevo_active_profile'; // name of active profile
+const ACTIVE_KEY = 'aullevo_active_profile'; // name of active profile
 const CRYPTO_KEY_RAW = 'aullevo_ck';           // raw key material (base64)
 
-/* ─────────────────────────────────────────────────────────
+/* 
    KEY MANAGEMENT — derive/load a persistent AES-256 key
-───────────────────────────────────────────────────────── */
+ */
 
 async function getOrCreateKey(): Promise<CryptoKey> {
     return new Promise((resolve, reject) => {
@@ -45,9 +45,9 @@ async function getOrCreateKey(): Promise<CryptoKey> {
     });
 }
 
-/* ─────────────────────────────────────────────────────────
+/* 
    ENCRYPT / DECRYPT
-───────────────────────────────────────────────────────── */
+ */
 
 async function encrypt(data: object, key: CryptoKey): Promise<string> {
     const iv = crypto.getRandomValues(new Uint8Array(12));
@@ -74,9 +74,9 @@ async function decrypt(ciphertext: string, key: CryptoKey): Promise<object> {
     return JSON.parse(new TextDecoder().decode(plain));
 }
 
-/* ─────────────────────────────────────────────────────────
+/* 
    PROFILE CRUD
-───────────────────────────────────────────────────────── */
+ */
 
 /** Read the raw encrypted vault from storage */
 async function readVault(key: CryptoKey): Promise<Record<string, UserData>> {
@@ -188,9 +188,9 @@ export const storageService = {
     },
 };
 
-/* ─────────────────────────────────────────────────────────
+/* 
    UTILITIES
-───────────────────────────────────────────────────────── */
+ */
 
 function bufferToBase64(buffer: ArrayBuffer | Uint8Array): string {
     const bytes = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
