@@ -424,7 +424,7 @@ function Popup() {
         return new Promise((resolve) => {
             chrome.tabs.sendMessage(tabId, message, (response) => {
                 if (chrome.runtime.lastError) {
-                    console.error(chrome.runtime.lastError);
+                    console.warn('Aullevo popup notice:', chrome.runtime.lastError.message);
                     resolve({ success: false, message: chrome.runtime.lastError.message });
                 } else {
                     resolve(response);
@@ -467,7 +467,7 @@ function Popup() {
 
     const saveApiKey = () => {
         if (typeof chrome !== 'undefined' && chrome?.storage) {
-            chrome.storage.local.set({ geminiApiKey: apiKey }, () => {
+            chrome.storage.local.set({ geminiApiKey: apiKey.trim() }, () => {
                 setStatus({ message: '🔑 API Key saved!', type: 'success' });
                 setTimeout(() => setStatus({ message: '', type: '' }), 2000);
             });
@@ -533,6 +533,7 @@ function Popup() {
                     <Section icon={<User size={14} />} title="Personal Information" defaultOpen={true}>
                         <div className="form-row">
                             <Field label="First Name" name="firstName" value={userData.firstName || ''} onChange={handleInputChange} />
+                            <Field label="Middle Name" name="middleName" value={userData.middleName || ''} onChange={handleInputChange} placeholder="Optional" />
                             <Field label="Last Name" name="lastName" value={userData.lastName || ''} onChange={handleInputChange} />
                         </div>
                         <Field label="Email" name="email" value={userData.email || ''} onChange={handleInputChange} type="email" />

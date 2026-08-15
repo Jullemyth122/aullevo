@@ -23,7 +23,10 @@
       "description": "Trigger AI Form Fill on the current page"
     }
   },
-  "options_page": "options.html",
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
   "action": {
     "default_title": "Aullevo",
     "default_icon": {
@@ -33,6 +36,7 @@
     }
   },
   "host_permissions": [
+    "https://generativelanguage.googleapis.com/*",
     "https://www.messenger.com/*",
     "https://www.facebook.com/*",
     "https://mail.google.com/*",
