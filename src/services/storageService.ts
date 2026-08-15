@@ -110,6 +110,12 @@ export const storageService = {
         const vault = await readVault(key);
         vault[name] = data;
         await writeVault(vault, key);
+
+        // Keep chrome.storage.local.userData in sync if this is the active profile
+        const activeName = await this.getActiveProfileName();
+        if (name === activeName && typeof chrome !== 'undefined' && chrome.storage) {
+            await chrome.storage.local.set({ userData: data });
+        }
     },
 
     /* ── Load a named profile ── */
@@ -142,7 +148,11 @@ export const storageService = {
     },
 
     async setActiveProfileName(name: string): Promise<void> {
-        return new Promise(resolve => chrome.storage.local.set({ [ACTIVE_KEY]: name }, resolve));
+        await new Promise<void>(resolve => chrome.storage.local.set({ [ACTIVE_KEY]: name }, () => resolve()));
+        const data = await this.loadProfile(name);
+        if (data && typeof chrome !== 'undefined' && chrome.storage) {
+            await chrome.storage.local.set({ userData: data });
+        }
     },
 
     /* ── Load the active profile's userData ── */
@@ -178,8 +188,8 @@ export const storageService = {
                     const legacyData = result.userData as UserData;
                     // Save it under 'Default' profile in encrypted vault
                     await this.saveProfile('Default', legacyData);
-                    // Remove plaintext userData
-                    chrome.storage.local.remove(['userData'], resolve);
+                    // Keep userData synced in local storage
+                    chrome.storage.local.set({ userData: legacyData }, resolve);
                 } else {
                     resolve();
                 }

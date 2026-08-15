@@ -43,7 +43,7 @@ class GeminiService {
    */
   async countTokens(
     contents: string,
-    model: string = "gemini-2.5-flash",
+    model: string = "gemini-3-flash-preview",
   ): Promise<TokenCount> {
     try {
       const result = await this.genAI.models.countTokens({
@@ -57,12 +57,69 @@ class GeminiService {
     }
   }
 
+  private formatGeminiError(error: any): Error {
+    const rawMessage =
+      error?.message || (typeof error === "string" ? error : "");
+
+    // Check for leaked API key or PERMISSION_DENIED
+    if (
+      rawMessage.includes("leaked") ||
+      rawMessage.includes("PERMISSION_DENIED") ||
+      error?.status === 403 ||
+      error?.code === 403
+    ) {
+      return new Error(
+        "Your Gemini API key was reported as leaked by Google. Please create a new key at Google AI Studio (aistudio.google.com) and update your extension settings.",
+      );
+    }
+
+    // Check for invalid API key
+    if (
+      rawMessage.includes("API key not valid") ||
+      rawMessage.includes("API_KEY_INVALID")
+    ) {
+      return new Error(
+        "Invalid Gemini API Key. Please verify your API key in extension settings and ensure it is copied accurately from Google AI Studio (aistudio.google.com).",
+      );
+    }
+
+    // Try parsing embedded JSON error structure inside error.message
+    if (rawMessage.includes('{"error":')) {
+      try {
+        const jsonStart = rawMessage.indexOf("{");
+        const jsonStr = rawMessage.substring(jsonStart);
+        const parsed = JSON.parse(jsonStr);
+        if (parsed?.error?.message) {
+          const msg = parsed.error.message;
+          if (msg.includes("leaked")) {
+            return new Error(
+              "Your Gemini API key was reported as leaked by Google. Please create a new key at Google AI Studio (aistudio.google.com) and update your extension settings.",
+            );
+          }
+          if (
+            msg.includes("API key not valid") ||
+            msg.includes("API_KEY_INVALID")
+          ) {
+            return new Error(
+              "Invalid Gemini API Key. Please verify your API key in extension settings and ensure it is copied accurately from Google AI Studio (aistudio.google.com).",
+            );
+          }
+          return new Error(`Gemini API Error: ${msg}`);
+        }
+      } catch (_) {
+        // Fallthrough if parsing fails
+      }
+    }
+
+    return new Error(rawMessage || "Gemini API request failed.");
+  }
+
   /**
    * Generic method to call Gemini
    */
   async generateContent(
     prompt: string,
-    model: string = "gemini-2.5-flash",
+    model: string = "gemini-3-flash-preview",
     customConfig: Partial<GenerationConfig> = {},
   ): Promise<string> {
     const mergedConfig = { ...this.generationConfig, ...customConfig };
@@ -78,11 +135,26 @@ class GeminiService {
 
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
       try {
-        const result = await this.genAI.models.generateContent({
+        const generatePromise = this.genAI.models.generateContent({
           model: model,
           contents: contents,
           config: mergedConfig,
         });
+
+        const timeoutPromise = new Promise<never>((_, reject) =>
+          setTimeout(
+            () =>
+              reject(
+                new Error("Gemini API request timed out after 25 seconds."),
+              ),
+            25000,
+          ),
+        );
+
+        const result: any = await Promise.race([
+          generatePromise,
+          timeoutPromise,
+        ]);
 
         if (!result?.candidates?.[0]?.content) {
           throw new Error(`Empty/invalid response from Gemini`);
@@ -94,30 +166,38 @@ class GeminiService {
 
         const usage = result.usageMetadata;
         console.log(
-          `✅ Gemini OK (attempt ${attempt}) | tokens: ${usage?.totalTokenCount ?? "?"}`,
+          `✅ Gemini OK (${model}, attempt ${attempt}) | tokens: ${usage?.totalTokenCount ?? "?"}`,
         );
 
         return responseText;
       } catch (error: any) {
         lastError = error;
         const status = error.status || error.code || 0;
+        const rawMessage = error.message || "";
 
-        // Non-retryable errors
+        // Non-retryable errors: leaked key / 403 / permission denied / content blocked
         if (
-          error.message?.includes("blocked") ||
-          error.message?.includes("HARM")
+          rawMessage.includes("leaked") ||
+          rawMessage.includes("PERMISSION_DENIED") ||
+          status === 403
         ) {
+          throw this.formatGeminiError(error);
+        }
+        if (rawMessage.includes("blocked") || rawMessage.includes("HARM")) {
           throw new Error("Content was blocked by safety filters.");
         }
         if (status === 400) {
           throw new Error(`Bad request to Gemini: ${error.message}`);
         }
 
-        // Retryable: 429 rate limit or 5xx server errors
-        if (attempt < MAX_RETRIES && (status === 429 || status >= 500)) {
+        // Retryable: 429 rate limit, 5xx server errors, or timeout
+        if (
+          attempt < MAX_RETRIES &&
+          (status === 429 || status >= 500 || rawMessage.includes("timed out"))
+        ) {
           const delay = Math.pow(2, attempt) * 1000; // 2s, 4s
           console.warn(
-            `⏳ Gemini attempt ${attempt} failed (${status}), retrying in ${delay}ms...`,
+            `⏳ Gemini attempt ${attempt} failed (${rawMessage || status}), retrying in ${delay}ms...`,
           );
           await new Promise((r) => setTimeout(r, delay));
           continue;
@@ -128,11 +208,11 @@ class GeminiService {
           throw new Error("Rate limit exceeded. Please try again later.");
         if (status >= 500)
           throw new Error("Gemini server error. Please try again.");
-        throw error;
+        throw this.formatGeminiError(error);
       }
     }
 
-    throw lastError;
+    throw this.formatGeminiError(lastError);
   }
 
   /**
@@ -186,7 +266,7 @@ class GeminiService {
     try {
       const responseText = await this.generateContent(
         prompt,
-        "gemini-2.5-flash",
+        "gemini-3-flash-preview",
       );
       const jsonText = this.extractJSON(responseText);
       return JSON.parse(jsonText) as Partial<UserData>;
@@ -238,6 +318,7 @@ class GeminiService {
         **CRITICAL: DYNAMIC SECTIONS & GROUPS**
         - **Radio Groups**: Type "radio_group". Map it to the correct "fieldType" (e.g. gender, custom_field).
         - **Checkbox Groups**: Type "checkbox_group". Map it to the correct "fieldType" (e.g. resumeUpload, custom_field).
+        - **2D Matrix Rows**: If a checkbox/radio group label or matrix header represents a specific row (e.g. "Interview Availability — Mon" or "Mon"), match it to the corresponding custom field (e.g. custom_field:Mon).
         - **Toggle/Switch**: Type "toggle". Map it to the correct "fieldType".
         - **Range Slider**: Type "range". Map it to the correct "fieldType".
         - **Repeater Groups**: Identify if fields belong to a repeated group (e.g. Experience #1, Project #2).
@@ -259,14 +340,16 @@ class GeminiService {
         **FUZZY MATCHING RULES:**
         1. "First Name" / "Given Name" / "fname" / "Your first name" → firstName
         2. "Last Name" / "Surname" / "Family name" / "lname" → lastName  
-        3. "Phone" / "Mobile" / "Contact number" / "Cell" → phone
-        4. "LinkedIn" / "LinkedIn URL" / "LinkedIn Profile" → linkedin
-        5. "Headline" / "Professional headline" / "Title" (in profile context) → headline
-        6. "Expected salary" / "Salary expectations" / "Desired compensation" → salaryExpectation
-        7. "Notice period" / "How soon can you start" / "Availability" → noticePeriod
-        8. "Work authorization" / "Are you authorized to work" / "Visa status" → workAuthorization
-        9. "Years of experience" / "Total experience" → yearsOfExperience
-        10. For custom fields: Match by comparing the field's label/context with each custom field's context description.
+        3. "Email" / "Email Address" / "E-mail" → email (CRITICAL: DO NOT map "Email Address" to "address"!)
+        4. "Address" / "Street Address" / "Location" / "Current Address" → address (Physical street address only)
+        5. "Phone" / "Mobile" / "Contact number" / "Cell" → phone
+        6. "LinkedIn" / "LinkedIn URL" / "LinkedIn Profile" → linkedin
+        7. "Headline" / "Professional headline" / "Title" (in profile context) → headline
+        8. "Expected salary" / "Salary expectations" / "Desired compensation" → salaryExpectation
+        9. "Notice period" / "How soon can you start" / "Availability" → noticePeriod
+        10. "Work authorization" / "Are you authorized to work" / "Visa status" → workAuthorization
+        11. "Years of experience" / "Total experience" → yearsOfExperience
+        12. For custom fields: Match by comparing the field's label/context with each custom field's context description.
 
         **Special Rules:**
         1. **Select/Radio/Checkbox/Toggle/Range**: DO NOT pick a "selectedValue". Only return the "fieldType" and any necessary grouping metadata. The extension will automatically map your selected "fieldType" to the user's saved profile data.
@@ -292,20 +375,38 @@ class GeminiService {
         - "action": "fill" (default) or "click_add"
 
         Form fields:
-        ${JSON.stringify(formFields, null, 2)}
+        ${JSON.stringify(
+          formFields.map((f) => {
+            const compact: Record<string, any> = { id: f.id };
+            if (f.name) compact.name = f.name;
+            if (f.type) compact.type = f.type;
+            if (f.placeholder) compact.placeholder = f.placeholder;
+            if (f.label) compact.label = f.label;
+            if (f.ariaLabel) compact.ariaLabel = f.ariaLabel;
+            if (f.context) compact.context = f.context;
+            if (f.section) compact.section = f.section;
+            if (f.options?.length) compact.options = f.options;
+            if (f.rowHeader) compact.rowHeader = f.rowHeader;
+            if (f.colHeader) compact.colHeader = f.colHeader;
+            if (f.compoundLabel) compact.compoundLabel = f.compoundLabel;
+            return compact;
+          }),
+          null,
+          2,
+        )}
         `;
 
     try {
       const responseText = await this.generateContent(
         prompt,
-        "gemini-2.5-flash",
+        "gemini-3-flash-preview",
       );
       const jsonText = this.extractJSON(responseText);
       const mappings = JSON.parse(jsonText) as FieldMapping[];
       // Filter out low-confidence mappings (< 0.5) to avoid wrong fills
       return mappings.filter((m) => (m.confidence ?? 1) >= 0.5);
     } catch (error: any) {
-      console.error("Gemini form analysis error:", error);
+      console.warn("Gemini form analysis notice:", error.message || error);
       // If we caught an error, bubble it up so the UI reflects that the AI actually crashed/failed
       // instead of silently pretending 0 fields were matched!
       throw new Error(
@@ -379,7 +480,7 @@ Return ONLY the answer text, nothing else.
     try {
       const responseText = await this.generateContent(
         prompt,
-        "gemini-2.5-flash",
+        "gemini-3-flash-preview",
         { responseMimeType: "text/plain" },
       );
       return responseText.trim();
@@ -398,9 +499,10 @@ Return ONLY the answer text, nothing else.
     }
 
     // Safely map the memories array into a readable string format
-    const memoriesBlock = userData.memories && userData.memories.length > 0
-      ? userData.memories.map((m) => `- ${m.title}: ${m.content}`).join("\n")
-      : "No specific memories stored.";
+    const memoriesBlock =
+      userData.memories && userData.memories.length > 0
+        ? userData.memories.map((m) => `- ${m.title}: ${m.content}`).join("\n")
+        : "No specific memories stored.";
 
     const summaryBlock = userData.summary || "Not provided.";
     const skillsBlock = userData.skills?.join(", ") || "Not provided.";
@@ -428,11 +530,11 @@ Draft a natural, context-aware reply to the latest message on behalf of the user
     try {
       const responseText = await this.generateContent(
         prompt,
-        "gemini-2.5-flash",
+        "gemini-3-flash-preview",
         {
           responseMimeType: "text/plain",
-          temperature: 0.7 // Keeps the model creative but grounded
-        }
+          temperature: 0.7, // Keeps the model creative but grounded
+        },
       );
       return responseText.trim();
     } catch (error) {
@@ -466,7 +568,7 @@ Return ONLY the cover letter text.
     try {
       const responseText = await this.generateContent(
         prompt,
-        "gemini-2.5-flash",
+        "gemini-3-flash-preview",
         { responseMimeType: "text/plain" },
       );
       return responseText;
@@ -480,14 +582,25 @@ Return ONLY the cover letter text.
    * Helper function to extract JSON from Gemini response
    */
   private extractJSON(text: string): string {
-    let cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "");
-    const jsonMatch = cleaned.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
-
-    if (jsonMatch) {
-      return jsonMatch[0];
+    let cleaned = text.trim();
+    if (cleaned.startsWith("```")) {
+      cleaned = cleaned
+        .replace(/^```(?:json)?\s*/i, "")
+        .replace(/\s*```$/i, "");
     }
-
-    return cleaned.trim();
+    const firstBracket = cleaned.search(/[\{\[]/);
+    const lastBracket = Math.max(
+      cleaned.lastIndexOf("}"),
+      cleaned.lastIndexOf("]"),
+    );
+    if (
+      firstBracket !== -1 &&
+      lastBracket !== -1 &&
+      lastBracket > firstBracket
+    ) {
+      return cleaned.substring(firstBracket, lastBracket + 1);
+    }
+    return cleaned;
   }
 }
 

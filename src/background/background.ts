@@ -1,13 +1,17 @@
 import { geminiService } from "../services/geminiService";
-import { matchFieldsHeuristically } from "../services/heuristicMatcher";
-import { fileMatchesField, _tokenize } from "../utils/fileMatch";
-import type {
-  UserData,
-  CustomField,
-  ChromeResponse,
-  FormField,
-  SavedFile,
-} from "../types";
+import {
+  getActiveUserData,
+  getHostname,
+  showBadge,
+  clearBadge,
+  sendSidebarStatus,
+} from "./modules/backgroundUtils";
+import { domainCache } from "./modules/domainCache";
+import {
+  processFieldsAI,
+  runAIFill,
+  processFormStep,
+} from "./modules/formStepProcessor";
 
 /**
  * Background service worker for Aullevo.
@@ -15,363 +19,9 @@ import type {
  * Alt+F (via content script keydown) → triggers AI form fill directly.
  */
 
-// ─── Rate limiter: minimum 500ms between Gemini API calls ───
-let lastApiCallTime = 0;
-function checkRateLimit(): boolean {
-  const now = Date.now();
-  if (now - lastApiCallTime < 500) return false;
-  lastApiCallTime = now;
-  return true;
-}
-
-/* ═══════════════════════════════════════════════════
-   DOMAIN-LEVEL AI RESULT CACHE
-   ═══════════════════════════════════════════════════ */
-
-const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
-
-interface CacheEntry {
-  fieldSignature: string;
-  mappings: any[];
-  timestamp: number;
-}
-
-const domainCache = new Map<string, CacheEntry>();
-
-function buildFieldSignature(fields: FormField[]): string {
-  return fields
-    .map((f) => `${f.id}|${f.label}|${f.type}`)
-    .join(",")
-    .slice(0, 500);
-}
-
-function getHostname(url: string): string {
-  try {
-    return new URL(url).hostname;
-  } catch {
-    return url;
-  }
-}
-
-function getCachedMappings(hostname: string, signature: string): any[] | null {
-  const entry = domainCache.get(hostname);
-  if (!entry) return null;
-  const age = Date.now() - entry.timestamp;
-  if (age > CACHE_TTL_MS) {
-    domainCache.delete(hostname);
-    return null;
-  }
-  if (entry.fieldSignature !== signature) return null;
-  console.log(
-    `Aullevo cache HIT for ${hostname} (age: ${Math.round(age / 1000)}s)`,
-  );
-  return JSON.parse(JSON.stringify(entry.mappings));
-}
-
-function setCachedMappings(
-  hostname: string,
-  signature: string,
-  mappings: any[],
-): void {
-  domainCache.set(hostname, {
-    fieldSignature: signature,
-    mappings: JSON.parse(JSON.stringify(mappings)),
-    timestamp: Date.now(),
-  });
-  console.log(
-    `Aullevo cache SET for ${hostname} (${mappings.length} mappings)`,
-  );
-}
-
-function invalidateCache(hostname: string): void {
-  if (domainCache.has(hostname)) {
-    domainCache.delete(hostname);
-    console.log(`Aullevo cache INVALIDATED for ${hostname}`);
-  }
-}
-
-/* ═══════════════════════════════════════════════════
-   SHARED HELPERS (deduplicated from two call sites)
-   ═══════════════════════════════════════════════════ */
-
-function migrateCustomFields(raw: any): CustomField[] {
-  if (Array.isArray(raw)) return raw;
-  if (raw && typeof raw === "object") {
-    return Object.entries(raw).map(([key, value]) => ({
-      label: key,
-      value: String(value),
-      context: "",
-    }));
-  }
-  return [];
-}
-
-const STANDARD_FIELD_KEYS = new Set([
-  "firstName",
-  "lastName",
-  "email",
-  "phone",
-  "phoneCountryCode",
-  "address",
-  "city",
-  "state",
-  "zipCode",
-  "country",
-  "linkedin",
-  "portfolio",
-  "github",
-  "summary",
-  "headline",
-  "dateOfBirth",
-  "gender",
-  "salaryExpectation",
-  "noticePeriod",
-  "workAuthorization",
-  "yearsOfExperience",
-  "resumeUpload",
-  "emergencyContactName",
-  "emergencyContactRelationship",
-  "emergencyContactPhone",
-  "bloodType",
-  "allergies",
-  "medicalConditions",
-  "medications",
-  "insuranceProvider",
-  "policyNumber",
-  "occupation",
-  "industry",
-  "educationLevel",
-  "maritalStatus",
-]);
-
-/**
- * Resolve ALL field values — standard, custom, array, questions, and files.
- * This is the single source of truth for value resolution, used by both
- * processFieldsAI() and processFormStep().
- */
-async function resolveFieldValues(
-  fieldMappings: any[],
-  fields: FormField[],
-  userData: Partial<UserData>,
-  customFields: CustomField[],
-  virtualLibrary: SavedFile[],
-  useAI = true,
-): Promise<void> {
-  const hasCountryCodeField = fieldMappings.some(
-    (m) => m.fieldType === "phoneCountryCode",
-  );
-
-  for (const mapping of fieldMappings) {
-    if (mapping.action === "click_add") continue;
-
-    // A. Custom questions — ask AI only if in AI mode (OR if it is a chat input)
-    if (mapping.fieldType === "custom_question" && mapping.originalQuestion) {
-      const originalField = fields.find((f) => f.id === mapping.fieldId || f.id === mapping.id);
-      const isChat = originalField?.type === "contenteditable" || (originalField?.chatContext && originalField.chatContext.length > 0);
-
-      if (useAI || isChat) {
-        try {
-          if (isChat) {
-            mapping.selectedValue = await geminiService.generateChatReply(
-              originalField?.chatContext || [],
-              userData,
-            );
-          } else {
-            mapping.selectedValue = await geminiService.answerFormQuestion(
-              mapping.originalQuestion,
-              userData,
-            );
-          }
-        } catch (e: any) {
-          console.warn("Aullevo: Failed to answer question:", e.message);
-          mapping.selectedValue = "[MANUAL_INPUT_NEEDED]";
-        }
-      } else {
-        mapping.selectedValue = "[MANUAL_INPUT_NEEDED]";
-      }
-      continue;
-    }
-
-    // B. Custom fields, Memories, and Links
-    if (mapping.fieldType?.startsWith("custom_field:")) {
-      const label = mapping.fieldType
-        .slice("custom_field:".length)
-        .toLowerCase();
-      const matches = customFields.filter(
-        (cf: CustomField) =>
-          cf.label.toLowerCase() === label ||
-          cf.label.toLowerCase().includes(label),
-      );
-      if (matches.length > 0) {
-        if (matches.length === 1) {
-          mapping.selectedValue = matches[0].value;
-        } else {
-          mapping.selectedValue = matches.map((m) => m.value);
-        }
-      }
-      continue;
-    }
-
-    if (mapping.fieldType?.startsWith("memory:")) {
-      const memoryId = mapping.fieldType.slice("memory:".length);
-      const match = (userData.memories || []).find((m) => m.id === memoryId);
-      if (match) mapping.selectedValue = match.content;
-      continue;
-    }
-
-    if (mapping.fieldType?.startsWith("link:")) {
-      const linkId = mapping.fieldType.slice("link:".length);
-      const match = (userData.savedLinks || []).find((l) => l.id === linkId);
-      if (match) mapping.selectedValue = match.url;
-      continue;
-    }
-
-    // C. Array mapping (experience, education, skills in groups)
-    if (mapping.groupType && typeof mapping.groupIndex === "number") {
-      let arraySource: any[] = [];
-      if (mapping.groupType === "experience")
-        arraySource = userData.experience || [];
-      if (mapping.groupType === "education")
-        arraySource = userData.education || [];
-      if (mapping.groupType === "skill") arraySource = userData.skills || [];
-
-      const item = arraySource[mapping.groupIndex];
-      if (item) {
-        if (
-          typeof item === "object" &&
-          item !== null &&
-          mapping.fieldType &&
-          mapping.fieldType in item
-        ) {
-          mapping.selectedValue = String((item as any)[mapping.fieldType]);
-        } else if (mapping.groupType === "skill") {
-          mapping.selectedValue = String(item);
-        }
-      }
-      continue;
-    }
-
-    // D. Standard fields (firstName, email, phone, etc.)
-    if (
-      !mapping.selectedValue &&
-      mapping.fieldType &&
-      (STANDARD_FIELD_KEYS.has(mapping.fieldType) ||
-        mapping.fieldType === "skill")
-    ) {
-      if (mapping.fieldType === "phoneCountryCode") {
-        const match = userData.phone?.match(/\+(\d+)/);
-        mapping.selectedValue = match ? `+${match[1]}` : userData.phone || "";
-      } else if (mapping.fieldType === "phone") {
-        let val = userData.phone || "";
-        if (hasCountryCodeField) val = val.replace(/^\+\d+[- ]?/, "");
-        mapping.selectedValue = val;
-      } else if (
-        mapping.fieldType === "skill" &&
-        mapping.groupType !== "skill"
-      ) {
-        mapping.selectedValue = userData.skills || [];
-      } else {
-        const val = (userData as any)[mapping.fieldType];
-        if (val !== undefined && val !== null && val !== "") {
-          mapping.selectedValue = Array.isArray(val)
-            ? val.join(", ")
-            : String(val);
-        }
-
-        // ✨ FALLBACK TO CUSTOM FIELDS:
-        // If the standard field was empty in the user's profile, check if they created a Custom Field for it!
-        // This solves the issue where users create a Custom Field for "Birthdate" or "Expected Salary" instead of using the standard profile input.
-        if (!mapping.selectedValue && customFields.length > 0) {
-          // Fuzzy match the standard fieldType literal against custom field labels
-          const ftypeLower = mapping.fieldType.toLowerCase();
-          const cfMatch = customFields.find((cf) => {
-            const lbl = cf.label.toLowerCase();
-            return (
-              lbl.includes(ftypeLower) ||
-              (ftypeLower.includes("salary") && lbl.includes("salary")) ||
-              (ftypeLower.includes("birth") && lbl.includes("birth")) ||
-              (ftypeLower.includes("country") &&
-                (lbl.includes("country") ||
-                  lbl.includes("national") ||
-                  lbl.includes("region"))) ||
-              (ftypeLower.includes("address") &&
-                (lbl.includes("location") ||
-                  lbl.includes("address") ||
-                  lbl.includes("city"))) ||
-              (ftypeLower.includes("degree") &&
-                (lbl.includes("degree") || lbl.includes("diploma")))
-            );
-          });
-          if (cfMatch) mapping.selectedValue = cfMatch.value;
-        }
-      }
-    }
-  }
-
-  // E. File vault matching — match library files to ALL file-type fields
-  if (virtualLibrary.length > 0) {
-    // Iterate all file-type fields on the page, not just AI-mapped ones
-    const fileFields = fields.filter((f) => f.type === "file");
-
-    for (const fileField of fileFields) {
-      // Find or create a mapping for this file field
-      let mapping = fieldMappings.find(
-        (m) =>
-          m.action !== "click_add" &&
-          (m.id === fileField.id || m.fieldId === fileField.id),
-      );
-
-      // If no AI mapping exists for this file field, create one
-      if (!mapping) {
-        mapping = {
-          id: fileField.id,
-          fieldId: fileField.id,
-          fieldType: "resumeUpload",
-          confidence: 0.8,
-        };
-        fieldMappings.push(mapping);
-      }
-
-      // Skip if already has file data
-      if (mapping.fileData || (mapping.files && mapping.files.length > 0))
-        continue;
-
-      // Extract semantic tokens from the AI's determined fieldType (e.g. "resumeUpload" -> "resume", "upload")
-      const extraKws = mapping.fieldType ? _tokenize(mapping.fieldType) : [];
-
-      // Match using the full field object + AI extra keywords
-      const matchedFiles = virtualLibrary.filter((sf) =>
-        fileMatchesField(fileField, sf, extraKws),
-      );
-
-      if (matchedFiles.length > 0) {
-        if (fileField.multiple) {
-          mapping.files = matchedFiles.map((sf) => ({
-            name: sf.name,
-            dataUrl: sf.dataUrl,
-          }));
-          mapping.selectedValue = "FILE_UPLOAD";
-          console.log(
-            `Aullevo FileVault: ${matchedFiles.length} files matched to [${fileField.label || fileField.name || fileField.id}] (Multiple)`,
-          );
-        } else {
-          const bestMatch = matchedFiles[0];
-          mapping.fileData = bestMatch.dataUrl;
-          mapping.fileName = bestMatch.name;
-          mapping.selectedValue = "FILE_UPLOAD";
-          console.log(
-            `Aullevo FileVault: "${bestMatch.name}" matched to [${fileField.label || fileField.name || fileField.id}] (Single)`,
-          );
-        }
-      }
-    }
-  }
-}
-
-/* ═══════════════════════════════════════════════════
+/* 
    COMMANDS & MESSAGE HANDLING
-   ═══════════════════════════════════════════════════ */
-
+*/
 chrome.commands.onCommand.addListener(async (command) => {
   if (command === "toggle-sidebar") {
     const [tab] = await chrome.tabs.query({
@@ -396,6 +46,106 @@ chrome.action.onClicked.addListener((tab) => {
 });
 
 chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
+  if (request.action === "openOptionsPage") {
+    if (typeof chrome !== "undefined" && chrome.runtime?.openOptionsPage) {
+      chrome.runtime.openOptionsPage().catch(() => {
+        chrome.tabs.create({ url: chrome.runtime.getURL("options.html") });
+      });
+    } else if (typeof chrome !== "undefined" && chrome.tabs) {
+      chrome.tabs.create({ url: chrome.runtime.getURL("options.html") });
+    }
+    sendResponse({ success: true });
+    return true;
+  }
+
+  if (request.action === "SYNC_WEB_USER" && (request.uid || request.email)) {
+    (async () => {
+      try {
+        const { doc, getDoc, collection, query, where, getDocs } =
+          await import("firebase/firestore");
+        const { db } = await import("../config/firebase");
+
+        // Preserve existing local storage values if not explicitly provided in request
+        const currentLocal = await chrome.storage.local.get([
+          "isPro",
+          "userUid",
+          "userEmail",
+          "displayName",
+          "photoURL",
+        ]);
+        let isPro =
+          request.isPro !== undefined
+            ? !!request.isPro
+            : currentLocal.isPro || false;
+        let uid = request.uid || currentLocal.userUid;
+        let email = request.email || currentLocal.userEmail || "";
+        let displayName = request.displayName || currentLocal.displayName || "";
+        let photoURL = request.photoURL || currentLocal.photoURL || "";
+
+        // Attempt Firestore verification
+        if (uid) {
+          try {
+            const userRef = doc(db, "users", uid);
+            const userSnap = await getDoc(userRef);
+            if (userSnap.exists()) {
+              const data = userSnap.data();
+              isPro = !!data.isPro;
+              if (!email) email = data.email || "";
+              if (!displayName) displayName = data.displayName || "";
+              if (!photoURL) photoURL = data.photoURL || "";
+            }
+          } catch (err) {
+            console.warn(
+              "Aullevo: getDoc by uid failed (using existing value, isPro=" +
+                isPro +
+                ")",
+              err,
+            );
+          }
+        }
+
+        if (!isPro && email) {
+          try {
+            const q = query(
+              collection(db, "users"),
+              where("email", "==", email),
+            );
+            const querySnap = await getDocs(q);
+            querySnap.forEach((docSnap) => {
+              const data = docSnap.data();
+              if (data.isPro) {
+                isPro = true;
+                if (!uid) uid = docSnap.id;
+                if (!displayName) displayName = data.displayName || "";
+                if (!photoURL) photoURL = data.photoURL || "";
+              }
+            });
+          } catch (err) {
+            console.warn(
+              "Aullevo: query by email failed (using existing value, isPro=" +
+                isPro +
+                ")",
+              err,
+            );
+          }
+        }
+
+        await chrome.storage.local.set({
+          isPro,
+          userUid: uid || null,
+          userEmail: email,
+          displayName,
+          photoURL,
+        });
+        sendResponse({ success: true, isPro });
+      } catch (e) {
+        console.warn("Aullevo: SYNC_WEB_USER outer error", e);
+        sendResponse({ success: false });
+      }
+    })();
+    return true;
+  }
+
   if (request.action === "triggerFillFromPopup") {
     runAIFill().then(() => sendResponse({ success: true }));
     return true;
@@ -415,12 +165,11 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
         const tabHostname = getHostname(tab.url || "");
 
         const stored = await chrome.storage.local.get([
-          "userData",
           "resumeFileData",
           "resumeFileName",
           "autoSubmit",
         ]);
-        const userData = (stored.userData || {}) as Partial<UserData>;
+        const userData = await getActiveUserData();
         const autoSubmit = !!stored.autoSubmit;
 
         if (autoSubmit) {
@@ -429,8 +178,8 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
               tabId: tabId,
               step: 0,
               hostname: tabHostname,
-              fingerprints: []
-            }
+              fingerprints: [],
+            },
           });
         } else {
           await chrome.storage.local.remove(["autopilotSession"]);
@@ -472,17 +221,24 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   if (request.action === "processChatAI") {
     (async () => {
       try {
-        const stored = await chrome.storage.local.get(["userData", "geminiApiKey"]);
-        const userData = (stored.userData || {}) as Partial<UserData>;
-        const apiKey = (stored.geminiApiKey || "") as string;
+        const stored = await chrome.storage.local.get(["geminiApiKey"]);
+        const userData = await getActiveUserData();
+        const apiKey = ((stored.geminiApiKey || "") as string).trim();
 
         if (!apiKey) {
-          sendResponse({ success: false, error: "No API key found. Save your Gemini API key in the extension settings." });
+          sendResponse({
+            success: false,
+            error:
+              "No API key found. Save your Gemini API key in the extension settings.",
+          });
           return;
         }
 
         geminiService.setApiKey(apiKey);
-        const replyText = await geminiService.generateChatReply(request.conversationHistory || [], userData);
+        const replyText = await geminiService.generateChatReply(
+          request.conversationHistory || [],
+          userData,
+        );
 
         sendResponse({ success: true, replyText });
       } catch (err: any) {
@@ -493,9 +249,6 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   }
 
   if (request.action === "urlChanged") {
-    // DO NOT invalidate cache on url reload.
-    // This fixes the 429 Too Many Requests error on page refresh.
-    // Field signature comparison handles actual form changes.
     sendResponse({ success: true });
     return false;
   }
@@ -504,15 +257,16 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     sendResponse({ success: true });
     return false;
   }
+
   if (request.action === "openAutopilotLink") {
     chrome.tabs.create({ url: request.url }, (tab) => {
       if (tab.id) {
         chrome.storage.local.set({
           autopilotSession: {
-            tabId: tab.id,
+            // tabId: tab.id,
             step: 0,
-            hostname: getHostname(request.url || "")
-          }
+            hostname: getHostname(request.url || ""),
+          },
         });
       }
     });
@@ -528,28 +282,24 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
       if (session && session.tabId === tabId) {
         const currentHostname = getHostname(tab.url || "");
         if (session.hostname && currentHostname !== session.hostname) {
-          // Navigated away, clear session
           chrome.storage.local.remove(["autopilotSession"]);
           clearBadge();
           return;
         }
 
         console.log(
-          `🚗 Aullevo Autopilot: Tab loaded, resuming auto-fill step ${session.step}...`,
+          `Aullevo Autopilot: Tab loaded, resuming auto-fill step ${session.step}...`,
         );
         showBadge("⏳", "#3B82F6");
 
-        // Wait for SPA frameworks to render
         setTimeout(async () => {
           try {
             const stored = await chrome.storage.local.get([
-              "userData",
               "resumeFileData",
               "resumeFileName",
             ]);
-            const userData = (stored.userData || {}) as Partial<UserData>;
+            const userData = await getActiveUserData();
 
-            // Save next step to session first so if it reloads we can resume
             const nextStep = session.step + 1;
             if (nextStep > 30) {
               chrome.storage.local.remove(["autopilotSession"]);
@@ -559,7 +309,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
             }
 
             await chrome.storage.local.set({
-              autopilotSession: { ...session, step: nextStep }
+              autopilotSession: { ...session, step: nextStep },
             });
 
             await processFormStep(
@@ -576,510 +326,21 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
             setTimeout(clearBadge, 3000);
             chrome.storage.local.remove(["autopilotSession"]);
           }
-        }, 2000); // 2 second delay for React/Angular/Vue to mount inputs
+        }, 2000);
       }
     });
   }
 });
-
-/* ═══════════════════════════════════════════════════
-   CORE PROCESSING (AI or Heuristic, based on user setting)
-   ═══════════════════════════════════════════════════ */
-
-async function processFieldsAI(fields: FormField[], hostname = "") {
-  try {
-    const stored = await chrome.storage.local.get([
-      "userData",
-      "geminiApiKey",
-      "resumeFileData",
-      "resumeFileName",
-      "fileLibrary",
-      "matchingMode",
-    ]);
-    const userData = (stored.userData || {}) as Partial<UserData>;
-    const apiKey = (stored.geminiApiKey || "") as string;
-    const resumeFileData = stored.resumeFileData as string | undefined;
-    const resumeFileName = stored.resumeFileName as string | undefined;
-    const matchingMode = (stored.matchingMode || "heuristic") as string;
-    const useAI = matchingMode === "ai";
-    const isPro = !!stored.isPro;
-
-    if (useAI && !isPro) {
-      return {
-        success: false,
-        error: "🔒 Gemini AI matching is a Pro feature. Please upgrade to unlock!",
-      };
-    }
-
-    const customFields = migrateCustomFields(userData.customFields);
-
-    let fieldMappings: any[] | null = null;
-
-    if (useAI) {
-      // ── AI Mode: requires API key, uses Gemini ──
-      if (apiKey) geminiService.setApiKey(apiKey);
-      if (!apiKey)
-        return {
-          success: false,
-          error:
-            "No API key found. Save your Gemini API key in the extension settings.",
-        };
-      if (!checkRateLimit())
-        return {
-          success: false,
-          error: "Please wait a moment before requesting another fill.",
-        };
-
-      // Check domain cache before calling Gemini
-      const signature = buildFieldSignature(fields);
-      fieldMappings = hostname ? getCachedMappings(hostname, signature) : null;
-
-      if (!fieldMappings) {
-        fieldMappings = await geminiService.analyzeFormFields(
-          fields,
-          customFields,
-        );
-        if (!fieldMappings || fieldMappings.length === 0) {
-          console.warn(
-            "Aullevo: AI returned 0 mappings for",
-            fields.length,
-            "fields",
-          );
-          return { success: true, mappings: [], addButtons: [], userData };
-        }
-        if (hostname) setCachedMappings(hostname, signature, fieldMappings);
-      }
-    } else {
-      // ── Heuristic Mode: instant, zero API calls ──
-      console.log(
-        `Aullevo: Using HEURISTIC matching for ${fields.length} fields`,
-      );
-      fieldMappings = matchFieldsHeuristically(fields, customFields, userData);
-      if (!fieldMappings || fieldMappings.length === 0) {
-        console.warn(
-          "Aullevo: Heuristic returned 0 mappings for",
-          fields.length,
-          "fields",
-        );
-        return { success: true, mappings: [], addButtons: [], userData };
-      }
-    }
-
-    // Build virtual library (real library + legacy resume)
-    const fileLibrary: SavedFile[] = (stored.fileLibrary as SavedFile[]) || [];
-    const virtualLibrary = [...fileLibrary];
-    if (resumeFileData && resumeFileName) {
-      if (!virtualLibrary.some((sf) => sf.name === resumeFileName)) {
-        virtualLibrary.push({
-          id: "legacy-resume",
-          name: resumeFileName,
-          size: 0,
-          type: "application/pdf",
-          dataUrl: resumeFileData,
-          savedAt: "Legacy",
-        });
-      }
-    }
-
-    // Resolve ALL values using the shared helper
-    await resolveFieldValues(
-      fieldMappings,
-      fields,
-      userData,
-      customFields,
-      virtualLibrary,
-      useAI,
-    );
-
-    const fillMappings = fieldMappings.filter(
-      (m: any) => m.action !== "click_add",
-    );
-    const addButtons = fieldMappings.filter(
-      (m: any) => m.action === "click_add",
-    );
-
-    if (useAI && fillMappings.length === 0 && fields.length > 0) {
-      throw new Error(
-        "AI analysis returned zero mappings. The form configuration may be too complex or confused the AI.",
-      );
-    }
-
-    console.log(
-      `Aullevo ${useAI ? "AI" : "Heuristic"}: ${fillMappings.length} fill mappings, ${addButtons.length} add buttons`,
-    );
-
-    return {
-      success: true,
-      mappings: fillMappings,
-      addButtons,
-      userData,
-      resumeFileData,
-      resumeFileName,
-    };
-  } catch (error: any) {
-    console.error("Aullevo processFieldsAI error:", error);
-    const msg = error.message || String(error);
-    if (
-      msg.includes("429") ||
-      msg.includes("Rate limit") ||
-      msg.toLowerCase().includes("rate")
-    ) {
-      return {
-        success: false,
-        error: "⏱️ Rate limit exceeded. Wait 30 seconds and try again.",
-      };
-    }
-    if (msg.includes("500") || msg.includes("server error")) {
-      return {
-        success: false,
-        error: "🔧 Gemini server error. Try again in a moment.",
-      };
-    }
-    return { success: false, error: msg || "Processing failed" };
-  }
-}
-
-/* ─── Popup / Ctrl+M flow ─── */
-
-async function runAIFill() {
-  try {
-    const stored = await chrome.storage.local.get([
-      "userData",
-      "geminiApiKey",
-      "resumeFileData",
-      "resumeFileName",
-      "autoSubmit",
-    ]);
-    const userData = (stored.userData || {}) as Partial<UserData>;
-    const apiKey = (stored.geminiApiKey || "") as string;
-    if (apiKey) geminiService.setApiKey(apiKey);
-
-    const [tab] = await chrome.tabs.query({
-      active: true,
-      currentWindow: true,
-    });
-    if (!tab?.id) {
-      showBadge("!", "#f87171");
-      return;
-    }
-
-    const tabId = tab.id;
-    const tabHostname = getHostname(tab.url || "");
-    const autoSubmit = !!stored.autoSubmit;
-
-    if (autoSubmit) {
-      await chrome.storage.local.set({
-        autopilotSession: {
-          tabId: tabId,
-          step: 0,
-          hostname: tabHostname,
-          fingerprints: []
-        }
-      });
-    } else {
-      await chrome.storage.local.remove(["autopilotSession"]);
-    }
-
-    showBadge("⏳", "#3B82F6");
-    await processFormStep(
-      tabId,
-      userData,
-      0,
-      tabHostname,
-      stored.resumeFileData as string | undefined,
-      stored.resumeFileName as string | undefined,
-    );
-  } catch (error: any) {
-    console.error("Aullevo shortcut error:", error);
-    showBadge("✗", "#f87171");
-    setTimeout(clearBadge, 3000);
-  }
-}
-
-async function processFormStep(
-  tabId: number,
-  userData: Partial<UserData>,
-  step: number,
-  hostname: string,
-  resumeFileData?: string,
-  resumeFileName?: string,
-) {
-  if (step > 30) {
-    showBadge("✓", "#34d399");
-    setTimeout(clearBadge, 4000);
-    chrome.storage.local.remove(["autopilotSession"]);
-    sendSidebarStatus(tabId, "Form filling completed (maximum step limit reached).", "success");
-    return;
-  }
-
-  try {
-    sendSidebarStatus(tabId, `Scanning page fields (Step ${step + 1})...`, "scanning");
-    const response = await sendToTab(tabId, { action: "analyzeForm" });
-    if (!response?.success) {
-      showBadge("✗", "#f87171");
-      setTimeout(clearBadge, 3000);
-      sendSidebarStatus(tabId, `Could not analyze form: ${response?.message || "unknown"}`, "error");
-      return;
-    }
-
-    const fields: FormField[] = response.fields || [];
-    let needsReAnalysis = false;
-    let filledCount = 0;
-
-    if (fields.length > 0) {
-      const storedMode = await chrome.storage.local.get(["matchingMode"]);
-      const matchingMode = (storedMode.matchingMode || "heuristic") as string;
-      const useAI = matchingMode === "ai";
-
-      sendSidebarStatus(
-        tabId,
-        useAI ? `Matching ${fields.length} field(s) with Gemini AI...` : `Matching ${fields.length} field(s) by keyword...`,
-        "scanning"
-      );
-
-      const customFields = migrateCustomFields(userData.customFields);
-      let fieldMappings: any[] | null = null;
-
-      if (useAI) {
-        const signature = buildFieldSignature(fields);
-        fieldMappings = getCachedMappings(hostname, signature);
-        if (!fieldMappings) {
-          fieldMappings = await geminiService.analyzeFormFields(
-            fields,
-            customFields,
-          );
-          if (hostname && fieldMappings?.length)
-            setCachedMappings(hostname, signature, fieldMappings);
-        }
-      } else {
-        fieldMappings = matchFieldsHeuristically(
-          fields,
-          customFields,
-          userData,
-        );
-      }
-      if (!fieldMappings) fieldMappings = [];
-
-      // Build virtual library for file matching
-      const stored = await chrome.storage.local.get(["fileLibrary"]);
-      const fileLibrary: SavedFile[] =
-        (stored.fileLibrary as SavedFile[]) || [];
-      const virtualLibrary = [...fileLibrary];
-      if (resumeFileData && resumeFileName) {
-        if (!virtualLibrary.some((sf) => sf.name === resumeFileName)) {
-          virtualLibrary.push({
-            id: "legacy-resume",
-            name: resumeFileName,
-            size: 0,
-            type: "application/pdf",
-            dataUrl: resumeFileData,
-            savedAt: "Legacy",
-          });
-        }
-      }
-
-      // Use shared resolver for ALL value types
-      await resolveFieldValues(
-        fieldMappings,
-        fields,
-        userData,
-        customFields,
-        virtualLibrary,
-        useAI,
-      );
-
-      const fillMappings = fieldMappings.filter(
-        (m: any) => m.action !== "click_add",
-      );
-
-      // Loop safety / Fingerprint check
-      const currentFingerprint = JSON.stringify(
-        fillMappings.map((m: any) => ({ id: m.id, value: m.selectedValue }))
-      );
-      const sessionData = await chrome.storage.local.get(["autopilotSession"]);
-      const session = sessionData.autopilotSession as any;
-      if (session) {
-        const fingerprints = session.fingerprints || [];
-        if (fingerprints.includes(currentFingerprint)) {
-          console.warn("Aullevo Autopilot: Stuck step detected. Stopping.");
-          showBadge("✗", "#f87171");
-          setTimeout(clearBadge, 3000);
-          chrome.storage.local.remove(["autopilotSession"]);
-          sendSidebarStatus(tabId, "Autopilot stopped: stuck step detected (same values in same fields).", "error");
-          return;
-        }
-        await chrome.storage.local.set({
-          autopilotSession: {
-            ...session,
-            fingerprints: [...fingerprints, currentFingerprint]
-          }
-        });
-      }
-
-      sendSidebarStatus(tabId, `Filling ${fillMappings.length} matched field(s)...`, "filling");
-      const fillResponse = await sendToTab(tabId, {
-        action: "fillForm",
-        data: {
-          fieldMappings: fillMappings,
-          userData,
-          resumeFileData,
-          resumeFileName,
-        },
-      });
-
-      filledCount = fillResponse?.filledCount ?? 0;
-      if (fillResponse?.success) {
-        showBadge(`${filledCount}`, "#34d399");
-      } else {
-        showBadge("✗", "#f87171");
-        setTimeout(clearBadge, 3000);
-        sendSidebarStatus(tabId, `Fill action failed: ${fillResponse?.error || "unknown"}`, "error");
-        chrome.storage.local.remove(["autopilotSession"]);
-        return;
-      }
-
-      if (filledCount === 0 && !needsReAnalysis) {
-        showBadge("✓", "#34d399");
-        setTimeout(clearBadge, 4000);
-        chrome.storage.local.remove(["autopilotSession"]);
-        sendSidebarStatus(tabId, "Form filling complete!", "success");
-        return;
-      }
-
-      const addButtons = fieldMappings.filter(
-        (m: any) => m.action === "click_add",
-      );
-      for (const btn of addButtons) {
-        if (!btn.groupType) continue;
-        const currentIndices = fieldMappings
-          .filter(
-            (m: any) =>
-              m.groupType === btn.groupType && typeof m.groupIndex === "number",
-          )
-          .map((m: any) => m.groupIndex!);
-        const maxIndex =
-          currentIndices.length > 0 ? Math.max(...currentIndices) : -1;
-        let totalDataItems = 0;
-        if (btn.groupType === "experience")
-          totalDataItems = (userData.experience || []).length;
-        if (btn.groupType === "education")
-          totalDataItems = (userData.education || []).length;
-
-        if (totalDataItems > maxIndex + 1) {
-          sendSidebarStatus(tabId, `Adding another ${btn.groupType} entry...`, "info");
-          await sendToTab(tabId, {
-            action: "fillForm",
-            data: { fieldMappings: [{ ...btn }] },
-          });
-          await sleep(1500);
-          invalidateCache(hostname);
-          needsReAnalysis = true;
-          break;
-        }
-      }
-    } else {
-      showBadge("✓", "#34d399");
-      setTimeout(clearBadge, 4000);
-      chrome.storage.local.remove(["autopilotSession"]);
-      sendSidebarStatus(tabId, "Form filling complete! No fields found.", "success");
-      return;
-    }
-
-    if (needsReAnalysis) {
-      await sleep(500);
-      await processFormStep(tabId, userData, step + 1, hostname);
-      return;
-    }
-
-    const storedSessSettings = await chrome.storage.local.get(["autoSubmit"]);
-    const autoSubmit = !!storedSessSettings.autoSubmit;
-
-    if (!autoSubmit) {
-      showBadge("✓", "#34d399");
-      setTimeout(clearBadge, 4000);
-      chrome.storage.local.remove(["autopilotSession"]);
-      sendSidebarStatus(tabId, `Filled ${filledCount} field(s) successfully!`, "success");
-      return;
-    }
-
-    await sleep(1000);
-    sendSidebarStatus(tabId, "➡️ Moving to next step...", "info");
-    const nextResponse = await sendToTab(tabId, { action: "clickNext" });
-    if (nextResponse?.success) {
-      invalidateCache(hostname);
-      const storedSess = await chrome.storage.local.get(["autopilotSession"]);
-      if (storedSess.autopilotSession) {
-        await chrome.storage.local.set({
-          autopilotSession: { ...storedSess.autopilotSession, step: step + 1 }
-        });
-      }
-      await sleep(3000);
-      await processFormStep(
-        tabId,
-        userData,
-        step + 1,
-        hostname,
-        resumeFileData,
-        resumeFileName,
-      );
-    } else {
-      showBadge("✓", "#34d399");
-      setTimeout(clearBadge, 4000);
-      chrome.storage.local.remove(["autopilotSession"]);
-      sendSidebarStatus(tabId, "Form filling complete! (Next page not found).", "success");
-    }
-  } catch (error: any) {
-    console.error("Aullevo fill step error:", error);
-    showBadge("✗", "#f87171");
-    setTimeout(clearBadge, 3000);
-    sendSidebarStatus(tabId, `Filling failed: ${error.message || error}`, "error");
-    chrome.storage.local.remove(["autopilotSession"]);
-  }
-}
-
-/* ─── Utilities ─── */
-
-function sendToTab(tabId: number, message: any): Promise<ChromeResponse> {
-  return new Promise((resolve) => {
-    chrome.tabs.sendMessage(tabId, message, (response) => {
-      if (chrome.runtime.lastError) {
-        console.error(chrome.runtime.lastError);
-        resolve({ success: false, message: chrome.runtime.lastError.message });
-      } else {
-        resolve(response);
-      }
-    });
-  });
-}
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((r) => setTimeout(r, ms));
-}
-
-function showBadge(text: string, color: string) {
-  chrome.action.setBadgeText({ text });
-  chrome.action.setBadgeBackgroundColor({ color });
-}
-
-function clearBadge() {
-  chrome.action.setBadgeText({ text: "" });
-}
-
-function sendSidebarStatus(
-  tabId: number,
-  message: string,
-  statusType: "idle" | "scanning" | "filling" | "success" | "error" | "info",
-) {
-  sendToTab(tabId, { action: "sidebarStatus", message, statusType }).catch(() => { });
-}
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
   if (areaName === "local") {
     if (changes.userData || changes.matchingMode || changes.geminiApiKey) {
       domainCache.clear();
-      console.log("Aullevo: domainCache cleared due to configuration/profile change.");
+      console.log(
+        "Aullevo: domainCache cleared due to configuration/profile change.",
+      );
     }
   }
 });
 
-console.log("🚗 Aullevo background service worker loaded!");
+console.log("Aullevo background service worker loaded!");

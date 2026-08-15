@@ -12,6 +12,10 @@
     "service_worker": "assets/background.js",
     "type": "module"
   },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
   "commands": {
     "toggle-sidebar": {
       "suggested_key": {

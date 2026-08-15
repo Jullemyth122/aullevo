@@ -21,7 +21,9 @@ export interface SavedLink {
 export interface UserData {
   profileType?: 'job' | 'medical' | 'survey' | 'custom';
   firstName: string;
+  middleName?: string;
   lastName: string;
+  fullName?: string;
   email: string;
   phone: string;
   address: string;
@@ -91,12 +93,22 @@ export interface FormField {
   section?: string; // Visual section name
   accept?: string; // For file inputs: e.g. ".pdf,.doc,.docx"
   multiple?: boolean; // For file inputs: whether multiple files are allowed
-  options?: { label: string; value: string }[]; // For select fields
+  options?: {
+    label: string;
+    value: string;
+    rowHeader?: string;
+    colHeader?: string;
+    compoundLabel?: string;
+  }[]; // For select fields, radio_groups, and checkbox_groups
   min?: string; // For range inputs
   max?: string; // For range inputs
   step?: string; // For range inputs
   currentValue?: string; // For toggles: current on/off state
   chatContext?: string[]; // Array of previous chat messages for context
+  // 2D Matrix / Multi-Axis Form Fields Support
+  rowHeader?: string; // e.g. "Mon", "React"
+  colHeader?: string; // e.g. "From", "Morning", "Expert"
+  compoundLabel?: string; // e.g. "Availability > Mon > From"
 }
 
 export interface FieldMapping {
@@ -119,6 +131,11 @@ export interface FieldMapping {
   fileData?: string; // Data URL bridging (for Content script injection)
   fileName?: string; // Real file original name
   files?: { name: string; dataUrl: string }[]; // Array of files for multiple injection
+
+  // 2D Matrix Support
+  rowHeader?: string;
+  colHeader?: string;
+  compoundLabel?: string;
 }
 
 export interface SavedFile {

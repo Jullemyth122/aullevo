@@ -1,6 +1,5 @@
 /**
  * fileMatch.ts
- * ─────────────────────────────────────────────────────────
  * Fuzzy keyword matching between library files and form fields.
  *
  * Strategy:
@@ -10,7 +9,6 @@
  * 3. Bidirectional matching: filename keywords ↔ field keywords
  * 4. Accept-type matching: does the file MIME/extension match the accept attr?
  * 5. Levenshtein fuzzy fallback for near-misses
- * ─────────────────────────────────────────────────────────
  */
 
 import type { FormField } from "../types";
@@ -65,9 +63,9 @@ const FILE_CATEGORY_KEYWORDS: Record<string, string[]> = {
   attachment: ["attachment", "attachments", "other", "misc", "additional"],
 };
 
-/* ═══════════════════════════════════════════════════
+/* 
    PUBLIC API
-   ═══════════════════════════════════════════════════ */
+    */
 
 /**
  * Check if a saved file matches a given form field.
@@ -79,7 +77,7 @@ const FILE_CATEGORY_KEYWORDS: Record<string, string[]> = {
 export function fileMatchesField(
   field: FormField | string,
   sf: { name: string; type?: string },
-  extraKws: string[] = []
+  extraKws: string[] = [],
 ): boolean {
   // Support legacy string-only call signature
   if (typeof field === "string") {
@@ -126,9 +124,9 @@ export function fileMatchesField(
   return false;
 }
 
-/* ═══════════════════════════════════════════════════
+/* 
    KEYWORD EXTRACTION
-   ═══════════════════════════════════════════════════ */
+    */
 
 /** Extract semantic keywords from a field's label, name, id, and context */
 export function fieldKeywords(field: FormField): string[] {
@@ -170,9 +168,9 @@ export function acceptMatchesFile(
   });
 }
 
-/* ═══════════════════════════════════════════════════
+/* 
    MATCHING HELPERS
-   ═══════════════════════════════════════════════════ */
+    */
 
 /** Check if field keywords and file keywords share a semantic category */
 function categoryOverlap(fieldKws: string[], fileKws: string[]): boolean {
@@ -213,13 +211,13 @@ function _legacyLabelMatch(label: string, sf: { name: string }): boolean {
   return false;
 }
 
-/* ═══════════════════════════════════════════════════
+/* 
    UTILITIES
-   ═══════════════════════════════════════════════════ */
+    */
 
 export function _tokenize(text: string): string[] {
   return text
-    .replace(/([a-z])([A-Z])/g, '$1 $2') // split camelCase
+    .replace(/([a-z])([A-Z])/g, "$1 $2") // split camelCase
     .toLowerCase()
     .replace(/[^a-z0-9\s]/g, " ")
     .split(/\s+/)
