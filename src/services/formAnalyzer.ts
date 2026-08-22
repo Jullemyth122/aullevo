@@ -2,8 +2,14 @@ import type { FormField, FieldMapping } from "../types";
 import {
   findElementByIdOrSelector,
   activateTabForField,
+  find2DMatrixInput,
 } from "./form/domUtils";
-import { cleanLabelText, findLabel, findMatrixHeaders } from "./form/labels";
+import {
+  cleanLabelText,
+  findLabel,
+  findMatrixHeaders,
+  fuzzyIncludes,
+} from "./form/labels";
 import {
   fillRadioGroup,
   fillCheckboxGroup,
@@ -109,6 +115,38 @@ export async function fillFormField(
     if (!input) {
       inputs = document.querySelectorAll(`[name="${fieldIdentifier.id}"]`);
       if (inputs.length === 0) inputs = null;
+    }
+  }
+
+  // ── 2D Matrix Cell Lookup for Inputs (Tables, Grids, Multiplication tables, Availability) ──
+  if (!input && !inputs) {
+    if (fieldIdentifier.rowHeader || fieldIdentifier.colHeader || fieldIdentifier.compoundLabel) {
+      input = find2DMatrixInput({
+        rowHeader: fieldIdentifier.rowHeader,
+        colHeader: fieldIdentifier.colHeader,
+        compoundLabel: fieldIdentifier.compoundLabel,
+      });
+    }
+
+    if (!input && fieldIdentifier.fieldType?.startsWith("custom_field:")) {
+      const customLabel = fieldIdentifier.fieldType.slice("custom_field:".length);
+      const tokens = customLabel
+        .split(/[\s\-_/\\|:*xX]+/)
+        .map((t) => t.trim().toLowerCase())
+        .filter((t) => t.length > 0);
+      if (tokens.length >= 2) {
+        input = find2DMatrixInput({ tokens });
+      }
+    }
+
+    if (!input && (fieldIdentifier as any).label) {
+      const tokens = String((fieldIdentifier as any).label)
+        .split(/[\s\-_/\\|:*xX]+/)
+        .map((t) => t.trim().toLowerCase())
+        .filter((t) => t.length > 0);
+      if (tokens.length >= 2) {
+        input = find2DMatrixInput({ tokens });
+      }
     }
   }
 
@@ -461,4 +499,107 @@ export async function fillFormField(
   }
 
   return false;
+}
+
+/**
+ * React / Vue / Angular Compatible Native Value Setter
+ */
+export function setNativeInputValue(input: HTMLElement, value: string): void {
+  if (
+    input instanceof HTMLInputElement ||
+    input instanceof HTMLTextAreaElement ||
+    input instanceof HTMLSelectElement
+  ) {
+    const nativeInputValueSetter =
+      Object.getOwnPropertyDescriptor(
+        Object.getPrototypeOf(input),
+        "value",
+      )?.set ||
+      Object.getOwnPropertyDescriptor(
+        HTMLInputElement.prototype,
+        "value",
+      )?.set;
+
+    if (nativeInputValueSetter) {
+      nativeInputValueSetter.call(input, value);
+    } else {
+      (input as any).value = value;
+    }
+  }
+
+  triggerEvents(input);
+}
+
+/**
+ * Heuristically finds and fills a 2D matrix field by matching token coordinates to row/col axes.
+ */
+export function fill2DFieldHeuristically(
+  tokens: string[],
+  value: string,
+): boolean {
+  const input = find2DMatrixInput({ tokens });
+  if (input) {
+    setNativeInputValue(input, value);
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Fills a 1D field heuristically by token search across name, id, labels, and placeholders.
+ */
+export function fill1DField(token: string, value: string): boolean {
+  const inputs = Array.from(
+    document.querySelectorAll<HTMLElement>(
+      "input:not([type='hidden']):not([type='submit']):not([disabled]), textarea:not([disabled]), select:not([disabled])",
+    ),
+  );
+
+  for (const input of inputs) {
+    const context = (
+      (input.getAttribute("name") || "") +
+      " " +
+      (input.id || "") +
+      " " +
+      (findLabel(input) || "") +
+      " " +
+      (input.getAttribute("placeholder") || "")
+    ).toLowerCase();
+
+    if (fuzzyIncludes(context, token)) {
+      setNativeInputValue(input, value);
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Processes custom field array (both 1D fields and 2D matrix fields) dynamically.
+ */
+export function processCustomFields(
+  fields: Array<{ label: string; value: string }>,
+): number {
+  let filledCount = 0;
+  fields.forEach(({ label, value }) => {
+    if (!label || !value) return;
+
+    const rawTokens = label
+      .split(/[\s\-_/\\|:*xX]+/)
+      .map((t) => t.trim().toLowerCase())
+      .filter((t) => t.length > 0);
+
+    if (rawTokens.length < 2) {
+      if (fill1DField(rawTokens[0] || label, value)) filledCount++;
+    } else {
+      if (fill2DFieldHeuristically(rawTokens, value)) {
+        filledCount++;
+      } else if (fill1DField(label, value)) {
+        filledCount++;
+      }
+    }
+  });
+
+  return filledCount;
 }

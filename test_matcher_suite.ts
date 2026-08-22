@@ -1,6 +1,41 @@
+import { JSDOM } from "jsdom";
+import { extractFormFields } from "./src/services/form/fieldExtractor";
 import { matchFieldsHeuristically } from "./src/services/heuristicMatcher";
 import { resolveFieldValues } from "./src/background/modules/fieldResolver";
-import type { FormField, CustomField, UserData } from "./src/types";
+import {
+  fillFormField,
+  processCustomFields,
+} from "./src/services/formAnalyzer";
+import type { CustomField, UserData } from "./src/types";
+
+function setupDom(html: string) {
+  const dom = new JSDOM(html, {
+    url: "https://example.com/form",
+    pretendToBeVisual: true,
+  });
+
+  (global as any).window = dom.window;
+  (global as any).document = dom.window.document;
+  (global as any).HTMLElement = dom.window.HTMLElement;
+  (global as any).HTMLInputElement = dom.window.HTMLInputElement;
+  (global as any).HTMLSelectElement = dom.window.HTMLSelectElement;
+  (global as any).HTMLTextAreaElement = dom.window.HTMLTextAreaElement;
+  (global as any).Event = dom.window.Event;
+  (global as any).PointerEvent =
+    (dom.window as any).PointerEvent || dom.window.MouseEvent;
+  (global as any).MouseEvent = dom.window.MouseEvent;
+  (global as any).KeyboardEvent = dom.window.KeyboardEvent;
+  (global as any).chrome = {
+    storage: {
+      local: {
+        get: async () => ({ stealthMode: false, autoSubmit: false }),
+        set: async () => {},
+      },
+    },
+  };
+
+  return dom;
+}
 
 function assert(condition: boolean, message: string) {
   if (!condition) {
@@ -13,26 +48,137 @@ function assert(condition: boolean, message: string) {
 
 async function runTests() {
   console.log(
-    "🧪 Starting Aullevo Comprehensive Matrix & Heuristic Test Suite...\n",
+    "🧪 Starting Aullevo Real-DOM 2D Matrix & FormAnalyzer Test Suite...\n",
   );
 
   // =========================================================================
-  // Test 1: McDonald's Application (User's Exact HTML & Custom Fields from Screenshot)
+  // Test 1: Real DOM McDonald's Availability Table & Personal Info Form
   // =========================================================================
-  console.log("--- Test 1: McDonald's Form & Availability Table ---");
+  console.log("--- Test 1: Real HTML McDonald's Availability Table ---");
+
+  const mcdoHtml = `
+    <!DOCTYPE html>
+    <html>
+    <body>
+      <form id="app-form">
+        <div class="field"><label for="f_last">Last Name</label><input id="f_last" type="text" /></div>
+        <div class="field"><label for="f_first">First Name</label><input id="f_first" type="text" /></div>
+        <div class="field"><label for="f_addr">Present Address</label><input id="f_addr" type="text" /></div>
+        <div class="field"><label for="f_phone">Phone No.</label><input id="f_phone" type="text" /></div>
+
+        <div class="section-title">Availability</div>
+        <table border="1" id="avail-table">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Mon</th>
+              <th>Tue</th>
+              <th>Wed</th>
+              <th>Thu</th>
+              <th>Fri</th>
+              <th>Sat</th>
+              <th>Sun</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>From:</td>
+              <td><input id="avail_mon_from" type="text" /></td>
+              <td><input id="avail_tue_from" type="text" /></td>
+              <td><input id="avail_wed_from" type="text" /></td>
+              <td><input id="avail_thu_from" type="text" /></td>
+              <td><input id="avail_fri_from" type="text" /></td>
+              <td><input id="avail_sat_from" type="text" /></td>
+              <td><input id="avail_sun_from" type="text" /></td>
+            </tr>
+            <tr>
+              <td>To:</td>
+              <td><input id="avail_mon_to" type="text" /></td>
+              <td><input id="avail_tue_to" type="text" /></td>
+              <td><input id="avail_wed_to" type="text" /></td>
+              <td><input id="avail_thu_to" type="text" /></td>
+              <td><input id="avail_fri_to" type="text" /></td>
+              <td><input id="avail_sat_to" type="text" /></td>
+              <td><input id="avail_sun_to" type="text" /></td>
+            </tr>
+          </tbody>
+        </table>
+      </form>
+    </body>
+    </html>
+  `;
+
+  setupDom(mcdoHtml);
+
+  // 1. Run actual DOM extraction on the live HTML
+  const extractedFields = extractFormFields();
+  assert(
+    extractedFields.length >= 18,
+    `Extracted ${extractedFields.length} fields from real DOM`,
+  );
+
+  const monFromField = extractedFields.find((f) => f.id === "avail_mon_from");
+  assert(!!monFromField, "Found avail_mon_from in extracted fields");
+  assert(
+    monFromField?.rowHeader === "From",
+    `avail_mon_from rowHeader is "From" (got "${monFromField?.rowHeader}")`,
+  );
+  assert(
+    monFromField?.colHeader === "Mon",
+    `avail_mon_from colHeader is "Mon" (got "${monFromField?.colHeader}")`,
+  );
+  assert(
+    monFromField?.compoundLabel === "From — Mon",
+    `avail_mon_from compoundLabel is "From — Mon" (got "${monFromField?.compoundLabel}")`,
+  );
+
+  const thuToField = extractedFields.find((f) => f.id === "avail_thu_to");
+  assert(!!thuToField, "Found avail_thu_to in extracted fields");
+  assert(thuToField?.rowHeader === "To", `avail_thu_to rowHeader is "To"`);
+  assert(thuToField?.colHeader === "Thu", `avail_thu_to colHeader is "Thu"`);
+
+  // 2. Match with Custom Fields
   const userCustomFields: CustomField[] = [
-    { label: "Last Name", value: "Vicentillo", context: "Last Name" },
-    { label: "First Name", value: "Julle Myth", context: "First Name" },
+    {
+      label: "Last Name",
+      value: "Vicentillo",
+      context: "",
+    },
+    {
+      label: "First Name",
+      value: "Julle Myth",
+      context: "",
+    },
     {
       label: "Present Address",
       value: "PMS Bldg Unit 17, Caloocan City",
-      context: "Present Address",
+      context: "",
     },
-    { label: "Phone", value: "09853047403", context: "Phone" },
-    { label: "Mon - From", value: "8am", context: "Mon - From" },
-    { label: "Mon - To", value: "8pm", context: "Mon - To" },
-    { label: "Thu - From", value: "10am", context: "Thu - From" },
-    { label: "Thu - To", value: "6pm", context: "Thu - To" },
+    {
+      label: "Phone",
+      value: "09853047403",
+      context: "",
+    },
+    {
+      label: "Mon - From",
+      value: "8am",
+      context: "",
+    },
+    {
+      label: "Mon - To",
+      value: "8pm",
+      context: "",
+    },
+    {
+      label: "Thu - From",
+      value: "10am",
+      context: "",
+    },
+    {
+      label: "Thu - To",
+      value: "6pm",
+      context: "",
+    },
   ];
 
   const emptyUserData: Partial<UserData> = {
@@ -40,438 +186,366 @@ async function runTests() {
     customFields: userCustomFields,
   };
 
-  const mcdoFields: FormField[] = [
-    {
-      id: "f_last",
-      name: "",
-      type: "text",
-      placeholder: "",
-      label: "Last Name",
-      ariaLabel: "",
-      autocomplete: "",
-      required: true,
-      context: "Personal Information",
-    },
-    {
-      id: "f_first",
-      name: "",
-      type: "text",
-      placeholder: "",
-      label: "First Name",
-      ariaLabel: "",
-      autocomplete: "",
-      required: true,
-      context: "Personal Information",
-    },
-    {
-      id: "f_middle",
-      name: "",
-      type: "text",
-      placeholder: "",
-      label: "Middle",
-      ariaLabel: "",
-      autocomplete: "",
-      required: false,
-      context: "Personal Information",
-    },
-    {
-      id: "f_addr",
-      name: "",
-      type: "text",
-      placeholder: "Street Address, City, Province",
-      label: "Present Address",
-      ariaLabel: "",
-      autocomplete: "",
-      required: true,
-      context: "Personal Information",
-    },
-    {
-      id: "f_phone",
-      name: "",
-      type: "text",
-      placeholder: "e.g. Phone Number",
-      label: "Phone No.",
-      ariaLabel: "",
-      autocomplete: "",
-      required: true,
-      context: "Personal Information",
-    },
-    {
-      id: "f_pos",
-      name: "",
-      type: "text",
-      placeholder: "e.g., Crew Member",
-      label: "Position Applied For",
-      ariaLabel: "",
-      autocomplete: "",
-      required: true,
-      context: "Personal Information",
-    },
-    {
-      id: "f_ref",
-      name: "",
-      type: "text",
-      placeholder: "",
-      label: "Referred By",
-      ariaLabel: "",
-      autocomplete: "",
-      required: false,
-      context: "Personal Information",
-    },
-    {
-      id: "f_avail_date",
-      name: "",
-      type: "date",
-      placeholder: "",
-      label: "Date of Availability",
-      ariaLabel: "",
-      autocomplete: "",
-      required: true,
-      context: "Personal Information",
-    },
-    {
-      id: "employed",
-      name: "employed",
-      type: "radio_group",
-      placeholder: "",
-      label: "Are you presently employed?",
-      ariaLabel: "",
-      autocomplete: "",
-      required: false,
-      options: [
-        { label: "Yes", value: "yes" },
-        { label: "No", value: "no" },
-      ],
-    },
-    {
-      id: "mcd_past",
-      name: "mcd_past",
-      type: "radio_group",
-      placeholder: "",
-      label: "Have you ever worked for McDonald's before?",
-      ariaLabel: "",
-      autocomplete: "",
-      required: false,
-      options: [
-        { label: "Yes", value: "yes" },
-        { label: "No", value: "no" },
-      ],
-    },
-  ];
-
-  // Add 2D Availability table cells: 7 columns x 2 rows (From: / To:)
-  const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-  for (const day of days) {
-    mcdoFields.push({
-      id: `avail_${day}_from`,
-      name: "",
-      type: "text",
-      placeholder: "8am",
-      label: `${day} — From`,
-      ariaLabel: "",
-      autocomplete: "",
-      required: false,
-      rowHeader: "From",
-      colHeader: day,
-      compoundLabel: `${day} — From`,
-      context: "Availability",
-    });
-    mcdoFields.push({
-      id: `avail_${day}_to`,
-      name: "",
-      type: "text",
-      placeholder: "4pm",
-      label: `${day} — To`,
-      ariaLabel: "",
-      autocomplete: "",
-      required: false,
-      rowHeader: "To",
-      colHeader: day,
-      compoundLabel: `${day} — To`,
-      context: "Availability",
-    });
-  }
-
-  const mappings1 = matchFieldsHeuristically(
-    mcdoFields,
+  const mappings = matchFieldsHeuristically(
+    extractedFields,
     userCustomFields,
     emptyUserData,
   );
   await resolveFieldValues(
-    mappings1,
-    mcdoFields,
+    mappings,
+    extractedFields,
     emptyUserData,
     userCustomFields,
     [],
     false,
   );
 
-  const getVal1 = (id: string) =>
-    mappings1.find((m) => m.id === id || m.fieldId === id)?.selectedValue;
-  const getType1 = (id: string) =>
-    mappings1.find((m) => m.id === id || m.fieldId === id)?.fieldType;
-
-  assert(getType1("f_last") === "lastName", "Last Name mapped to lastName");
-  assert(
-    getVal1("f_last") === "Vicentillo",
-    'Last Name resolved to "Vicentillo"',
-  );
-
-  assert(getType1("f_first") === "firstName", "First Name mapped to firstName");
-  assert(
-    getVal1("f_first") === "Julle Myth",
-    'First Name resolved to "Julle Myth"',
-  );
-
-  assert(getType1("f_addr") === "address", "Present Address mapped to address");
-  assert(
-    getVal1("f_addr") === "PMS Bldg Unit 17, Caloocan City",
-    "Present Address resolved from custom profile",
-  );
-
-  assert(getType1("f_phone") === "phone", "Phone No. mapped to phone");
-  assert(
-    getVal1("f_phone") === "09853047403",
-    'Phone No. resolved to "09853047403"',
-  );
-
-  // Availability matrix coordinate resolutions:
-  assert(getVal1("avail_Mon_from") === "8am", 'Mon - From resolved to "8am"');
-  assert(getVal1("avail_Mon_to") === "8pm", 'Mon - To resolved to "8pm"');
-  assert(getVal1("avail_Thu_from") === "10am", 'Thu - From resolved to "10am"');
-  assert(getVal1("avail_Thu_to") === "6pm", 'Thu - To resolved to "6pm"');
-
-  // Verify non-specified days are completely EMPTY:
-  assert(
-    !getVal1("avail_Tue_from"),
-    "Tue - From is EMPTY (no bleeding from Mon!)",
-  );
-  assert(!getVal1("avail_Tue_to"), "Tue - To is EMPTY");
-  assert(!getVal1("avail_Wed_from"), "Wed - From is EMPTY");
-  assert(!getVal1("avail_Wed_to"), "Wed - To is EMPTY");
-  assert(!getVal1("avail_Fri_from"), "Fri - From is EMPTY");
-  assert(!getVal1("avail_Sat_from"), "Sat - From is EMPTY");
-  assert(!getVal1("avail_Sun_from"), "Sun - From is EMPTY");
-
-  // =========================================================================
-  // Test 2: 2D Matrix Checkbox Grid (Image 4 "Interview Availability")
-  // =========================================================================
-  console.log(
-    "\n--- Test 2: 2D Matrix Checkbox Grid (Interview Availability) ---",
-  );
-  const interviewCustomFields: CustomField[] = [
-    { label: "Mon - Morning", value: "Yes", context: "Mon - Morning" },
-    { label: "Mon - Evening", value: "Yes", context: "Mon - Evening" },
-    { label: "Thu - Afternoon", value: "Yes", context: "Thu - Afternoon" },
-  ];
-
-  const interviewFields: FormField[] = [];
-  const interviewDays = ["Mon", "Tue", "Wed", "Thu", "Fri"];
-  const slots = ["Morning", "Afternoon", "Evening"];
-
-  for (const day of interviewDays) {
-    for (const slot of slots) {
-      interviewFields.push({
-        id: `grid_${day}_${slot}`,
-        name: "",
-        type: "checkbox",
-        placeholder: "",
-        label: `${day} — ${slot}`,
-        ariaLabel: "",
-        autocomplete: "",
-        required: false,
-        rowHeader: day,
-        colHeader: slot,
-        compoundLabel: `${day} — ${slot}`,
-        context: "Interview Availability",
-      });
+  // 3. Fill the real DOM
+  for (const m of mappings) {
+    if (m.selectedValue !== undefined) {
+      await fillFormField(m, m.selectedValue);
     }
   }
 
-  const mappings2 = matchFieldsHeuristically(
-    interviewFields,
-    interviewCustomFields,
-    emptyUserData,
-  );
-  await resolveFieldValues(
-    mappings2,
-    interviewFields,
-    emptyUserData,
-    interviewCustomFields,
-    [],
-    false,
-  );
+  // 4. Verify DOM input values directly
+  const domLast = (document.getElementById("f_last") as HTMLInputElement).value;
+  const domFirst = (document.getElementById("f_first") as HTMLInputElement)
+    .value;
+  const domMonFrom = (
+    document.getElementById("avail_mon_from") as HTMLInputElement
+  ).value;
+  const domMonTo = (document.getElementById("avail_mon_to") as HTMLInputElement)
+    .value;
+  const domThuFrom = (
+    document.getElementById("avail_thu_from") as HTMLInputElement
+  ).value;
+  const domThuTo = (document.getElementById("avail_thu_to") as HTMLInputElement)
+    .value;
+  const domTueFrom = (
+    document.getElementById("avail_tue_from") as HTMLInputElement
+  ).value;
 
-  const getVal2 = (id: string) =>
-    mappings2.find((m) => m.id === id || m.fieldId === id)?.selectedValue;
-
+  assert(domLast === "Vicentillo", `DOM f_last value is "Vicentillo"`);
+  assert(domFirst === "Julle Myth", `DOM f_first value is "Julle Myth"`);
   assert(
-    getVal2("grid_Mon_Morning") === "Yes",
-    'Mon — Morning checkbox matched and resolved to "Yes"',
+    domMonFrom === "8am",
+    `DOM avail_mon_from value is "8am" (got "${domMonFrom}")`,
   );
   assert(
-    getVal2("grid_Mon_Evening") === "Yes",
-    'Mon — Evening checkbox matched and resolved to "Yes"',
+    domMonTo === "8pm",
+    `DOM avail_mon_to value is "8pm" (got "${domMonTo}")`,
   );
   assert(
-    getVal2("grid_Thu_Afternoon") === "Yes",
-    'Thu — Afternoon checkbox matched and resolved to "Yes"',
+    domThuFrom === "10am",
+    `DOM avail_thu_from value is "10am" (got "${domThuFrom}")`,
   );
-
-  // Verify other checkboxes remain unmapped / empty:
-  assert(!getVal2("grid_Mon_Afternoon"), "Mon — Afternoon is unchecked");
-  assert(!getVal2("grid_Tue_Morning"), "Tue — Morning is unchecked");
-  assert(!getVal2("grid_Tue_Afternoon"), "Tue — Afternoon is unchecked");
-  assert(!getVal2("grid_Wed_Morning"), "Wed — Morning is unchecked");
-  assert(!getVal2("grid_Fri_Evening"), "Fri — Evening is unchecked");
+  assert(
+    domThuTo === "6pm",
+    `DOM avail_thu_to value is "6pm" (got "${domThuTo}")`,
+  );
+  assert(domTueFrom === "", `DOM avail_tue_from is empty (no bleed)`);
 
   // =========================================================================
-  // Test 3: Complex 2D Matrix Tokens & 1D Layer Complete Isolation
+  // Test 2: Real DOM Multiplication Table (e.g. 4 x 9 => 36)
   // =========================================================================
   console.log(
-    "\n--- Test 3: Complex 2D Matrix Tokens & 1D Layer Isolation ---",
+    "\n--- Test 2: Real HTML Multiplication Matrix (4 x 9 => 36) ---",
   );
-  const complexCustomFields: CustomField[] = [
-    { label: "Full Name", value: "Alex Morgan", context: "Full Name" },
-    { label: "Email Address", value: "alex@example.com", context: "Email" },
-    { label: "Mon - From", value: "9am", context: "Mon - From" },
-    { label: "Wed / From", value: "10am", context: "Wed / From" },
-    { label: "Fri — To", value: "5pm", context: "Fri — To" },
-    { label: "Sat: To", value: "11pm", context: "Sat: To" },
-  ];
 
-  const mixedFields: FormField[] = [
+  let tableRows = "";
+  for (let r = 1; r <= 9; r++) {
+    let cells = `<th>${r}</th>`;
+    for (let c = 1; c <= 9; c++) {
+      cells += `<td><input id="cell_${r}_${c}" type="text" /></td>`;
+    }
+    tableRows += `<tr>${cells}</tr>\n`;
+  }
+
+  const multiHtml = `
+    <!DOCTYPE html>
+    <html>
+    <body>
+      <h2>Multiplication Matrix</h2>
+      <table id="multi-table">
+        <thead>
+          <tr>
+            <th>X</th>
+            <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${tableRows}
+        </tbody>
+      </table>
+    </body>
+    </html>
+  `;
+
+  setupDom(multiHtml);
+
+  const multiFields = extractFormFields();
+  assert(multiFields.length === 81, `Extracted 81 cells from 9x9 table`);
+
+  const cell49 = multiFields.find((f) => f.id === "cell_4_9");
+  assert(!!cell49, "Found cell_4_9");
+  assert(cell49?.rowHeader === "4", `cell_4_9 rowHeader is "4"`);
+  assert(cell49?.colHeader === "9", `cell_4_9 colHeader is "9"`);
+  assert(
+    cell49?.compoundLabel === "4 — 9",
+    `cell_4_9 compoundLabel is "4 — 9"`,
+  );
+
+  const multiplicationCustomFields: CustomField[] = [
     {
-      id: "f_fullname",
-      name: "fullname",
-      type: "text",
-      placeholder: "Your name",
-      label: "Full Name",
-      ariaLabel: "",
-      autocomplete: "name",
-      required: true,
-      context: "Personal Info",
+      label: "4 x 9",
+      value: "36",
+      context: "",
     },
     {
-      id: "f_email",
-      name: "email",
-      type: "email",
-      placeholder: "name@example.com",
-      label: "Email Address",
-      ariaLabel: "",
-      autocomplete: "email",
-      required: true,
-      context: "Personal Info",
+      label: "3 (row) x 7 (column)",
+      value: "21",
+      context: "",
     },
     {
-      id: "avail_Mon_from",
-      name: "m_from",
-      type: "text",
-      placeholder: "e.g. 9am",
-      label: "Mon — From",
-      ariaLabel: "",
-      autocomplete: "",
-      required: false,
-      rowHeader: "From",
-      colHeader: "Mon",
-      compoundLabel: "Mon — From",
-      context: "Availability Grid",
+      label: "Row 5, Col 8",
+      value: "40",
+      context: "",
     },
     {
-      id: "avail_Wed_from",
-      name: "w_from",
-      type: "text",
-      placeholder: "",
-      label: "Wed — From",
-      ariaLabel: "",
-      autocomplete: "",
-      required: false,
-      rowHeader: "From",
-      colHeader: "Wed",
-      compoundLabel: "Wed — From",
-      context: "Availability Grid",
+      label: "6 * 6",
+      value: "36",
+      context: "",
     },
     {
-      id: "avail_Fri_to",
-      name: "f_to",
-      type: "text",
-      placeholder: "",
-      label: "Fri — To",
-      ariaLabel: "",
-      autocomplete: "",
-      required: false,
-      rowHeader: "To",
-      colHeader: "Fri",
-      compoundLabel: "Fri — To",
-      context: "Availability Grid",
+      label: "2 by 4",
+      value: "8",
+      context: "",
     },
     {
-      id: "avail_Sat_to",
-      name: "s_to",
-      type: "text",
-      placeholder: "",
-      label: "Sat — To",
-      ariaLabel: "",
-      autocomplete: "",
-      required: false,
-      rowHeader: "To",
-      colHeader: "Sat",
-      compoundLabel: "Sat — To",
-      context: "Availability Grid",
-    },
-    {
-      id: "avail_Sun_to",
-      name: "sun_to",
-      type: "text",
-      placeholder: "",
-      label: "Sun — To",
-      ariaLabel: "",
-      autocomplete: "",
-      required: false,
-      rowHeader: "To",
-      colHeader: "Sun",
-      compoundLabel: "Sun — To",
-      context: "Availability Grid",
+      label: "9 x 9",
+      value: "81",
+      context: "",
     },
   ];
 
-  const mappings3 = matchFieldsHeuristically(
-    mixedFields,
-    complexCustomFields,
-    emptyUserData,
+  const multiUserData: Partial<UserData> = {
+    profileType: "custom",
+    customFields: multiplicationCustomFields,
+  };
+
+  const multiMappings = matchFieldsHeuristically(
+    multiFields,
+    multiplicationCustomFields,
+    multiUserData,
   );
   await resolveFieldValues(
-    mappings3,
-    mixedFields,
-    emptyUserData,
-    complexCustomFields,
+    multiMappings,
+    multiFields,
+    multiUserData,
+    multiplicationCustomFields,
     [],
     false,
   );
 
-  const getVal3 = (id: string) =>
-    mappings3.find((m) => m.id === id || m.fieldId === id)?.selectedValue;
-  const getType3 = (id: string) =>
-    mappings3.find((m) => m.id === id || m.fieldId === id)?.fieldType;
+  for (const m of multiMappings) {
+    if (m.selectedValue !== undefined) {
+      await fillFormField(m, m.selectedValue);
+    }
+  }
 
-  // 1D Field validation
-  assert(getType3("f_fullname") === "fullName", "1D Full Name preserved as fullName");
-  assert(getVal3("f_fullname") === "Alex Morgan", "1D Full Name resolved correctly");
-  assert(getType3("f_email") === "email", "1D Email preserved as email");
-  assert(getVal3("f_email") === "alex@example.com", "1D Email resolved correctly");
+  const domCell49 = (document.getElementById("cell_4_9") as HTMLInputElement)
+    .value;
+  const domCell37 = (document.getElementById("cell_3_7") as HTMLInputElement)
+    .value;
+  const domCell58 = (document.getElementById("cell_5_8") as HTMLInputElement)
+    .value;
+  const domCell66 = (document.getElementById("cell_6_6") as HTMLInputElement)
+    .value;
+  const domCell24 = (document.getElementById("cell_2_4") as HTMLInputElement)
+    .value;
+  const domCell99 = (document.getElementById("cell_9_9") as HTMLInputElement)
+    .value;
+  const domCell48 = (document.getElementById("cell_4_8") as HTMLInputElement)
+    .value;
 
-  // 2D Matrix Field with special tokens
-  assert(getVal3("avail_Mon_from") === "9am", 'Hyphenated token "Mon - From" resolved to "9am"');
-  assert(getVal3("avail_Wed_from") === "10am", 'Slash token "Wed / From" resolved to "10am"');
-  assert(getVal3("avail_Fri_to") === "5pm", 'Em-dash token "Fri — To" resolved to "5pm"');
-  assert(getVal3("avail_Sat_to") === "11pm", 'Colon token "Sat: To" resolved to "11pm"');
-  assert(!getVal3("avail_Sun_to"), "Unset matrix cell Sun — To remains empty");
+  assert(
+    domCell49 === "36",
+    `DOM cell (4 x 9) filled with "36" (got "${domCell49}")`,
+  );
+  assert(
+    domCell37 === "21",
+    `DOM cell (3 (row) x 7 (column)) filled with "21" (got "${domCell37}")`,
+  );
+  assert(
+    domCell58 === "40",
+    `DOM cell (Row 5, Col 8) filled with "40" (got "${domCell58}")`,
+  );
+  assert(
+    domCell66 === "36",
+    `DOM cell (6 * 6) filled with "36" (got "${domCell66}")`,
+  );
+  assert(
+    domCell24 === "8",
+    `DOM cell (2 by 4) filled with "8" (got "${domCell24}")`,
+  );
+  assert(
+    domCell99 === "81",
+    `DOM cell (9 x 9) filled with "81" (got "${domCell99}")`,
+  );
+  assert(domCell48 === "", `DOM cell (4 x 8) remains empty`);
 
-  console.log("\n🎉 ALL 1D AND 2D MATRIX TESTS PASSED WITH 100% SUCCESS! 🚀");
+  // =========================================================================
+  // Test 3: processCustomFields Direct API
+  // =========================================================================
+  console.log("\n--- Test 3: processCustomFields Direct API ---");
+
+  setupDom(mcdoHtml);
+  const filledCount = processCustomFields([
+    { label: "Mon - From", value: "9am" },
+    { label: "Fri - To", value: "5pm" },
+    { label: "First Name", value: "Julle" },
+  ]);
+
+  assert(
+    filledCount >= 3,
+    `processCustomFields filled ${filledCount} fields directly`,
+  );
+  assert(
+    (document.getElementById("avail_mon_from") as HTMLInputElement).value ===
+      "9am",
+    `avail_mon_from filled to "9am"`,
+  );
+  assert(
+    (document.getElementById("avail_fri_to") as HTMLInputElement).value ===
+      "5pm",
+    `avail_fri_to filled to "5pm"`,
+  );
+  assert(
+    (document.getElementById("f_first") as HTMLInputElement).value === "Julle",
+    `f_first filled to "Julle"`,
+  );
+
+  // =========================================================================
+  // Test 4: Real DOM 2D Matrix Checkbox Grid (Interview Availability)
+  // =========================================================================
+  console.log("\n--- Test 4: Real HTML 2D Checkbox Grid ---");
+
+  const checkboxGridHtml = `
+    <!DOCTYPE html>
+    <html>
+    <body>
+      <table id="interview-grid">
+        <thead>
+          <tr>
+            <th>Day</th>
+            <th>Morning</th>
+            <th>Afternoon</th>
+            <th>Evening</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>Mon</th>
+            <td><input id="cb_mon_morn" type="checkbox" /></td>
+            <td><input id="cb_mon_after" type="checkbox" /></td>
+            <td><input id="cb_mon_eve" type="checkbox" /></td>
+          </tr>
+          <tr>
+            <th>Tue</th>
+            <td><input id="cb_tue_morn" type="checkbox" /></td>
+            <td><input id="cb_tue_after" type="checkbox" /></td>
+            <td><input id="cb_tue_eve" type="checkbox" /></td>
+          </tr>
+          <tr>
+            <th>Wed</th>
+            <td><input id="cb_wed_morn" type="checkbox" /></td>
+            <td><input id="cb_wed_after" type="checkbox" /></td>
+            <td><input id="cb_wed_eve" type="checkbox" /></td>
+          </tr>
+        </tbody>
+      </table>
+    </body>
+    </html>
+  `;
+
+  setupDom(checkboxGridHtml);
+
+  const cbFields = extractFormFields();
+  const cbCustomFields: CustomField[] = [
+    {
+      label: "Mon - Morning",
+      value: "Yes",
+      context: "",
+    },
+    {
+      label: "Mon - Evening",
+      value: "true",
+      context: "",
+    },
+    {
+      label: "Wed - Afternoon",
+      value: "on",
+      context: "",
+    },
+  ];
+
+  const cbUserData: Partial<UserData> = {
+    profileType: "custom",
+    customFields: cbCustomFields,
+  };
+
+  const cbMappings = matchFieldsHeuristically(
+    cbFields,
+    cbCustomFields,
+    cbUserData,
+  );
+  await resolveFieldValues(
+    cbMappings,
+    cbFields,
+    cbUserData,
+    cbCustomFields,
+    [],
+    false,
+  );
+
+  for (const m of cbMappings) {
+    if (m.selectedValue !== undefined) {
+      await fillFormField(m, m.selectedValue);
+    }
+  }
+
+  assert(
+    (document.getElementById("cb_mon_morn") as HTMLInputElement).checked ===
+      true,
+    "Mon Morning checkbox checked",
+  );
+  assert(
+    (document.getElementById("cb_mon_eve") as HTMLInputElement).checked ===
+      true,
+    "Mon Evening checkbox checked",
+  );
+  assert(
+    (document.getElementById("cb_wed_after") as HTMLInputElement).checked ===
+      true,
+    "Wed Afternoon checkbox checked",
+  );
+  assert(
+    (document.getElementById("cb_mon_after") as HTMLInputElement).checked ===
+      false,
+    "Mon Afternoon checkbox unchecked",
+  );
+  assert(
+    (document.getElementById("cb_tue_morn") as HTMLInputElement).checked ===
+      false,
+    "Tue Morning checkbox unchecked",
+  );
+
+  console.log(
+    "\n🎉 ALL REAL-DOM 2D MATRIX & FORMANALYZER TESTS PASSED WITH 100% SUCCESS! 🚀\n",
+  );
 }
 
 runTests().catch((err) => {
-  console.error("Fatal error during test run:", err);
+  console.error("Test error:", err);
   process.exit(1);
 });
-

@@ -7,8 +7,8 @@ export const LogoA = ({ size = 20 }: { size?: number }) => (
                 <stop offset="100%" stopColor="#f0bc30" />
             </linearGradient>
         </defs>
-        <path d="M3 20L12 4L21 20" stroke="url(#av-logo-grad)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M8 14H16" stroke="url(#av-logo-grad)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M3 20L12 4L21 20" stroke="url(#av-logo-grad)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M8 14H16" stroke="url(#av-logo-grad)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
         <circle cx="12" cy="9" r="1.5" fill="url(#av-logo-grad)" />
     </svg>
 );

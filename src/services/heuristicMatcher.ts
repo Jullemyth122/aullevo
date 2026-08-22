@@ -166,6 +166,7 @@ export function matchFieldsHeuristically(
     if (isMatrixField && customFields.length > 0) {
       const matrixText = [
         field.compoundLabel,
+        field.label,
         field.rowHeader && field.colHeader
           ? `${field.rowHeader} ${field.colHeader}`
           : "",

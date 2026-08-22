@@ -288,174 +288,194 @@ export function findLabel(
 }
 
 /**
- * Extracts 2D Matrix headers (row and column) for tabular forms or availability grids.
- * Strictly verifies that the element is part of a real 2D matrix (row x col grid),
- * and NOT a multi-column 1D form layout table or standard vertical form.
+ * Escapes regex special characters.
+ */
+export function escapeRegExp(string: string): string {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/**
+ * Checks if a source string contains a token (case-insensitive with word boundary / whitespace tolerance).
+ */
+export function fuzzyIncludes(sourceText: string, token: string): boolean {
+  if (!sourceText || !token) return false;
+  const safeToken = escapeRegExp(token.trim().toLowerCase());
+  const regex = new RegExp(`(?:^|\\b|\\s)${safeToken}`, "i");
+  return regex.test(sourceText.toLowerCase());
+}
+
+/**
+ * Calculates a 2D intersection score for given search tokens against rowText and colText axes.
+ * Awards bonus when tokens intersect BOTH row and column axes.
+ */
+export function calculate2DIntersectionScore(
+  tokens: string[],
+  rowText: string,
+  colText: string,
+): number {
+  let matchedTokens = 0;
+  let matchesRow = false;
+  let matchesCol = false;
+
+  for (const token of tokens) {
+    if (!token) continue;
+    const inRow = fuzzyIncludes(rowText, token);
+    const inCol = fuzzyIncludes(colText, token);
+
+    if (inRow || inCol) {
+      matchedTokens++;
+      if (inRow) matchesRow = true;
+      if (inCol) matchesCol = true;
+    }
+  }
+
+  if (matchesRow && matchesCol) {
+    return matchedTokens + 2;
+  }
+
+  return matchedTokens;
+}
+
+/**
+ * Computes the 2D row and column axes text for an input using both DOM table structure and geometry bounding boxes.
+ */
+export function getAxesText(
+  input: HTMLElement,
+  inputRect?: DOMRect,
+  labelRects?: LabelRectItem[],
+): { rowText: string; colText: string } {
+  let rowLabels: string[] = [];
+  let colLabels: string[] = [];
+
+  // 1. Precise DOM Table & Grid Intersection
+  const cell = input.closest("td, th, [role='gridcell'], [role='cell']") as HTMLElement | null;
+  const table = input.closest("table, [role='grid'], [role='table']") as HTMLElement | null;
+
+  if (cell && table) {
+    const row = cell.closest("tr, [role='row']") as HTMLElement | null;
+    if (row) {
+      // Calculate column index accounting for colspans of preceding siblings
+      let cellColIndex = 0;
+      let sib = cell.previousElementSibling as HTMLElement | null;
+      while (sib) {
+        const colspan = parseInt(sib.getAttribute("colspan") || "1", 10);
+        cellColIndex += isNaN(colspan) ? 1 : colspan;
+        sib = sib.previousElementSibling as HTMLElement | null;
+      }
+
+      // Collect row text from preceding non-input cells in the same row
+      let prevCell = cell.previousElementSibling as HTMLElement | null;
+      while (prevCell) {
+        const hasInput = prevCell.querySelector("input, select, textarea, button");
+        const txt = prevCell.textContent?.trim();
+        if (!hasInput && txt) {
+          rowLabels.unshift(cleanLabelText(txt));
+        }
+        prevCell = prevCell.previousElementSibling as HTMLElement | null;
+      }
+
+      // If no sibling text found, check if first cell is explicit rowheader or <th>
+      if (rowLabels.length === 0) {
+        const firstCell = row.querySelector("th, [role='rowheader'], [class*='row-header'], [class*='rowHeader']") as HTMLElement | null;
+        if (firstCell && firstCell !== cell && !firstCell.contains(input)) {
+          const txt = firstCell.textContent?.trim();
+          if (txt) rowLabels.push(cleanLabelText(txt));
+        }
+      }
+
+      // Find column header from candidate header rows
+      const theadRows = Array.from(table.querySelectorAll<HTMLElement>("thead tr"));
+      const allRows = Array.from(table.querySelectorAll<HTMLElement>("tr, [role='row']"));
+      const headerRows: HTMLElement[] = theadRows.length > 0
+        ? theadRows
+        : allRows.filter((r) => r !== row && !r.contains(input) && !r.querySelector("input, select, textarea"));
+
+      for (const hRow of headerRows) {
+        let currentCol = 0;
+        for (const child of Array.from(hRow.children) as HTMLElement[]) {
+          const colspan = parseInt(child.getAttribute("colspan") || "1", 10);
+          const span = isNaN(colspan) ? 1 : colspan;
+          if (currentCol <= cellColIndex && cellColIndex < currentCol + span) {
+            const hasInput = child.querySelector("input, select, textarea");
+            const txt = child.textContent?.trim();
+            if (!hasInput && txt) {
+              const cleaned = cleanLabelText(txt);
+              if (cleaned && !colLabels.includes(cleaned)) {
+                colLabels.push(cleaned);
+              }
+            }
+            break;
+          }
+          currentCol += span;
+        }
+      }
+    }
+  }
+
+  // 2. Geometry Bounding-Box Fallback (CSS Grids / Divs / non-table matrices)
+  if (rowLabels.length === 0 || colLabels.length === 0) {
+    try {
+      const rect = inputRect || input.getBoundingClientRect();
+      if (rect && rect.width > 0 && rect.height > 0) {
+        const TOLERANCE_Y = 20;
+        const TOLERANCE_X = 25;
+        const container = input.closest("table, form, [class*='grid'], [class*='matrix'], [class*='table'], [class*='container'], [role='grid']") || document.body;
+        const elements =
+          labelRects && labelRects.length > 0
+            ? labelRects.map((l) => l.element)
+            : Array.from(
+                container.querySelectorAll<HTMLElement>(
+                  "th, td, label, div, span, p, h1, h2, h3, h4, h5, h6, [role='rowheader'], [role='columnheader']",
+                ),
+              );
+
+        for (const el of elements) {
+          if (el.contains(input) || el.tagName === "INPUT" || el.tagName === "SELECT" || el.tagName === "TEXTAREA" || el.tagName === "BUTTON") continue;
+          const elRect = el.getBoundingClientRect();
+          if (elRect.width === 0 || elRect.height === 0) continue;
+          const text = el.textContent ? el.textContent.trim() : "";
+          if (!text || text.length > 50) continue;
+
+          const isSameRow = Math.abs(elRect.top - rect.top) < TOLERANCE_Y || (elRect.bottom > rect.top && elRect.top < rect.bottom);
+          const isLeft = elRect.right <= rect.left + 5;
+          if (isSameRow && isLeft && rowLabels.length === 0) {
+            const cleaned = cleanLabelText(text);
+            if (cleaned) rowLabels.push(cleaned);
+          }
+
+          const isSameCol = Math.abs(elRect.left - rect.left) < TOLERANCE_X || (elRect.right > rect.left && elRect.left < rect.right);
+          const isAbove = elRect.bottom <= rect.top + 5;
+          if (isSameCol && isAbove && colLabels.length === 0) {
+            const cleaned = cleanLabelText(text);
+            if (cleaned) colLabels.push(cleaned);
+          }
+        }
+      }
+    } catch (_e) {
+      // Ignore geometry errors in headless environments
+    }
+  }
+
+  return {
+    rowText: rowLabels.join(" ").trim(),
+    colText: colLabels.join(" ").trim(),
+  };
+}
+
+/**
+ * Extracts 2D Matrix headers (row and column) for tabular forms, availability grids, and multiplication tables.
+ * Returns rowHeader, colHeader, and compoundLabel when both coordinates exist.
  */
 export function findMatrixHeaders(
   input: HTMLElement,
   labelRects?: LabelRectItem[],
 ): MatrixHeaderInfo {
-  let rowHeader = "";
-  let colHeader = "";
+  const axes = getAxesText(input, undefined, labelRects);
 
-  // 1. DOM Table & Grid Inspection (HTML table, role="grid", role="table")
-  const cell = input.closest(
-    "td, th, [role='gridcell'], [role='cell']",
-  ) as HTMLElement | null;
-  const table = input.closest(
-    "table, [role='grid'], [role='table']",
-  ) as HTMLElement | null;
-
-  if (cell && table) {
-    const row = cell.closest("tr, [role='row']") as HTMLElement | null;
-    if (row) {
-      const cells = Array.from(row.children) as HTMLElement[];
-      const colIndex = cells.indexOf(cell);
-
-      // Check if this row is an interleaved 1D layout row
-      // (e.g. <td>LAST NAME</td><td><input></td><td>FIRST NAME</td><td><input></td>)
-      const isInterleavedLayout = cells.some((c, idx) => {
-        const hasInput = c.querySelector("input, select, textarea");
-        const nextCell = cells[idx + 1];
-        const nextHasInput = nextCell?.querySelector("input, select, textarea");
-        return (
-          !hasInput && nextHasInput && (c.textContent?.trim().length || 0) > 0
-        );
-      });
-
-      if (!isInterleavedLayout) {
-        // Find column header from candidate header rows
-        // Prioritize the last row inside <thead>, or scan candidate header rows before the current row
-        const theadRows = Array.from(table.querySelectorAll<HTMLElement>("thead tr"));
-        const candidateRows: HTMLElement[] = theadRows.length > 0
-          ? [...theadRows].reverse()
-          : (Array.from(table.querySelectorAll<HTMLElement>("tr, [role='row']"))
-              .filter((r) => r !== row && !r.contains(input)));
-
-        for (const hRow of candidateRows) {
-          const headerCells = Array.from(hRow.children) as HTMLElement[];
-          if (colIndex >= 0 && colIndex < headerCells.length) {
-            const targetHeaderCell = headerCells[colIndex];
-            if (targetHeaderCell && !targetHeaderCell.contains(input)) {
-              // Avoid banner rows that span all columns or contain no header text
-              const colSpan = targetHeaderCell.getAttribute("colspan");
-              if (colSpan && parseInt(colSpan, 10) > 1 && headerCells.length === 1) {
-                continue;
-              }
-              const txt = cleanLabelText(targetHeaderCell.textContent || "");
-              if (txt && txt.length >= 1 && txt.length <= 60) {
-                colHeader = txt;
-                break;
-              }
-            }
-          }
-        }
-
-        // Row header: Scan all predecessor siblings in the same row for text/th elements
-        let sibling = cell.previousElementSibling as HTMLElement | null;
-        const rowLabels: string[] = [];
-        while (sibling) {
-          const siblingHasInput = sibling.querySelector("input, select, textarea");
-          if (!siblingHasInput && (sibling.textContent?.trim().length || 0) > 0) {
-            const txt = cleanLabelText(sibling.textContent || "");
-            if (txt && txt.length >= 1 && txt.length <= 60) {
-              rowLabels.unshift(txt);
-            }
-          }
-          sibling = sibling.previousElementSibling as HTMLElement | null;
-        }
-
-        if (rowLabels.length > 0) {
-          rowHeader = rowLabels.join(" ");
-        } else if (colIndex > 0) {
-          // Fallback check on first cell if it was explicit <th> or rowheader
-          const firstCell = cells[0];
-          const firstCellHasInput = firstCell?.querySelector("input, select, textarea");
-          const isExplicitHeader =
-            firstCell?.tagName === "TH" ||
-            firstCell?.getAttribute("role") === "rowheader" ||
-            (!firstCellHasInput && (firstCell?.textContent?.trim().length || 0) > 0);
-
-          if (isExplicitHeader && firstCell && !firstCell.contains(input)) {
-            const txt = cleanLabelText(firstCell.textContent || "");
-            if (txt && txt.length >= 1 && txt.length <= 60) {
-              rowHeader = txt;
-            }
-          }
-        }
-      }
-    }
-  }
-
-  // 2. Spatial 2D Raycasting (Fallback for Div-based Flexbox / CSS-Grid Matrices ONLY)
-  // Only triggers if the input does NOT have an enclosing table and has BOTH a valid row candidate AND column candidate
-  if ((!rowHeader || !colHeader) && !table) {
-    let rects = labelRects;
-    if (rects && rects.length > 0) {
-      try {
-        const inputRect = input.getBoundingClientRect();
-        if (inputRect.width > 0 && inputRect.height > 0) {
-          const inputCenterX = inputRect.left + inputRect.width / 2;
-          const inputCenterY = inputRect.top + inputRect.height / 2;
-
-          let candidateCol = "";
-          let candidateRow = "";
-          let minRowDist = Infinity;
-          let minColDist = Infinity;
-
-          for (const item of rects) {
-            if (item.element.contains(input) || input.contains(item.element))
-              continue;
-
-            const rect = item.rect;
-            const labelCenterX = rect.left + rect.width / 2;
-            const labelCenterY = rect.top + rect.height / 2;
-
-            // Candidate Column Header: Strictly above input, horizontally centered with input
-            const isAboveXOverlap =
-              Math.abs(labelCenterX - inputCenterX) <
-              Math.max(inputRect.width / 2, rect.width / 2, 40);
-            const isAbove =
-              rect.bottom <= inputRect.top + 5 && rect.top < inputRect.top;
-            if (isAbove && isAboveXOverlap && !candidateCol) {
-              const distY = inputRect.top - rect.bottom;
-              if (distY < minColDist && distY < 150) {
-                minColDist = distY;
-                candidateCol = item.text;
-              }
-            }
-
-            // Candidate Row Header: Strictly to the left of input, vertically centered
-            const isLeftYOverlap =
-              Math.abs(labelCenterY - inputCenterY) <
-              Math.max(inputRect.height / 2, rect.height / 2, 20);
-            const isLeft =
-              rect.right <= inputRect.left + 5 && rect.left < inputRect.left;
-            if (isLeft && isLeftYOverlap && !candidateRow) {
-              const distX = inputRect.left - rect.right;
-              if (distX < minRowDist && distX < 250) {
-                minRowDist = distX;
-                candidateRow = item.text;
-              }
-            }
-          }
-
-          if (candidateCol && candidateRow) {
-            colHeader = candidateCol;
-            rowHeader = candidateRow;
-          }
-        }
-      } catch (_e) {
-        // Ignore spatial errors
-      }
-    }
-  }
-
-  const cleanedRow = cleanLabelText(rowHeader)
+  const cleanedRow = cleanLabelText(axes.rowText)
     .replace(/^[:\s—-]+|[:\s—-]+$/g, "")
     .trim();
-  const cleanedCol = cleanLabelText(colHeader)
+  const cleanedCol = cleanLabelText(axes.colText)
     .replace(/^[:\s—-]+|[:\s—-]+$/g, "")
     .trim();
 

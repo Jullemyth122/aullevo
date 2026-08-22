@@ -1,14 +1,13 @@
 import type { Memory, SavedLink } from "../../types";
-import { MEMORY_STOP_WORDS } from "./rules";
 
 /**
- * Tokenizes strings into significant words for semantic memory matching.
+ * Tokenizes strings into words for semantic memory matching.
  */
 function getSignificantWords(str: string): string[] {
   return str
     .replace(/[^a-z0-9\s]/gi, " ")
     .split(/\s+/)
-    .filter((w) => w.length > 1 && !MEMORY_STOP_WORDS.has(w));
+    .filter((w) => w.length > 1);
 }
 
 /**
