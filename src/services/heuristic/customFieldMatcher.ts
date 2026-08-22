@@ -1,5 +1,4 @@
 import type { CustomField } from "../../types";
-import { CUSTOM_FIELD_STOP_WORDS } from "./rules";
 
 /**
  * Calculates Levenshtein edit distance between two strings purely algorithmically.
@@ -39,14 +38,18 @@ function tokenMatches(t1: string, t2: string): boolean {
 }
 
 /**
- * Tokenizes a string by stripping non-alphanumeric characters and filtering common stop words.
+ * Tokenizes a string by stripping structural matrix words (row, col, x, by) and non-alphanumeric characters.
  */
 export function cleanTokens(str: string): string[] {
   return str
     .toLowerCase()
+    .replace(
+      /\b(row|rows|col|cols|column|columns|cell|cells|by|times|x)\b/gi,
+      " ",
+    )
     .replace(/[^a-z0-9]/g, " ")
     .split(/\s+/)
-    .filter((w) => w.length > 0 && !CUSTOM_FIELD_STOP_WORDS.has(w));
+    .filter((w) => w.length > 0);
 }
 
 /**
@@ -127,10 +130,7 @@ export function matchCustomField(
     if (cfTokens.length === 1) {
       const token = cfTokens[0];
       // Only match if single token matches directly and text is not a multi-token coordinate
-      if (
-        textTokens.length <= 2 &&
-        textTokens.some((tt) => tokenMatches(tt, token))
-      ) {
+      if (textTokens.length === 1 && tokenMatches(textTokens[0], token)) {
         return cf;
       }
     }

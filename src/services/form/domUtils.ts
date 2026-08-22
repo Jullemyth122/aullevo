@@ -1,4 +1,9 @@
 import { MODAL_SELECTORS } from "./constants";
+import {
+  cleanLabelText,
+  getAxesText,
+  calculate2DIntersectionScore,
+} from "./labels";
 
 /**
  * Deep query selector that pierces through open Shadow DOM boundaries.
@@ -46,11 +51,33 @@ export function isVisible(element: HTMLElement): boolean {
     if (style.display === "none") return false;
     if (style.visibility === "hidden") return false;
 
-    // Check bounding rect
-    const rect = element.getBoundingClientRect();
-    const isZeroSize = rect.width === 0 && rect.height === 0;
-    if (isZeroSize && element.offsetWidth === 0 && element.offsetHeight === 0) {
-      return false;
+    // Check bounding rect in layout-enabled environments (skip in JSDOM/headless where dimensions are always 0)
+    const isHeadless =
+      typeof navigator !== "undefined" &&
+      navigator.userAgent &&
+      (navigator.userAgent.includes("jsdom") ||
+        navigator.userAgent.includes("Node.js"));
+
+    const rect = element.getBoundingClientRect
+      ? element.getBoundingClientRect()
+      : ({
+          width: 0,
+          height: 0,
+          top: 0,
+          bottom: 0,
+          left: 0,
+          right: 0,
+        } as DOMRect);
+
+    if (!isHeadless) {
+      const isZeroSize = rect.width === 0 && rect.height === 0;
+      if (
+        isZeroSize &&
+        element.offsetWidth === 0 &&
+        element.offsetHeight === 0
+      ) {
+        return false;
+      }
     }
 
     const isOffScreen =
@@ -181,4 +208,76 @@ export function activateTabForField(input: HTMLElement): boolean {
   }
 
   return false;
+}
+
+/**
+ * Finds a 2D matrix input element matching rowHeader and colHeader coordinates, compoundLabel, or raw tokens.
+ */
+export function find2DMatrixInput(opts: {
+  rowHeader?: string;
+  colHeader?: string;
+  compoundLabel?: string;
+  tokens?: string[];
+}): HTMLElement | null {
+  const { rowHeader, colHeader, compoundLabel, tokens: explicitTokens } = opts;
+
+  const rawTokens: string[] =
+    explicitTokens && explicitTokens.length > 0
+      ? explicitTokens
+      : [
+          ...(rowHeader ? rowHeader.split(/[\s\-_/\\|:]+/) : []),
+          ...(colHeader ? colHeader.split(/[\s\-_/\\|:]+/) : []),
+          ...(compoundLabel ? compoundLabel.split(/[\s\-_/\\|:]+/) : []),
+        ]
+          .map((t) => t.trim().toLowerCase())
+          .filter((t) => t.length > 0);
+
+  if (rawTokens.length === 0 && !rowHeader && !colHeader) return null;
+
+  const rowNorm = rowHeader
+    ? cleanLabelText(rowHeader).toLowerCase().trim()
+    : "";
+  const colNorm = colHeader
+    ? cleanLabelText(colHeader).toLowerCase().trim()
+    : "";
+
+  const inputs = Array.from(
+    document.querySelectorAll<HTMLElement>(
+      "input:not([type='hidden']):not([type='submit']):not([disabled]), select:not([disabled]), textarea:not([disabled]), [contenteditable='true']",
+    ),
+  );
+
+  let bestInput: HTMLElement | null = null;
+  let highestScore = 0;
+
+  for (const input of inputs) {
+    const axes = getAxesText(input);
+    const rowText = axes.rowText.toLowerCase();
+    const colText = axes.colText.toLowerCase();
+
+    // Exact coordinate match pass
+    if (
+      rowNorm &&
+      colNorm &&
+      rowText.includes(rowNorm) &&
+      colText.includes(colNorm)
+    ) {
+      return input;
+    }
+
+    // Heuristic 2D intersection scoring
+    if (rawTokens.length > 0) {
+      const score = calculate2DIntersectionScore(rawTokens, rowText, colText);
+      if (score > highestScore) {
+        highestScore = score;
+        bestInput = input;
+      }
+    }
+  }
+
+  if (bestInput && highestScore >= 2) {
+    return bestInput;
+  }
+
+  return null;
 }
