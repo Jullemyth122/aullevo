@@ -21,7 +21,6 @@
 import { storageService } from "../../services/storageService";
 import type {
   UserData,
-  CustomField,
   ChromeResponse,
   FormField,
 } from "../../types";
@@ -152,33 +151,7 @@ export function getHostname(url: string): string {
 // DATA MIGRATION
 // ─────────────────────────────────────────────────────────────
 
-/**
- * migrateCustomFields
- * ───────────────────
- * Normalises the customFields value coming out of storage into a
- * consistent CustomField[] array shape.
- *
- * WHY THIS EXISTS: Older versions of the extension stored customFields
- * as a plain object { label: value }. Newer versions use an array
- * [ { label, value, context } ]. This function bridges the two formats
- * so the rest of the code never has to worry about which format it has.
- *
- * CALLED BY: formStepProcessor.ts → processFieldsAI(), processFormStep()
- *
- * @param raw - Whatever came out of storage (could be array or object).
- * @returns Always returns CustomField[].
- */
-export function migrateCustomFields(raw: any): CustomField[] {
-  if (Array.isArray(raw)) return raw;
-  if (raw && typeof raw === "object") {
-    return Object.entries(raw).map(([key, value]) => ({
-      label: key,
-      value: String(value),
-      context: "",
-    }));
-  }
-  return [];
-}
+export { migrateCustomFields } from "../../utils/customFields";
 
 // ─────────────────────────────────────────────────────────────
 // TAB MESSAGING
@@ -205,10 +178,12 @@ export function migrateCustomFields(raw: any): CustomField[] {
  */
 export function sendToTab(
   tabId: number,
-  message: any,
+  message: unknown,
+  options?: chrome.tabs.MessageSendOptions,
 ): Promise<ChromeResponse> {
   return new Promise((resolve) => {
-    chrome.tabs.sendMessage(tabId, message, (response) => {
+    const sendOptions: chrome.tabs.MessageSendOptions = options ?? { frameId: 0 };
+    chrome.tabs.sendMessage(tabId, message, sendOptions, (response) => {
       if (chrome.runtime.lastError) {
         const errMsg =
           chrome.runtime.lastError.message || "Tab communication notice";

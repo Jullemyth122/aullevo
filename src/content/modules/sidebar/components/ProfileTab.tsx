@@ -1,91 +1,75 @@
-import type { RefObject, ChangeEvent } from 'react';
-import { FolderOpen, Check, X, MapPin, Save } from 'lucide-react';
-import type { UserData, CustomField, SavedFile, FormField } from '../../../../types';
+import { FolderOpen, Check, X, Save } from 'lucide-react';
+import type { CustomField } from '../../../../types';
 import { SectionHeader } from './SectionHeader';
 import { FileIcon } from './FileIcon';
 import { fileSizeStr } from '../sidebarTypes';
 import { fileMatchesField } from '../../../../utils/fileMatch';
+import { useSidebar } from '../SidebarContext';
+import {
+    PersonalInfoFields,
+    JobDetailsFields,
+    MedicalFields,
+    SurveyFields,
+    CustomFieldsEditor,
+} from '../../../../components/profile';
 
-interface ProfileTabProps {
-    userData: Partial<UserData>;
-    setUserData: React.Dispatch<React.SetStateAction<Partial<UserData>>>;
-    handleInput: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-    handleSave: () => void;
-    saveMsg: string;
-    activeProfile: string;
-    handleSwitchProfile: (name: string) => void;
-    handleDeleteProfile: (name: string) => void;
-    profiles: string[];
-    showNewProfileInput: boolean;
-    setShowNewProfileInput: (show: boolean) => void;
-    newProfileName: string;
-    setNewProfileName: (name: string) => void;
-    handleCreateProfile: () => void;
-    openSections: Record<string, boolean>;
-    toggleSection: (key: string) => void;
-    fileLibrary: SavedFile[];
-    fileDragging: boolean;
-    setFileDragging: (dragging: boolean) => void;
-    fileLibInputRef: RefObject<HTMLInputElement | null>;
-    addFilesToLibrary: (files: File[]) => void;
-    removeFromLibrary: (id: string) => void;
-    pageFields: FormField[];
-    skillsInput: string | null;
-    setSkillsInput: (val: string | null) => void;
-    newCFLabel: string;
-    setNewCFLabel: (val: string) => void;
-    newCFValue: string;
-    setNewCFValue: (val: string) => void;
-    newCFContext: string;
-    setNewCFContext: (val: string) => void;
-    addCustomField: () => void;
-    removeCustomField: (i: number) => void;
-}
+export const ProfileTab = () => {
+    const {
+        userData,
+        setUserData,
+        handleInput,
+        handleSave,
+        saveMsg,
+        activeProfile,
+        handleSwitchProfile,
+        handleDeleteProfile,
+        profiles,
+        showNewProfileInput,
+        setShowNewProfileInput,
+        newProfileName,
+        setNewProfileName,
+        newProfileType,
+        setNewProfileType,
+        handleCreateProfile,
+        openSections,
+        toggleSection,
+        fileLibrary,
+        fileDragging,
+        setFileDragging,
+        fileLibInputRef,
+        addFilesToLibrary,
+        removeFromLibrary,
+        pageFields,
+        skillsInput,
+        setSkillsInput,
+        isPro,
+    } = useSidebar();
 
-export const ProfileTab = ({
-    userData,
-    setUserData,
-    handleInput,
-    handleSave,
-    saveMsg,
-    activeProfile,
-    handleSwitchProfile,
-    handleDeleteProfile,
-    profiles,
-    showNewProfileInput,
-    setShowNewProfileInput,
-    newProfileName,
-    setNewProfileName,
-    handleCreateProfile,
-    openSections,
-    toggleSection,
-    fileLibrary,
-    fileDragging,
-    setFileDragging,
-    fileLibInputRef,
-    addFilesToLibrary,
-    removeFromLibrary,
-    pageFields,
-    skillsInput,
-    setSkillsInput,
-    newCFLabel,
-    setNewCFLabel,
-    newCFValue,
-    setNewCFValue,
-    newCFContext,
-    setNewCFContext,
-    addCustomField,
-    removeCustomField,
-}: ProfileTabProps) => {
     const profileType = userData.profileType || 'job';
     const customFields = (userData.customFields as CustomField[]) || [];
+
+    const handleAddCustomField = (field: CustomField) => {
+        setUserData((p) => ({
+            ...p,
+            customFields: [...((p.customFields as CustomField[]) || []), field],
+        }));
+    };
+
+    const handleRemoveCustomField = (idx: number) => {
+        setUserData((p) => ({
+            ...p,
+            customFields: ((p.customFields as CustomField[]) || []).filter((_, i) => i !== idx),
+        }));
+    };
 
     return (
         <div className="av-profile-tab">
             {/* Active Profile Selection */}
             <div className="av-settings__how-card" style={{ marginBottom: 15, padding: 12 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                    <span style={{ fontSize: 11, fontWeight: '700', textTransform: 'uppercase', color: 'var(--av-text-muted)' }}>Active Profile</span>
+                    <span style={{ fontSize: 11, fontWeight: '700', textTransform: 'uppercase', color: 'var(--av-text-muted)' }}>
+                        Active Profile (Vault)
+                    </span>
                     {activeProfile !== 'Default' && (
                         <button
                             className="av-filelib__add-btn"
@@ -99,21 +83,30 @@ export const ProfileTab = ({
                 <div style={{ display: 'flex', gap: 6 }}>
                     <select
                         className="av-input"
-                        style={{ flex: 1, padding: '6px 10px', height: 'auto' }}
+                        style={{ flex: 1, padding: '6px 10px', height: 'auto', fontWeight: 600 }}
                         value={activeProfile}
                         onChange={(e) => handleSwitchProfile(e.target.value)}
                     >
-                        {profiles.map(name => (
-                            <option key={name} value={name}>{name}</option>
+                        {profiles.map((name, idx) => (
+                            <option key={name} value={name}>
+                                {!isPro && idx >= 1 ? `🔒 ${name} (Pro)` : name}
+                            </option>
                         ))}
                     </select>
                     {!showNewProfileInput ? (
                         <button
                             className="av-filelib__add-btn"
                             style={{ height: '100%', padding: '6px 12px' }}
-                            onClick={() => setShowNewProfileInput(true)}
+                            onClick={() => {
+                                if (!isPro && profiles.length >= 1) {
+                                    handleCreateProfile();
+                                    return;
+                                }
+                                setShowNewProfileInput(true);
+                            }}
+                            title={!isPro && profiles.length >= 1 ? 'Upgrade to Pro for multiple profiles' : 'Create new profile'}
                         >
-                            + New
+                            {!isPro && profiles.length >= 1 ? '🔒 + New' : '+ New'}
                         </button>
                     ) : (
                         <button
@@ -127,41 +120,67 @@ export const ProfileTab = ({
                 </div>
 
                 {showNewProfileInput && (
-                    <div style={{ marginTop: 10, display: 'flex', gap: 6, animation: 'av-fadeIn 0.2s ease' }}>
+                    <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 6, animation: 'av-fadeIn 0.2s ease', background: 'var(--av-surface-alt)', padding: 8, borderRadius: 8 }}>
                         <input
                             className="av-input"
-                            style={{ flex: 1, padding: '6px 10px' }}
-                            placeholder="Profile name (e.g. Freelance)"
+                            style={{ width: '100%', padding: '6px 10px' }}
+                            placeholder="Profile name (e.g. Freelance, Medical)"
                             value={newProfileName}
                             onChange={(e) => setNewProfileName(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleCreateProfile()}
                         />
-                        <button
-                            className="av-filelib__add-btn"
-                            style={{ background: 'var(--av-violet)', color: 'white' }}
-                            onClick={handleCreateProfile}
-                        >
-                            Create
-                        </button>
+                        <div style={{ display: 'flex', gap: 6 }}>
+                            <select
+                                className="av-input"
+                                style={{ flex: 1, padding: '4px 8px', fontSize: 12 }}
+                                value={newProfileType}
+                                onChange={(e) => setNewProfileType && setNewProfileType(e.target.value as 'job' | 'medical' | 'survey' | 'custom')}
+                            >
+                                <option value="job">💼 Job Application</option>
+                                <option value="medical">🏥 Medical Record</option>
+                                <option value="survey">📊 Survey / Demographic</option>
+                                <option value="custom">⚙️ Custom Form</option>
+                            </select>
+                            <button
+                                className="av-filelib__add-btn"
+                                style={{ background: 'var(--av-violet)', color: 'white', padding: '4px 12px' }}
+                                onClick={handleCreateProfile}
+                            >
+                                Create
+                            </button>
+                        </div>
                     </div>
                 )}
 
-                <div style={{ display: 'flex', gap: 6, marginTop: 8, alignItems: 'center' }}>
-                    <span style={{ fontSize: 10, fontWeight: '700', textTransform: 'uppercase', color: 'var(--av-text-muted)', whiteSpace: 'nowrap' }}>Profile Type:</span>
-                    <select
-                        className="av-input"
-                        style={{ flex: 1, padding: '4px 8px', height: 'auto', fontSize: 12 }}
-                        value={profileType}
-                        onChange={(e) => setUserData(p => ({ ...p, profileType: e.target.value as any }))}
+                {/* Read-only template indicator for active profile */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
+                    <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
+                        <span style={{ fontSize: 10, fontWeight: '700', textTransform: 'uppercase', color: 'var(--av-text-muted)' }}>Template:</span>
+                        <span style={{
+                            fontSize: 10,
+                            fontWeight: 600,
+                            padding: '2px 7px',
+                            borderRadius: 4,
+                            background: 'var(--av-surface-alt)',
+                            color: 'var(--av-text)'
+                        }}>
+                            {profileType === 'medical' && '🏥 Medical Record'}
+                            {profileType === 'survey' && '📊 Survey'}
+                            {profileType === 'custom' && '⚙️ Custom Form'}
+                            {profileType === 'job' && '💼 Job Application'}
+                        </span>
+                    </div>
+                    <button
+                        className="av-filelib__add-btn"
+                        style={{ padding: '2px 6px', fontSize: 10, background: 'transparent', borderColor: 'transparent', color: 'var(--av-violet)' }}
+                        onClick={() => chrome.runtime.sendMessage({ action: 'openOptionsPage' })}
                     >
-                        <option value="job">Job Application / Resume</option>
-                        <option value="medical">Medical Form</option>
-                        <option value="survey">Survey</option>
-                        <option value="custom">Custom / General</option>
-                    </select>
+                        Edit in Options ↗
+                    </button>
                 </div>
             </div>
 
+            {/* Section 1: Personal Information */}
             {profileType !== 'custom' && (
                 <SectionHeader
                     label="Personal Information"
@@ -172,57 +191,15 @@ export const ProfileTab = ({
             )}
             {profileType !== 'custom' && openSections.personal && (
                 <div className="av-section__body">
-                    <div className="av-row">
-                        <div>
-                            <label className="av-label">First Name</label>
-                            <input className="av-input" name="firstName" value={userData.firstName || ''} onChange={handleInput} placeholder="Jane" />
-                        </div>
-                        <div>
-                            <label className="av-label">Last Name</label>
-                            <input className="av-input" name="lastName" value={userData.lastName || ''} onChange={handleInput} placeholder="Doe" />
-                        </div>
-                    </div>
-                    <div>
-                        <label className="av-label">Email</label>
-                        <input className="av-input" name="email" type="email" value={userData.email || ''} onChange={handleInput} placeholder="jane@example.com" />
-                    </div>
-                    <div>
-                        <label className="av-label">Phone</label>
-                        <input className="av-input" name="phone" type="tel" value={userData.phone || ''} onChange={handleInput} placeholder="+1 555 000 0000" />
-                    </div>
-                    {profileType === 'job' && (
-                        <div>
-                            <label className="av-label">Headline</label>
-                            <input className="av-input" name="headline" value={userData.headline || ''} onChange={handleInput} placeholder="e.g. Full-Stack Developer" />
-                        </div>
-                    )}
-                    <div>
-                        <label className="av-label">Address</label>
-                        <input className="av-input" name="address" value={userData.address || ''} onChange={handleInput} placeholder="Street address" />
-                    </div>
-                    <div className="av-row">
-                        <div>
-                            <label className="av-label">City</label>
-                            <input className="av-input" name="city" value={userData.city || ''} onChange={handleInput} />
-                        </div>
-                        <div>
-                            <label className="av-label">State</label>
-                            <input className="av-input" name="state" value={userData.state || ''} onChange={handleInput} />
-                        </div>
-                    </div>
-                    <div className="av-row">
-                        <div>
-                            <label className="av-label">ZIP</label>
-                            <input className="av-input" name="zipCode" value={userData.zipCode || ''} onChange={handleInput} />
-                        </div>
-                        <div>
-                            <label className="av-label">Country</label>
-                            <input className="av-input" name="country" value={userData.country || ''} onChange={handleInput} />
-                        </div>
-                    </div>
+                    <PersonalInfoFields
+                        userData={userData}
+                        onChange={handleInput}
+                        showHeadline={profileType === 'job'}
+                    />
                 </div>
             )}
 
+            {/* Section 2: Job-Specific Sections (Files, Links, Skills, Details) */}
             {profileType === 'job' && (
                 <>
                     <SectionHeader
@@ -304,29 +281,6 @@ export const ProfileTab = ({
                     )}
 
                     <SectionHeader
-                        label="Links & URLs"
-                        sectionKey="links"
-                        isOpen={!!openSections.links}
-                        onToggle={toggleSection}
-                    />
-                    {openSections.links && (
-                        <div className="av-section__body">
-                            <div>
-                                <label className="av-label">LinkedIn</label>
-                                <input className="av-input" name="linkedin" type="url" value={userData.linkedin || ''} onChange={handleInput} placeholder="linkedin.com/in/you" />
-                            </div>
-                            <div>
-                                <label className="av-label">GitHub</label>
-                                <input className="av-input" name="github" type="url" value={userData.github || ''} onChange={handleInput} placeholder="github.com/you" />
-                            </div>
-                            <div>
-                                <label className="av-label">Portfolio</label>
-                                <input className="av-input" name="portfolio" type="url" value={userData.portfolio || ''} onChange={handleInput} placeholder="yoursite.com" />
-                            </div>
-                        </div>
-                    )}
-
-                    <SectionHeader
                         label="Skills & Summary"
                         sectionKey="skills"
                         isOpen={!!openSections.skills}
@@ -348,14 +302,6 @@ export const ProfileTab = ({
                                     rows={3}
                                 />
                             </div>
-                            <div>
-                                <label className="av-label">Summary</label>
-                                <textarea
-                                    className="av-input"
-                                    name="summary" placeholder="Professional summary…"
-                                    value={userData.summary || ''} onChange={handleInput} rows={3}
-                                />
-                            </div>
                         </div>
                     )}
 
@@ -367,41 +313,16 @@ export const ProfileTab = ({
                     />
                     {openSections.job && (
                         <div className="av-section__body">
-                            <div className="av-row">
-                                <div>
-                                    <label className="av-label">Years of Exp.</label>
-                                    <input className="av-input" name="yearsOfExperience" value={userData.yearsOfExperience || ''} onChange={handleInput} placeholder="5" />
-                                </div>
-                                <div>
-                                    <label className="av-label">Salary Expect.</label>
-                                    <input className="av-input" name="salaryExpectation" value={userData.salaryExpectation || ''} onChange={handleInput} placeholder="e.g. $80k" />
-                                </div>
-                            </div>
-                            <div className="av-row">
-                                <div>
-                                    <label className="av-label">Notice Period</label>
-                                    <input className="av-input" name="noticePeriod" value={userData.noticePeriod || ''} onChange={handleInput} placeholder="2 weeks" />
-                                </div>
-                                <div>
-                                    <label className="av-label">Work Auth.</label>
-                                    <input className="av-input" name="workAuthorization" value={userData.workAuthorization || ''} onChange={handleInput} placeholder="Citizen" />
-                                </div>
-                            </div>
-                            <div className="av-row">
-                                <div>
-                                    <label className="av-label">Date of Birth</label>
-                                    <input className="av-input" name="dateOfBirth" type="date" value={userData.dateOfBirth || ''} onChange={handleInput} />
-                                </div>
-                                <div>
-                                    <label className="av-label">Gender</label>
-                                    <input className="av-input" name="gender" value={userData.gender || ''} onChange={handleInput} placeholder="e.g. Male" />
-                                </div>
-                            </div>
+                            <JobDetailsFields
+                                userData={userData}
+                                onChange={handleInput}
+                            />
                         </div>
                     )}
                 </>
             )}
 
+            {/* Section 3: Medical Information */}
             {profileType === 'medical' && (
                 <>
                     <SectionHeader
@@ -412,55 +333,16 @@ export const ProfileTab = ({
                     />
                     {openSections.medical_sec && (
                         <div className="av-section__body">
-                            <div className="av-row">
-                                <div>
-                                    <label className="av-label">Blood Type</label>
-                                    <input className="av-input" name="bloodType" value={userData.bloodType || ''} onChange={handleInput} placeholder="O+" />
-                                </div>
-                                <div>
-                                    <label className="av-label">Allergies</label>
-                                    <input className="av-input" name="allergies" value={userData.allergies || ''} onChange={handleInput} placeholder="e.g. Peanuts, Penicillin" />
-                                </div>
-                            </div>
-                            <div>
-                                <label className="av-label">Medical Conditions</label>
-                                <textarea className="av-input" name="medicalConditions" value={userData.medicalConditions || ''} onChange={handleInput} placeholder="e.g. Asthma, Hypertension" rows={2} />
-                            </div>
-                            <div>
-                                <label className="av-label">Current Medications</label>
-                                <textarea className="av-input" name="medications" value={userData.medications || ''} onChange={handleInput} placeholder="e.g. Albuterol daily" rows={2} />
-                            </div>
-                            <div className="av-divider" style={{ margin: '10px 0', borderTop: '1px solid rgba(255,255,255,0.08)' }} />
-                            <div>
-                                <label className="av-label">Emergency Contact Name</label>
-                                <input className="av-input" name="emergencyContactName" value={userData.emergencyContactName || ''} onChange={handleInput} placeholder="Jane Doe Sr." />
-                            </div>
-                            <div className="av-row">
-                                <div>
-                                    <label className="av-label">Relationship</label>
-                                    <input className="av-input" name="emergencyContactRelationship" value={userData.emergencyContactRelationship || ''} onChange={handleInput} placeholder="Mother" />
-                                </div>
-                                <div>
-                                    <label className="av-label">Contact Phone</label>
-                                    <input className="av-input" name="emergencyContactPhone" type="tel" value={userData.emergencyContactPhone || ''} onChange={handleInput} placeholder="+1 555 000 0000" />
-                                </div>
-                            </div>
-                            <div className="av-divider" style={{ margin: '10px 0', borderTop: '1px solid rgba(255,255,255,0.08)' }} />
-                            <div className="av-row">
-                                <div>
-                                    <label className="av-label">Insurance Provider</label>
-                                    <input className="av-input" name="insuranceProvider" value={userData.insuranceProvider || ''} onChange={handleInput} placeholder="Blue Cross" />
-                                </div>
-                                <div>
-                                    <label className="av-label">Policy Number</label>
-                                    <input className="av-input" name="policyNumber" value={userData.policyNumber || ''} onChange={handleInput} placeholder="X1234567" />
-                                </div>
-                            </div>
+                            <MedicalFields
+                                userData={userData}
+                                onChange={handleInput}
+                            />
                         </div>
                     )}
                 </>
             )}
 
+            {/* Section 4: Survey Details */}
             {profileType === 'survey' && (
                 <>
                     <SectionHeader
@@ -471,31 +353,16 @@ export const ProfileTab = ({
                     />
                     {openSections.survey_sec && (
                         <div className="av-section__body">
-                            <div className="av-row">
-                                <div>
-                                    <label className="av-label">Occupation</label>
-                                    <input className="av-input" name="occupation" value={userData.occupation || ''} onChange={handleInput} placeholder="Software Engineer" />
-                                </div>
-                                <div>
-                                    <label className="av-label">Industry</label>
-                                    <input className="av-input" name="industry" value={userData.industry || ''} onChange={handleInput} placeholder="Tech" />
-                                </div>
-                            </div>
-                            <div className="av-row">
-                                <div>
-                                    <label className="av-label">Education Level</label>
-                                    <input className="av-input" name="educationLevel" value={userData.educationLevel || ''} onChange={handleInput} placeholder="Bachelor's Degree" />
-                                </div>
-                                <div>
-                                    <label className="av-label">Marital Status</label>
-                                    <input className="av-input" name="maritalStatus" value={userData.maritalStatus || ''} onChange={handleInput} placeholder="Single" />
-                                </div>
-                            </div>
+                            <SurveyFields
+                                userData={userData}
+                                onChange={handleInput}
+                            />
                         </div>
                     )}
                 </>
             )}
 
+            {/* Section 5: Custom Fields */}
             <SectionHeader
                 label={`Custom Fields (${customFields.length})`}
                 sectionKey="custom"
@@ -504,48 +371,11 @@ export const ProfileTab = ({
             />
             {openSections.custom && (
                 <div className="av-section__body">
-                    {customFields.length === 0 && (
-                        <p className="av-cf-empty">
-                            No custom fields yet. Add one below so the AI knows what to fill.
-                        </p>
-                    )}
-                    {customFields.map((cf, i) => (
-                        <div key={i} className="av-cf-card">
-                            <div>
-                                <div className="av-cf-card__label">{cf.label}</div>
-                                <div className="av-cf-card__value">{cf.value || '—'}</div>
-                                {cf.context && (
-                                    <div className="av-cf-card__context">
-                                        <MapPin size={11} /> {cf.context}
-                                    </div>
-                                )}
-                            </div>
-                            <button className="av-cf-card__remove" onClick={() => removeCustomField(i)}>×</button>
-                        </div>
-                    ))}
-                    <div className="av-cf-form">
-                        <div className="av-cf-form__row">
-                            <input
-                                className="av-input av-input--flex"
-                                placeholder="Label (e.g. Mon — From or Pronouns)"
-                                value={newCFLabel}
-                                onChange={e => setNewCFLabel(e.target.value)}
-                            />
-                            <input
-                                className="av-input av-input--flex"
-                                placeholder="Value (e.g. He/Him)"
-                                value={newCFValue}
-                                onChange={e => setNewCFValue(e.target.value)}
-                            />
-                            <input
-                                className="av-input av-input--flex"
-                                placeholder="AI Context (e.g. Use when asked about preferred pronouns)"
-                                value={newCFContext}
-                                onChange={e => setNewCFContext(e.target.value)}
-                            />
-                            <button className="av-cf-form__add-btn" onClick={addCustomField}>+</button>
-                        </div>
-                    </div>
+                    <CustomFieldsEditor
+                        customFields={customFields}
+                        onAdd={handleAddCustomField}
+                        onRemove={handleRemoveCustomField}
+                    />
                 </div>
             )}
 

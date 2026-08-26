@@ -13,6 +13,7 @@ export function initWebAuthSync() {
 
     const syncWebAuth = () => {
         let isProFromStorage: boolean | undefined = undefined;
+        let proExpiresAtFromStorage: string | undefined = undefined;
         try {
             const lsIsPro =
                 localStorage.getItem("aullevo_is_pro") ||
@@ -20,7 +21,13 @@ export function initWebAuthSync() {
             if (lsIsPro !== null) {
                 isProFromStorage = lsIsPro === "true";
             }
-        } catch {}
+            const lsExpiresAt = localStorage.getItem("aullevo_pro_expires_at");
+            if (lsExpiresAt) {
+                proExpiresAtFromStorage = lsExpiresAt;
+            }
+        } catch {
+            // LocalStorage access restricted in frame
+        }
 
         // 1. Check LocalStorage
         try {
@@ -42,6 +49,7 @@ export function initWebAuthSync() {
                                     displayName: parsed.displayName,
                                     photoURL: parsed.photoURL,
                                     isPro: isProFromStorage,
+                                    proExpiresAt: proExpiresAtFromStorage,
                                 });
                             }
                         }
@@ -55,8 +63,8 @@ export function initWebAuthSync() {
         // 2. Check IndexedDB (Firebase Auth JS SDK default)
         try {
             const req = indexedDB.open("firebaseLocalStorageDb");
-            req.onsuccess = (e: any) => {
-                const db = e.target.result;
+            req.onsuccess = () => {
+                const db = req.result;
                 if (!db.objectStoreNames.contains("firebaseLocalStorage")) return;
                 const tx = db.transaction("firebaseLocalStorage", "readonly");
                 const store = tx.objectStore("firebaseLocalStorage");
@@ -81,6 +89,7 @@ export function initWebAuthSync() {
                                     displayName: val.displayName,
                                     photoURL: val.photoURL,
                                     isPro: isProFromStorage,
+                                    proExpiresAt: proExpiresAtFromStorage,
                                 });
                             }
                         }
@@ -100,7 +109,7 @@ export function initWebAuthSync() {
             event.data.type === "AULLEVO_WEB_AUTH" &&
             event.data.user
         ) {
-            const { uid, email, displayName, photoURL, isPro } = event.data.user;
+            const { uid, email, displayName, photoURL, isPro, proExpiresAt } = event.data.user;
             if (typeof chrome !== "undefined" && chrome.runtime?.sendMessage) {
                 chrome.runtime.sendMessage({
                     action: "SYNC_WEB_USER",
@@ -109,6 +118,7 @@ export function initWebAuthSync() {
                     displayName,
                     photoURL,
                     isPro: !!isPro,
+                    proExpiresAt: proExpiresAt || null,
                 });
             }
         }

@@ -1,13 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "Aullevo - AI Form Filler",
-  "version": "1.1.0",
-  "description": "Auto-fill forms using your resume data powered by Gemini AI. Press Ctrl+M to open the sidebar!",
-  "permissions": [
-    "activeTab",
-    "scripting",
-    "storage"
-  ],
+  "name": "Aullevo - Automation Forms Filler with or without AI",
+  "version": "1.0.0",
+  "description": "Auto-fill forms using your profilers with or without AI. Press Ctrl+Shift+E to open the sidebar!",
+  "permissions": ["activeTab", "scripting", "storage"],
   "background": {
     "service_worker": "assets/background.js",
     "type": "module"
@@ -19,10 +15,17 @@
   "commands": {
     "toggle-sidebar": {
       "suggested_key": {
-        "default": "Ctrl+M",
-        "mac": "Command+M"
+        "default": "Ctrl+Shift+E",
+        "mac": "Command+Shift+E"
       },
       "description": "Activate the extension"
+    },
+    "trigger-ai-fill": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+F",
+        "mac": "Command+Shift+F"
+      },
+      "description": "Trigger AI Form Fill on the current page"
     }
   },
   "icons": {
@@ -31,7 +34,7 @@
     "128": "icon128.png"
   },
   "action": {
-    "default_title": "Aullevo — Toggle Sidebar (Ctrl+M)",
+    "default_title": "Aullevo — Toggle Sidebar (Ctrl+Shift+E)",
     "default_icon": {
       "16": "icon16.png",
       "48": "icon48.png",
@@ -67,5 +70,3 @@
     }
   ]
 }
-
-

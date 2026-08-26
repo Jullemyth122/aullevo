@@ -2,11 +2,11 @@
    SPA WATCHER — detect route changes and form mutations
 */
 
-export function safeSendMessage(msg: any) {
+export function safeSendMessage(msg: unknown) {
     if (typeof chrome !== 'undefined' && chrome.runtime?.id) {
         try {
-            chrome.runtime.sendMessage(msg).catch(() => { });
-        } catch (e) {
+            chrome.runtime.sendMessage(msg).catch(() => { /* context invalidated */ });
+        } catch {
             // context invalidated, ignore
         }
     }

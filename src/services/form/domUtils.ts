@@ -28,7 +28,7 @@ export function querySelectorAllDeep<T extends HTMLElement = HTMLElement>(
         );
       }
     });
-  } catch (_err) {
+  } catch {
     // Ignore query syntax errors gracefully
   }
   return results;
@@ -118,7 +118,7 @@ export function isVisible(element: HTMLElement): boolean {
     ) {
       return false;
     }
-  } catch (_e) {
+  } catch {
     return true;
   }
 
@@ -151,7 +151,7 @@ export function findElementByIdOrSelector(id: string): HTMLElement | null {
       `[name="${id}"], [data-testid="${id}"]`,
     );
     if (byName.length > 0) return byName[0];
-  } catch (_e) {
+  } catch {
     // Ignore query syntax errors
   }
   return null;
@@ -281,3 +281,51 @@ export function find2DMatrixInput(opts: {
 
   return null;
 }
+
+/**
+ * Precision visual glow pulse on filled form element (universal for all web forms)
+ * Dynamically bound to Aullevo's design system tokens (--av-violet, --av-success, --av-shadow).
+ */
+export function highlightElement(el: HTMLElement): void {
+  if (!el || typeof document === "undefined") return;
+  try {
+    if (!document.getElementById("aullevo-field-highlight-styles")) {
+      const style = document.createElement("style");
+      style.id = "aullevo-field-highlight-styles";
+      style.textContent = `
+        :root {
+          --av-hl-primary: var(--av-violet-mid, var(--av-violet, #3b82f6));
+          --av-hl-glow: var(--av-shadow, rgba(59, 130, 246, 0.45));
+          --av-hl-success: var(--av-success, #10b981);
+          --av-hl-success-glow: rgba(16, 185, 129, 0.4);
+        }
+        @keyframes aullevoFieldPulse {
+          0% {
+            box-shadow: 0 0 0 2px var(--av-hl-primary), 0 0 16px var(--av-hl-glow), 0 2px 8px rgba(15, 23, 42, 0.08) !important;
+          }
+          40% {
+            box-shadow: 0 0 0 2px var(--av-hl-success), 0 0 18px var(--av-hl-success-glow), 0 2px 8px rgba(15, 23, 42, 0.06) !important;
+          }
+          100% {
+            box-shadow: 0 0 0 0 transparent, 0 0 0 transparent !important;
+          }
+        }
+        .aullevo-field-highlight {
+          animation: aullevoFieldPulse 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+          transition: box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+      `;
+      (document.head || document.documentElement).appendChild(style);
+    }
+    el.classList.remove("aullevo-field-highlight");
+    // Trigger reflow to restart animation if already active
+    void el.offsetWidth;
+    el.classList.add("aullevo-field-highlight");
+    setTimeout(() => {
+      el.classList.remove("aullevo-field-highlight");
+    }, 1800);
+  } catch {
+    // Graceful fallback for non-standard environments
+  }
+}
+

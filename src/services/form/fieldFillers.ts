@@ -1,7 +1,5 @@
-import {
-  DROPZONE_SELECTORS,
-  EXPLICIT_TRUE_VALUES,
-} from "./constants";
+import { DROPZONE_SELECTORS, EXPLICIT_TRUE_VALUES } from "./constants";
+import { highlightElement } from "./domUtils";
 import {
   scoreOptionMatch,
   parseValueTokens,
@@ -18,6 +16,18 @@ export function setCheckboxState(
 ): void {
   if (input.checked === desiredState) return;
 
+  try {
+    input.focus();
+  } catch {
+    // Ignore focus error in headless
+  }
+  input.dispatchEvent(
+    new FocusEvent("focus", { bubbles: true, composed: true }),
+  );
+  input.dispatchEvent(
+    new FocusEvent("focusin", { bubbles: true, composed: true }),
+  );
+
   const parentLabel =
     input.closest("label") ||
     (input.id ? document.querySelector(`label[for="${input.id}"]`) : null);
@@ -31,9 +41,17 @@ export function setCheckboxState(
       "checked",
     )?.set;
     if (nativeSetter) nativeSetter.call(input, desiredState);
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-    input.dispatchEvent(new Event("change", { bubbles: true }));
   }
+
+  input.dispatchEvent(new Event("input", { bubbles: true, composed: true }));
+  input.dispatchEvent(new Event("change", { bubbles: true, composed: true }));
+  input.dispatchEvent(
+    new FocusEvent("blur", { bubbles: true, composed: true }),
+  );
+  input.dispatchEvent(
+    new FocusEvent("focusout", { bubbles: true, composed: true }),
+  );
+  highlightElement(parentLabel || input);
 }
 
 /**
@@ -43,20 +61,74 @@ export function setCustomRadioState(
   el: HTMLElement,
   desiredState: boolean,
 ): void {
-  try {
-    el.click();
-  } catch (_e) {}
+  const isCurrentlyChecked =
+    el.getAttribute("aria-checked") === "true" ||
+    el.classList.contains("selected") ||
+    el.classList.contains("checked");
+  if (isCurrentlyChecked === desiredState) return;
+
+  const eventOpts = {
+    bubbles: true,
+    cancelable: true,
+    composed: true,
+    view: typeof window !== "undefined" ? window : undefined,
+  };
+
+  // Collect all potential click targets: the radio element itself, its parent option wrapper, and its text label
+  const parentContainer =
+    (el.parentElement && el.parentElement !== el ? el.parentElement : null) ||
+    (el.closest(
+      'label, [role="presentation"], [role="listitem"], [data-value], [class*="radio" i], [class*="choice" i]',
+    ) as HTMLElement | null);
+  const textLabel =
+    parentContainer?.querySelector<HTMLElement>(
+      "span, label, [class*='label' i], [class*='text' i]",
+    ) || null;
+
+  const targetElements = new Set<HTMLElement>();
+  targetElements.add(el);
+  if (parentContainer && parentContainer !== el)
+    targetElements.add(parentContainer);
+  if (textLabel && textLabel !== el) targetElements.add(textLabel);
+
+  for (const target of Array.from(targetElements)) {
+    try {
+      target.dispatchEvent(
+        new FocusEvent("focus", { bubbles: true, composed: true }),
+      );
+      target.dispatchEvent(
+        new FocusEvent("focusin", { bubbles: true, composed: true }),
+      );
+      target.dispatchEvent(new PointerEvent("pointerdown", eventOpts));
+      target.dispatchEvent(new MouseEvent("mousedown", eventOpts));
+      target.dispatchEvent(new PointerEvent("pointerup", eventOpts));
+      target.dispatchEvent(new MouseEvent("mouseup", eventOpts));
+      target.dispatchEvent(new MouseEvent("click", eventOpts));
+      target.click();
+    } catch {
+      // Ignore synthetic click dispatch errors on disconnected elements
+    }
+  }
+
   if (desiredState) {
     el.setAttribute("aria-checked", "true");
     el.classList.add("selected", "checked", "active");
+    if (parentContainer)
+      parentContainer.classList.add("selected", "checked", "active");
   } else {
     el.setAttribute("aria-checked", "false");
     el.classList.remove("selected", "checked", "active");
+    if (parentContainer)
+      parentContainer.classList.remove("selected", "checked", "active");
   }
+
+  el.dispatchEvent(new Event("input", { bubbles: true, composed: true }));
+  el.dispatchEvent(new Event("change", { bubbles: true, composed: true }));
+  el.dispatchEvent(new FocusEvent("blur", { bubbles: true, composed: true }));
   el.dispatchEvent(
-    new MouseEvent("click", { bubbles: true, cancelable: true }),
+    new FocusEvent("focusout", { bubbles: true, composed: true }),
   );
-  el.dispatchEvent(new Event("change", { bubbles: true }));
+  highlightElement(parentContainer || el);
 }
 
 /**
@@ -87,6 +159,7 @@ export function applySelectValue(
   select.dispatchEvent(
     new MouseEvent("click", { bubbles: true, cancelable: true }),
   );
+  highlightElement(select);
 }
 
 /**
@@ -233,9 +306,7 @@ export function fillCheckboxGroup(
 
     const shouldCheck =
       isExplicitTrueSingle ||
-      valuesToCheck.some((valStr) =>
-        optionMatchesValue(descriptors, valStr),
-      );
+      valuesToCheck.some((valStr) => optionMatchesValue(descriptors, valStr));
 
     if (shouldCheck) {
       if (cb instanceof HTMLInputElement) {
@@ -285,6 +356,7 @@ export function fillToggle(
     el.click();
     el.setAttribute("aria-checked", String(shouldBeOn));
   }
+  highlightElement(el);
   return true;
 }
 
@@ -363,6 +435,7 @@ export function fillAriaSlider(
   console.log(
     `Aullevo aria-slider: set to ${clamped} (min=${min}, max=${max})`,
   );
+  highlightElement(el);
   return true;
 }
 
@@ -406,6 +479,7 @@ export function fillAriaSpinbutton(
   el.dispatchEvent(new Event("change", { bubbles: true }));
 
   console.log(`Aullevo aria-spinbutton: set to ${clamped}`);
+  highlightElement(el);
   return true;
 }
 
@@ -492,6 +566,7 @@ export function fillMultiFileInput(
       );
     }
 
+    highlightElement(dropzone || input.parentElement || input);
     return true;
   } catch (e) {
     console.error("Aullevo: Failed to inject file", e);
@@ -634,6 +709,7 @@ export function fillCustomSelect(elementId: string, value: string): boolean {
     );
   }
 
+  highlightElement(el);
   setTimeout(() => clickMatchingOption(el!, valLower), 300);
   return true;
 }

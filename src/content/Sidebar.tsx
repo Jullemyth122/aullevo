@@ -1,4 +1,4 @@
-import { useSidebarState } from './modules/sidebar/useSidebarState';
+import { SidebarProvider, useSidebar } from './modules/sidebar/SidebarContext';
 import type { Tab } from './modules/sidebar/sidebarTypes';
 import { FillTab } from './modules/sidebar/components/FillTab';
 import { ProfileTab } from './modules/sidebar/components/ProfileTab';
@@ -8,26 +8,33 @@ import { SettingsTab } from './modules/sidebar/components/SettingsTab';
 import { LogoA } from '../components/LogoA';
 import { X } from 'lucide-react';
 
-export default function Sidebar() {
-    const state = useSidebarState();
+function SidebarInner() {
+    const {
+        isDark,
+        isOpen,
+        setIsOpen,
+        fieldCount,
+        activeTab,
+        setActiveTab,
+    } = useSidebar();
 
     return (
-        <div className={state.isDark ? 'av-dark' : ''}>
+        <div className={isDark ? 'av-dark' : ''}>
             {/* Trigger pill */}
             <div
-                className={`av-trigger ${state.isOpen ? 'av-trigger--open' : 'av-trigger--closed'}`}
-                onClick={() => state.setIsOpen(p => !p)}
-                title="Aullevo — Ctrl+M or Alt+A"
+                className={`av-trigger ${isOpen ? 'av-trigger--open' : 'av-trigger--closed'}`}
+                onClick={() => setIsOpen(p => !p)}
+                title="Aullevo — Ctrl+Shift+E to toggle"
             >
                 <span className="av-trigger__stripe" />
                 <span className="av-trigger__label">Aullevo</span>
-                {state.fieldCount > 0 && (
-                    <span className="av-trigger__badge">{state.fieldCount}</span>
+                {fieldCount > 0 && (
+                    <span className="av-trigger__badge">{fieldCount}</span>
                 )}
             </div>
 
             {/* Panel */}
-            {state.isOpen && (
+            {isOpen && (
                 <div className="av-panel">
                     {/* Header */}
                     <div className="av-panel__header">
@@ -40,7 +47,7 @@ export default function Sidebar() {
                                 <div className="av-panel__brand-sub">AI Form Filler</div>
                             </div>
                         </div>
-                        <button className="av-panel__close" onClick={() => state.setIsOpen(false)} title="Close">
+                        <button className="av-panel__close" onClick={() => setIsOpen(false)} title="Close">
                             <X size={18} />
                         </button>
                     </div>
@@ -56,8 +63,8 @@ export default function Sidebar() {
                         ] as { id: Tab; label: string }[]).map(t => (
                             <button
                                 key={t.id}
-                                className={`av-panel__tab ${state.activeTab === t.id ? 'av-panel__tab--active' : ''}`}
-                                onClick={() => state.setActiveTab(t.id)}
+                                className={`av-panel__tab ${activeTab === t.id ? 'av-panel__tab--active' : ''}`}
+                                onClick={() => setActiveTab(t.id)}
                             >
                                 {t.label}
                             </button>
@@ -66,109 +73,28 @@ export default function Sidebar() {
 
                     {/* Body */}
                     <div className="av-panel__body">
-                        {state.activeTab === 'fill' && (
-                            <FillTab
-                                uploadedFile={state.uploadedFile}
-                                handleResumeUpload={state.handleResumeUpload}
-                                fileLibrary={state.fileLibrary}
-                                setActiveTab={state.setActiveTab}
-                                fieldCount={state.fieldCount}
-                                scanFields={state.scanFields}
-                                isProcessing={state.isProcessing}
-                                matchingMode={state.matchingMode}
-                                handleFill={state.handleFill}
-                                fillStatus={state.fillStatus}
-                                apiKey={state.apiKey}
-                            />
-                        )}
-                        {state.activeTab === 'profile' && (
-                            <ProfileTab
-                                userData={state.userData}
-                                setUserData={state.setUserData}
-                                handleInput={state.handleInput}
-                                handleSave={state.handleSave}
-                                saveMsg={state.saveMsg}
-                                activeProfile={state.activeProfile}
-                                handleSwitchProfile={state.handleSwitchProfile}
-                                handleDeleteProfile={state.handleDeleteProfile}
-                                profiles={state.profiles}
-                                showNewProfileInput={state.showNewProfileInput}
-                                setShowNewProfileInput={state.setShowNewProfileInput}
-                                newProfileName={state.newProfileName}
-                                setNewProfileName={state.setNewProfileName}
-                                handleCreateProfile={state.handleCreateProfile}
-                                openSections={state.openSections}
-                                toggleSection={state.toggleSection}
-                                fileLibrary={state.fileLibrary}
-                                fileDragging={state.fileDragging}
-                                setFileDragging={state.setFileDragging}
-                                fileLibInputRef={state.fileLibInputRef}
-                                addFilesToLibrary={state.addFilesToLibrary}
-                                removeFromLibrary={state.removeFromLibrary}
-                                pageFields={state.pageFields}
-                                skillsInput={state.skillsInput}
-                                setSkillsInput={state.setSkillsInput}
-                                newCFLabel={state.newCFLabel}
-                                setNewCFLabel={state.setNewCFLabel}
-                                newCFValue={state.newCFValue}
-                                setNewCFValue={state.setNewCFValue}
-                                newCFContext={state.newCFContext}
-                                setNewCFContext={state.setNewCFContext}
-                                addCustomField={state.addCustomField}
-                                removeCustomField={state.removeCustomField}
-                            />
-                        )}
-                        {state.activeTab === 'knowledge' && (
-                            <KnowledgeTab
-                                userData={state.userData}
-                                newMemTitle={state.newMemTitle}
-                                setNewMemTitle={state.setNewMemTitle}
-                                newMemContent={state.newMemContent}
-                                setNewMemContent={state.setNewMemContent}
-                                addMemory={state.addMemory}
-                                removeMemory={state.removeMemory}
-                                handleSave={state.handleSave}
-                                saveMsg={state.saveMsg}
-                            />
-                        )}
-                        {state.activeTab === 'links' && (
-                            <LinksTab
-                                userData={state.userData}
-                                newLinkTitle={state.newLinkTitle}
-                                setNewLinkTitle={state.setNewLinkTitle}
-                                newLinkUrl={state.newLinkUrl}
-                                setNewLinkUrl={state.setNewLinkUrl}
-                                addLink={state.addLink}
-                                removeLink={state.removeLink}
-                                triggerAutopilot={state.triggerAutopilot}
-                                handleSave={state.handleSave}
-                                saveMsg={state.saveMsg}
-                            />
-                        )}
-                        {state.activeTab === 'settings' && (
-                            <SettingsTab
-                                isPro={state.isPro}
-                                apiKey={state.apiKey}
-                                setApiKey={state.setApiKey}
-                                handleSaveApiKey={state.handleSaveApiKey}
-                                saveMsg={state.saveMsg}
-                                isDark={state.isDark}
-                                setIsDark={state.setIsDark}
-                                matchingMode={state.matchingMode}
-                                setMatchingMode={state.setMatchingMode}
-                                autoSubmit={state.autoSubmit}
-                                setAutoSubmit={state.setAutoSubmit}
-                            />
-                        )}
+                        {activeTab === 'fill' && <FillTab />}
+                        {activeTab === 'profile' && <ProfileTab />}
+                        {activeTab === 'knowledge' && <KnowledgeTab />}
+                        {activeTab === 'links' && <LinksTab />}
+                        {activeTab === 'settings' && <SettingsTab />}
                     </div>
 
                     {/* Footer */}
                     <div className="av-panel__footer">
                         <span className="av-panel__footer-text">Powered by Gemini 3 Flash</span>
-                        <span className="av-panel__footer-text">Ctrl+M to toggle</span>
+                        <span className="av-panel__footer-text">Ctrl+Shift+E to toggle</span>
                     </div>
                 </div>
             )}
         </div>
+    );
+}
+
+export default function Sidebar() {
+    return (
+        <SidebarProvider>
+            <SidebarInner />
+        </SidebarProvider>
     );
 }

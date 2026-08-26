@@ -199,6 +199,28 @@ export function matchFieldsHeuristically(
       }
     }
 
+    // ── Priority 2.8: User Custom Field Direct Match ──
+    // Strictly match against directText (the field's own label/placeholder/aria-label).
+    // NEVER pass compositeText (which contains section headers and sibling labels).
+    if (customFields.length > 0 && directText) {
+      const directCustomMatch = matchCustomField(directText, customFields);
+      if (directCustomMatch) {
+        mappings.push({
+          fieldId: field.id,
+          id: field.id,
+          name: field.name || undefined,
+          rowHeader: field.rowHeader || undefined,
+          colHeader: field.colHeader || undefined,
+          compoundLabel: field.compoundLabel || undefined,
+          fieldType: `custom_field:${directCustomMatch.label}`,
+          confidence: 0.95,
+          groupType,
+          groupIndex: groupType ? groupIndex : undefined,
+        });
+        continue;
+      }
+    }
+
     // ── Priority 3: Standard field matching ──
     // Prefer directText (label/aria/placeholder) first to avoid context pollution.
     // This runs BEFORE broad custom field matching to ensure First Name, Last Name, Email,
@@ -296,9 +318,7 @@ export function matchFieldsHeuristically(
       .join(" ")
       .toLowerCase();
 
-    const matchedCustom =
-      matchCustomField(directFieldText, customFields) ||
-      matchCustomField(compositeText, customFields);
+    const matchedCustom = matchCustomField(directFieldText, customFields);
 
     if (matchedCustom) {
       mappings.push({
