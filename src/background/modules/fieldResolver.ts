@@ -32,7 +32,13 @@
 
 import { geminiService } from "../../services/geminiService";
 import { fileMatchesField, _tokenize } from "../../utils/fileMatch";
-import type { UserData, CustomField, FormField, SavedFile } from "../../types";
+import type {
+  UserData,
+  CustomField,
+  FormField,
+  SavedFile,
+  FieldMapping,
+} from "../../types";
 import { STANDARD_TO_CUSTOM_LABEL } from "../../services/heuristic/rules";
 import { matchCustomField } from "../../services/heuristic/customFieldMatcher";
 
@@ -124,7 +130,7 @@ export const STANDARD_FIELD_KEYS = new Set([
  *                         (sets "[MANUAL_INPUT_NEEDED]" placeholder instead).
  */
 export async function resolveFieldValues(
-  fieldMappings: any[],
+  fieldMappings: FieldMapping[],
   fields: FormField[],
   userData: Partial<UserData>,
   customFields: CustomField[],
@@ -191,8 +197,9 @@ export async function resolveFieldValues(
               userData,
             );
           }
-        } catch (e: any) {
-          console.warn("Aullevo: Failed to answer question:", e.message);
+        } catch (e: unknown) {
+          const msg = e instanceof Error ? e.message : String(e);
+          console.warn("Aullevo: Failed to answer question:", msg);
           mapping.selectedValue = "[MANUAL_INPUT_NEEDED]";
         }
       } else {
@@ -258,22 +265,45 @@ export async function resolveFieldValues(
 
       if (contextMatch) {
         mapping.selectedValue = contextMatch.value;
+        continue;
       }
-      continue; // Done with this mapping (even if no match found)
+
+      // Pass 4: 2D Matrix Table Coordinate check (rowHeader + colHeader / compoundLabel)
+      if (
+        origField &&
+        (origField.compoundLabel ||
+          (origField.rowHeader && origField.colHeader))
+      ) {
+        const matrixCandidates = [
+          origField.compoundLabel,
+          `${origField.colHeader} ${origField.rowHeader}`,
+          `${origField.rowHeader} ${origField.colHeader}`,
+          `${origField.colHeader} - ${origField.rowHeader}`,
+          `${origField.rowHeader} - ${origField.colHeader}`,
+        ].filter(Boolean) as string[];
+
+        for (const candidate of matrixCandidates) {
+          const matrixMatch = matchCustomField(candidate, customFields);
+          if (matrixMatch) {
+            mapping.selectedValue = matrixMatch.value;
+            break;
+          }
+        }
+      }
+
+      continue; // Done with this mapping
     }
 
-    // Memory lookup — find by ID, use memory content as the value
     if (mapping.fieldType?.startsWith("memory:")) {
-      const memoryId = mapping.fieldType.slice("memory:".length);
-      const match = (userData.memories || []).find((m) => m.id === memoryId);
+      const id = mapping.fieldType.slice("memory:".length);
+      const match = (userData.memories || []).find((m) => m.id === id);
       if (match) mapping.selectedValue = match.content;
       continue;
     }
 
-    // Link lookup — find by ID, use the URL as the value
     if (mapping.fieldType?.startsWith("link:")) {
-      const linkId = mapping.fieldType.slice("link:".length);
-      const match = (userData.savedLinks || []).find((l) => l.id === linkId);
+      const id = mapping.fieldType.slice("link:".length);
+      const match = (userData.savedLinks || []).find((l) => l.id === id);
       if (match) mapping.selectedValue = match.url;
       continue;
     }
@@ -286,7 +316,7 @@ export async function resolveFieldValues(
     //    Example: groupType="experience", groupIndex=1, fieldType="company"
     //    → userData.experience[1].company
     if (mapping.groupType && typeof mapping.groupIndex === "number") {
-      let arraySource: any[] = [];
+      let arraySource: unknown[] = [];
       if (mapping.groupType === "experience")
         arraySource = userData.experience || [];
       if (mapping.groupType === "education")
@@ -302,7 +332,8 @@ export async function resolveFieldValues(
           mapping.fieldType in item
         ) {
           // Object item (experience/education): pick the named property
-          mapping.selectedValue = String((item as any)[mapping.fieldType]);
+          const rec = item as Record<string, unknown>;
+          mapping.selectedValue = String(rec[mapping.fieldType] ?? "");
         } else if (mapping.groupType === "skill") {
           // Skill items are plain strings
           mapping.selectedValue = String(item);
@@ -361,7 +392,8 @@ export async function resolveFieldValues(
         }
       } else {
         // Generic standard field — just read the matching property from userData
-        const val = (userData as any)[mapping.fieldType];
+        const rec = userData as Record<string, unknown>;
+        const val = rec[mapping.fieldType];
         if (val !== undefined && val !== null && val !== "") {
           resolvedVal = Array.isArray(val) ? val.join(", ") : String(val);
         }
@@ -378,10 +410,32 @@ export async function resolveFieldValues(
       // 2. Exact match against standard aliases
       // 3. Algorithmic match against aliases
       if (!mapping.selectedValue && customFields.length > 0) {
-        // Fallback 1: match against the raw label on the page (most specific)
-        if (origField?.label) {
-          const directMatch = matchCustomField(origField.label, customFields);
-          if (directMatch) mapping.selectedValue = directMatch.value;
+        // Fallback 1: match against 2D matrix coordinates or the raw label on the page
+        if (origField) {
+          const candidates = [
+            origField.compoundLabel,
+            origField.rowHeader && origField.colHeader
+              ? `${origField.colHeader} ${origField.rowHeader}`
+              : undefined,
+            origField.rowHeader && origField.colHeader
+              ? `${origField.rowHeader} ${origField.colHeader}`
+              : undefined,
+            origField.rowHeader && origField.colHeader
+              ? `${origField.colHeader} - ${origField.rowHeader}`
+              : undefined,
+            origField.rowHeader && origField.colHeader
+              ? `${origField.rowHeader} - ${origField.colHeader}`
+              : undefined,
+            origField.label,
+          ].filter(Boolean) as string[];
+
+          for (const cand of candidates) {
+            const match = matchCustomField(cand, customFields);
+            if (match) {
+              mapping.selectedValue = match.value;
+              break;
+            }
+          }
         }
 
         if (!mapping.selectedValue) {

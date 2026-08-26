@@ -181,14 +181,36 @@ export function optionMatchesValue(
   descriptors: string[],
   valStr: string,
 ): boolean {
+  const normVal = valStr
+    .replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "")
+    .trim()
+    .toLowerCase();
+
   return descriptors.some((desc) => {
     if (desc === valStr) return true;
     if (fuzzyMatch(desc, valStr)) return true;
     if (smartMatch(desc, valStr)) return true;
+
+    // Normalized punctuation match (e.g. "Mr." -> "mr" matches "Mr")
+    const normDesc = desc
+      .replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "")
+      .trim()
+      .toLowerCase();
+    if (
+      normDesc &&
+      normVal &&
+      (normDesc === normVal ||
+        normDesc.startsWith(normVal) ||
+        normVal.startsWith(normDesc))
+    ) {
+      return true;
+    }
+
     // Safe boundary match for multi-word or short/special tokens
     if (valStr.length >= 2 && desc.length >= 2) {
       const escaped = valStr.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      if (new RegExp(`(?:^|\\b|\\s)${escaped}(?:$|\\b|\\s)`, "i").test(desc)) return true;
+      if (new RegExp(`(?:^|\\b|\\s)${escaped}(?:$|\\b|\\s)`, "i").test(desc))
+        return true;
     }
     return false;
   });

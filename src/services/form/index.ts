@@ -13,3 +13,5 @@ export * from "./fieldFillers";
 export * from "./fieldExtractor";
 export * from "./navigation";
 export * from "./chat";
+export * from "./formPipeline";
+export * from "./googleForms";

@@ -23,6 +23,7 @@ export function useSidebarState() {
     const [matchingMode, setMatchingMode] = useState<'ai' | 'heuristic'>('heuristic');
     const [isPro, setIsPro] = useState(false);
     const [autoSubmit, setAutoSubmit] = useState(false);
+    const [typingDelayMs, setTypingDelayMsState] = useState<number>(0);
     const [skillsInput, setSkillsInput] = useState<string | null>(null);
 
     const scanTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -32,6 +33,7 @@ export function useSidebarState() {
     const [profiles, setProfiles] = useState<string[]>([]);
     const [activeProfile, setActiveProfile] = useState<string>('Default');
     const [newProfileName, setNewProfileName] = useState('');
+    const [newProfileType, setNewProfileType] = useState<'job' | 'medical' | 'survey' | 'custom'>('job');
     const [showNewProfileInput, setShowNewProfileInput] = useState(false);
 
     const [userData, setUserData] = useState<Partial<UserData>>({
@@ -48,6 +50,9 @@ export function useSidebarState() {
     const [apiKey, setApiKey] = useState('');
     const [saveMsg, setSaveMsg] = useState('');
     const [uploadedFile, setUploadedFile] = useState('');
+    const [pendingResumeFile, setPendingResumeFile] = useState<File | null>(null);
+    const [resumeConsent, setResumeConsent] = useState(false);
+    const [resumeParseSuccess, setResumeParseSuccess] = useState(false);
     const [newCFLabel, setNewCFLabel] = useState('');
     const [newCFValue, setNewCFValue] = useState('');
     const [newCFContext, setNewCFContext] = useState('');
@@ -151,7 +156,7 @@ export function useSidebarState() {
             console.warn("Storage vault load failed, using legacy fallback:", err);
             chrome.storage.local.get(['userData'], (result) => {
                 if (result.userData) {
-                    const loaded = result.userData as any;
+                    const loaded = result.userData as UserData;
                     loaded.customFields = migrateCustomFields(loaded.customFields);
                     setUserData(loaded);
                     setSkillsInput((loaded.skills || []).join(', '));
@@ -161,6 +166,11 @@ export function useSidebarState() {
     };
 
     const handleSwitchProfile = async (name: string) => {
+        if (!isPro && profiles.length > 1 && name !== profiles[0] && name !== 'Default') {
+            setSaveMsg('🔒 Profile switching is a Pro feature!');
+            setTimeout(() => setSaveMsg(''), 3000);
+            return;
+        }
         await storageService.setActiveProfileName(name);
         const data = await storageService.loadProfile(name);
         if (data) {
@@ -193,9 +203,10 @@ export function useSidebarState() {
             return;
         }
 
-        const emptyData = createEmptyUserData();
+        const emptyData = createEmptyUserData(newProfileType);
         await storageService.saveProfile(name, emptyData);
         setNewProfileName('');
+        setNewProfileType('job');
         setShowNewProfileInput(false);
         await loadAllProfileData();
         await handleSwitchProfile(name);
@@ -220,18 +231,41 @@ export function useSidebarState() {
     // Load settings from storage on mount
     useEffect(() => {
         if (typeof chrome === 'undefined' || !chrome.storage) return;
-        chrome.storage.local.get(['geminiApiKey', 'matchingMode', 'isPro', 'autoSubmit'], (result) => {
+        chrome.storage.local.get(['geminiApiKey', 'matchingMode', 'isPro', 'autoSubmit', 'typingDelayMs', 'stealthMode'], (result) => {
             if (result.geminiApiKey) setApiKey(result.geminiApiKey as string);
             if (result.matchingMode) setMatchingMode(result.matchingMode as 'ai' | 'heuristic');
             if (result.isPro !== undefined) setIsPro(!!result.isPro);
             if (result.autoSubmit !== undefined) setAutoSubmit(!!result.autoSubmit);
+            if (result.typingDelayMs !== undefined) {
+                setTypingDelayMsState(Number(result.typingDelayMs));
+            } else if (result.stealthMode) {
+                setTypingDelayMsState(25);
+            }
         });
         loadAllProfileData();
         loadFileLibrary();
 
-        const storageListener = (changes: any, areaName: string) => {
-            if (areaName === 'local' && changes.isPro !== undefined) {
-                setIsPro(!!changes.isPro.newValue);
+        const storageListener = (changes: { [key: string]: chrome.storage.StorageChange }, areaName: string) => {
+            if (areaName === 'local') {
+                if (changes.isPro !== undefined) {
+                    setIsPro(!!changes.isPro.newValue);
+                }
+                if (changes.typingDelayMs !== undefined) {
+                    setTypingDelayMsState(Number(changes.typingDelayMs.newValue || 0));
+                }
+                if (changes.userUid !== undefined || changes.userEmail !== undefined) {
+                    loadAllProfileData();
+                    loadFileLibrary();
+                }
+                if (changes.userData && changes.userData.newValue) {
+                    const loaded = changes.userData.newValue as UserData;
+                    loaded.customFields = migrateCustomFields(loaded.customFields);
+                    setUserData(loaded);
+                    setSkillsInput((loaded.skills || []).join(', '));
+                }
+                if (changes.fileLibrary && changes.fileLibrary.newValue) {
+                    setFileLibrary((changes.fileLibrary.newValue as SavedFile[]) || []);
+                }
             }
         };
         chrome.storage.onChanged.addListener(storageListener);
@@ -269,11 +303,15 @@ export function useSidebarState() {
     }, [isOpen, activeTab]);
 
     useEffect(() => {
-        const handleMessage = (request: any, _sender: any, sendResponse: any) => {
+        const handleMessage = (
+            request: { action?: string; message?: string; statusType?: 'idle' | 'scanning' | 'filling' | 'success' | 'error' | 'info' },
+            _sender: chrome.runtime.MessageSender,
+            sendResponse: (response?: unknown) => void
+        ) => {
             if (request.action === 'toggleSidebar') { setIsOpen(p => !p); sendResponse({ success: true }); }
             if (request.action === 'openSidebar') { setIsOpen(true); sendResponse({ success: true }); }
             if (request.action === 'sidebarStatus') {
-                setFillStatus({ message: request.message, type: request.statusType || 'idle' });
+                setFillStatus({ message: request.message || '', type: request.statusType || 'idle' });
                 if (request.statusType === 'success' || request.statusType === 'error') {
                     setIsProcessing(false);
                     if (fillTimeoutRef.current) clearTimeout(fillTimeoutRef.current);
@@ -286,39 +324,18 @@ export function useSidebarState() {
 
     useEffect(() => {
         const handler = (e: KeyboardEvent) => {
-            if (e.altKey && (e.key === 'a' || e.key === 'A')) { e.preventDefault(); setIsOpen(p => !p); }
-        };
-        document.addEventListener('keydown', handler);
-        return () => document.removeEventListener('keydown', handler);
-    }, []);
+            const isCtrlShiftE = (e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'e' || e.key === 'E');
+            const isAltShortcut = e.altKey && (e.key === 'e' || e.key === 'E' || e.key === 'a' || e.key === 'A' || e.key === 't' || e.key === 'T');
+            const isAltShift = e.altKey && e.shiftKey && (e.key === 'e' || e.key === 'E' || e.key === 'a' || e.key === 'A' || e.key === 's' || e.key === 'S');
 
-    // Global Error Catching
-    useEffect(() => {
-        const handleGlobalError = (event: ErrorEvent) => {
-            if (event.message === 'ResizeObserver loop limit exceeded' || event.message === 'ResizeObserver loop completed with undelivered notifications.') return;
-            if (event.message.includes('Extension context invalidated')) return;
-
-            console.error('Aullevo Global Error Caught:', event.error);
-            setFillStatus({ message: `Whoops! Extension error: ${event.message}`, type: 'error' });
-            setIsProcessing(false);
-        };
-
-        const handlePromiseRejection = (event: PromiseRejectionEvent) => {
-            console.error('Aullevo Unhandled Promise Rejection:', event.reason);
-            const msg = event.reason?.message || String(event.reason);
-            if (!msg.includes('Rate limit') && !msg.toLowerCase().includes('already running')) {
-                setFillStatus({ message: `Aullevo task failed: ${msg}`, type: 'error' });
+            if (isCtrlShiftE || isAltShortcut || isAltShift) {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsOpen(p => !p);
             }
-            setIsProcessing(false);
         };
-
-        window.addEventListener('error', handleGlobalError);
-        window.addEventListener('unhandledrejection', handlePromiseRejection);
-
-        return () => {
-            window.removeEventListener('error', handleGlobalError);
-            window.removeEventListener('unhandledrejection', handlePromiseRejection);
-        };
+        document.addEventListener('keydown', handler, true);
+        return () => document.removeEventListener('keydown', handler, true);
     }, []);
 
     const toggleSection = (key: string) => setOpenSections(p => ({ ...p, [key]: !p[key] }));
@@ -336,7 +353,7 @@ export function useSidebarState() {
                     setSaveMsg('Saved!');
                     setTimeout(() => setSaveMsg(''), 2000);
                 });
-            } catch (err: any) {
+            } catch (err: unknown) {
                 console.error("Save error:", err);
                 chrome.storage.local.set({ userData }, () => {
                     setSaveMsg('Saved (unencrypted fallback)!');
@@ -359,12 +376,26 @@ export function useSidebarState() {
     const addCustomField = () => {
         if (!newCFLabel.trim()) return;
         const cf: CustomField = { label: newCFLabel.trim(), value: newCFValue.trim(), context: newCFContext.trim() };
-        setUserData(p => ({ ...p, customFields: [...((p.customFields as CustomField[]) || []), cf] }));
+        setUserData(p => {
+            const updated = { ...p, customFields: [...((p.customFields as CustomField[]) || []), cf] };
+            if (typeof chrome !== 'undefined' && chrome?.storage) {
+                chrome.storage.local.set({ userData: updated });
+                storageService.saveProfile(activeProfile, updated as UserData).catch(() => {});
+            }
+            return updated;
+        });
         setNewCFLabel(''); setNewCFValue(''); setNewCFContext('');
     };
 
     const removeCustomField = (i: number) => {
-        setUserData(p => ({ ...p, customFields: ((p.customFields as CustomField[]) || []).filter((_, idx) => idx !== i) }));
+        setUserData(p => {
+            const updated = { ...p, customFields: ((p.customFields as CustomField[]) || []).filter((_, idx) => idx !== i) };
+            if (typeof chrome !== 'undefined' && chrome?.storage) {
+                chrome.storage.local.set({ userData: updated });
+                storageService.saveProfile(activeProfile, updated as UserData).catch(() => {});
+            }
+            return updated;
+        });
     };
 
     const addMemory = () => {
@@ -374,12 +405,26 @@ export function useSidebarState() {
         }
         if (!newMemTitle.trim() || !newMemContent.trim()) return;
         const memory: Memory = { id: Date.now().toString(), title: newMemTitle.trim(), content: newMemContent.trim() };
-        setUserData(p => ({ ...p, memories: [...((p.memories as Memory[]) || []), memory] }));
+        setUserData(p => {
+            const updated = { ...p, memories: [...((p.memories as Memory[]) || []), memory] };
+            if (typeof chrome !== 'undefined' && chrome?.storage) {
+                chrome.storage.local.set({ userData: updated });
+                storageService.saveProfile(activeProfile, updated as UserData).catch(() => {});
+            }
+            return updated;
+        });
         setNewMemTitle(''); setNewMemContent('');
     };
 
     const removeMemory = (id: string) => {
-        setUserData(p => ({ ...p, memories: ((p.memories as Memory[]) || []).filter(m => m.id !== id) }));
+        setUserData(p => {
+            const updated = { ...p, memories: ((p.memories as Memory[]) || []).filter(m => m.id !== id) };
+            if (typeof chrome !== 'undefined' && chrome?.storage) {
+                chrome.storage.local.set({ userData: updated });
+                storageService.saveProfile(activeProfile, updated as UserData).catch(() => {});
+            }
+            return updated;
+        });
     };
 
     const addLink = () => {
@@ -389,12 +434,26 @@ export function useSidebarState() {
         }
         if (!newLinkTitle.trim() || !newLinkUrl.trim()) return;
         const link: SavedLink = { id: Date.now().toString(), title: newLinkTitle.trim(), url: newLinkUrl.trim(), autoFill: newLinkAutoFill };
-        setUserData(p => ({ ...p, savedLinks: [...((p.savedLinks as SavedLink[]) || []), link] }));
+        setUserData(p => {
+            const updated = { ...p, savedLinks: [...((p.savedLinks as SavedLink[]) || []), link] };
+            if (typeof chrome !== 'undefined' && chrome?.storage) {
+                chrome.storage.local.set({ userData: updated });
+                storageService.saveProfile(activeProfile, updated as UserData).catch(() => {});
+            }
+            return updated;
+        });
         setNewLinkTitle(''); setNewLinkUrl(''); setNewLinkAutoFill(true);
     };
 
     const removeLink = (id: string) => {
-        setUserData(p => ({ ...p, savedLinks: ((p.savedLinks as SavedLink[]) || []).filter(l => l.id !== id) }));
+        setUserData(p => {
+            const updated = { ...p, savedLinks: ((p.savedLinks as SavedLink[]) || []).filter(l => l.id !== id) };
+            if (typeof chrome !== 'undefined' && chrome?.storage) {
+                chrome.storage.local.set({ userData: updated });
+                storageService.saveProfile(activeProfile, updated as UserData).catch(() => {});
+            }
+            return updated;
+        });
     };
 
     const triggerAutopilot = (url: string) => {
@@ -404,17 +463,35 @@ export function useSidebarState() {
         setIsOpen(false);
     };
 
-    const handleResumeUpload = async (e: ChangeEvent<HTMLInputElement>) => {
+    const handleSelectResumeFile = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
+        setPendingResumeFile(file);
+        setResumeConsent(false);
+        setResumeParseSuccess(false);
+        e.target.value = '';
+    };
+
+    const handleCancelResumeParse = () => {
+        setPendingResumeFile(null);
+        setResumeConsent(false);
+    };
+
+    const dismissParseSuccess = () => {
+        setResumeParseSuccess(false);
+    };
+
+    const handleConfirmResumeParse = async () => {
+        if (!pendingResumeFile) return;
         if (!apiKey) {
             setFillStatus({ message: 'Please add your Gemini API key in Settings first.', type: 'error' });
             setActiveTab('settings');
             return;
         }
+        const file = pendingResumeFile;
         setUploadedFile(file.name);
         setIsProcessing(true);
-        setFillStatus({ message: 'Parsing your resume with AI…', type: 'info' });
+        setFillStatus({ message: 'Extracting text and parsing with Gemini AI…', type: 'info' });
         try {
             geminiService.setApiKey(apiKey);
             const text = await resumeParser.parseFile(file);
@@ -431,11 +508,15 @@ export function useSidebarState() {
             };
             reader.readAsDataURL(file);
 
-            setFillStatus({ message: 'Resume parsed! Review your profile and save.', type: 'success' });
-            setActiveTab('profile');
-        } catch (err: any) {
-            setFillStatus({ message: err.message || 'Failed to parse resume.', type: 'error' });
-        } finally { setIsProcessing(false); }
+            setPendingResumeFile(null);
+            setResumeParseSuccess(true);
+            setFillStatus({ message: 'Resume parsed! Please review all fields in the Profile tab.', type: 'success' });
+        } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : String(err);
+            setFillStatus({ message: msg || 'Failed to parse resume.', type: 'error' });
+        } finally {
+            setIsProcessing(false);
+        }
     };
 
     const handleFill = async () => {
@@ -449,6 +530,12 @@ export function useSidebarState() {
             return;
         }
         setIsProcessing(true);
+
+        // Ensure current in-memory userData is persisted to storage before triggering fill
+        if (typeof chrome !== 'undefined' && chrome?.storage) {
+            chrome.storage.local.set({ userData });
+            storageService.saveProfile(activeProfile, userData as UserData).catch(() => {});
+        }
 
         const chatInput = findChatInputField();
         if (chatInput && matchingMode === 'ai') {
@@ -474,8 +561,9 @@ export function useSidebarState() {
                     setIsProcessing(false);
                 });
                 return;
-            } catch (err: any) {
-                setFillStatus({ message: err.message, type: 'error' });
+            } catch (err: unknown) {
+                const msg = err instanceof Error ? err.message : String(err);
+                setFillStatus({ message: msg, type: 'error' });
                 setIsProcessing(false);
                 return;
             }
@@ -485,11 +573,11 @@ export function useSidebarState() {
         fillTimeoutRef.current = setTimeout(() => {
             setIsProcessing(false);
             setFillStatus({ message: 'Filling safety timeout. Try again or switch to Keyword mode.', type: 'error' });
-        }, 35000);
+        }, 90000);
 
         setFillStatus({ message: matchingMode === 'heuristic' ? 'Matching fields by keyword…' : 'Scanning form fields…', type: 'scanning' });
         try {
-            chrome.runtime.sendMessage({ action: 'triggerFillFromSidebar' }, (response) => {
+            chrome.runtime.sendMessage({ action: 'triggerFillFromSidebar', data: { userData } }, (response) => {
                 if (chrome.runtime?.lastError) {
                     console.warn('Aullevo: Extension context error (safe to ignore)', chrome.runtime.lastError);
                     setFillStatus({ message: 'Extension reloaded. Please refresh the page.', type: 'error' });
@@ -505,10 +593,22 @@ export function useSidebarState() {
                     if (fillTimeoutRef.current) clearTimeout(fillTimeoutRef.current);
                 }
             });
-        } catch (err: any) {
-            setFillStatus({ message: err.message, type: 'error' });
+        } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : String(err);
+            setFillStatus({ message: msg, type: 'error' });
             setIsProcessing(false);
             if (fillTimeoutRef.current) clearTimeout(fillTimeoutRef.current);
+        }
+    };
+
+    const setTypingDelayMs = (ms: number) => {
+        const validMs = Math.max(0, Math.min(1000, Number(ms) || 0));
+        setTypingDelayMsState(validMs);
+        if (typeof chrome !== 'undefined' && chrome?.storage) {
+            chrome.storage.local.set({
+                typingDelayMs: validMs,
+                stealthMode: validMs > 0,
+            });
         }
     };
 
@@ -520,14 +620,24 @@ export function useSidebarState() {
         fillStatus, setFillStatus,
         isProcessing, matchingMode, setMatchingMode,
         isPro, autoSubmit, setAutoSubmit,
+        typingDelayMs, setTypingDelayMs,
         skillsInput, setSkillsInput,
         profiles, activeProfile, handleSwitchProfile,
         newProfileName, setNewProfileName,
+        newProfileType, setNewProfileType,
         showNewProfileInput, setShowNewProfileInput,
         handleCreateProfile, handleDeleteProfile,
         userData, setUserData, handleInput, handleSave,
         apiKey, setApiKey, handleSaveApiKey, saveMsg,
-        uploadedFile, handleResumeUpload, handleFill,
+        uploadedFile,
+        pendingResumeFile,
+        resumeConsent, setResumeConsent,
+        resumeParseSuccess, dismissParseSuccess,
+        handleResumeUpload: handleSelectResumeFile,
+        handleSelectResumeFile,
+        handleConfirmResumeParse,
+        handleCancelResumeParse,
+        handleFill,
         openSections, toggleSection,
         newCFLabel, setNewCFLabel,
         newCFValue, setNewCFValue,

@@ -8,6 +8,7 @@ export interface Memory {
   id: string;
   title: string;
   content: string;
+  createdAt?: string;
 }
 
 export interface SavedLink {
@@ -15,6 +16,7 @@ export interface SavedLink {
   title: string;
   url: string;
   autoFill: boolean;
+  createdAt?: string;
 }
 
 // User data structure
@@ -160,7 +162,8 @@ export interface ChromeMessage {
     | "triggerFillFromPopup"
     | "triggerFillFromSidebar"
     | "processFieldsAI"
-    | "openAutopilotLink";
+    | "openAutopilotLink"
+    | "showToast";
   data?: {
     fieldMappings?: FieldMapping[];
     userData?: Partial<UserData>;
@@ -170,6 +173,8 @@ export interface ChromeMessage {
   fields?: FormField[];
   tabUrl?: string; // Current URL for AI domain cache
   url?: string; // Used by urlChanged
+  message?: string;
+  type?: "info" | "success" | "error";
 }
 
 export interface ChromeResponse {
@@ -193,3 +198,51 @@ export interface Status {
   message: string;
   type: "info" | "success" | "error" | "";
 }
+
+/**
+ * Factory for creating an empty UserData template based on profile type.
+ */
+export const createEmptyUserData = (profileType: 'job' | 'medical' | 'survey' | 'custom' = 'job'): UserData => ({
+  profileType,
+  firstName: '',
+  lastName: '',
+  email: '',
+  phone: '',
+  address: '',
+  city: '',
+  state: '',
+  zipCode: '',
+  country: '',
+  linkedin: '',
+  portfolio: '',
+  github: '',
+  headline: '',
+  summary: '',
+  skills: [],
+  yearsOfExperience: '',
+  salaryExpectation: '',
+  noticePeriod: '',
+  workAuthorization: '',
+  dateOfBirth: '',
+  gender: '',
+  emergencyContactName: '',
+  emergencyContactRelationship: '',
+  emergencyContactPhone: '',
+  bloodType: '',
+  allergies: '',
+  medicalConditions: '',
+  medications: '',
+  insuranceProvider: '',
+  policyNumber: '',
+  occupation: '',
+  industry: '',
+  educationLevel: '',
+  maritalStatus: '',
+  customFields: [],
+  experience: [],
+  education: [],
+  memories: [],
+  savedLinks: [],
+});
+
+export { migrateCustomFields } from '../utils/customFields';

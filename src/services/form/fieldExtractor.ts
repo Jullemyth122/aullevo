@@ -209,22 +209,25 @@ export function extractFormFields(): FormField[] {
 
       if (!name) {
         const container = input.closest(
-          '.checkbox-group, .radio-group, fieldset, [role="group"], ' +
-            '[role="radiogroup"], [class*="checkbox"], [class*="radio"], ' +
-            '[class*="check-group"], [class*="radio-group"]',
+          '[role="radiogroup"], [role="group"], [role="listitem"], fieldset, [data-params], [jscontroller], [jsmodel], ' +
+            '[class*="check-group"], [class*="radio-group"], [class*="question" i]',
         ) as HTMLElement | null;
-        if (container?.id) {
+
+        if (container && container !== input) {
+          if (!container.id) {
+            container.id = `group_${index}`;
+          }
           name = container.id;
         } else {
-          const wrapper = input.closest(
-            "div, fieldset, section",
-          ) as HTMLElement;
-          if (wrapper) {
-            name = wrapper.id || `unnamed_group_${index}`;
-            if (!wrapper.id) wrapper.id = name;
+          const parent = input.parentElement;
+          if (parent && parent !== input && parent.tagName !== "BODY" && parent.tagName !== "FORM") {
+            if (!parent.id) parent.id = `group_${index}`;
+            name = parent.id;
+          } else {
+            name = input.id || `unnamed_group_${index}`;
+            if (!input.id) input.id = name;
           }
         }
-        if (!name) return;
       }
 
       let groupKey: string;
@@ -287,9 +290,7 @@ export function extractFormFields(): FormField[] {
         "on";
       const rawOptionLabel = findLabel(input, labelRects) || inputValue;
       const optionLabel =
-        matrixInfo.colHeader ||
-        matrixInfo.compoundLabel ||
-        rawOptionLabel;
+        matrixInfo.colHeader || matrixInfo.compoundLabel || rawOptionLabel;
       const group = groupMap.get(groupKey)!;
       group.options?.push({
         label: optionLabel,
@@ -363,9 +364,16 @@ export function extractFormFields(): FormField[] {
       ? (input.textContent || (input as HTMLInputElement).value || "").trim()
       : findLabel(input, labelRects);
 
-    if (matrixInfo.compoundLabel && matrixInfo.rowHeader && matrixInfo.colHeader) {
+    if (
+      matrixInfo.compoundLabel &&
+      matrixInfo.rowHeader &&
+      matrixInfo.colHeader
+    ) {
       resolvedLabel = matrixInfo.compoundLabel;
-    } else if (matrixInfo.colHeader && (!resolvedLabel || resolvedLabel.length < 2)) {
+    } else if (
+      matrixInfo.colHeader &&
+      (!resolvedLabel || resolvedLabel.length < 2)
+    ) {
       resolvedLabel = matrixInfo.colHeader;
     }
 

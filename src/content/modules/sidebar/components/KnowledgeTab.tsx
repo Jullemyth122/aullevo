@@ -1,29 +1,20 @@
 import { Save } from 'lucide-react';
-import type { UserData, Memory } from '../../../../types';
+import type { Memory } from '../../../../types';
+import { useSidebar } from '../SidebarContext';
 
-interface KnowledgeTabProps {
-    userData: Partial<UserData>;
-    newMemTitle: string;
-    setNewMemTitle: (title: string) => void;
-    newMemContent: string;
-    setNewMemContent: (content: string) => void;
-    addMemory: () => void;
-    removeMemory: (id: string) => void;
-    handleSave: () => void;
-    saveMsg: string;
-}
+export const KnowledgeTab = () => {
+    const {
+        userData,
+        newMemTitle,
+        setNewMemTitle,
+        newMemContent,
+        setNewMemContent,
+        addMemory,
+        removeMemory,
+        handleSave,
+        saveMsg,
+    } = useSidebar();
 
-export const KnowledgeTab = ({
-    userData,
-    newMemTitle,
-    setNewMemTitle,
-    newMemContent,
-    setNewMemContent,
-    addMemory,
-    removeMemory,
-    handleSave,
-    saveMsg,
-}: KnowledgeTabProps) => {
     const memories = (userData.memories as Memory[]) || [];
 
     return (
@@ -36,7 +27,7 @@ export const KnowledgeTab = ({
             {memories.length === 0 && (
                 <p className="av-cf-empty">No memories yet. Add your first memory below.</p>
             )}
-            {memories.map(m => (
+            {memories.map((m) => (
                 <div key={m.id} className="av-cf-card">
                     <div>
                         <div className="av-cf-card__label">{m.title}</div>
@@ -47,8 +38,8 @@ export const KnowledgeTab = ({
             ))}
 
             <div className="av-cf-form" style={{ marginTop: 10 }}>
-                <input className="av-input" placeholder="Title (e.g. Late Policy)" value={newMemTitle} onChange={e => setNewMemTitle(e.target.value)} />
-                <textarea className="av-input" placeholder="Content/Response text..." rows={3} value={newMemContent} onChange={e => setNewMemContent(e.target.value)} />
+                <input className="av-input" placeholder="Title (e.g. Late Policy)" value={newMemTitle} onChange={(e) => setNewMemTitle(e.target.value)} />
+                <textarea className="av-input" placeholder="Content/Response text..." rows={3} value={newMemContent} onChange={(e) => setNewMemContent(e.target.value)} />
                 <button className="av-save-btn" style={{ marginTop: 5 }} onClick={addMemory}>+ Add Memory</button>
             </div>
 

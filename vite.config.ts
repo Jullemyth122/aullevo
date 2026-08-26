@@ -60,6 +60,7 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
     build: {
+      modulePreload: false,
       outDir: 'dist',
       emptyOutDir: true,
       rollupOptions: {

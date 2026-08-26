@@ -1,25 +1,13 @@
 import { useState, useEffect, type ChangeEvent } from 'react';
-import { Upload, Save, Sparkles, Loader2, ChevronDown, Plus, Trash2, User, Link, Briefcase, PenTool, Database, Zap } from 'lucide-react';
+import { Save, Sparkles, Loader2, ChevronDown, Plus, Trash2, User, Link, Briefcase, PenTool, Database, Zap, ShieldAlert, FileText, CheckCircle2, X, UploadCloud } from 'lucide-react';
 import { geminiService } from '../services/geminiService';
 import { resumeParser } from '../services/resumeParser';
+import { storageService } from '../services/storageService';
 import type { UserData, CustomField, Status, ChromeResponse, Memory, SavedLink } from '../types';
 import './Popup.css';
 import { LogoA } from '../components/LogoA';
 
-/* ─── helpers ─── */
-
-function migrateCustomFields(raw: any): CustomField[] {
-    if (Array.isArray(raw)) return raw;
-    if (raw && typeof raw === 'object') {
-        // Old Record<string, string> → CustomField[]
-        return Object.entries(raw).map(([key, value]) => ({
-            label: key,
-            value: String(value),
-            context: '',
-        }));
-    }
-    return [];
-}
+import { migrateCustomFields } from '../types';
 
 /* ─── collapsible section component ─── */
 
@@ -122,6 +110,9 @@ function Popup() {
     const [isProcessing, setIsProcessing] = useState<boolean>(false);
     const [status, setStatus] = useState<Status>({ message: '', type: '' });
     const [uploadedFileName, setUploadedFileName] = useState<string>('');
+    const [pendingFile, setPendingFile] = useState<File | null>(null);
+    const [resumeConsent, setResumeConsent] = useState(false);
+    const [resumeParseSuccess, setResumeParseSuccess] = useState(false);
 
     const [apiKey, setApiKey] = useState<string>('');
     const [isPro, setIsPro] = useState<boolean>(false);
@@ -138,11 +129,15 @@ function Popup() {
     const [newLinkUrl, setNewLinkUrl] = useState('');
     const [newLinkAutoFill, setNewLinkAutoFill] = useState(true);
 
+    const customFields = (userData.customFields as CustomField[]) || [];
+    const memories = (userData.memories as Memory[]) || [];
+    const savedLinks = (userData.savedLinks as SavedLink[]) || [];
+
     useEffect(() => {
         if (typeof chrome !== 'undefined' && chrome?.storage) {
             chrome.storage.local.get(['userData', 'geminiApiKey', 'isPro'], (result) => {
                 if (result?.userData) {
-                    const loaded = result.userData as any;
+                    const loaded = result.userData as UserData;
                     // Migrate old customFields format
                     loaded.customFields = migrateCustomFields(loaded.customFields);
                     setUserData(loaded as Partial<UserData>);
@@ -156,7 +151,7 @@ function Popup() {
             });
 
             // Listen to live changes to local storage (e.g. options page sign-in)
-            const storageListener = (changes: any, areaName: string) => {
+            const storageListener = (changes: { [key: string]: chrome.storage.StorageChange }, areaName: string) => {
                 if (areaName === 'local' && changes.isPro !== undefined) {
                     setIsPro(!!changes.isPro.newValue);
                 }
@@ -172,77 +167,112 @@ function Popup() {
 
     const addCustomField = () => {
         if (!newCFLabel.trim()) return;
-        const newField: CustomField = {
-            label: newCFLabel.trim(),
-            value: newCFValue.trim(),
-            context: newCFContext.trim(),
-        };
-        setUserData(prev => ({
-            ...prev,
-            customFields: [...(prev.customFields as CustomField[] || []), newField]
-        }));
+        const updated = [...customFields, { label: newCFLabel.trim(), value: newCFValue.trim(), context: newCFContext.trim() }];
+        setUserData({ ...userData, customFields: updated });
         setNewCFLabel('');
         setNewCFValue('');
         setNewCFContext('');
+        if (typeof chrome !== 'undefined' && chrome?.storage) {
+            chrome.storage.local.set({ userData: { ...userData, customFields: updated } });
+        }
     };
 
     const removeCustomField = (index: number) => {
-        setUserData(prev => ({
-            ...prev,
-            customFields: (prev.customFields as CustomField[] || []).filter((_, i) => i !== index)
-        }));
+        const updated = customFields.filter((_, i) => i !== index);
+        setUserData({ ...userData, customFields: updated });
+        if (typeof chrome !== 'undefined' && chrome?.storage) {
+            chrome.storage.local.set({ userData: { ...userData, customFields: updated } });
+        }
     };
 
     /* ── Memories CRUD ── */
     const addMemory = () => {
-        if (!isPro && ((userData.memories as Memory[]) || []).length >= 2) {
+        if (!isPro && memories.length >= 2) {
             setStatus({ message: '🔒 Memories are limited to 2 on the Free tier. Please upgrade to Pro!', type: 'error' });
             return;
         }
         if (!newMemTitle.trim() || !newMemContent.trim()) return;
-        const memory: Memory = { id: Date.now().toString(), title: newMemTitle.trim(), content: newMemContent.trim() };
-        setUserData(prev => ({ ...prev, memories: [...((prev.memories as Memory[]) || []), memory] }));
+        const newMem: Memory = { id: `mem_${Date.now()}`, title: newMemTitle.trim(), content: newMemContent.trim(), createdAt: new Date().toISOString() };
+        const updated = [...memories, newMem];
+        setUserData({ ...userData, memories: updated });
         setNewMemTitle(''); setNewMemContent('');
+        if (typeof chrome !== 'undefined' && chrome?.storage) {
+            chrome.storage.local.set({ userData: { ...userData, memories: updated } });
+        }
     };
 
     const removeMemory = (id: string) => {
-        setUserData(prev => ({ ...prev, memories: ((prev.memories as Memory[]) || []).filter(m => m.id !== id) }));
+        const updated = memories.filter(m => m.id !== id);
+        setUserData({ ...userData, memories: updated });
+        if (typeof chrome !== 'undefined' && chrome?.storage) {
+            chrome.storage.local.set({ userData: { ...userData, memories: updated } });
+        }
     };
 
     /* ── Links CRUD ── */
     const addLink = () => {
-        if (!isPro && ((userData.savedLinks as SavedLink[]) || []).length >= 2) {
+        if (!isPro && savedLinks.length >= 2) {
             setStatus({ message: '🔒 Links are limited to 2 on the Free tier. Please upgrade to Pro!', type: 'error' });
             return;
         }
         if (!newLinkTitle.trim() || !newLinkUrl.trim()) return;
-        const link: SavedLink = { id: Date.now().toString(), title: newLinkTitle.trim(), url: newLinkUrl.trim(), autoFill: newLinkAutoFill };
-        setUserData(prev => ({ ...prev, savedLinks: [...((prev.savedLinks as SavedLink[]) || []), link] }));
+        const newLink: SavedLink = { id: `link_${Date.now()}`, title: newLinkTitle.trim(), url: newLinkUrl.trim(), autoFill: newLinkAutoFill, createdAt: new Date().toISOString() };
+        const updated = [...savedLinks, newLink];
+        setUserData({ ...userData, savedLinks: updated });
         setNewLinkTitle(''); setNewLinkUrl(''); setNewLinkAutoFill(true);
-    };
-
-    const removeLink = (id: string) => {
-        setUserData(prev => ({ ...prev, savedLinks: ((prev.savedLinks as SavedLink[]) || []).filter(l => l.id !== id) }));
-    };
-
-    const triggerAutopilot = (url: string) => {
-        if (typeof chrome !== 'undefined') {
-            chrome.runtime.sendMessage({ action: 'openAutopilotLink', url });
+        if (typeof chrome !== 'undefined' && chrome?.storage) {
+            chrome.storage.local.set({ userData: { ...userData, savedLinks: updated } });
         }
     };
 
-    /* ── Resume Upload ── */
+    const removeLink = (id: string) => {
+        const updated = savedLinks.filter(l => l.id !== id);
+        setUserData({ ...userData, savedLinks: updated });
+        if (typeof chrome !== 'undefined' && chrome?.storage) {
+            chrome.storage.local.set({ userData: { ...userData, savedLinks: updated } });
+        }
+    };
 
-    const handleResumeUpload = async (e: ChangeEvent<HTMLInputElement>) => {
+    const triggerAutopilot = (url: string) => {
+        if (typeof chrome !== 'undefined' && chrome?.tabs) {
+            chrome.tabs.create({ url }, (tab) => {
+                if (tab.id) {
+                    chrome.runtime.sendMessage({ action: 'openAutopilotLink', url, tabId: tab.id });
+                }
+            });
+        }
+    };
+
+    /* ── Resume Upload Handlers ── */
+
+    const handleSelectFile = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
+        setPendingFile(file);
+        setResumeConsent(false);
+        setResumeParseSuccess(false);
+        e.target.value = '';
+    };
 
+    const handleCancelFile = () => {
+        setPendingFile(null);
+        setResumeConsent(false);
+    };
+
+    const dismissParseSuccess = () => {
+        setResumeParseSuccess(false);
+    };
+
+    const handleConfirmFile = async () => {
+        if (!pendingFile) return;
+        const file = pendingFile;
         setUploadedFileName(file.name);
         setIsProcessing(true);
-        setStatus({ message: '🤖 Gemini AI is parsing your resume...', type: 'info' });
+        setStatus({ message: 'Extracting text and parsing with Gemini AI...', type: 'info' });
 
         try {
-            if (!apiKey && !(import.meta as any).env.VITE_GEMINI_API_KEY) {
+            const metaEnv = (import.meta as unknown as { env?: { VITE_GEMINI_API_KEY?: string } }).env;
+            if (!apiKey && !metaEnv?.VITE_GEMINI_API_KEY) {
                 throw new Error("Please set your Gemini API Key in Settings first.");
             }
 
@@ -254,18 +284,20 @@ function Popup() {
             const parsedData = await geminiService.parseResume(resumeText);
 
             const newData = { ...userData, ...parsedData };
-            // Preserve existing custom fields
             newData.customFields = userData.customFields || [];
             setUserData(newData);
 
-            setStatus({ message: '✅ Resume parsed successfully by Gemini!', type: 'success' });
+            setPendingFile(null);
+            setResumeParseSuccess(true);
+            setStatus({ message: 'Resume parsed successfully! Review your fields below.', type: 'success' });
 
             if (typeof chrome !== 'undefined' && chrome?.storage) {
                 chrome.storage.local.set({ userData: newData });
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const msg = error instanceof Error ? error.message : String(error);
             console.error(error);
-            setStatus({ message: `❌ ${error.message || 'Error parsing resume'}`, type: 'error' });
+            setStatus({ message: msg || 'Error parsing resume', type: 'error' });
         } finally {
             setIsProcessing(false);
         }
@@ -280,7 +312,13 @@ function Popup() {
 
     /* ── Save ── */
 
-    const handleSave = () => {
+    const handleSave = async () => {
+        try {
+            const activeName = await storageService.getActiveProfileName();
+            await storageService.saveProfile(activeName, userData as UserData);
+        } catch (e) {
+            console.warn('storageService save fallback:', e);
+        }
         if (typeof chrome !== 'undefined' && chrome?.storage) {
             chrome.storage.local.set({ userData }, () => {
                 setStatus({ message: '💾 Data saved!', type: 'success' });
@@ -336,7 +374,7 @@ function Popup() {
 
                     // Handle Array Mapping
                     if (mapping.groupType && typeof mapping.groupIndex === 'number' && mapping.action !== 'click_add') {
-                        let arraySource: any[] = [];
+                        let arraySource: unknown[] = [];
                         if (mapping.groupType === 'experience') arraySource = userData.experience || [];
                         if (mapping.groupType === 'education') arraySource = userData.education || [];
                         if (mapping.groupType === 'project') arraySource = userData.portfolio ? JSON.parse(JSON.stringify(userData.portfolio)) : [];
@@ -345,8 +383,9 @@ function Popup() {
                         const item = arraySource[mapping.groupIndex];
                         if (item) {
                             if (typeof item === 'object' && item !== null) {
-                                if (mapping.fieldType in item) {
-                                    mapping.selectedValue = (item as any)[mapping.fieldType];
+                                const rec = item as Record<string, unknown>;
+                                if (mapping.fieldType in rec) {
+                                    mapping.selectedValue = String(rec[mapping.fieldType] ?? '');
                                 }
                             } else if (mapping.groupType === 'skill') {
                                 mapping.selectedValue = String(item);
@@ -413,14 +452,15 @@ function Popup() {
                 setIsProcessing(false);
                 setStatus({ message: '✨ Form filling complete!', type: 'success' });
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const msg = error instanceof Error ? error.message : String(error);
             console.error(error);
-            setStatus({ message: `❌ Error: ${error.message}`, type: 'error' });
+            setStatus({ message: `❌ Error: ${msg}`, type: 'error' });
             setIsProcessing(false);
         }
     };
 
-    const sendMessagePromise = (tabId: number, message: any): Promise<ChromeResponse> => {
+    const sendMessagePromise = (tabId: number, message: unknown): Promise<ChromeResponse> => {
         return new Promise((resolve) => {
             chrome.tabs.sendMessage(tabId, message, (response) => {
                 if (chrome.runtime.lastError) {
@@ -438,6 +478,19 @@ function Popup() {
             setStatus({ message: '🔒 Gemini AI matching is a Pro feature. Please upgrade!', type: 'error' });
             return;
         }
+
+        const hasBasicData = Boolean(
+            userData.firstName || userData.lastName || userData.email || userData.phone ||
+            (userData.experience && userData.experience.length > 0) ||
+            (userData.education && userData.education.length > 0) ||
+            (userData.customFields && userData.customFields.length > 0) ||
+            (userData.memories && userData.memories.length > 0)
+        );
+        if (!hasBasicData) {
+            setStatus({ message: '⚠️ Your profile is empty! Please fill in your basic info or upload a resume first.', type: 'error' });
+            return;
+        }
+
         setIsProcessing(true);
         setStatus({ message: '🤖 Starting AI Form Filler...', type: 'info' });
 
@@ -448,7 +501,8 @@ function Popup() {
         }
 
         try {
-            if (!apiKey && !(import.meta as any).env.VITE_GEMINI_API_KEY) {
+            const metaEnv = (import.meta as unknown as { env?: { VITE_GEMINI_API_KEY?: string } }).env;
+            if (!apiKey && !metaEnv?.VITE_GEMINI_API_KEY) {
                 throw new Error("Please set your Gemini API Key in Settings first.");
             }
 
@@ -458,9 +512,10 @@ function Popup() {
             if (!tab.id) throw new Error("No active tab found");
 
             processFormStep(tab.id, 0);
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const msg = error instanceof Error ? error.message : String(error);
             console.error(error);
-            setStatus({ message: `❌ ${error.message || 'Error filling form'}`, type: 'error' });
+            setStatus({ message: `❌ ${msg || 'Error filling form'}`, type: 'error' });
             setIsProcessing(false);
         }
     };
@@ -477,8 +532,6 @@ function Popup() {
     /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
        RENDER
        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-
-    const customFields = (userData.customFields as CustomField[]) || [];
 
     return (
         <div className="popup-container">
@@ -514,19 +567,128 @@ function Popup() {
                 <>
                     <p className="tagline">AI-Powered Form Filler by Gemini</p>
 
-                    {/* Upload */}
-                    <div className="upload-section">
-                        <label className="upload-btn">
-                            <Upload size={16} />
-                            {uploadedFileName || 'Upload Resume (PDF/DOCX)'}
-                            <input
-                                type="file"
-                                accept=".pdf,.docx,.doc,.txt"
-                                onChange={handleResumeUpload}
-                                disabled={isProcessing}
-                                hidden
-                            />
-                        </label>
+                    {/* First-time Onboarding Banner */}
+                    {!userData.firstName && !userData.email && (
+                        <div style={{
+                            margin: '10px 0 14px 0',
+                            padding: '10px 12px',
+                            borderRadius: '8px',
+                            background: 'rgba(99, 102, 241, 0.12)',
+                            border: '1px solid rgba(99, 102, 241, 0.3)',
+                            fontSize: '12px',
+                            lineHeight: '1.45',
+                            color: '#c7d2fe',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px'
+                        }}>
+                            <Sparkles size={16} style={{ color: '#818cf8', flexShrink: 0 }} />
+                            <span><strong>First time using Aullevo?</strong> Fill in your basic information below or upload your resume above to start auto-filling forms!</span>
+                        </div>
+                    )}
+
+                    {/* AI Parsing File Upload with Privacy Warning & Staged Confirmation */}
+                    <div className="ai-parse-box">
+                        <div className="ai-parse-box-header">
+                            <span className="ai-parse-badge">
+                                <Sparkles size={10} /> AI Parser
+                            </span>
+                            <span className="ai-parse-title">AI Parsing File Upload</span>
+                        </div>
+                        <p className="ai-parse-desc">
+                            Auto-extract details into profile fields using Gemini AI.
+                        </p>
+
+                        {pendingFile ? (
+                            /* Staged Confirmation Checker */
+                            <div className="popup-staged-box">
+                                <div className="popup-staged-file">
+                                    <FileText size={14} style={{ color: 'var(--accent-secondary)' }} />
+                                    <span>{pendingFile.name} ({(pendingFile.size / 1024).toFixed(1)} KB)</span>
+                                </div>
+
+                                <label className="popup-confirm-check">
+                                    <input
+                                        type="checkbox"
+                                        checked={resumeConsent}
+                                        onChange={e => setResumeConsent(e.target.checked)}
+                                        disabled={isProcessing}
+                                    />
+                                    <span>I confirm this is my document and authorize AI text extraction.</span>
+                                </label>
+
+                                <div className="popup-disclaimer">
+                                    <ShieldAlert size={12} style={{ color: '#F59E0B', flexShrink: 0, marginTop: 1 }} />
+                                    <span>
+                                        <strong>Caution:</strong> Text is processed via your Gemini API key. Aullevo operates client-side and is not liable for document content or AI outputs. Always verify extracted fields.
+                                    </span>
+                                </div>
+
+                                <div className="popup-staged-actions">
+                                    <button
+                                        type="button"
+                                        className="popup-btn popup-btn-primary"
+                                        disabled={!resumeConsent || isProcessing}
+                                        onClick={handleConfirmFile}
+                                    >
+                                        {isProcessing ? (
+                                            <>
+                                                <Loader2 size={12} className="spinning" />
+                                                Processing…
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Sparkles size={12} />
+                                                Confirm &amp; Process
+                                            </>
+                                        )}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="popup-btn popup-btn-sec"
+                                        onClick={handleCancelFile}
+                                        disabled={isProcessing}
+                                    >
+                                        <X size={12} />
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            /* Initial Upload Button */
+                            <>
+                                <label className="upload-btn">
+                                    <UploadCloud size={14} />
+                                    {uploadedFileName ? uploadedFileName : 'Upload Resume / Document (PDF/DOCX)'}
+                                    <input
+                                        type="file"
+                                        accept=".pdf,.docx,.doc,.txt"
+                                        onChange={handleSelectFile}
+                                        disabled={isProcessing}
+                                        hidden
+                                    />
+                                </label>
+                                <div className="ai-privacy-notice">
+                                    <ShieldAlert size={13} className="ai-privacy-icon" />
+                                    <span>
+                                        <strong>Notice:</strong> Document text is sent to Gemini AI to extract profile data. Use only for non-sensitive data.
+                                    </span>
+                                </div>
+                            </>
+                        )}
+
+                        {resumeParseSuccess && (
+                            <div className="popup-success-banner">
+                                <CheckCircle2 size={14} style={{ color: 'var(--success)', flexShrink: 0, marginTop: 1 }} />
+                                <div style={{ flex: 1 }}>
+                                    <strong style={{ color: 'var(--success)', display: 'block', marginBottom: 2 }}>Parsing Complete</strong>
+                                    <span>Please verify all extracted fields below before auto-filling forms.</span>
+                                </div>
+                                <button type="button" onClick={dismissParseSuccess} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 0 }}>
+                                    <X size={12} />
+                                </button>
+                            </div>
+                        )}
                     </div>
 
                     {/* ── SECTION: Personal Info ── */}
@@ -706,8 +868,8 @@ function Popup() {
                                 </p>
                             )}
                             {((userData.savedLinks as SavedLink[]) || []).map((l) => (
-                                <div key={l.id} className="custom-field-item" style={{display: 'flex', flexDirection: 'column'}}>
-                                    <div style={{display: 'flex', justifyContent: 'space-between', width: '100%'}}>
+                                <div key={l.id} className="custom-field-item" style={{ display: 'flex', flexDirection: 'column' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                                         <div className="custom-field-info">
                                             <div className="custom-field-label">{l.title}</div>
                                             <div className="custom-field-context">{l.url}</div>
@@ -716,8 +878,8 @@ function Popup() {
                                             <Trash2 size={14} />
                                         </button>
                                     </div>
-                                    <button className="save-btn small" style={{marginTop: 5, background: 'var(--av-surface)', color: 'var(--av-primary)'}} onClick={() => triggerAutopilot(l.url)}>
-                                        <Sparkles size={12} style={{marginRight: 5}}/> Open & Autofill
+                                    <button className="save-btn small" style={{ marginTop: 5, background: 'var(--av-surface)', color: 'var(--av-primary)' }} onClick={() => triggerAutopilot(l.url)}>
+                                        <Sparkles size={12} style={{ marginRight: 5 }} /> Open & Autofill
                                     </button>
                                 </div>
                             ))}

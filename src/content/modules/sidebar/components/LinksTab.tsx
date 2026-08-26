@@ -1,31 +1,21 @@
 import { Save, Sparkles } from 'lucide-react';
-import type { UserData, SavedLink } from '../../../../types';
+import type { SavedLink } from '../../../../types';
+import { useSidebar } from '../SidebarContext';
 
-interface LinksTabProps {
-    userData: Partial<UserData>;
-    newLinkTitle: string;
-    setNewLinkTitle: (title: string) => void;
-    newLinkUrl: string;
-    setNewLinkUrl: (url: string) => void;
-    addLink: () => void;
-    removeLink: (id: string) => void;
-    triggerAutopilot: (url: string) => void;
-    handleSave: () => void;
-    saveMsg: string;
-}
+export const LinksTab = () => {
+    const {
+        userData,
+        newLinkTitle,
+        setNewLinkTitle,
+        newLinkUrl,
+        setNewLinkUrl,
+        addLink,
+        removeLink,
+        triggerAutopilot,
+        handleSave,
+        saveMsg,
+    } = useSidebar();
 
-export const LinksTab = ({
-    userData,
-    newLinkTitle,
-    setNewLinkTitle,
-    newLinkUrl,
-    setNewLinkUrl,
-    addLink,
-    removeLink,
-    triggerAutopilot,
-    handleSave,
-    saveMsg,
-}: LinksTabProps) => {
     const links = (userData.savedLinks as SavedLink[]) || [];
 
     return (
@@ -38,7 +28,7 @@ export const LinksTab = ({
             {links.length === 0 && (
                 <p className="av-cf-empty">No quick links saved yet.</p>
             )}
-            {links.map(l => (
+            {links.map((l) => (
                 <div key={l.id} className="av-cf-card" style={{ display: 'flex', flexDirection: 'column' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div>
@@ -54,8 +44,8 @@ export const LinksTab = ({
             ))}
 
             <div className="av-cf-form" style={{ marginTop: 10 }}>
-                <input className="av-input" placeholder="Title (e.g. Daily Check-in)" value={newLinkTitle} onChange={e => setNewLinkTitle(e.target.value)} />
-                <input className="av-input" type="url" placeholder="https://example.com/form" value={newLinkUrl} onChange={e => setNewLinkUrl(e.target.value)} />
+                <input className="av-input" placeholder="Title (e.g. Daily Check-in)" value={newLinkTitle} onChange={(e) => setNewLinkTitle(e.target.value)} />
+                <input className="av-input" type="url" placeholder="https://example.com/form" value={newLinkUrl} onChange={(e) => setNewLinkUrl(e.target.value)} />
                 <button className="av-save-btn" style={{ marginTop: 5 }} onClick={addLink}>+ Add Link</button>
             </div>
 

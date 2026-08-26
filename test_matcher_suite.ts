@@ -14,18 +14,22 @@ function setupDom(html: string) {
     pretendToBeVisual: true,
   });
 
-  (global as any).window = dom.window;
-  (global as any).document = dom.window.document;
-  (global as any).HTMLElement = dom.window.HTMLElement;
-  (global as any).HTMLInputElement = dom.window.HTMLInputElement;
-  (global as any).HTMLSelectElement = dom.window.HTMLSelectElement;
-  (global as any).HTMLTextAreaElement = dom.window.HTMLTextAreaElement;
-  (global as any).Event = dom.window.Event;
-  (global as any).PointerEvent =
-    (dom.window as any).PointerEvent || dom.window.MouseEvent;
-  (global as any).MouseEvent = dom.window.MouseEvent;
-  (global as any).KeyboardEvent = dom.window.KeyboardEvent;
-  (global as any).chrome = {
+  const g = globalThis as unknown as Record<string, unknown>;
+  g.window = dom.window;
+  g.document = dom.window.document;
+  g.HTMLElement = dom.window.HTMLElement;
+  g.HTMLInputElement = dom.window.HTMLInputElement;
+  g.HTMLSelectElement = dom.window.HTMLSelectElement;
+  g.HTMLTextAreaElement = dom.window.HTMLTextAreaElement;
+  g.HTMLButtonElement = dom.window.HTMLButtonElement;
+  g.Event = dom.window.Event;
+  g.InputEvent = dom.window.InputEvent || dom.window.Event;
+  const domWin = dom.window as unknown as Record<string, unknown>;
+  g.PointerEvent = domWin.PointerEvent || dom.window.MouseEvent;
+  g.MouseEvent = dom.window.MouseEvent;
+  g.KeyboardEvent = dom.window.KeyboardEvent;
+  g.FocusEvent = domWin.FocusEvent || dom.window.UIEvent || dom.window.Event;
+  g.chrome = {
     storage: {
       local: {
         get: async () => ({ stealthMode: false, autoSubmit: false }),
@@ -61,10 +65,12 @@ async function runTests() {
     <html>
     <body>
       <form id="app-form">
-        <div class="field"><label for="f_last">Last Name</label><input id="f_last" type="text" /></div>
-        <div class="field"><label for="f_first">First Name</label><input id="f_first" type="text" /></div>
-        <div class="field"><label for="f_addr">Present Address</label><input id="f_addr" type="text" /></div>
-        <div class="field"><label for="f_phone">Phone No.</label><input id="f_phone" type="text" /></div>
+        <div class="section-title">Personal Information</div>
+        <div class="field"><label for="f_last">LAST NAME</label><input id="f_last" type="text" /></div>
+        <div class="field"><label for="f_first">FIRST NAME</label><input id="f_first" type="text" /></div>
+        <div class="field"><label for="f_middle">MIDDLE</label><input id="f_middle" type="text" /></div>
+        <div class="field"><label for="f_addr">PRESENT ADDRESS</label><input id="f_addr" type="text" /></div>
+        <div class="field"><label for="f_phone">PHONE NO.</label><input id="f_phone" type="text" /></div>
 
         <div class="section-title">Availability</div>
         <table border="1" id="avail-table">
@@ -100,6 +106,29 @@ async function runTests() {
               <td><input id="avail_fri_to" type="text" /></td>
               <td><input id="avail_sat_to" type="text" /></td>
               <td><input id="avail_sun_to" type="text" /></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="section-title">Employment Background</div>
+        <p>List your present or last position first.</p>
+        <table border="1" id="emp-table">
+          <thead>
+            <tr>
+              <th>From / To</th>
+              <th>Company Name</th>
+              <th>Supervisor</th>
+              <th>Your Position</th>
+              <th>Reason for Leaving</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input id="emp_1_dates" type="text" /></td>
+              <td><input id="emp_1_company" type="text" /></td>
+              <td><input id="emp_1_supervisor" type="text" /></td>
+              <td><input id="emp_1_position" type="text" /></td>
+              <td><input id="emp_1_reason" type="text" /></td>
             </tr>
           </tbody>
         </table>
@@ -225,8 +254,29 @@ async function runTests() {
     document.getElementById("avail_tue_from") as HTMLInputElement
   ).value;
 
+  const domMiddle = (document.getElementById("f_middle") as HTMLInputElement)
+    .value;
+  const domEmpDates = (
+    document.getElementById("emp_1_dates") as HTMLInputElement
+  ).value;
+  const domEmpCompany = (
+    document.getElementById("emp_1_company") as HTMLInputElement
+  ).value;
+
   assert(domLast === "Vicentillo", `DOM f_last value is "Vicentillo"`);
-  assert(domFirst === "Julle Myth", `DOM f_first value is "Julle Myth"`);
+  assert(
+    domFirst === "Julle Myth",
+    `DOM f_first value is "Julle Myth" (not Vicentillo)`,
+  );
+  assert(domMiddle === "", `DOM f_middle is empty (no bleed from Last Name)`);
+  assert(
+    domEmpDates === "",
+    `DOM emp_1_dates is empty (no bleed from First Name)`,
+  );
+  assert(
+    domEmpCompany === "",
+    `DOM emp_1_company is empty (no bleed from First Name)`,
+  );
   assert(
     domMonFrom === "8am",
     `DOM avail_mon_from value is "8am" (got "${domMonFrom}")`,
@@ -540,8 +590,366 @@ async function runTests() {
     "Tue Morning checkbox unchecked",
   );
 
+  // =========================================================================
+  // Test 5: Real Google Forms DOM (Salutation Radio Group & Residential Address Input)
+  // =========================================================================
   console.log(
-    "\n🎉 ALL REAL-DOM 2D MATRIX & FORMANALYZER TESTS PASSED WITH 100% SUCCESS! 🚀\n",
+    "\n--- Test 5: Real Google Forms HTML (Salutation Radio & Residential Address) ---",
+  );
+
+  const googleFormsHtml = `
+    <!DOCTYPE html>
+    <html>
+    <body>
+      <form id="google-form">
+        <!-- Question 1: Salutation (for official documents) -->
+        <div class="Qr70ae" role="listitem">
+          <div jsmodel="CP1oW" data-params="%.@.[32844792,&quot;Salutation (for official documents)&quot;,null,2,[[1175070719,[[&quot;Mr.&quot;,null,null,null,false],[&quot;Ms.&quot;,null,null,null,false]],true]],&quot;i11&quot;,&quot;i12&quot;,&quot;i13&quot;,false,&quot;i14&quot;]">
+            <div jscontroller="sWGJ4b" class="geS5n">
+              <div role="heading" id="i11" class="M7eMe">Salutation (for official documents) *</div>
+              <div role="radiogroup" aria-labelledby="i11" class="SGdaJf">
+                <div class="docssharedwizToggleLabeledContainer">
+                  <div id="radio_mr" class="bz0duf" role="radio" aria-checked="false" aria-label="Mr." data-value="Mr." tabindex="0"></div>
+                  <div class="aDTYNe"><span class="M7eMe">Mr.</span></div>
+                </div>
+                <div class="docssharedwizToggleLabeledContainer">
+                  <div id="radio_ms" class="bz0duf" role="radio" aria-checked="false" aria-label="Ms." data-value="Ms." tabindex="0"></div>
+                  <div class="aDTYNe"><span class="M7eMe">Ms.</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question 2: Residential Address -->
+        <div class="Qr70ae" role="listitem">
+          <div jsmodel="CP1oW" data-params="%.@.[1722618097,&quot;Residential Address&quot;,&quot;Please enter your complete address&quot;,1,[[474404801,null,true]],&quot;i22&quot;,&quot;i23&quot;,&quot;i24&quot;,false,&quot;i25&quot;]">
+            <div class="geS5n">
+              <div role="heading" id="i22" class="M7eMe">Residential Address *</div>
+              <div id="i23" class="description">Please enter your complete address, using proper capitalization</div>
+              <input id="input_address" type="text" class="whsOnd zHQkBf" jsname="YPqjbf" autocomplete="off" tabindex="0" aria-labelledby="i22" aria-describedby="i23 i24" data-initial-value="" />
+            </div>
+          </div>
+        </div>
+      </form>
+    </body>
+    </html>
+  `;
+
+  setupDom(googleFormsHtml);
+
+  const gfFields = extractFormFields();
+  assert(
+    gfFields.length >= 2,
+    `Extracted ${gfFields.length} fields from Google Forms DOM`,
+  );
+
+  const salutationField = gfFields.find((f) =>
+    f.label.toLowerCase().includes("salutation"),
+  );
+  assert(
+    !!salutationField,
+    `Found Salutation field: "${salutationField?.label}"`,
+  );
+  assert(
+    salutationField?.type === "radio_group",
+    `Salutation field type is "radio_group" (got "${salutationField?.type}")`,
+  );
+  assert(
+    (salutationField?.options || []).length === 2,
+    `Salutation has 2 radio options (got ${salutationField?.options?.length})`,
+  );
+
+  const addressField = gfFields.find((f) =>
+    f.label.toLowerCase().includes("residential address"),
+  );
+  assert(
+    !!addressField,
+    `Found Residential Address field: "${addressField?.label}"`,
+  );
+
+  const gfCustomFields: CustomField[] = [
+    {
+      label: "Salutation",
+      value: "Mr",
+      context: "Salutation",
+    },
+    {
+      label: "Residential Address",
+      value: "PMS Bldg Unit 17 Brgy 186 Tala Caloocan City",
+      context: "Residential Address",
+    },
+  ];
+
+  const gfUserData: Partial<UserData> = {
+    profileType: "custom",
+    customFields: gfCustomFields,
+  };
+
+  const gfMappings = matchFieldsHeuristically(
+    gfFields,
+    gfCustomFields,
+    gfUserData,
+  );
+  await resolveFieldValues(
+    gfMappings,
+    gfFields,
+    gfUserData,
+    gfCustomFields,
+    [],
+    false,
+  );
+
+  for (const m of gfMappings) {
+    if (m.selectedValue !== undefined) {
+      await fillFormField(m, m.selectedValue);
+    }
+  }
+
+  const mrRadio = document.getElementById("radio_mr");
+  const msRadio = document.getElementById("radio_ms");
+  const addrInput = document.getElementById(
+    "input_address",
+  ) as HTMLInputElement;
+
+  assert(
+    mrRadio?.getAttribute("aria-checked") === "true" ||
+      mrRadio?.classList.contains("selected"),
+    'Google Forms "Mr." radio selected',
+  );
+  assert(
+    msRadio?.getAttribute("aria-checked") === "false",
+    'Google Forms "Ms." radio not selected',
+  );
+  assert(
+    addrInput.value === "PMS Bldg Unit 17 Brgy 186 Tala Caloocan City",
+    `Google Forms address input filled (got "${addrInput.value}")`,
+  );
+
+  // Test 5b: Long Prompt Pasted into Custom Field Label
+  const gfLongPromptCustomFields: CustomField[] = [
+    {
+      label:
+        'Residential Address * Please enter your complete address, using proper capitalization (e.g., "Blk 12, Lot 5, Phase 2, Sunrise Homes, Antipolo City")',
+      value: "PMS Bldg Unit 17 Tala Caloocan",
+      context:
+        'Residential Address * Please enter your complete address, using proper capitalization (e.g., "Blk 12, Lot 5, Phase 2, Sunrise Homes, Antipolo City")',
+    },
+  ];
+
+  const gfLongPromptMappings = matchFieldsHeuristically(
+    gfFields,
+    gfLongPromptCustomFields,
+    { profileType: "custom", customFields: gfLongPromptCustomFields },
+  );
+  await resolveFieldValues(
+    gfLongPromptMappings,
+    gfFields,
+    { profileType: "custom", customFields: gfLongPromptCustomFields },
+    gfLongPromptCustomFields,
+    [],
+    false,
+  );
+
+  const addressMappingLong = gfLongPromptMappings.find(
+    (m) => (m.id || m.fieldId) === "input_address",
+  );
+  assert(
+    addressMappingLong?.selectedValue === "PMS Bldg Unit 17 Tala Caloocan",
+    `Long prompt custom field resolved value correctly (got "${addressMappingLong?.selectedValue}")`,
+  );
+
+  // =========================================================================
+  // Test 6: Multi-Column Table Layout Without 'for' Attributes (Personal Info Grid)
+  // =========================================================================
+  console.log("\n--- Test 6: Multi-Column Table Layout Without 'for' Attributes ---");
+
+  const tableFormHtml = `
+    <!DOCTYPE html>
+    <html>
+    <body>
+      <form id="table-app-form">
+        <table>
+          <tr>
+            <th>LAST NAME</th>
+            <th>FIRST NAME</th>
+            <th>MIDDLE</th>
+          </tr>
+          <tr>
+            <td><input id="tbl_last" type="text" /></td>
+            <td><input id="tbl_first" type="text" /></td>
+            <td><input id="tbl_middle" type="text" /></td>
+          </tr>
+          <tr>
+            <th colspan="2">PRESENT ADDRESS</th>
+            <th>PHONE NO.</th>
+          </tr>
+          <tr>
+            <td colspan="2"><input id="tbl_addr" type="text" /></td>
+            <td><input id="tbl_phone" type="text" placeholder="e.g. Phone Number" /></td>
+          </tr>
+        </table>
+      </form>
+    </body>
+    </html>
+  `;
+
+  setupDom(tableFormHtml);
+
+  const tblFields = extractFormFields();
+  assert(tblFields.length === 5, `Extracted 5 fields from table form (got ${tblFields.length})`);
+
+  const tblLastField = tblFields.find((f) => f.id === "tbl_last");
+  const tblFirstField = tblFields.find((f) => f.id === "tbl_first");
+  const tblMiddleField = tblFields.find((f) => f.id === "tbl_middle");
+  const tblAddrField = tblFields.find((f) => f.id === "tbl_addr");
+  const tblPhoneField = tblFields.find((f) => f.id === "tbl_phone");
+
+  assert(tblLastField?.label === "LAST NAME", `tbl_last label is "LAST NAME" (got "${tblLastField?.label}")`);
+  assert(tblFirstField?.label === "FIRST NAME", `tbl_first label is "FIRST NAME" (got "${tblFirstField?.label}")`);
+  assert(tblMiddleField?.label === "MIDDLE", `tbl_middle label is "MIDDLE" (got "${tblMiddleField?.label}")`);
+  assert(tblAddrField?.label === "PRESENT ADDRESS", `tbl_addr label is "PRESENT ADDRESS" (got "${tblAddrField?.label}")`);
+  assert(tblPhoneField?.label === "PHONE NO.", `tbl_phone label is "PHONE NO." (got "${tblPhoneField?.label}")`);
+
+  const tblCustomFields: CustomField[] = [
+    { label: "Last Name", value: "Vicentillo", context: "Last Name" },
+    { label: "First Name", value: "Julle Myth", context: "First Name" },
+    { label: "Phone", value: "09853047403", context: "Phone" },
+    { label: "Residential Address", value: "PMS BLDG Unit 17 Brgy 186 Tala Caloocan City", context: "Residential Address" },
+    { label: "Salutation", value: "Mr", context: "Salutation" },
+    { label: "Email", value: "mythicalxenon12@gmail.com", context: "Email" }
+  ];
+
+  const tblUserData: Partial<UserData> = {
+    profileType: "custom",
+    customFields: tblCustomFields,
+  };
+
+  const tblMappings = matchFieldsHeuristically(tblFields, tblCustomFields, tblUserData);
+  await resolveFieldValues(tblMappings, tblFields, tblUserData, tblCustomFields, [], false);
+
+  for (const m of tblMappings) {
+    if (m.selectedValue !== undefined) {
+      await fillFormField(m, m.selectedValue);
+    }
+  }
+
+  const domTblLast = (document.getElementById("tbl_last") as HTMLInputElement).value;
+  const domTblFirst = (document.getElementById("tbl_first") as HTMLInputElement).value;
+  const domTblMiddle = (document.getElementById("tbl_middle") as HTMLInputElement).value;
+  const domTblAddr = (document.getElementById("tbl_addr") as HTMLInputElement).value;
+  const domTblPhone = (document.getElementById("tbl_phone") as HTMLInputElement).value;
+
+  assert(domTblLast === "Vicentillo", `Table Last Name filled "Vicentillo" (got "${domTblLast}")`);
+  assert(domTblFirst === "Julle Myth", `Table First Name filled "Julle Myth" (got "${domTblFirst}")`);
+  assert(domTblMiddle === "", `Table Middle Name remains empty (no bleed from Last Name) (got "${domTblMiddle}")`);
+  assert(domTblAddr === "PMS BLDG Unit 17 Brgy 186 Tala Caloocan City", `Table Present Address filled correctly (got "${domTblAddr}")`);
+  assert(domTblPhone === "09853047403", `Table Phone Number filled "09853047403" (got "${domTblPhone}")`);
+
+  // =========================================================================
+  // Test 7: Real Google Forms Structure (Heading extraction, whsOnd, radios, paragraphs)
+  // =========================================================================
+  console.log("\n--- Test 7: Real Google Forms Container-First Injection ---");
+
+  const googleFormsInternHtml = `
+    <!DOCTYPE html>
+    <html>
+    <head><title>Intern Information Form</title></head>
+    <body>
+      <form>
+        <div class="Qr7Oae" role="listitem">
+          <div class="geS5n">
+            <div class="M7eMe" role="heading">First Name *</div>
+            <div class="AgroD">
+              <input type="text" class="whsOnd" name="entry.1001" id="gf_fname" />
+            </div>
+          </div>
+        </div>
+
+        <div class="Qr7Oae" role="listitem">
+          <div class="geS5n">
+            <div class="M7eMe" role="heading">Surname/Last Name *</div>
+            <div class="AgroD">
+              <input type="text" class="whsOnd" name="entry.1002" id="gf_lname" />
+            </div>
+          </div>
+        </div>
+
+        <div class="Qr7Oae" role="listitem">
+          <div class="geS5n">
+            <div class="M7eMe" role="heading">Salutation (for official docu</div>
+            <div class="radios-wrap">
+              <div class="docssharedWizToggleLabeledContainer">
+                <div role="radio" aria-checked="false" aria-label="Mr." id="gf_radio_mr"></div>
+                <span class="aDTYNe">Mr.</span>
+              </div>
+              <div class="docssharedWizToggleLabeledContainer">
+                <div role="radio" aria-checked="false" aria-label="Ms." id="gf_radio_ms"></div>
+                <span class="aDTYNe">Ms.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="Qr7Oae" role="listitem">
+          <div class="geS5n">
+            <div class="M7eMe" role="heading">Residential Address *</div>
+            <div class="AgroD">
+              <textarea class="KHxj8b" name="entry.1003" id="gf_addr"></textarea>
+            </div>
+          </div>
+        </div>
+      </form>
+    </body>
+    </html>
+  `;
+
+  setupDom(googleFormsInternHtml);
+
+  const gfInternFields = extractFormFields();
+  assert(gfInternFields.length >= 4, `Google Forms: Extracted at least 4 fields (got ${gfInternFields.length})`);
+
+  const gfFirstField = gfInternFields.find((f) => f.label.toLowerCase().includes("first name"));
+  const gfLastField = gfInternFields.find((f) => f.label.toLowerCase().includes("surname") || f.label.toLowerCase().includes("last name"));
+  const gfSalutationField = gfInternFields.find((f) => f.label.toLowerCase().includes("salutation"));
+  const gfAddrField = gfInternFields.find((f) => f.label.toLowerCase().includes("address"));
+
+  assert(!!gfFirstField, `Google Forms: Successfully extracted "First Name" field (label: "${gfFirstField?.label}")`);
+  assert(!!gfLastField, `Google Forms: Successfully extracted "Surname/Last Name" field (label: "${gfLastField?.label}")`);
+  assert(!!gfSalutationField, `Google Forms: Successfully extracted "Salutation" radio group (label: "${gfSalutationField?.label}")`);
+  assert(!!gfAddrField, `Google Forms: Successfully extracted "Residential Address" field (label: "${gfAddrField?.label}")`);
+
+  const gfInternUserData: Partial<UserData> = {
+    firstName: "Vicentillo",
+    lastName: "Nigga",
+    address: "Nigga What?",
+    customFields: [
+      { label: "Salutation", value: "Mr.", context: "Salutation" },
+      { label: "Residential Address", value: "Nigga What?", context: "Residential Address" }
+    ]
+  };
+
+  const gfInternMappings = matchFieldsHeuristically(gfInternFields, gfInternUserData.customFields, gfInternUserData);
+  await resolveFieldValues(gfInternMappings, gfInternFields, gfInternUserData, gfInternUserData.customFields, [], false);
+
+  for (const m of gfInternMappings) {
+    if (m.selectedValue !== undefined) {
+      await fillFormField(m, m.selectedValue);
+    }
+  }
+
+  const domGfFirst = (document.getElementById("gf_fname") as HTMLInputElement).value;
+  const domGfLast = (document.getElementById("gf_lname") as HTMLInputElement).value;
+  const domGfAddr = (document.getElementById("gf_addr") as HTMLTextAreaElement).value;
+  const domGfRadioMrChecked = document.getElementById("gf_radio_mr")?.getAttribute("aria-checked") === "true";
+
+  assert(domGfFirst === "Vicentillo", `Google Forms: First Name filled "Vicentillo" (got "${domGfFirst}")`);
+  assert(domGfLast === "Nigga", `Google Forms: Last Name filled "Nigga" (got "${domGfLast}")`);
+  assert(domGfAddr === "Nigga What?", `Google Forms: Address filled "Nigga What?" (got "${domGfAddr}")`);
+  assert(domGfRadioMrChecked, `Google Forms: Salutation Mr. radio selected (got aria-checked="${document.getElementById("gf_radio_mr")?.getAttribute("aria-checked")}")`);
+
+  console.log(
+    "\n🎉 ALL REAL-DOM 2D MATRIX, GOOGLE FORMS, & FORMANALYZER TESTS PASSED WITH 100% SUCCESS! 🚀\n",
   );
 }
 

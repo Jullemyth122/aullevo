@@ -19,7 +19,10 @@ class GeminiService {
   private generationConfig: GenerationConfig;
 
   constructor() {
-    this.apiKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || "";
+    const metaEnv = (
+      import.meta as unknown as { env?: { VITE_GEMINI_API_KEY?: string } }
+    ).env;
+    this.apiKey = metaEnv?.VITE_GEMINI_API_KEY || "";
     this.genAI = new GoogleGenAI({ apiKey: this.apiKey || "dummy_key" }); // Avoid crash on init if missing
 
     // Default generation config
@@ -57,16 +60,19 @@ class GeminiService {
     }
   }
 
-  private formatGeminiError(error: any): Error {
+  private formatGeminiError(error: unknown): Error {
+    const errObj = error as
+      | { message?: string; status?: number; code?: number }
+      | undefined;
     const rawMessage =
-      error?.message || (typeof error === "string" ? error : "");
+      errObj?.message || (typeof error === "string" ? error : "");
 
     // Check for leaked API key or PERMISSION_DENIED
     if (
       rawMessage.includes("leaked") ||
       rawMessage.includes("PERMISSION_DENIED") ||
-      error?.status === 403 ||
-      error?.code === 403
+      errObj?.status === 403 ||
+      errObj?.code === 403
     ) {
       return new Error(
         "Your Gemini API key was reported as leaked by Google. Please create a new key at Google AI Studio (aistudio.google.com) and update your extension settings.",
@@ -88,7 +94,7 @@ class GeminiService {
       try {
         const jsonStart = rawMessage.indexOf("{");
         const jsonStr = rawMessage.substring(jsonStart);
-        const parsed = JSON.parse(jsonStr);
+        const parsed = JSON.parse(jsonStr) as { error?: { message?: string } };
         if (parsed?.error?.message) {
           const msg = parsed.error.message;
           if (msg.includes("leaked")) {
@@ -106,7 +112,7 @@ class GeminiService {
           }
           return new Error(`Gemini API Error: ${msg}`);
         }
-      } catch (_) {
+      } catch {
         // Fallthrough if parsing fails
       }
     }
@@ -131,7 +137,7 @@ class GeminiService {
 
     // Exponential backoff retry — up to 3 attempts
     const MAX_RETRIES = 3;
-    let lastError: any;
+    let lastError: unknown;
 
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
       try {
@@ -151,10 +157,15 @@ class GeminiService {
           ),
         );
 
-        const result: any = await Promise.race([
+        const result = (await Promise.race([
           generatePromise,
           timeoutPromise,
-        ]);
+        ])) as {
+          candidates?: Array<{
+            content?: { parts?: Array<{ text?: string }> };
+          }>;
+          usageMetadata?: { totalTokenCount?: number };
+        };
 
         if (!result?.candidates?.[0]?.content) {
           throw new Error(`Empty/invalid response from Gemini`);
@@ -170,10 +181,13 @@ class GeminiService {
         );
 
         return responseText;
-      } catch (error: any) {
+      } catch (error: unknown) {
         lastError = error;
-        const status = error.status || error.code || 0;
-        const rawMessage = error.message || "";
+        const errObj = error as
+          | { message?: string; status?: number; code?: number }
+          | undefined;
+        const status = errObj?.status || errObj?.code || 0;
+        const rawMessage = errObj?.message || "";
 
         // Non-retryable errors: leaked key / 403 / permission denied / content blocked
         if (
@@ -187,7 +201,7 @@ class GeminiService {
           throw new Error("Content was blocked by safety filters.");
         }
         if (status === 400) {
-          throw new Error(`Bad request to Gemini: ${error.message}`);
+          throw new Error(`Bad request to Gemini: ${rawMessage}`);
         }
 
         // Retryable: 429 rate limit, 5xx server errors, or timeout
@@ -270,10 +284,10 @@ class GeminiService {
       );
       const jsonText = this.extractJSON(responseText);
       return JSON.parse(jsonText) as Partial<UserData>;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Gemini parsing error:", error);
       // Enhance error message to be visible to user
-      const msg = error.message || String(error);
+      const msg = error instanceof Error ? error.message : String(error);
       if (msg.includes("SyntaxError")) {
         throw new Error(
           `Failed to parse AI response. The resume might be too complex or malformed.`,
@@ -291,34 +305,43 @@ class GeminiService {
     customFields: CustomField[] = [],
   ): Promise<FieldMapping[]> {
     let customFieldsPrompt = "";
-    if (customFields.length > 0) {
-      const fieldList = customFields
+    const activeCustomFields = customFields.filter(
+      (cf) => cf.label?.trim() && (cf.value?.trim() || cf.context?.trim()),
+    );
+    if (activeCustomFields.length > 0) {
+      const fieldList = activeCustomFields
         .map(
           (cf, i) =>
-            `  ${i + 1}. "custom_field:${cf.label}" — Context: ${cf.context || "general use"}`,
+            `  ${i + 1}. "custom_field:${cf.label.trim()}" — Value: "${cf.value?.trim() || ""}" — Context: ${cf.context?.trim() || cf.label.trim()}`,
         )
         .join("\n");
-      customFieldsPrompt = `\n        - **Custom Fields**: The user has defined these custom fields. Use "custom_field:LABEL" when a form field matches:\n${fieldList}`;
+      customFieldsPrompt = `\n        - **Custom Fields**: The user has defined these custom fields. Use "custom_field:LABEL" when a form field or 2D matrix cell matches:\n${fieldList}`;
     }
 
     const prompt = `
         You are an expert at mapping HTML form fields to personal information types for job applications.
         You must be FLEXIBLE — form labels vary wildly between sites ("First Name" vs "Given Name" vs "fname" vs "Your Name").
-        Use ALL available clues: label, placeholder, name, ariaLabel, context, and section.
+        Use ALL available clues: label, placeholder, name, ariaLabel, context, section, rowHeader, colHeader, and compoundLabel.
 
         You will receive a JSON array of form fields. Each field contains:
         - id (unique identifier, or name for groups)
         - name, type, placeholder, label, ariaLabel
         - context (surrounding text/header, e.g. "Project 1", "Add Experience")
         - section (visual section name)
+        - rowHeader, colHeader, compoundLabel (for 2D Matrix / Table inputs)
         - options (for select fields, radio_group, and checkbox_group)
 
         Your task is to create a mapping plan to fill this form. 
         
+        **CRITICAL: 2D MATRIX & AVAILABILITY TABLES**
+        - **2D Matrix / Table Cells**: When a field has "rowHeader" and "colHeader" (e.g. rowHeader="From", colHeader="Mon", compoundLabel="From — Mon" or "Mon — From"):
+          Match it to the user's custom field that represents that row & column combination (e.g. "custom_field:Mon - From" or "custom_field:Mon - To").
+          Always set fieldType to "custom_field:EXACT_CUSTOM_FIELD_LABEL".
+        - **2D Matrix Rows**: If a checkbox/radio group label represents a specific row (e.g. "Interview Availability — Mon" or "Mon"), match it to the corresponding custom field (e.g. "custom_field:Mon").
+
         **CRITICAL: DYNAMIC SECTIONS & GROUPS**
         - **Radio Groups**: Type "radio_group". Map it to the correct "fieldType" (e.g. gender, custom_field).
         - **Checkbox Groups**: Type "checkbox_group". Map it to the correct "fieldType" (e.g. resumeUpload, custom_field).
-        - **2D Matrix Rows**: If a checkbox/radio group label or matrix header represents a specific row (e.g. "Interview Availability — Mon" or "Mon"), match it to the corresponding custom field (e.g. custom_field:Mon).
         - **Toggle/Switch**: Type "toggle". Map it to the correct "fieldType".
         - **Range Slider**: Type "range". Map it to the correct "fieldType".
         - **Repeater Groups**: Identify if fields belong to a repeated group (e.g. Experience #1, Project #2).
@@ -368,27 +391,35 @@ class GeminiService {
         - "id": EXACT id from input
         - "fieldType": one of the allowed types (or omit if action is click_add)
         - "confidence": 0.0 to 1.0
-        - "selectedValue": string OR string[] (for checkboxes)
-        - "originalQuestion": string (optional)
+        - "originalQuestion": string — ONLY for fieldType="custom_question". The raw question text so the AI can generate an answer.
         - "groupType": string (optional)
         - "groupIndex": number (optional, default 0)
         - "action": "fill" (default) or "click_add"
 
+        ⚠ DO NOT include "selectedValue" in your response. The extension resolves all values
+        from the user's saved profile automatically. Providing a "selectedValue" will cause
+        incorrect data to be written into fields (e.g. "[ERROR]", placeholders, guesses).
+
         Form fields:
         ${JSON.stringify(
           formFields.map((f) => {
-            const compact: Record<string, any> = { id: f.id };
-            if (f.name) compact.name = f.name;
-            if (f.type) compact.type = f.type;
-            if (f.placeholder) compact.placeholder = f.placeholder;
-            if (f.label) compact.label = f.label;
-            if (f.ariaLabel) compact.ariaLabel = f.ariaLabel;
-            if (f.context) compact.context = f.context;
-            if (f.section) compact.section = f.section;
-            if (f.options?.length) compact.options = f.options;
-            if (f.rowHeader) compact.rowHeader = f.rowHeader;
-            if (f.colHeader) compact.colHeader = f.colHeader;
-            if (f.compoundLabel) compact.compoundLabel = f.compoundLabel;
+            const compact: Record<string, unknown> = { id: f.id };
+            if (f.name?.trim()) compact.name = f.name.trim();
+            if (f.type?.trim()) compact.type = f.type.trim();
+            if (f.placeholder?.trim()) compact.placeholder = f.placeholder.trim();
+            if (f.label?.trim()) compact.label = f.label.trim();
+            if (f.ariaLabel?.trim()) compact.ariaLabel = f.ariaLabel.trim();
+            if (f.context?.trim()) compact.context = f.context.trim();
+            if (f.section?.trim()) compact.section = f.section.trim();
+            if (f.options && f.options.length > 0) {
+              compact.options = f.options.map((o) => ({
+                label: o.label?.trim() || "",
+                value: o.value?.trim() || "",
+              }));
+            }
+            if (f.rowHeader?.trim()) compact.rowHeader = f.rowHeader.trim();
+            if (f.colHeader?.trim()) compact.colHeader = f.colHeader.trim();
+            if (f.compoundLabel?.trim()) compact.compoundLabel = f.compoundLabel.trim();
             return compact;
           }),
           null,
@@ -403,14 +434,35 @@ class GeminiService {
       );
       const jsonText = this.extractJSON(responseText);
       const mappings = JSON.parse(jsonText) as FieldMapping[];
-      // Filter out low-confidence mappings (< 0.5) to avoid wrong fills
-      return mappings.filter((m) => (m.confidence ?? 1) >= 0.5);
-    } catch (error: any) {
-      console.warn("Gemini form analysis notice:", error.message || error);
+      // Filter out low-confidence mappings (< 0.5) to avoid wrong fills,
+      // then strip any AI-supplied selectedValue from non-custom_question fields.
+      // Rationale: Gemini's role is field CLASSIFICATION (fieldType), not value
+      // provision. fieldResolver.ts always reads values from userData. If Gemini
+      // guesses a selectedValue for a field it can't fill (e.g. an empty date or
+      // supervisor name), it generates placeholders like "[ERROR]" that then get
+      // written verbatim into the form. Stripping them here prevents that.
+      return mappings
+        .filter((m) => (m.confidence ?? 1) >= 0.5)
+        .map((m) => {
+          if (
+            m.fieldType !== "custom_question" &&
+            m.selectedValue !== undefined
+          ) {
+            const { selectedValue: _stripped, ...rest } = m as FieldMapping & {
+              selectedValue?: unknown;
+            };
+            void _stripped;
+            return rest as FieldMapping;
+          }
+          return m;
+        });
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : String(error);
+      console.warn("Gemini form analysis notice:", msg);
       // If we caught an error, bubble it up so the UI reflects that the AI actually crashed/failed
       // instead of silently pretending 0 fields were matched!
       throw new Error(
-        `AI processing failed: ${error.message || "The form could not be parsed"}`,
+        `AI processing failed: ${msg || "The form could not be parsed"}`,
       );
     }
   }
@@ -588,7 +640,7 @@ Return ONLY the cover letter text.
         .replace(/^```(?:json)?\s*/i, "")
         .replace(/\s*```$/i, "");
     }
-    const firstBracket = cleaned.search(/[\{\[]/);
+    const firstBracket = cleaned.search(/[{[]/);
     const lastBracket = Math.max(
       cleaned.lastIndexOf("}"),
       cleaned.lastIndexOf("]"),

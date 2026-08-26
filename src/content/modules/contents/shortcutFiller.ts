@@ -1,7 +1,9 @@
 import { showToast } from "./toastSystem";
 import {
   extractFormFields,
-  fillFormField,
+  computeStepFingerprint,
+  executeFormFillStep,
+  shouldAddNextGroupItem,
   clickNextButton,
   clickElement,
   detectPageCaptcha,
@@ -16,7 +18,23 @@ function sleep(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-function sendToBackground(message: any): Promise<any> {
+interface ChatAIResponse {
+  success?: boolean;
+  error?: string;
+  replyText?: string;
+}
+
+interface FieldAIResponse {
+  success?: boolean;
+  error?: string;
+  mappings?: FieldMapping[];
+  addButtons?: FieldMapping[];
+  userData?: Partial<UserData>;
+}
+
+type BackgroundResponse = ChatAIResponse | FieldAIResponse | { success?: boolean; error?: string };
+
+function sendToBackground<T extends BackgroundResponse = BackgroundResponse>(message: unknown): Promise<T> {
   return new Promise((resolve) => {
     chrome.runtime.sendMessage(message, (response) => {
       if (chrome.runtime.lastError) {
@@ -24,9 +42,9 @@ function sendToBackground(message: any): Promise<any> {
           "Aullevo content→background notice:",
           chrome.runtime.lastError.message,
         );
-        resolve({ success: false, error: chrome.runtime.lastError.message });
+        resolve({ success: false, error: chrome.runtime.lastError.message } as T);
       } else {
-        resolve(response);
+        resolve(response as T);
       }
     });
   });
@@ -60,7 +78,7 @@ export async function runShortcutFill() {
     showToast("✨ Constructing RAG response via Gemini...", "info", 3000);
 
     // Let the background script handle storage and Gemini
-    const aiResponse = await sendToBackground({
+    const aiResponse = await sendToBackground<ChatAIResponse>({
       action: "processChatAI",
       conversationHistory,
     });
@@ -130,7 +148,7 @@ export async function runShortcutFill() {
     );
 
     // Pass current tab URL so background can key the cache correctly
-    const aiResponse = await sendToBackground({
+    const aiResponse = await sendToBackground<FieldAIResponse>({
       action: "processFieldsAI",
       fields,
       tabUrl: location.href,
@@ -155,9 +173,7 @@ export async function runShortcutFill() {
     }
 
     // Loop safety / Fingerprint check
-    const currentFingerprint = JSON.stringify(
-      mappings.map((m) => ({ id: m.id, value: m.selectedValue })),
-    );
+    const currentFingerprint = computeStepFingerprint(mappings);
     if (fingerprintHistory.includes(currentFingerprint)) {
       showToast(
         "⚠️ Stuck step detected (same values in same fields). Stopping.",
@@ -168,16 +184,8 @@ export async function runShortcutFill() {
     }
     fingerprintHistory.push(currentFingerprint);
 
-    // Fill fields
-    let filledCount = 0;
-    for (const mapping of mappings) {
-      const value = mapping.selectedValue;
-      if (value) {
-        const success = await fillFormField(mapping, value);
-        if (success) filledCount++;
-      }
-    }
-
+    // Fill fields using the pipeline executor
+    const { filledCount } = await executeFormFillStep(mappings);
     totalFilled += filledCount;
 
     if (filledCount === 0) {
@@ -196,27 +204,15 @@ export async function runShortcutFill() {
     // Handle Add buttons
     let needsReAnalysis = false;
     for (const addMapping of addButtons) {
-      if (!addMapping.groupType || !addMapping.id) continue;
+      const { shouldAdd, groupType, buttonId } = shouldAddNextGroupItem(
+        addMapping,
+        mappings,
+        userData
+      );
 
-      const currentIndices = mappings
-        .filter(
-          (m) =>
-            m.groupType === addMapping.groupType &&
-            typeof m.groupIndex === "number",
-        )
-        .map((m) => m.groupIndex!);
-      const maxIndex =
-        currentIndices.length > 0 ? Math.max(...currentIndices) : -1;
-
-      let totalDataItems = 0;
-      if (addMapping.groupType === "experience")
-        totalDataItems = ((userData as any).experience || []).length;
-      if (addMapping.groupType === "education")
-        totalDataItems = ((userData as any).education || []).length;
-
-      if (totalDataItems > maxIndex + 1) {
-        showToast(`➕ Adding another ${addMapping.groupType}...`, "info");
-        clickElement(addMapping.id);
+      if (shouldAdd && buttonId) {
+        showToast(`➕ Adding another ${groupType}...`, "info");
+        clickElement(buttonId);
         await sleep(1500);
         needsReAnalysis = true;
         break;
@@ -251,25 +247,37 @@ export async function runShortcutFill() {
 let isRunning = false;
 
 export function initShortcutFiller() {
-  document.addEventListener("keydown", (e) => {
-    if (e.altKey && (e.key === "f" || e.key === "F")) {
-      e.preventDefault();
-      e.stopPropagation();
+  document.addEventListener(
+    "keydown",
+    (e) => {
+      const isCtrlShiftF =
+        (e.ctrlKey || e.metaKey) &&
+        e.shiftKey &&
+        (e.key === "f" || e.key === "F");
+      const isAltF = e.altKey && (e.key === "f" || e.key === "F");
+      const isAltShiftF =
+        e.altKey && e.shiftKey && (e.key === "f" || e.key === "F");
 
-      if (isRunning) {
-        showToast("⏳ Already running, please wait...", "info");
-        return;
+      if (isCtrlShiftF || isAltF || isAltShiftF) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (isRunning) {
+          showToast("⏳ Already running, please wait...", "info");
+          return;
+        }
+
+        isRunning = true;
+        runShortcutFill()
+          .catch((err) => {
+            console.error("Aullevo shortcut error:", err);
+            showToast(`❌ Error: ${err.message}`, "error");
+          })
+          .finally(() => {
+            isRunning = false;
+          });
       }
-
-      isRunning = true;
-      runShortcutFill()
-        .catch((err) => {
-          console.error("Aullevo shortcut error:", err);
-          showToast(`❌ Error: ${err.message}`, "error");
-        })
-        .finally(() => {
-          isRunning = false;
-        });
-    }
-  });
+    },
+    true,
+  );
 }

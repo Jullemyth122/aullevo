@@ -48,7 +48,7 @@
 
 import { geminiService } from "../../services/geminiService";
 import { matchFieldsHeuristically } from "../../services/heuristicMatcher";
-import type { UserData, FormField, SavedFile } from "../../types";
+import type { UserData, FormField, SavedFile, FieldMapping } from "../../types";
 import {
   getActiveUserData,
   checkRateLimit,
@@ -67,6 +67,28 @@ import {
   invalidateCache,
 } from "./domainCache";
 import { resolveFieldValues } from "./fieldResolver";
+
+/**
+ * Checks if a user's profile has any data entered (personal info, experience, education, custom fields, etc.)
+ */
+export function isUserProfileEmpty(userData?: Partial<UserData>): boolean {
+  if (!userData) return true;
+  const hasName = Boolean(userData.firstName || userData.lastName || userData.fullName);
+  const hasContact = Boolean(userData.email || userData.phone);
+  const hasAddress = Boolean(userData.address || userData.city || userData.country);
+  const hasExp = Boolean(userData.experience && userData.experience.length > 0);
+  const hasEdu = Boolean(userData.education && userData.education.length > 0);
+  const hasCustom = Boolean(
+    userData.customFields &&
+      (Array.isArray(userData.customFields)
+        ? userData.customFields.length > 0
+        : Object.keys(userData.customFields).length > 0),
+  );
+  const hasMem = Boolean(userData.memories && userData.memories.length > 0);
+  const hasLinks = Boolean(userData.savedLinks && userData.savedLinks.length > 0);
+
+  return !(hasName || hasContact || hasAddress || hasExp || hasEdu || hasCustom || hasMem || hasLinks);
+}
 
 // processFieldsAI
 
@@ -104,8 +126,19 @@ export async function processFieldsAI(fields: FormField[], hostname = "") {
       "resumeFileName",
       "fileLibrary",
       "matchingMode",
+      "isPro",
     ]);
     const userData = await getActiveUserData();
+
+    // Check if user has an empty profile
+    if (isUserProfileEmpty(userData)) {
+      return {
+        success: false,
+        error:
+          "Your profile is empty! Click the Aullevo icon or press Ctrl+Shift+E to configure your profile details.",
+      };
+    }
+
     const apiKey = ((stored.geminiApiKey || "") as string).trim();
     const resumeFileData = stored.resumeFileData as string | undefined;
     const resumeFileName = stored.resumeFileName as string | undefined;
@@ -125,7 +158,7 @@ export async function processFieldsAI(fields: FormField[], hostname = "") {
     // Normalise custom fields format (old object shape → new array shape)
     const customFields = migrateCustomFields(userData.customFields);
 
-    let fieldMappings: any[] | null = null;
+    let fieldMappings: FieldMapping[] | null = null;
 
     if (useAI) {
       // ── AI Mode ──────────────────────────────────────────────────
@@ -145,46 +178,71 @@ export async function processFieldsAI(fields: FormField[], hostname = "") {
           error: "Please wait a moment before requesting another fill.",
         };
 
-      // Check domain cache before calling Gemini
+      // ── Split: 2D matrix cells are deterministic → heuristic (instant, perfect)
+      //          Only send non-matrix fields to Gemini to keep prompt small.
+      const matrixFields = fields.filter((f) => !!(f.rowHeader && f.colHeader));
+      const nonMatrixFields = fields.filter(
+        (f) => !(f.rowHeader && f.colHeader),
+      );
+      const matrixMappings: FieldMapping[] =
+        matrixFields.length > 0
+          ? matchFieldsHeuristically(matrixFields, customFields, userData)
+          : [];
+
+      if (matrixFields.length > 0) {
+        console.log(
+          `Aullevo: Bypassing AI for ${matrixFields.length} 2D-matrix cell(s) — using heuristic`,
+        );
+      }
+
+      // Check domain cache before calling Gemini (keyed on non-matrix fields only)
       // getCachedMappings() returns null on miss, expired TTL, or signature mismatch
-      const signature = buildFieldSignature(fields);
-      fieldMappings = hostname ? getCachedMappings(hostname, signature) : null;
+      const signature = buildFieldSignature(nonMatrixFields);
+      fieldMappings = hostname
+        ? await getCachedMappings(hostname, signature)
+        : null;
 
       if (!fieldMappings) {
         try {
-          // Call Gemini to map each field to a fieldType + confidence score
-          fieldMappings = await geminiService.analyzeFormFields(
-            fields,
-            customFields,
-          );
+          // Call Gemini only for non-matrix fields — much smaller prompt, no timeout risk
+          fieldMappings =
+            nonMatrixFields.length > 0
+              ? await geminiService.analyzeFormFields(
+                  nonMatrixFields,
+                  customFields,
+                )
+              : [];
+
           if (!fieldMappings || fieldMappings.length === 0) {
             console.warn(
               "Aullevo: AI returned 0 mappings, falling back to heuristic for",
-              fields.length,
-              "fields",
+              nonMatrixFields.length,
+              "non-matrix fields",
             );
-            // AI confused — heuristic is more reliable than empty mappings
             fieldMappings = matchFieldsHeuristically(
-              fields,
+              nonMatrixFields,
               customFields,
               userData,
             );
           } else if (hostname) {
             // Store successful AI result so next visit to this page is instant
-            setCachedMappings(hostname, signature, fieldMappings);
+            await setCachedMappings(hostname, signature, fieldMappings);
           }
-        } catch (aiErr: any) {
+        } catch (aiErr: unknown) {
           console.warn(
             "Aullevo: AI matching failed in processFieldsAI, falling back to heuristic:",
             aiErr,
           );
           fieldMappings = matchFieldsHeuristically(
-            fields,
+            nonMatrixFields,
             customFields,
             userData,
           );
         }
       }
+
+      // Merge: AI mappings + heuristic matrix mappings
+      fieldMappings = [...(fieldMappings ?? []), ...matrixMappings];
     } else {
       // ── Heuristic Mode ───────────────────────────────────────────
       // Keyword + label-based matching. Instant, no API calls.
@@ -193,14 +251,20 @@ export async function processFieldsAI(fields: FormField[], hostname = "") {
         `Aullevo: Using HEURISTIC matching for ${fields.length} fields`,
       );
       fieldMappings = matchFieldsHeuristically(fields, customFields, userData);
-      if (!fieldMappings || fieldMappings.length === 0) {
-        console.warn(
-          "Aullevo: Heuristic returned 0 mappings for",
-          fields.length,
-          "fields",
-        );
-        return { success: true, mappings: [], addButtons: [], userData };
-      }
+    }
+
+    if (!fieldMappings) fieldMappings = [];
+
+    // Ensure 100% coverage: supplement any fields unmapped by AI with heuristic matching
+    const mappedIds = new Set(fieldMappings.map((m) => m.id || m.fieldId));
+    const unmappedFields = fields.filter((f) => !mappedIds.has(f.id));
+    if (unmappedFields.length > 0) {
+      const fallbacks = matchFieldsHeuristically(
+        unmappedFields,
+        customFields,
+        userData,
+      );
+      fieldMappings.push(...fallbacks);
     }
 
     // Build the virtual file library:
@@ -236,10 +300,10 @@ export async function processFieldsAI(fields: FormField[], hostname = "") {
 
     // Separate "fill" instructions from "add-more-entries" button instructions
     const fillMappings = fieldMappings.filter(
-      (m: any) => m.action !== "click_add",
+      (m: FieldMapping) => m.action !== "click_add",
     );
     const addButtons = fieldMappings.filter(
-      (m: any) => m.action === "click_add",
+      (m: FieldMapping) => m.action === "click_add",
     );
 
     if (useAI && fillMappings.length === 0 && fields.length > 0) {
@@ -260,9 +324,9 @@ export async function processFieldsAI(fields: FormField[], hostname = "") {
       resumeFileData,
       resumeFileName,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Aullevo processFieldsAI error:", error);
-    const msg = error.message || String(error);
+    const msg = error instanceof Error ? error.message : String(error);
     // Surface friendly error messages for common API failure codes
     if (
       msg.includes("429") ||
@@ -357,7 +421,7 @@ export async function runAIFill() {
       stored.resumeFileData as string | undefined,
       stored.resumeFileName as string | undefined,
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Aullevo shortcut error:", error);
     showBadge("✗", "#f87171");
     setTimeout(clearBadge, 3000);
@@ -417,6 +481,24 @@ export async function processFormStep(
     return;
   }
 
+  // ── First-time check: guide user if profile is completely empty ──
+  if (step === 0 && isUserProfileEmpty(userData)) {
+    showBadge("!", "#eab308");
+    setTimeout(clearBadge, 4000);
+    sendSidebarStatus(
+      tabId,
+      "⚠️ Profile is empty! Click the Aullevo icon or press Ctrl+Shift+E to add your details.",
+      "info",
+    );
+    sendToTab(tabId, {
+      action: "showToast",
+      message:
+        "⚠️ Profile is empty! Click the Aullevo icon or press Ctrl+Shift+E to add your details.",
+      type: "error",
+    });
+    return;
+  }
+
   try {
     // ── Step 1: Scan
     // Ask the content script to analyse the current DOM and return all
@@ -462,7 +544,7 @@ export async function processFormStep(
       );
 
       const customFields = migrateCustomFields(userData.customFields);
-      let fieldMappings: any[] | null = null;
+      let fieldMappings: FieldMapping[] | null = null;
 
       if (useAI) {
         // AI Mode: validate key, try cache, call Gemini, cache result
@@ -479,45 +561,78 @@ export async function processFormStep(
         }
         geminiService.setApiKey(apiKey);
 
-        // Cache check: if this exact set of fields was seen before on this
-        // domain (within 10 minutes), use the cached mappings directly.
-        const signature = buildFieldSignature(fields);
-        fieldMappings = getCachedMappings(hostname, signature);
+        // ── Split: 2D matrix cells are deterministic → heuristic (instant, perfect)
+        //          Only send non-matrix fields to Gemini to keep prompt small.
+        const matrixFields = fields.filter(
+          (f) => !!(f.rowHeader && f.colHeader),
+        );
+        const nonMatrixFields = fields.filter(
+          (f) => !(f.rowHeader && f.colHeader),
+        );
+        const matrixMappings: FieldMapping[] =
+          matrixFields.length > 0
+            ? matchFieldsHeuristically(matrixFields, customFields, userData)
+            : [];
+
+        if (matrixFields.length > 0) {
+          console.log(
+            `Aullevo: Bypassing AI for ${matrixFields.length} 2D-matrix cell(s) — using heuristic`,
+          );
+          sendSidebarStatus(
+            tabId,
+            `Matching ${nonMatrixFields.length} field(s) with Gemini AI (+ ${matrixFields.length} table cell(s) via keyword)...`,
+            "scanning",
+          );
+        }
+
+        // Cache check keyed on non-matrix fields only
+        const signature = buildFieldSignature(nonMatrixFields);
+        fieldMappings = await getCachedMappings(hostname, signature);
         if (!fieldMappings) {
           try {
-            fieldMappings = await geminiService.analyzeFormFields(
-              fields,
-              customFields,
-            );
+            // Call Gemini only for non-matrix fields
+            fieldMappings =
+              nonMatrixFields.length > 0
+                ? await geminiService.analyzeFormFields(
+                    nonMatrixFields,
+                    customFields,
+                  )
+                : [];
+
             if (!fieldMappings || fieldMappings.length === 0) {
               console.warn(
                 "Aullevo: AI returned 0 mappings, falling back to keyword matching",
               );
               fieldMappings = matchFieldsHeuristically(
-                fields,
+                nonMatrixFields,
                 customFields,
                 userData,
               );
             } else if (hostname) {
-              setCachedMappings(hostname, signature, fieldMappings);
+              await setCachedMappings(hostname, signature, fieldMappings);
             }
-          } catch (aiErr: any) {
+          } catch (aiErr: unknown) {
+            const aiMsg =
+              aiErr instanceof Error ? aiErr.message : String(aiErr);
             console.warn(
               "Aullevo: AI matching failed, falling back to keyword matching:",
               aiErr,
             );
             sendSidebarStatus(
               tabId,
-              `AI matching notice: ${aiErr.message || "error"}. Using keyword matching fallback...`,
+              `AI matching notice: ${aiMsg || "error"}. Using keyword matching fallback...`,
               "info",
             );
             fieldMappings = matchFieldsHeuristically(
-              fields,
+              nonMatrixFields,
               customFields,
               userData,
             );
           }
         }
+
+        // Merge: AI mappings + heuristic matrix mappings
+        fieldMappings = [...(fieldMappings ?? []), ...matrixMappings];
       } else {
         // Heuristic Mode: keyword + label matching, no API calls
         fieldMappings = matchFieldsHeuristically(
@@ -526,7 +641,20 @@ export async function processFormStep(
           userData,
         );
       }
+
       if (!fieldMappings) fieldMappings = [];
+
+      // Ensure 100% coverage: supplement any fields unmapped by AI with heuristic matching
+      const mappedIds = new Set(fieldMappings.map((m) => m.id || m.fieldId));
+      const unmappedFields = fields.filter((f) => !mappedIds.has(f.id));
+      if (unmappedFields.length > 0) {
+        const fallbacks = matchFieldsHeuristically(
+          unmappedFields,
+          customFields,
+          userData,
+        );
+        fieldMappings.push(...fallbacks);
+      }
 
       // Build virtual library (saved files + legacy resume backup)
       const stored = await chrome.storage.local.get(["fileLibrary"]);
@@ -560,7 +688,7 @@ export async function processFormStep(
 
       // Split mappings into fill instructions vs. "Add row" button clicks
       const fillMappings = fieldMappings.filter(
-        (m: any) => m.action !== "click_add",
+        (m: FieldMapping) => m.action !== "click_add",
       );
 
       // ── Step 4: Fingerprint / Loop guard
@@ -568,10 +696,15 @@ export async function processFormStep(
       // it's stuck in a loop (e.g. "Next" didn't navigate away).
       // Compare a fingerprint of this step's fill intent against past steps.
       const currentFingerprint = JSON.stringify(
-        fillMappings.map((m: any) => ({ id: m.id, value: m.selectedValue })),
+        fillMappings.map((m: FieldMapping) => ({
+          id: m.id,
+          value: m.selectedValue,
+        })),
       );
       const sessionData = await chrome.storage.local.get(["autopilotSession"]);
-      const session = sessionData.autopilotSession as any;
+      const session = sessionData.autopilotSession as
+        | { fingerprints?: string[] }
+        | undefined;
       if (session) {
         const fingerprints = session.fingerprints || [];
         if (fingerprints.includes(currentFingerprint)) {
@@ -643,17 +776,17 @@ export async function processFormStep(
       // button, invalidate the cache (so new fields are detected), wait, then
       // recurse to fill the newly revealed row.
       const addButtons = fieldMappings.filter(
-        (m: any) => m.action === "click_add",
+        (m: FieldMapping) => m.action === "click_add",
       );
       for (const btn of addButtons) {
         if (!btn.groupType) continue;
         // How many rows of this type are currently mapped?
         const currentIndices = fieldMappings
           .filter(
-            (m: any) =>
+            (m: FieldMapping) =>
               m.groupType === btn.groupType && typeof m.groupIndex === "number",
           )
-          .map((m: any) => m.groupIndex!);
+          .map((m: FieldMapping) => m.groupIndex!);
         const maxIndex =
           currentIndices.length > 0 ? Math.max(...currentIndices) : -1;
         let totalDataItems = 0;
@@ -674,7 +807,7 @@ export async function processFormStep(
             data: { fieldMappings: [{ ...btn }] }, // Send only the add-button instruction
           });
           await sleep(1500); // Wait for the new row to appear in the DOM
-          invalidateCache(hostname); // Force re-scan: new fields are now visible
+          await invalidateCache(hostname); // Force re-scan: new fields are now visible
           needsReAnalysis = true; // Signal outer code to recurse
           break; // Only process one "Add" per step to avoid race conditions
         }
@@ -726,7 +859,7 @@ export async function processFormStep(
     sendSidebarStatus(tabId, "➡️ Moving to next step...", "info");
     const nextResponse = await sendToTab(tabId, { action: "clickNext" });
     if (nextResponse?.success) {
-      invalidateCache(hostname); // Next page will have different fields
+      await invalidateCache(hostname); // Next page will have different fields
       // Update autopilot session step counter
       const storedSess = await chrome.storage.local.get(["autopilotSession"]);
       if (storedSess.autopilotSession) {
@@ -755,15 +888,12 @@ export async function processFormStep(
         "success",
       );
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Aullevo fill step error:", error);
+    const msg = error instanceof Error ? error.message : String(error);
     showBadge("✗", "#f87171");
     setTimeout(clearBadge, 3000);
-    sendSidebarStatus(
-      tabId,
-      `Filling failed: ${error.message || error}`,
-      "error",
-    );
+    sendSidebarStatus(tabId, `Filling failed: ${msg}`, "error");
     chrome.storage.local.remove(["autopilotSession"]);
   }
 }

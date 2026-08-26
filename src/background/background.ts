@@ -40,12 +40,15 @@
  */
 
 import { geminiService } from "../services/geminiService";
+import { storageService } from "../services/storageService";
+import type { UserData } from "../types";
 import {
   getActiveUserData,
   getHostname,
   showBadge,
   clearBadge,
   sendSidebarStatus,
+  sendToTab,
 } from "./modules/backgroundUtils";
 import { domainCache } from "./modules/domainCache";
 import {
@@ -80,12 +83,14 @@ chrome.commands.onCommand.addListener(async (command) => {
       currentWindow: true,
     });
     if (tab?.id) {
-      chrome.tabs
-        .sendMessage(tab.id, { action: "toggleSidebar" })
-        .catch((err) => {
-          console.warn("Aullevo: Sidebar toggle failed", err);
-        });
+      sendToTab(tab.id, { action: "toggleSidebar" }).catch((err: unknown) => {
+        console.warn("Aullevo: Sidebar toggle failed", err);
+      });
     }
+  } else if (command === "trigger-ai-fill") {
+    runAIFill().catch((err: unknown) => {
+      console.warn("Aullevo: trigger-ai-fill failed", err);
+    });
   }
 });
 
@@ -140,10 +145,8 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   // Flow:
   //   1. Try to load by UID from Firestore "users" collection.
   //   2. If not Pro and email is known, search by email as a fallback.
-  //   3. Persist { isPro, userUid, userEmail, displayName, photoURL } locally.
-  //
-  // The double-lookup (uid → email) handles cases where the uid wasn't
-  // stored locally yet but the email was.
+  //   3. Validate proExpiresAt against current timestamp.
+  //   4. Persist { isPro, proExpiresAt, userUid, userEmail, displayName, photoURL } locally.
   if (request.action === "SYNC_WEB_USER" && (request.uid || request.email)) {
     (async () => {
       try {
@@ -151,9 +154,18 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
           await import("firebase/firestore");
         const { db } = await import("../config/firebase");
 
+        const checkSubscriptionActive = (data: any): boolean => {
+          if (!data || !data.isPro) return false;
+          if (data.proExpiresAt) {
+            return new Date(data.proExpiresAt).getTime() > Date.now();
+          }
+          return false;
+        };
+
         // Preserve existing local storage values if not explicitly provided in request
         const currentLocal = await chrome.storage.local.get([
           "isPro",
+          "proExpiresAt",
           "userUid",
           "userEmail",
           "displayName",
@@ -163,6 +175,10 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
           request.isPro !== undefined
             ? !!request.isPro
             : currentLocal.isPro || false;
+        let proExpiresAt =
+          request.proExpiresAt !== undefined
+            ? request.proExpiresAt
+            : currentLocal.proExpiresAt || null;
         let uid = request.uid || currentLocal.userUid;
         let email = request.email || currentLocal.userEmail || "";
         let displayName = request.displayName || currentLocal.displayName || "";
@@ -175,7 +191,8 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
             const userSnap = await getDoc(userRef);
             if (userSnap.exists()) {
               const data = userSnap.data();
-              isPro = !!data.isPro;
+              isPro = checkSubscriptionActive(data);
+              proExpiresAt = data.proExpiresAt || null;
               if (!email) email = data.email || "";
               if (!displayName) displayName = data.displayName || "";
               if (!photoURL) photoURL = data.photoURL || "";
@@ -200,12 +217,13 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
             const querySnap = await getDocs(q);
             querySnap.forEach((docSnap) => {
               const data = docSnap.data();
-              if (data.isPro) {
+              if (checkSubscriptionActive(data)) {
                 isPro = true;
-                if (!uid) uid = docSnap.id;
-                if (!displayName) displayName = data.displayName || "";
-                if (!photoURL) photoURL = data.photoURL || "";
+                proExpiresAt = data.proExpiresAt || null;
               }
+              if (!uid) uid = docSnap.id;
+              if (!displayName && data.displayName) displayName = data.displayName;
+              if (!photoURL && data.photoURL) photoURL = data.photoURL;
             });
           } catch (err) {
             console.warn(
@@ -217,15 +235,25 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
           }
         }
 
+        // Check if proExpiresAt has passed
+        if (proExpiresAt && new Date(proExpiresAt).getTime() <= Date.now()) {
+          isPro = false;
+        }
+
         // Persist the final verified values to local storage
         await chrome.storage.local.set({
           isPro,
+          proExpiresAt,
           userUid: uid || null,
           userEmail: email,
           displayName,
           photoURL,
         });
-        sendResponse({ success: true, isPro });
+
+        // Switch storage service active account
+        await storageService.switchAccount(uid || email || "guest");
+
+        sendResponse({ success: true, isPro, proExpiresAt });
       } catch (e) {
         console.warn("Aullevo: SYNC_WEB_USER outer error", e);
         sendResponse({ success: false });
@@ -271,7 +299,7 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
           "resumeFileName",
           "autoSubmit",
         ]);
-        const userData = await getActiveUserData();
+        const userData = (request.data?.userData as UserData) || (await getActiveUserData());
         const autoSubmit = !!stored.autoSubmit;
 
         // Initialise or clear the autopilot session before starting
@@ -305,10 +333,11 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
         });
 
         sendResponse({ success: true }); // Immediately ACK the sidebar
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
         showBadge("✗", "#f87171");
         setTimeout(clearBadge, 3000);
-        sendResponse({ success: false, error: err.message });
+        sendResponse({ success: false, error: msg });
       }
     })();
     return true;
@@ -358,8 +387,9 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
         );
 
         sendResponse({ success: true, replyText });
-      } catch (err: any) {
-        sendResponse({ success: false, error: err.message });
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        sendResponse({ success: false, error: msg });
       }
     })();
     return true;
@@ -390,7 +420,7 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
       if (tab.id) {
         chrome.storage.local.set({
           autopilotSession: {
-            // tabId: tab.id,
+            tabId: tab.id,
             step: 0,
             hostname: getHostname(request.url || ""),
           },
@@ -425,7 +455,7 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.status === "complete") {
     chrome.storage.local.get(["autopilotSession"], (result) => {
-      const session = result.autopilotSession as any;
+      const session = result.autopilotSession as { tabId?: number; hostname?: string; step?: number } | undefined;
       if (session && session.tabId === tabId) {
         const currentHostname = getHostname(tab.url || "");
 
@@ -450,7 +480,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
             ]);
             const userData = await getActiveUserData();
 
-            const nextStep = session.step + 1;
+            const nextStep = (session.step ?? 0) + 1;
             if (nextStep > 30) {
               // Hard cap: stop if we've been through 30+ steps
               chrome.storage.local.remove(["autopilotSession"]);
@@ -469,7 +499,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
             await processFormStep(
               tabId,
               userData,
-              session.step,
+              nextStep,
               currentHostname,
               stored.resumeFileData as string | undefined,
               stored.resumeFileName as string | undefined,
@@ -499,10 +529,10 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
  * Without this, a cached AI result from the old profile/mode would be used
  * on the next fill, causing incorrect data to be entered.
  */
-chrome.storage.onChanged.addListener((changes, areaName) => {
+chrome.storage.onChanged.addListener(async (changes, areaName) => {
   if (areaName === "local") {
     if (changes.userData || changes.matchingMode || changes.geminiApiKey) {
-      domainCache.clear();
+      await domainCache.clear();
       console.log(
         "Aullevo: domainCache cleared due to configuration/profile change.",
       );

@@ -5,49 +5,164 @@ import { CJK_REGEX } from "./constants";
  * Dispatches standard focus, pointer, mouse, key, input, change, and blur events
  * on an input to ensure reactive state updates in frameworks like React, Vue, Angular.
  */
-export function triggerEvents(input: HTMLElement): void {
-  input.dispatchEvent(new Event("focus", { bubbles: true }));
+/**
+ * Dispatches standard focus, pointer, mouse, InputEvent, change, blur, and focusout events
+ * on an input to ensure reactive state updates in Google Forms, React, Vue, Angular, and Wiz/Closure.
+ */
+export function triggerEvents(input: HTMLElement, value?: string): void {
+  try {
+    input.focus();
+  } catch {
+    // Ignore focus error in headless/hidden DOM environments
+  }
+  try {
+    if (typeof FocusEvent !== "undefined") {
+      input.dispatchEvent(new FocusEvent("focus", { bubbles: true, composed: true }));
+      input.dispatchEvent(new FocusEvent("focusin", { bubbles: true, composed: true }));
+    } else {
+      input.dispatchEvent(new Event("focus", { bubbles: true, composed: true }));
+      input.dispatchEvent(new Event("focusin", { bubbles: true, composed: true }));
+    }
+  } catch {
+    // Ignore dispatch errors in test environment
+  }
 
-  // Pointer & Mouse events
-  input.dispatchEvent(
-    new PointerEvent("pointerdown", { bubbles: true, cancelable: true }),
-  );
-  input.dispatchEvent(
-    new MouseEvent("mousedown", { bubbles: true, cancelable: true }),
-  );
-  input.dispatchEvent(
-    new PointerEvent("pointerup", { bubbles: true, cancelable: true }),
-  );
-  input.dispatchEvent(
-    new MouseEvent("mouseup", { bubbles: true, cancelable: true }),
-  );
-  input.dispatchEvent(
-    new MouseEvent("click", { bubbles: true, cancelable: true }),
-  );
+  const isTextInput =
+    input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement;
+
+  // Only dispatch pointer and click events for custom non-text components (e.g. custom toggles/selects)
+  if (!isTextInput) {
+    input.dispatchEvent(
+      new PointerEvent("pointerdown", {
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+      }),
+    );
+    input.dispatchEvent(
+      new MouseEvent("mousedown", {
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+      }),
+    );
+    input.dispatchEvent(
+      new PointerEvent("pointerup", {
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+      }),
+    );
+    input.dispatchEvent(
+      new MouseEvent("mouseup", {
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+      }),
+    );
+    input.dispatchEvent(
+      new MouseEvent("click", {
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+      }),
+    );
+  }
 
   if (
     input instanceof HTMLInputElement ||
     input instanceof HTMLTextAreaElement
   ) {
-    const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-      Object.getPrototypeOf(input),
-      "value",
-    )?.set;
-    if (nativeInputValueSetter) {
-      nativeInputValueSetter.call(input, input.value);
-      input.dispatchEvent(new Event("input", { bubbles: true }));
-      input.dispatchEvent(new Event("change", { bubbles: true }));
+    const textValue = value !== undefined ? value : input.value;
+
+    const isTextArea =
+      input instanceof HTMLTextAreaElement || input.tagName === "TEXTAREA";
+    const prototype = isTextArea
+      ? (typeof window !== "undefined"
+          ? window.HTMLTextAreaElement?.prototype
+          : null) || Object.getPrototypeOf(input)
+      : (typeof window !== "undefined"
+          ? window.HTMLInputElement?.prototype
+          : null) || Object.getPrototypeOf(input);
+
+    const valueDescriptor =
+      Object.getOwnPropertyDescriptor(prototype, "value") ||
+      Object.getOwnPropertyDescriptor(Object.getPrototypeOf(input), "value");
+
+    if (valueDescriptor && valueDescriptor.set) {
+      valueDescriptor.set.call(input, textValue);
+    } else {
+      input.value = textValue;
+    }
+
+    // Dispatch full suite: keydown -> input -> keyup -> change -> blur
+    input.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        bubbles: true,
+        cancelable: true,
+        key: "a",
+      }),
+    );
+    input.dispatchEvent(new Event("input", { bubbles: true, composed: true }));
+    input.dispatchEvent(
+      new KeyboardEvent("keyup", {
+        bubbles: true,
+        cancelable: true,
+        key: "a",
+      }),
+    );
+    input.dispatchEvent(
+      new Event("change", { bubbles: true, composed: true }),
+    );
+
+    // 5. Dispatch blur and focusout
+    try {
+      if (typeof FocusEvent !== "undefined") {
+        input.dispatchEvent(
+          new FocusEvent("blur", { bubbles: true, composed: true }),
+        );
+        input.dispatchEvent(
+          new FocusEvent("focusout", { bubbles: true, composed: true }),
+        );
+      } else {
+        input.dispatchEvent(
+          new Event("blur", { bubbles: true, composed: true }),
+        );
+        input.dispatchEvent(
+          new Event("focusout", { bubbles: true, composed: true }),
+        );
+      }
+    } catch {
+      // Ignore dispatch errors in test environment
+    }
+    try {
+      input.blur();
+    } catch {
+      // Ignore blur errors in headless
+    }
+  } else {
+    input.dispatchEvent(new Event("input", { bubbles: true, composed: true }));
+    input.dispatchEvent(new Event("change", { bubbles: true, composed: true }));
+    try {
+      if (typeof FocusEvent !== "undefined") {
+        input.dispatchEvent(
+          new FocusEvent("blur", { bubbles: true, composed: true }),
+        );
+        input.dispatchEvent(
+          new FocusEvent("focusout", { bubbles: true, composed: true }),
+        );
+      } else {
+        input.dispatchEvent(
+          new Event("blur", { bubbles: true, composed: true }),
+        );
+        input.dispatchEvent(
+          new Event("focusout", { bubbles: true, composed: true }),
+        );
+      }
+    } catch {
+      // Ignore dispatch errors in test environment
     }
   }
-
-  input.dispatchEvent(
-    new KeyboardEvent("keydown", { bubbles: true, key: "a" }),
-  );
-  input.dispatchEvent(new KeyboardEvent("keyup", { bubbles: true, key: "a" }));
-
-  input.dispatchEvent(new Event("input", { bubbles: true }));
-  input.dispatchEvent(new Event("change", { bubbles: true }));
-  input.dispatchEvent(new Event("blur", { bubbles: true }));
 }
 
 /**
@@ -100,6 +215,7 @@ export async function humanTriggerEvents(input: HTMLElement): Promise<void> {
 export async function humanTypeValue(
   input: HTMLInputElement | HTMLTextAreaElement,
   value: string,
+  delayMs: number = 0,
 ): Promise<void> {
   const targetId = input.id;
   await humanTriggerEvents(input);
@@ -134,6 +250,13 @@ export async function humanTypeValue(
   for (let i = 0; i < value.length; i++) {
     const char = value[i];
     const isLastChar = i === value.length - 1;
+
+    // Optional delay between keystrokes to simulate human typing
+    if (delayMs > 0) {
+      const variance = Math.floor(Math.random() * 6) - 3;
+      const actualDelay = Math.max(2, delayMs + variance);
+      await new Promise((r) => setTimeout(r, actualDelay));
+    }
 
     // Re-bind element if React state update unmounted/replaced the DOM node
     if (!currentEl.isConnected && targetId) {
@@ -232,6 +355,7 @@ export async function humanTypeValue(
     currentEl.dispatchEvent(new Event("input", { bubbles: true }));
   }
 
-  currentEl.dispatchEvent(new Event("change", { bubbles: true }));
-  currentEl.dispatchEvent(new Event("blur", { bubbles: true }));
+  currentEl.dispatchEvent(new Event("change", { bubbles: true, composed: true }));
+  currentEl.dispatchEvent(new FocusEvent("blur", { bubbles: true, composed: true }));
+  currentEl.dispatchEvent(new FocusEvent("focusout", { bubbles: true, composed: true }));
 }

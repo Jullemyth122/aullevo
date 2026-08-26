@@ -136,6 +136,35 @@ export function findLabel(
   input: HTMLElement,
   labelRects?: LabelRectItem[],
 ): string {
+  // 0. Google Forms Question Card and Option Detection
+  const gfContainer = input.closest<HTMLElement>(
+    "div[role='listitem'], div.Qr7Oae, div.geS5n, div.m7Wjg"
+  );
+  if (gfContainer) {
+    const isOption =
+      input.getAttribute("role") === "radio" ||
+      input.getAttribute("role") === "checkbox" ||
+      (input instanceof HTMLInputElement &&
+        (input.type === "radio" || input.type === "checkbox"));
+    if (isOption) {
+      const optContainer = input.closest<HTMLElement>(
+        "label, .docssharedWizToggleLabeledContainer, div.bz0duf"
+      );
+      if (optContainer) {
+        const optText = cleanLabelText(optContainer.textContent || "");
+        if (optText && optText.length >= 1) return optText;
+      }
+    } else {
+      const headingEl = gfContainer.querySelector<HTMLElement>(
+        "div[role='heading'], span.M7eMe, div.M7eMe, div.HofdId, div.c2gGi, .HoFid"
+      );
+      if (headingEl && !headingEl.contains(input)) {
+        const text = cleanLabelText(headingEl.textContent || "");
+        if (text && text.length >= 2) return text;
+      }
+    }
+  }
+
   // 1. Direct ARIA attributes and title
   const ariaLabel = input.getAttribute("aria-label");
   if (ariaLabel) {
@@ -209,7 +238,10 @@ export function findLabel(
   // 3. Immediate and preceding siblings (highest local proximity)
   let prevSibling = input.previousElementSibling as HTMLElement | null;
   while (prevSibling) {
-    if (!prevSibling.matches("input, select, textarea, button, form")) {
+    if (
+      !prevSibling.matches("input, select, textarea, button, form") &&
+      !prevSibling.querySelector("input, select, textarea, button")
+    ) {
       const text = cleanLabelText(prevSibling.textContent || "");
       if (text && text.length >= 2 && text.length <= 100) {
         return text;
@@ -239,34 +271,89 @@ export function findLabel(
           return text;
         }
       }
-    }
 
-    // Check previous siblings of the container level
-    let prevContainerSib =
-      container.previousElementSibling as HTMLElement | null;
-    while (prevContainerSib) {
-      if (!prevContainerSib.matches("input, select, textarea, button, form")) {
-        const text = cleanLabelText(prevContainerSib.textContent || "");
-        if (text && text.length >= 2 && text.length <= 100) {
-          return text;
+      // Check previous siblings of the container level ONLY if it is not a multi-column row/table
+      let prevContainerSib =
+        container.previousElementSibling as HTMLElement | null;
+      while (prevContainerSib) {
+        if (
+          !prevContainerSib.matches(
+            "input, select, textarea, button, form, tr, table, thead, tbody",
+          ) &&
+          !prevContainerSib.querySelector("input, select, textarea, button")
+        ) {
+          const text = cleanLabelText(prevContainerSib.textContent || "");
+          if (text && text.length >= 2 && text.length <= 80) {
+            return text;
+          }
         }
+        prevContainerSib =
+          prevContainerSib.previousElementSibling as HTMLElement | null;
       }
-      prevContainerSib =
-        prevContainerSib.previousElementSibling as HTMLElement | null;
     }
 
     container = container.parentElement;
     depth++;
   }
 
-  // 5. Table cell previous header check
-  const cell = input.closest("td");
+  // 5. Table cell header check (Horizontal sibling or Vertical column header)
+  const cell = input.closest("td, th");
   if (cell) {
+    // 5a. Previous horizontal sibling cell (e.g. <td>Label:</td><td><input /></td>)
     const prevCell = cell.previousElementSibling;
-    if (prevCell && (prevCell.tagName === "TD" || prevCell.tagName === "TH")) {
-      if ((prevCell.textContent?.length || 0) < 50) {
+    if (
+      prevCell &&
+      (prevCell.tagName === "TD" || prevCell.tagName === "TH") &&
+      !prevCell.querySelector("input, select, textarea, button")
+    ) {
+      if ((prevCell.textContent?.length || 0) < 60) {
         const text = cleanLabelText(prevCell.textContent || "");
-        if (text) return text;
+        if (text && text.length >= 2) return text;
+      }
+    }
+
+    // 5b. Vertical column header in table (e.g. <tr><th>First Name</th>...</tr> <tr><td><input /></td>...</tr>)
+    const table = cell.closest("table");
+    const row = cell.closest("tr");
+    if (table && row) {
+      let cellColIndex = 0;
+      let sib = cell.previousElementSibling as HTMLElement | null;
+      while (sib) {
+        const colspan = parseInt(sib.getAttribute("colspan") || "1", 10);
+        cellColIndex += isNaN(colspan) ? 1 : colspan;
+        sib = sib.previousElementSibling as HTMLElement | null;
+      }
+
+      const allRows = Array.from(table.querySelectorAll<HTMLElement>("tr"));
+      const rowIndex = allRows.indexOf(row as HTMLTableRowElement);
+      if (rowIndex > 0) {
+        for (let r = rowIndex - 1; r >= 0; r--) {
+          const candidateRow = allRows[r];
+          if (!candidateRow.querySelector("input, select, textarea")) {
+            let currentCol = 0;
+            for (const child of Array.from(
+              candidateRow.children,
+            ) as HTMLElement[]) {
+              const colspan = parseInt(
+                child.getAttribute("colspan") || "1",
+                10,
+              );
+              const span = isNaN(colspan) ? 1 : colspan;
+              if (
+                currentCol <= cellColIndex &&
+                cellColIndex < currentCol + span
+              ) {
+                const text = cleanLabelText(child.textContent || "");
+                if (text && text.length >= 2 && text.length <= 80) {
+                  return text;
+                }
+                break;
+              }
+              currentCol += span;
+            }
+            break;
+          }
+        }
       }
     }
   }
@@ -344,12 +431,16 @@ export function getAxesText(
   inputRect?: DOMRect,
   labelRects?: LabelRectItem[],
 ): { rowText: string; colText: string } {
-  let rowLabels: string[] = [];
-  let colLabels: string[] = [];
+  const rowLabels: string[] = [];
+  const colLabels: string[] = [];
 
   // 1. Precise DOM Table & Grid Intersection
-  const cell = input.closest("td, th, [role='gridcell'], [role='cell']") as HTMLElement | null;
-  const table = input.closest("table, [role='grid'], [role='table']") as HTMLElement | null;
+  const cell = input.closest(
+    "td, th, [role='gridcell'], [role='cell']",
+  ) as HTMLElement | null;
+  const table = input.closest(
+    "table, [role='grid'], [role='table']",
+  ) as HTMLElement | null;
 
   if (cell && table) {
     const row = cell.closest("tr, [role='row']") as HTMLElement | null;
@@ -366,7 +457,9 @@ export function getAxesText(
       // Collect row text from preceding non-input cells in the same row
       let prevCell = cell.previousElementSibling as HTMLElement | null;
       while (prevCell) {
-        const hasInput = prevCell.querySelector("input, select, textarea, button");
+        const hasInput = prevCell.querySelector(
+          "input, select, textarea, button",
+        );
         const txt = prevCell.textContent?.trim();
         if (!hasInput && txt) {
           rowLabels.unshift(cleanLabelText(txt));
@@ -376,7 +469,9 @@ export function getAxesText(
 
       // If no sibling text found, check if first cell is explicit rowheader or <th>
       if (rowLabels.length === 0) {
-        const firstCell = row.querySelector("th, [role='rowheader'], [class*='row-header'], [class*='rowHeader']") as HTMLElement | null;
+        const firstCell = row.querySelector(
+          "th, [role='rowheader'], [class*='row-header'], [class*='rowHeader']",
+        ) as HTMLElement | null;
         if (firstCell && firstCell !== cell && !firstCell.contains(input)) {
           const txt = firstCell.textContent?.trim();
           if (txt) rowLabels.push(cleanLabelText(txt));
@@ -384,11 +479,21 @@ export function getAxesText(
       }
 
       // Find column header from candidate header rows
-      const theadRows = Array.from(table.querySelectorAll<HTMLElement>("thead tr"));
-      const allRows = Array.from(table.querySelectorAll<HTMLElement>("tr, [role='row']"));
-      const headerRows: HTMLElement[] = theadRows.length > 0
-        ? theadRows
-        : allRows.filter((r) => r !== row && !r.contains(input) && !r.querySelector("input, select, textarea"));
+      const theadRows = Array.from(
+        table.querySelectorAll<HTMLElement>("thead tr"),
+      );
+      const allRows = Array.from(
+        table.querySelectorAll<HTMLElement>("tr, [role='row']"),
+      );
+      const headerRows: HTMLElement[] =
+        theadRows.length > 0
+          ? theadRows
+          : allRows.filter(
+              (r) =>
+                r !== row &&
+                !r.contains(input) &&
+                !r.querySelector("input, select, textarea"),
+            );
 
       for (const hRow of headerRows) {
         let currentCol = 0;
@@ -419,7 +524,10 @@ export function getAxesText(
       if (rect && rect.width > 0 && rect.height > 0) {
         const TOLERANCE_Y = 20;
         const TOLERANCE_X = 25;
-        const container = input.closest("table, form, [class*='grid'], [class*='matrix'], [class*='table'], [class*='container'], [role='grid']") || document.body;
+        const container =
+          input.closest(
+            "table, form, [class*='grid'], [class*='matrix'], [class*='table'], [class*='container'], [role='grid']",
+          ) || document.body;
         const elements =
           labelRects && labelRects.length > 0
             ? labelRects.map((l) => l.element)
@@ -430,20 +538,31 @@ export function getAxesText(
               );
 
         for (const el of elements) {
-          if (el.contains(input) || el.tagName === "INPUT" || el.tagName === "SELECT" || el.tagName === "TEXTAREA" || el.tagName === "BUTTON") continue;
+          if (
+            el.contains(input) ||
+            el.tagName === "INPUT" ||
+            el.tagName === "SELECT" ||
+            el.tagName === "TEXTAREA" ||
+            el.tagName === "BUTTON"
+          )
+            continue;
           const elRect = el.getBoundingClientRect();
           if (elRect.width === 0 || elRect.height === 0) continue;
           const text = el.textContent ? el.textContent.trim() : "";
           if (!text || text.length > 50) continue;
 
-          const isSameRow = Math.abs(elRect.top - rect.top) < TOLERANCE_Y || (elRect.bottom > rect.top && elRect.top < rect.bottom);
+          const isSameRow =
+            Math.abs(elRect.top - rect.top) < TOLERANCE_Y ||
+            (elRect.bottom > rect.top && elRect.top < rect.bottom);
           const isLeft = elRect.right <= rect.left + 5;
           if (isSameRow && isLeft && rowLabels.length === 0) {
             const cleaned = cleanLabelText(text);
             if (cleaned) rowLabels.push(cleaned);
           }
 
-          const isSameCol = Math.abs(elRect.left - rect.left) < TOLERANCE_X || (elRect.right > rect.left && elRect.left < rect.right);
+          const isSameCol =
+            Math.abs(elRect.left - rect.left) < TOLERANCE_X ||
+            (elRect.right > rect.left && elRect.left < rect.right);
           const isAbove = elRect.bottom <= rect.top + 5;
           if (isSameCol && isAbove && colLabels.length === 0) {
             const cleaned = cleanLabelText(text);
@@ -451,7 +570,7 @@ export function getAxesText(
           }
         }
       }
-    } catch (_e) {
+    } catch {
       // Ignore geometry errors in headless environments
     }
   }
@@ -499,11 +618,55 @@ export function findGroupLabel(
   input: HTMLElement,
   labelRects?: LabelRectItem[],
 ): string {
+  // 0. Google Forms Question Card Heading
+  const gfContainer = input.closest<HTMLElement>(
+    "div[role='listitem'], div.Qr7Oae, div.geS5n, div.m7Wjg"
+  );
+  if (gfContainer) {
+    const headingEl = gfContainer.querySelector<HTMLElement>(
+      "div[role='heading'], span.M7eMe, div.M7eMe, div.HofdId, div.c2gGi, .HoFid"
+    );
+    if (headingEl && !headingEl.contains(input)) {
+      const txt = cleanLabelText(headingEl.textContent || "");
+      if (txt && txt.length >= 2) return txt;
+    }
+  }
+
+  // 1. Check aria-labelledby or aria-label on group containers (e.g. <div role="radiogroup" aria-labelledby="i11">)
+  const groupContainer = input.closest(
+    '[role="radiogroup"], [role="group"], [role="listitem"], fieldset, [data-params], [jscontroller], [jsmodel], [class*="question" i], [class*="group" i]',
+  ) as HTMLElement | null;
+
+  if (groupContainer) {
+    const ariaLabelledby = groupContainer.getAttribute("aria-labelledby");
+    if (ariaLabelledby) {
+      const ids = ariaLabelledby.split(/\s+/);
+      let combinedText = "";
+      for (const id of ids) {
+        const el = document.getElementById(id);
+        if (el && !el.contains(input)) {
+          combinedText += " " + (el.textContent || "");
+        }
+      }
+      const cleaned = cleanLabelText(combinedText);
+      if (cleaned && cleaned.length >= 2) return cleaned;
+    }
+
+    const ariaLabel = groupContainer.getAttribute("aria-label");
+    if (ariaLabel) {
+      const cleaned = cleanLabelText(ariaLabel);
+      if (cleaned && cleaned.length >= 2) return cleaned;
+    }
+  }
+
+  // 2. Fieldset legend
   const fieldset = input.closest("fieldset");
   if (fieldset) {
     const legend = fieldset.querySelector("legend");
     if (legend) return cleanLabelText(legend.textContent || "");
   }
+
+  // 3. Table / Matrix row header cell
   const row = input.closest("tr");
   if (row) {
     const firstCell = row.firstElementChild;
@@ -512,17 +675,34 @@ export function findGroupLabel(
     }
   }
 
-  // Inspect container wrappers (e.g. .checkbox-row, .radio-row, .form-group, field container)
+  // 4. Semantic question card container inspection
+  const questionCard = input.closest(
+    '[role="listitem"], [data-params], [jscontroller], [jsmodel], [class*="question" i], [class*="field-group" i], [class*="form-group" i]',
+  ) as HTMLElement | null;
+
+  if (questionCard) {
+    const headingEl = questionCard.querySelector<HTMLElement>(
+      '[role="heading"], h1, h2, h3, h4, h5, h6, legend, [dir="auto"], [class*="title" i], [class*="header" i], [class*="label" i]',
+    );
+    if (headingEl && !headingEl.contains(input) && !input.contains(headingEl)) {
+      const txt = cleanLabelText(headingEl.textContent || "");
+      if (txt && txt.length >= 2 && txt.length <= 150) {
+        return txt;
+      }
+    }
+  }
+
+  // 5. Deep ancestor traversal (e.g. .checkbox-row, .radio-row, .form-group, field container)
   let parent: HTMLElement | null = input.parentElement;
   let depth = 0;
   while (
     parent &&
-    depth < 3 &&
+    depth < 10 &&
     parent.tagName !== "BODY" &&
     parent.tagName !== "FORM"
   ) {
     const labelCandidates = parent.querySelectorAll<HTMLElement>(
-      "span, p, strong, b, h1, h2, h3, h4, h5, h6, .label, [class*='label' i], [class*='title' i], [class*='question' i]",
+      "span, p, strong, b, h1, h2, h3, h4, h5, h6, [role='heading'], .label, .M7eMe, [class*='label' i], [class*='title' i], [class*='question' i]",
     );
     for (const el of Array.from(labelCandidates)) {
       if (!el.contains(input) && !input.contains(el)) {
