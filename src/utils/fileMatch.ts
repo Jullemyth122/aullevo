@@ -13,7 +13,7 @@
 
 import type { FormField } from "../types";
 
-/* ── Stop-words to ignore when extracting keywords ── */
+// Stop-words to ignore when extracting keywords
 export const IGNORE_WORDS = new Set([
   "upload",
   "file",
@@ -43,7 +43,7 @@ export const IGNORE_WORDS = new Set([
   "field",
 ]);
 
-/* ── Well-known semantic categories for filenames ── */
+// Well-known semantic categories for filenames
 const FILE_CATEGORY_KEYWORDS: Record<string, string[]> = {
   resume: ["resume", "cv", "curriculum", "vitae"],
   cover: ["cover", "letter", "coverletter"],

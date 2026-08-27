@@ -1,4 +1,93 @@
 import type { CustomField } from "../../types";
+export const COMMON_ALIASES: Record<string, string> = {
+
+  univ: "university",
+  sch: "school",
+  info: "information",
+  dept: "department",
+  num: "number",
+  no: "number",
+  tel: "phone",
+  mobile: "phone",
+  hrs: "hours",
+  hr: "hours",
+  pos: "position",
+};
+
+export function cleanSimilarityText(text: string): string {
+  if (!text) return "";
+  const cleaned = text
+    // Strip leading numbers or bullets (e.g. "1.", "1)", "1 -", "Q1:", "10.")
+    .replace(
+      /^\s*(?:question\s*\d+[:\-.]?|\d+[.)\-:]|[a-zA-Z][.)\-:])\s*/i,
+      "",
+    )
+    // Strip required / optional markers and asterisks
+    .replace(/\*+/g, " ")
+    .replace(
+      /\((?:required|optional|mandatory|required field|if applicable)\)/gi,
+      " ",
+    )
+    .replace(/\[(?:required|optional|mandatory)\]/gi, " ")
+    // Clean special punctuation
+    .replace(/[:!?#|/\\–—()[\]{}_,]/g, " ")
+    .replace(/\s+/g, " ")
+    .toLowerCase()
+    .trim();
+
+  return cleaned
+    .split(/\s+/)
+    .map((tok) => COMMON_ALIASES[tok] || tok)
+    .join(" ");
+}
+
+export function computeStringSimilarity(str1: string, str2: string): number {
+  if (!str1 || !str2) return 0;
+
+  const s1 = cleanSimilarityText(str1);
+  const s2 = cleanSimilarityText(str2);
+
+  if (!s1 || !s2) return 0;
+
+  // 1. Exact string match
+  if (s1 === s2) return 1.0;
+
+  // 2. Full phrase containment
+  if (s2.includes(s1)) {
+    return 0.85 + 0.15 * (s1.length / s2.length);
+  }
+  if (s1.includes(s2)) {
+    return 0.85 + 0.15 * (s2.length / s1.length);
+  }
+
+  // 3. Jaccard token overlap with sub-word root matching
+  const tokens1 = new Set(s1.split(/\s+/).filter((t) => t.length > 0));
+  const tokens2 = new Set(s2.split(/\s+/).filter((t) => t.length > 0));
+
+  if (tokens1.size === 0 || tokens2.size === 0) return 0;
+
+  let intersectionCount = 0;
+  for (const t of tokens1) {
+    if (tokens2.has(t)) {
+      intersectionCount++;
+    } else {
+      for (const t2 of tokens2) {
+        if (
+          (t.length >= 3 && t2.includes(t)) ||
+          (t2.length >= 3 && t.includes(t2))
+        ) {
+          intersectionCount += 0.85;
+          break;
+        }
+      }
+    }
+  }
+
+  const unionCount = tokens1.size + tokens2.size - intersectionCount;
+  if (unionCount <= 0) return 0;
+
+  return intersectionCount / unionCount;
+}
 
 /**
  * Calculates Levenshtein edit distance between two strings purely algorithmically.
@@ -54,18 +143,34 @@ export function cleanTokens(str: string): string[] {
 
 /**
  * Evaluates candidate field text against user-defined custom fields algorithmically.
- * Priority:
- * 1. Exact normalized token match on label or context
- * 2. Multi-token / Coordinate set match (order-agnostic, requires all tokens to match)
- * 3. Exact phrase containment (label or context)
- * 4. Single-token match (leading token, word boundary, or isolated token)
- * 5. Matching context token overlap
  */
 export function matchCustomField(
   text: string,
   customFields: CustomField[] = [],
 ): CustomField | null {
   if (!text || customFields.length === 0) return null;
+
+  // Pass 0: Mathematical string similarity scoring (from prototype engine)
+  let bestCF: CustomField | null = null;
+  let bestScore = 0;
+
+  for (const cf of customFields) {
+    const labelScore = computeStringSimilarity(text, cf.label || "");
+    const ctxScore = cf.context
+      ? computeStringSimilarity(text, cf.context)
+      : 0;
+    const maxScore = Math.max(labelScore, ctxScore);
+
+    if (maxScore > bestScore) {
+      bestScore = maxScore;
+      bestCF = cf;
+    }
+  }
+
+  if (bestCF && bestScore >= 0.45) {
+    return bestCF;
+  }
+
 
   const textTokens = cleanTokens(text.toLowerCase().trim());
   if (textTokens.length === 0) return null;

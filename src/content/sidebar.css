@@ -315,6 +315,13 @@
   color: var(--av-text-mid);
 }
 
+.av-panel__tab--disabled,
+.av-panel__tab:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  filter: grayscale(0.5);
+}
+
 /* Body */
 .av-panel__body {
   flex: 1;

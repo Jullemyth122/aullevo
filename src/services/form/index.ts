@@ -15,3 +15,5 @@ export * from "./navigation";
 export * from "./chat";
 export * from "./formPipeline";
 export * from "./googleForms";
+export * from "./microsoftForms";
+

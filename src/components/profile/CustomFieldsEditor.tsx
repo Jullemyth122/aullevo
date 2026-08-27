@@ -1,6 +1,12 @@
-import { useState } from 'react';
+import { useState, type KeyboardEvent } from 'react';
 import { Trash2, Plus } from 'lucide-react';
 import type { CustomField } from '../../types';
+
+export interface CustomFieldDraft {
+    label: string;
+    value: string;
+    context: string;
+}
 
 export interface CustomFieldsEditorProps {
     customFields: CustomField[];
@@ -11,6 +17,8 @@ export interface CustomFieldsEditorProps {
     btnClass?: string;
     cardClass?: string;
     disabled?: boolean;
+    draft?: CustomFieldDraft;
+    onDraftChange?: (draft: CustomFieldDraft) => void;
 }
 
 export function CustomFieldsEditor({
@@ -22,21 +30,68 @@ export function CustomFieldsEditor({
     btnClass = 'av-filelib__add-btn',
     cardClass = 'av-custom-field-item',
     disabled = false,
+    draft,
+    onDraftChange,
 }: CustomFieldsEditorProps) {
-    const [label, setLabel] = useState('');
-    const [value, setValue] = useState('');
-    const [context, setContext] = useState('');
+    const [localLabel, setLocalLabel] = useState('');
+    const [localValue, setLocalValue] = useState('');
+    const [localContext, setLocalContext] = useState('');
+
+    const label = draft !== undefined ? draft.label : localLabel;
+    const value = draft !== undefined ? draft.value : localValue;
+    const context = draft !== undefined ? draft.context : localContext;
+
+    const setLabel = (val: string) => {
+        if (onDraftChange && draft) {
+            onDraftChange({ ...draft, label: val });
+        } else {
+            setLocalLabel(val);
+        }
+    };
+
+    const setValue = (val: string) => {
+        if (onDraftChange && draft) {
+            onDraftChange({ ...draft, value: val });
+        } else {
+            setLocalValue(val);
+        }
+    };
+
+    const setContext = (val: string) => {
+        if (onDraftChange && draft) {
+            onDraftChange({ ...draft, context: val });
+        } else {
+            setLocalContext(val);
+        }
+    };
 
     const handleAdd = () => {
-        if (!label.trim()) return;
+        const trimmedLabel = label.trim();
+        const trimmedValue = value.trim();
+        const trimmedContext = context.trim();
+
+        if (!trimmedLabel && !trimmedValue) return;
+
         onAdd({
-            label: label.trim(),
-            value: value.trim(),
-            context: context.trim(),
+            label: trimmedLabel || trimmedValue || 'Custom Field',
+            value: trimmedValue,
+            context: trimmedContext,
         });
-        setLabel('');
-        setValue('');
-        setContext('');
+
+        if (onDraftChange) {
+            onDraftChange({ label: '', value: '', context: '' });
+        } else {
+            setLocalLabel('');
+            setLocalValue('');
+            setLocalContext('');
+        }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            handleAdd();
+        }
     };
 
     return (
@@ -116,7 +171,8 @@ export function CustomFieldsEditor({
                             className={inputClass}
                             value={label}
                             onChange={(e) => setLabel(e.target.value)}
-                            placeholder="e.g. Pronouns, Security Clearance, Target Level"
+                            onKeyDown={handleKeyDown}
+                            placeholder="e.g. Date of Birth, Pronouns, Security Clearance"
                         />
                     </div>
                     <div>
@@ -125,7 +181,8 @@ export function CustomFieldsEditor({
                             className={inputClass}
                             value={value}
                             onChange={(e) => setValue(e.target.value)}
-                            placeholder="e.g. They/Them, Secret, Staff"
+                            onKeyDown={handleKeyDown}
+                            placeholder="e.g. 20/08/11, He/Him, Top Secret"
                         />
                     </div>
                     <div>
@@ -134,7 +191,8 @@ export function CustomFieldsEditor({
                             className={inputClass}
                             value={context}
                             onChange={(e) => setContext(e.target.value)}
-                            placeholder="e.g. Use when asking for preferred pronouns"
+                            onKeyDown={handleKeyDown}
+                            placeholder="e.g. Use when asking for birthday or date of birth"
                         />
                     </div>
                     <button

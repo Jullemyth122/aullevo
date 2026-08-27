@@ -16,6 +16,7 @@ function SidebarInner() {
         fieldCount,
         activeTab,
         setActiveTab,
+        isProcessing,
     } = useSidebar();
 
     return (
@@ -60,15 +61,23 @@ function SidebarInner() {
                             { id: 'knowledge', label: 'Memories' },
                             { id: 'links', label: 'Links' },
                             { id: 'settings', label: 'Settings' },
-                        ] as { id: Tab; label: string }[]).map(t => (
-                            <button
-                                key={t.id}
-                                className={`av-panel__tab ${activeTab === t.id ? 'av-panel__tab--active' : ''}`}
-                                onClick={() => setActiveTab(t.id)}
-                            >
-                                {t.label}
-                            </button>
-                        ))}
+                        ] as { id: Tab; label: string }[]).map(t => {
+                            const isTabDisabled = isProcessing && t.id !== 'fill';
+                            return (
+                                <button
+                                    key={t.id}
+                                    className={`av-panel__tab ${activeTab === t.id ? 'av-panel__tab--active' : ''} ${isTabDisabled ? 'av-panel__tab--disabled' : ''}`}
+                                    onClick={() => {
+                                        if (isTabDisabled) return;
+                                        setActiveTab(t.id);
+                                    }}
+                                    disabled={isTabDisabled}
+                                    title={isTabDisabled ? 'Form filling in progress... Tabs locked until finished.' : t.label}
+                                >
+                                    {t.label}
+                                </button>
+                            );
+                        })}
                     </div>
 
                     {/* Body */}

@@ -1,49 +1,6 @@
 /**
- * @file formStepProcessor.ts
- * @module background/modules
- *
- * ─── ROLE IN THE ARCHITECTURE
- * The ORCHESTRATION LAYER — coordinates the full form-filling pipeline
- * from start to finish.
- *
- * This file owns the three exported functions that background.ts calls:
- *
- *   1. processFieldsAI()  — "processFieldsAI" message handler
- *      Called when the content script has already detected fields and
- *      asks the background to resolve values for them.
- *      Returns a JSON-serialisable result object (no side-effects on tabs).
- *
- *   2. runAIFill()        — "triggerFillFromPopup" message handler
- *      Entry point for the popup button or Ctrl+M keyboard shortcut.
- *      Locates the active tab, optionally starts an autopilot session,
- *      then delegates to processFormStep().
- *
- *   3. processFormStep()  — Core recursive fill loop
- *      Scans the page → matches fields → resolves values → fills the form.
- *      If autoSubmit is on, clicks "Next" and recurses for the next step.
- *      Also called by background.ts's onUpdated listener when the page
- *      navigates during an active autopilot session.
- *
- * DATA FLOW:
- *   background.ts (message handler)
- *     → runAIFill()  or  processFormStep() directly
- *           → sendToTab("analyzeForm")          [page → background: field list]
- *           → matchFieldsHeuristically()  OR
- *             geminiService.analyzeFormFields()  [AI mapping: field → fieldType]
- *           → resolveFieldValues()               [fieldType → actual string/file]
- *           → sendToTab("fillForm")              [background → page: inject values]
- *           → sendToTab("clickNext")  (autoSubmit only)
- *           → processFormStep(step+1) (recursive)
- *
- * DEPENDENCY DIRECTION:
- *   background.ts
- *     └── formStepProcessor.ts   ← YOU ARE HERE
- *           ├── backgroundUtils  (utils, tab messaging, badge, sleep)
- *           ├── domainCache      (cache read/write/invalidate)
- *           ├── fieldResolver    (resolveFieldValues)
- *           ├── geminiService    (AI field analysis + API key management)
- *           └── heuristicMatcher (keyword-based fallback matching)
- *
+ * Form filling pipeline orchestration: coordinates scanning, AI/heuristic matching,
+ * value resolution, multi-step navigation, and recursive filling.
  */
 
 import { geminiService } from "../../services/geminiService";
@@ -161,10 +118,7 @@ export async function processFieldsAI(fields: FormField[], hostname = "") {
     let fieldMappings: FieldMapping[] | null = null;
 
     if (useAI) {
-      // ── AI Mode ──────────────────────────────────────────────────
-      // Requires a Gemini API key and respects the 500 ms rate limit.
-      // Tries the domain cache first — only calls Gemini on a cache miss.
-      // Falls back to heuristic if AI returns zero results or errors.
+      // AI Mode: requires Gemini API key and respects 500 ms rate limit
       if (apiKey) geminiService.setApiKey(apiKey);
       if (!apiKey)
         return {
@@ -178,8 +132,7 @@ export async function processFieldsAI(fields: FormField[], hostname = "") {
           error: "Please wait a moment before requesting another fill.",
         };
 
-      // ── Split: 2D matrix cells are deterministic → heuristic (instant, perfect)
-      //          Only send non-matrix fields to Gemini to keep prompt small.
+      // Split: 2D matrix cells are deterministic → heuristic matching
       const matrixFields = fields.filter((f) => !!(f.rowHeader && f.colHeader));
       const nonMatrixFields = fields.filter(
         (f) => !(f.rowHeader && f.colHeader),
@@ -196,7 +149,6 @@ export async function processFieldsAI(fields: FormField[], hostname = "") {
       }
 
       // Check domain cache before calling Gemini (keyed on non-matrix fields only)
-      // getCachedMappings() returns null on miss, expired TTL, or signature mismatch
       const signature = buildFieldSignature(nonMatrixFields);
       fieldMappings = hostname
         ? await getCachedMappings(hostname, signature)
@@ -204,7 +156,6 @@ export async function processFieldsAI(fields: FormField[], hostname = "") {
 
       if (!fieldMappings) {
         try {
-          // Call Gemini only for non-matrix fields — much smaller prompt, no timeout risk
           fieldMappings =
             nonMatrixFields.length > 0
               ? await geminiService.analyzeFormFields(
@@ -225,7 +176,6 @@ export async function processFieldsAI(fields: FormField[], hostname = "") {
               userData,
             );
           } else if (hostname) {
-            // Store successful AI result so next visit to this page is instant
             await setCachedMappings(hostname, signature, fieldMappings);
           }
         } catch (aiErr: unknown) {
@@ -241,12 +191,10 @@ export async function processFieldsAI(fields: FormField[], hostname = "") {
         }
       }
 
-      // Merge: AI mappings + heuristic matrix mappings
+      // Merge AI mappings + heuristic matrix mappings
       fieldMappings = [...(fieldMappings ?? []), ...matrixMappings];
     } else {
-      // ── Heuristic Mode ───────────────────────────────────────────
-      // Keyword + label-based matching. Instant, no API calls.
-      // Used when user hasn't enabled AI mode or has no API key.
+      // Heuristic Mode: keyword and label matching
       console.log(
         `Aullevo: Using HEURISTIC matching for ${fields.length} fields`,
       );
@@ -348,25 +296,8 @@ export async function processFieldsAI(fields: FormField[], hostname = "") {
   }
 }
 
-// runAIFill  (Popup / Keyboard Shortcut entry point)
-
 /**
- * runAIFill
- * ─────────
- * Entry point triggered by the popup "Fill" button or the Ctrl+M
- * keyboard shortcut (via "triggerFillFromPopup" message in background.ts).
- *
- * Responsibilities:
- *   1. Load API key and user data from storage.
- *   2. Find the currently active tab.
- *   3. Initialise or clear the autopilot session in local storage.
- *   4. Show the ⏳ loading badge.
- *   5. Kick off processFormStep() at step 0.
- *
- * This is a "fire and forget" wrapper around processFormStep() — it
- * just sets up the session and hands off.
- *
- * CALLED BY: background.ts → "triggerFillFromPopup" message handler (line ~150)
+ * Entry point triggered by popup or shortcut to initialize autopilot session and run processFormStep.
  */
 export async function runAIFill() {
   try {
@@ -468,7 +399,7 @@ export async function processFormStep(
   resumeFileData?: string,
   resumeFileName?: string,
 ) {
-  // ── Safety cap: prevent infinite recursion on misbehaving forms ──
+  // Safety cap: prevent infinite recursion on misbehaving forms
   if (step > 30) {
     showBadge("✓", "#34d399");
     setTimeout(clearBadge, 4000);
@@ -481,7 +412,7 @@ export async function processFormStep(
     return;
   }
 
-  // ── First-time check: guide user if profile is completely empty ──
+  // First-time check: guide user if profile is completely empty
   if (step === 0 && isUserProfileEmpty(userData)) {
     showBadge("!", "#eab308");
     setTimeout(clearBadge, 4000);
@@ -500,9 +431,7 @@ export async function processFormStep(
   }
 
   try {
-    // ── Step 1: Scan
-    // Ask the content script to analyse the current DOM and return all
-    // visible, fillable fields (FormField[]).
+    // Step 1: Scan current visible form fields
     sendSidebarStatus(
       tabId,
       `Scanning page fields (Step ${step + 1})...`,
@@ -521,13 +450,11 @@ export async function processFormStep(
     }
 
     const fields: FormField[] = response.fields || [];
-    let needsReAnalysis = false; // Set to true when "Add row" button was clicked
+    let needsReAnalysis = false;
     let filledCount = 0;
 
     if (fields.length > 0) {
-      // ── Step 2: Match
-      // Determine AI vs heuristic mode, then produce fieldMappings:
-      // an array of { fieldId, fieldType, confidence } objects.
+      // Step 2: Match fields via AI or heuristic
       const storedMode = await chrome.storage.local.get([
         "matchingMode",
         "geminiApiKey",
@@ -547,7 +474,6 @@ export async function processFormStep(
       let fieldMappings: FieldMapping[] | null = null;
 
       if (useAI) {
-        // AI Mode: validate key, try cache, call Gemini, cache result
         const apiKey = ((storedMode.geminiApiKey || "") as string).trim();
         if (!apiKey) {
           showBadge("!", "#f87171");
@@ -561,8 +487,6 @@ export async function processFormStep(
         }
         geminiService.setApiKey(apiKey);
 
-        // ── Split: 2D matrix cells are deterministic → heuristic (instant, perfect)
-        //          Only send non-matrix fields to Gemini to keep prompt small.
         const matrixFields = fields.filter(
           (f) => !!(f.rowHeader && f.colHeader),
         );
@@ -585,12 +509,10 @@ export async function processFormStep(
           );
         }
 
-        // Cache check keyed on non-matrix fields only
         const signature = buildFieldSignature(nonMatrixFields);
         fieldMappings = await getCachedMappings(hostname, signature);
         if (!fieldMappings) {
           try {
-            // Call Gemini only for non-matrix fields
             fieldMappings =
               nonMatrixFields.length > 0
                 ? await geminiService.analyzeFormFields(
@@ -631,10 +553,8 @@ export async function processFormStep(
           }
         }
 
-        // Merge: AI mappings + heuristic matrix mappings
         fieldMappings = [...(fieldMappings ?? []), ...matrixMappings];
       } else {
-        // Heuristic Mode: keyword + label matching, no API calls
         fieldMappings = matchFieldsHeuristically(
           fields,
           customFields,
@@ -644,7 +564,6 @@ export async function processFormStep(
 
       if (!fieldMappings) fieldMappings = [];
 
-      // Ensure 100% coverage: supplement any fields unmapped by AI with heuristic matching
       const mappedIds = new Set(fieldMappings.map((m) => m.id || m.fieldId));
       const unmappedFields = fields.filter((f) => !mappedIds.has(f.id));
       if (unmappedFields.length > 0) {
@@ -656,7 +575,6 @@ export async function processFormStep(
         fieldMappings.push(...fallbacks);
       }
 
-      // Build virtual library (saved files + legacy resume backup)
       const stored = await chrome.storage.local.get(["fileLibrary"]);
       const fileLibrary: SavedFile[] =
         (stored.fileLibrary as SavedFile[]) || [];
@@ -674,9 +592,7 @@ export async function processFormStep(
         }
       }
 
-      // ── Step 3: Resolve values
-      // Attach actual data (strings, arrays, files) to each mapping.
-      // After this call, every mapping has a .selectedValue / .fileData.
+      // Step 3: Resolve concrete field values
       await resolveFieldValues(
         fieldMappings,
         fields,
@@ -686,15 +602,11 @@ export async function processFormStep(
         useAI,
       );
 
-      // Split mappings into fill instructions vs. "Add row" button clicks
       const fillMappings = fieldMappings.filter(
         (m: FieldMapping) => m.action !== "click_add",
       );
 
-      // ── Step 4: Fingerprint / Loop guard
-      // If the autopilot fills the same values into the same fields twice,
-      // it's stuck in a loop (e.g. "Next" didn't navigate away).
-      // Compare a fingerprint of this step's fill intent against past steps.
+      // Step 4: Fingerprint and loop detection guard
       const currentFingerprint = JSON.stringify(
         fillMappings.map((m: FieldMapping) => ({
           id: m.id,
@@ -719,7 +631,6 @@ export async function processFormStep(
           );
           return;
         }
-        // Record this fingerprint so future steps can detect loops
         await chrome.storage.local.set({
           autopilotSession: {
             ...session,
@@ -728,9 +639,7 @@ export async function processFormStep(
         });
       }
 
-      // ── Step 5: Fill
-      // Send the resolved mappings to the content script which injects
-      // the values into the DOM (sets input values, triggers React events, etc.)
+      // Step 5: Fill fields on the active page
       sendSidebarStatus(
         tabId,
         `Filling ${fillMappings.length} matched field(s)...`,
@@ -748,7 +657,7 @@ export async function processFormStep(
 
       filledCount = fillResponse?.filledCount ?? 0;
       if (fillResponse?.success) {
-        showBadge(`${filledCount}`, "#34d399"); // Green badge: number of filled fields
+        showBadge(`${filledCount}`, "#34d399");
       } else {
         showBadge("✗", "#f87171");
         setTimeout(clearBadge, 3000);
@@ -761,7 +670,6 @@ export async function processFormStep(
         return;
       }
 
-      // If nothing was filled and no re-analysis needed, we're done
       if (filledCount === 0 && !needsReAnalysis) {
         showBadge("✓", "#34d399");
         setTimeout(clearBadge, 4000);
@@ -770,17 +678,12 @@ export async function processFormStep(
         return;
       }
 
-      // ── Step 6: Add-button handling
-      // Some forms use an "Add another experience" button to reveal extra rows.
-      // If the user's data has more items than are currently shown, click the
-      // button, invalidate the cache (so new fields are detected), wait, then
-      // recurse to fill the newly revealed row.
+      // Step 6: Repeater Add-button handling
       const addButtons = fieldMappings.filter(
         (m: FieldMapping) => m.action === "click_add",
       );
       for (const btn of addButtons) {
         if (!btn.groupType) continue;
-        // How many rows of this type are currently mapped?
         const currentIndices = fieldMappings
           .filter(
             (m: FieldMapping) =>
@@ -795,7 +698,6 @@ export async function processFormStep(
         if (btn.groupType === "education")
           totalDataItems = (userData.education || []).length;
 
-        // Only click "Add" if there's more data than currently visible rows
         if (totalDataItems > maxIndex + 1) {
           sendSidebarStatus(
             tabId,
@@ -804,16 +706,15 @@ export async function processFormStep(
           );
           await sendToTab(tabId, {
             action: "fillForm",
-            data: { fieldMappings: [{ ...btn }] }, // Send only the add-button instruction
+            data: { fieldMappings: [{ ...btn }] },
           });
-          await sleep(1500); // Wait for the new row to appear in the DOM
-          await invalidateCache(hostname); // Force re-scan: new fields are now visible
-          needsReAnalysis = true; // Signal outer code to recurse
-          break; // Only process one "Add" per step to avoid race conditions
+          await sleep(1500);
+          await invalidateCache(hostname);
+          needsReAnalysis = true;
+          break;
         }
       }
     } else {
-      // No fields found at all — the form may be complete or already filled
       showBadge("✓", "#34d399");
       setTimeout(clearBadge, 4000);
       chrome.storage.local.remove(["autopilotSession"]);
@@ -825,17 +726,14 @@ export async function processFormStep(
       return;
     }
 
-    // ── Step 6b: Recurse if new rows were added
-    // After clicking "Add row", come back after 500 ms to fill the new row.
+    // Step 6b: Recurse if new rows were added
     if (needsReAnalysis) {
       await sleep(500);
       await processFormStep(tabId, userData, step + 1, hostname);
       return;
     }
 
-    // ── Step 7: Auto-Submit / Next navigation
-    // If autoSubmit is disabled: show success, done.
-    // If autoSubmit is enabled: click "Next" → wait 3 s → recurse for step+1.
+    // Step 7: Auto-Submit and multi-page step progression
     const storedSessSettings = await chrome.storage.local.get(["autoSubmit"]);
     const autoSubmit = !!storedSessSettings.autoSubmit;
 
@@ -851,24 +749,19 @@ export async function processFormStep(
       return;
     }
 
-    // Autopilot: send "clickNext" → if successful, the page navigates.
-    // The onUpdated listener in background.ts will resume from here next time.
-    // But we also recurse directly in case the "Next" click only reveals
-    // a new section on the SAME page (no navigation).
-    await sleep(1000); // Let the user see the filled fields briefly
+    await sleep(1000);
     sendSidebarStatus(tabId, "➡️ Moving to next step...", "info");
     const nextResponse = await sendToTab(tabId, { action: "clickNext" });
-    if (nextResponse?.success) {
-      await invalidateCache(hostname); // Next page will have different fields
-      // Update autopilot session step counter
+
+    if (nextResponse?.success && nextResponse.navigated) {
+      // Step advanced successfully to a new page or section
       const storedSess = await chrome.storage.local.get(["autopilotSession"]);
       if (storedSess.autopilotSession) {
         await chrome.storage.local.set({
           autopilotSession: { ...storedSess.autopilotSession, step: step + 1 },
         });
       }
-      await sleep(3000); // Wait for page transition / animation
-      // Recurse: process the next step (either same page new section, or new page)
+      await sleep(1500);
       await processFormStep(
         tabId,
         userData,
@@ -878,15 +771,38 @@ export async function processFormStep(
         resumeFileName,
       );
     } else {
-      // "Next" button not found — we're probably on the last step
-      showBadge("✓", "#34d399");
-      setTimeout(clearBadge, 4000);
       chrome.storage.local.remove(["autopilotSession"]);
-      sendSidebarStatus(
-        tabId,
-        "Form filling complete! (Next page not found).",
-        "success",
-      );
+
+      if (nextResponse?.reason === "validation_error") {
+        showBadge("!", "#f59e0b");
+        setTimeout(clearBadge, 5000);
+        sendSidebarStatus(
+          tabId,
+          "⚠️ Form has validation errors or missing required fields. Please review highlighted fields.",
+          "error",
+        );
+        sendToTab(tabId, {
+          action: "showToast",
+          message: "⚠️ Form validation errors detected. Please review required fields.",
+          type: "error",
+        });
+      } else if (nextResponse?.reason === "did_not_advance") {
+        showBadge("✓", "#34d399");
+        setTimeout(clearBadge, 4000);
+        sendSidebarStatus(
+          tabId,
+          "Form filling complete. (Page did not advance to next section).",
+          "success",
+        );
+      } else {
+        showBadge("✓", "#34d399");
+        setTimeout(clearBadge, 4000);
+        sendSidebarStatus(
+          tabId,
+          "Form filling complete! (Final step reached).",
+          "success",
+        );
+      }
     }
   } catch (error: unknown) {
     console.error("Aullevo fill step error:", error);

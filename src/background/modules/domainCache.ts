@@ -1,26 +1,6 @@
 /**
- * @file domainCache.ts
- * @module background/modules
- *
- * ─── ROLE IN THE ARCHITECTURE ───────────────────────────────────────────────
  * Session-backed cache for AI field-mapping results, keyed by domain hostname.
- *
- * MV3 COMPLIANT:
- *   Uses `chrome.storage.session` to persist cache across background service
- *   worker idle wake/sleep cycles for the entire browser session.
- *   Provides an in-memory fallback for environments without `storage.session`.
- *
- * WHY THIS EXISTS:
- *   Calling Gemini AI to analyse a form is expensive (latency + quota).
- *   If the user fills two pages on the same site in quick succession
- *   (e.g. multi-step application wizard), the form fields are often
- *   identical. This cache returns the previous AI result instantly
- *   without a second API call.
- *
- * CACHE INVALIDATION TRIGGERS (in background.ts):
- *   chrome.storage.onChanged → if userData, matchingMode, or geminiApiKey
- *   changes, domainCache.clear() is called so stale mappings don't linger.
- * ────────────────────────────────────────────────────────────────────────────
+ * Uses chrome.storage.session with in-memory fallback for test runners.
  */
 
 import type { FieldMapping } from "../../types";
@@ -50,10 +30,7 @@ function hasSessionStorage(): boolean {
 }
 
 /**
- * getCachedMappings
- * ─────────────────
- * Attempts to return a previously computed AI mapping result for a
- * given hostname + field signature combination.
+ * Returns a previously computed AI mapping result for a hostname and field signature.
  */
 export async function getCachedMappings(
   hostname: string,
@@ -96,9 +73,7 @@ export async function getCachedMappings(
 }
 
 /**
- * setCachedMappings
- * ─────────────────
- * Stores a fresh AI mapping result in session cache for future fast lookups.
+ * Stores a fresh AI mapping result in session cache for fast lookup.
  */
 export async function setCachedMappings(
   hostname: string,
@@ -130,8 +105,6 @@ export async function setCachedMappings(
 }
 
 /**
- * invalidateCache
- * ───────────────
  * Removes the cached entry for a specific hostname.
  */
 export async function invalidateCache(hostname: string): Promise<void> {
@@ -150,8 +123,6 @@ export async function invalidateCache(hostname: string): Promise<void> {
 }
 
 /**
- * clearDomainCache
- * ────────────────
  * Clears all cached domain AI mappings.
  */
 export async function clearDomainCache(): Promise<void> {

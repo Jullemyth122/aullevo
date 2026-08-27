@@ -89,10 +89,16 @@ export function triggerEvents(input: HTMLElement, value?: string): void {
       Object.getOwnPropertyDescriptor(prototype, "value") ||
       Object.getOwnPropertyDescriptor(Object.getPrototypeOf(input), "value");
 
+    const previousValue = (input as HTMLInputElement | HTMLTextAreaElement).value;
     if (valueDescriptor && valueDescriptor.set) {
       valueDescriptor.set.call(input, textValue);
     } else {
       input.value = textValue;
+    }
+
+    const tracker = (input as unknown as { _valueTracker?: { setValue: (v: string) => void } })._valueTracker;
+    if (tracker && typeof tracker.setValue === "function") {
+      tracker.setValue(previousValue);
     }
 
     // Dispatch full suite: keydown -> input -> keyup -> change -> blur
@@ -306,6 +312,10 @@ export async function humanTypeValue(
     } else {
       currentEl.value = newValue;
     }
+    const charTracker = (currentEl as unknown as { _valueTracker?: { setValue: (v: string) => void } })._valueTracker;
+    if (charTracker && typeof charTracker.setValue === "function") {
+      charTracker.setValue(currentValue);
+    }
 
     const inputEvent = new InputEvent("input", {
       data: char,
@@ -347,10 +357,15 @@ export async function humanTypeValue(
 
   // Final verification: ensure complete string value is in input
   if (currentEl.value !== value) {
+    const prevVal = currentEl.value;
     if (nativeSetter) {
       nativeSetter.call(currentEl, value);
     } else {
       currentEl.value = value;
+    }
+    const finalTracker = (currentEl as unknown as { _valueTracker?: { setValue: (v: string) => void } })._valueTracker;
+    if (finalTracker && typeof finalTracker.setValue === "function") {
+      finalTracker.setValue(prevVal);
     }
     currentEl.dispatchEvent(new Event("input", { bubbles: true }));
   }
@@ -359,3 +374,105 @@ export async function humanTypeValue(
   currentEl.dispatchEvent(new FocusEvent("blur", { bubbles: true, composed: true }));
   currentEl.dispatchEvent(new FocusEvent("focusout", { bubbles: true, composed: true }));
 }
+
+/**
+ * Dispatches a complete, clean Pointer + Mouse event cycle on an element.
+ * Specifically engineered for Google Forms JSAction, Closure, and modern UI libraries
+ * to prevent double-clicking and missed state transitions.
+ */
+export function dispatchSinglePointerClick(element: HTMLElement | null): void {
+  if (!element) return;
+
+  try {
+    element.focus();
+  } catch {
+    // Ignore focus error in headless/test environments
+  }
+
+  const rect = element.getBoundingClientRect();
+  const clientX = rect.left + Math.max(rect.width / 2, 5);
+  const clientY = rect.top + Math.max(rect.height / 2, 5);
+
+  const baseOpts: MouseEventInit = {
+    bubbles: true,
+    cancelable: true,
+    composed: true,
+    view: typeof window !== "undefined" ? window : undefined,
+    clientX,
+    clientY,
+    screenX: typeof window !== "undefined" ? clientX + window.screenX : clientX,
+    screenY: typeof window !== "undefined" ? clientY + window.screenY : clientY,
+  };
+
+  const safeDispatch = (event: Event) => {
+    try {
+      element.dispatchEvent(event);
+    } catch {
+      // Suppress dispatch failures in headless or unsupported DOM environments
+    }
+  };
+
+  safeDispatch(
+    new PointerEvent("pointerover", {
+      ...baseOpts,
+      button: 0,
+      buttons: 0,
+      pointerId: 1,
+      pointerType: "mouse",
+      isPrimary: true,
+    }),
+  );
+  safeDispatch(
+    new MouseEvent("mouseover", { ...baseOpts, button: 0, buttons: 0 }),
+  );
+  safeDispatch(
+    new PointerEvent("pointerenter", {
+      ...baseOpts,
+      button: 0,
+      buttons: 0,
+      pointerId: 1,
+      pointerType: "mouse",
+      isPrimary: true,
+    }),
+  );
+  safeDispatch(
+    new PointerEvent("pointerdown", {
+      ...baseOpts,
+      button: 0,
+      buttons: 1,
+      pointerId: 1,
+      pointerType: "mouse",
+      isPrimary: true,
+      pressure: 0.5,
+    }),
+  );
+  safeDispatch(
+    new MouseEvent("mousedown", { ...baseOpts, button: 0, buttons: 1 }),
+  );
+  safeDispatch(
+    new PointerEvent("pointerup", {
+      ...baseOpts,
+      button: 0,
+      buttons: 0,
+      pointerId: 1,
+      pointerType: "mouse",
+      isPrimary: true,
+      pressure: 0,
+    }),
+  );
+  safeDispatch(
+    new MouseEvent("mouseup", { ...baseOpts, button: 0, buttons: 0 }),
+  );
+  safeDispatch(
+    new MouseEvent("click", { ...baseOpts, button: 0, buttons: 0 }),
+  );
+
+  try {
+    if (typeof element.click === "function") {
+      element.click();
+    }
+  } catch {
+    // Suppress click invocation error in headless environments
+  }
+}
+

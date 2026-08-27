@@ -3,7 +3,7 @@
  * used across the form analyzer submodules.
  */
 
-// ─── CAPTCHA & Security Signals ───
+// CAPTCHA & Security Signals
 export const CAPTCHA_SIGNALS = [
   "captcha",
   "recaptcha",
@@ -29,7 +29,7 @@ export const HONEYPOT_KEYWORDS = [
   "email_address_confirm",
 ] as const;
 
-// ─── DOM Query Selectors ───
+// DOM Query Selectors
 export const INTERACTIVE_INPUT_SELECTORS =
   "input, textarea, select, button, [contenteditable='true'], [role='textbox'], " +
   "[role='radio'], [role='checkbox'], [role='combobox'], [role='searchbox'], " +
@@ -43,6 +43,8 @@ export const BROAD_INPUT_FALLBACK_SELECTORS =
 export const CUSTOM_SELECT_SELECTORS = [
   '[role="combobox"]',
   '[role="listbox"]',
+  '[data-automation-id="select"]',
+  '.office-form-question-dropdown',
   '[class*="react-select"]',
   '[class*="select__control"]',
   '[class*="MuiSelect"]',
@@ -52,6 +54,7 @@ export const CUSTOM_SELECT_SELECTORS = [
   '[class*="selectContainer"]',
   '[class*="select-container"]',
 ] as const;
+
 
 export const TOGGLE_SELECTORS = [
   '[role="switch"]',
@@ -88,7 +91,7 @@ export const SEND_BUTTON_SELECTORS = [
   'path[d^="M16.6915"]',
 ] as const;
 
-// ─── Navigation Button Keywords ───
+// Navigation Button Keywords
 export const NEXT_KEYWORDS = [
   "submit application",
   "review application",
@@ -174,7 +177,7 @@ export const PREV_EXCLUDE_KEYWORDS = [
 export const NEXT_ARROW_SYMBOLS = ["→", "▶", "›", ">", "»", "arrow"] as const;
 export const PREV_ARROW_SYMBOLS = ["←", "◀", "‹", "<", "«"] as const;
 
-// ─── Matching & Text Normalization ───
+// Matching & Text Normalization
 export const STOP_WORDS = new Set([
   "in",
   "of",

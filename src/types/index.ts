@@ -179,6 +179,8 @@ export interface ChromeMessage {
 
 export interface ChromeResponse {
   success: boolean;
+  navigated?: boolean;
+  reason?: string;
   fields?: FormField[];
   filledCount?: number;
   total?: number;

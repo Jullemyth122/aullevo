@@ -3,13 +3,37 @@
 */
 
 export function initWebAuthSync() {
+    const hostname = window.location.hostname;
     if (
-        !window.location.hostname.includes("aullevo-web") &&
-        !window.location.hostname.includes("vercel.app") &&
-        window.location.hostname !== "localhost"
+        !hostname.includes("aullevo-web") &&
+        !hostname.includes("vercel.app") &&
+        hostname !== "localhost" &&
+        hostname !== "127.0.0.1"
     ) {
         return;
     }
+
+    let lastSentSig = "";
+
+    const sendAuthSyncIfChanged = (payload: {
+        uid?: string;
+        email?: string;
+        displayName?: string;
+        photoURL?: string;
+        isPro?: boolean;
+        proExpiresAt?: string | null;
+    }) => {
+        const sig = `${payload.uid || ""}|${payload.email || ""}|${payload.displayName || ""}|${payload.isPro ?? ""}|${payload.proExpiresAt || ""}`;
+        if (sig === lastSentSig) return;
+        lastSentSig = sig;
+
+        if (typeof chrome !== "undefined" && chrome.runtime?.sendMessage) {
+            chrome.runtime.sendMessage({
+                action: "SYNC_WEB_USER",
+                ...payload,
+            });
+        }
+    };
 
     const syncWebAuth = () => {
         let isProFromStorage: boolean | undefined = undefined;
@@ -38,20 +62,15 @@ export function initWebAuthSync() {
                     if (raw) {
                         const parsed = JSON.parse(raw);
                         if (parsed && parsed.uid) {
-                            if (
-                                typeof chrome !== "undefined" &&
-                                chrome.runtime?.sendMessage
-                            ) {
-                                chrome.runtime.sendMessage({
-                                    action: "SYNC_WEB_USER",
-                                    uid: parsed.uid,
-                                    email: parsed.email,
-                                    displayName: parsed.displayName,
-                                    photoURL: parsed.photoURL,
-                                    isPro: isProFromStorage,
-                                    proExpiresAt: proExpiresAtFromStorage,
-                                });
-                            }
+                            sendAuthSyncIfChanged({
+                                uid: parsed.uid,
+                                email: parsed.email,
+                                displayName: parsed.displayName,
+                                photoURL: parsed.photoURL,
+                                isPro: isProFromStorage,
+                                proExpiresAt: proExpiresAtFromStorage,
+                            });
+                            return;
                         }
                     }
                 }
@@ -78,20 +97,15 @@ export function initWebAuthSync() {
                             (item.value.uid || item.value.email)
                         ) {
                             const val = item.value;
-                            if (
-                                typeof chrome !== "undefined" &&
-                                chrome.runtime?.sendMessage
-                            ) {
-                                chrome.runtime.sendMessage({
-                                    action: "SYNC_WEB_USER",
-                                    uid: val.uid,
-                                    email: val.email,
-                                    displayName: val.displayName,
-                                    photoURL: val.photoURL,
-                                    isPro: isProFromStorage,
-                                    proExpiresAt: proExpiresAtFromStorage,
-                                });
-                            }
+                            sendAuthSyncIfChanged({
+                                uid: val.uid,
+                                email: val.email,
+                                displayName: val.displayName,
+                                photoURL: val.photoURL,
+                                isPro: isProFromStorage,
+                                proExpiresAt: proExpiresAtFromStorage,
+                            });
+                            return;
                         }
                     }
                 };
@@ -110,18 +124,15 @@ export function initWebAuthSync() {
             event.data.user
         ) {
             const { uid, email, displayName, photoURL, isPro, proExpiresAt } = event.data.user;
-            if (typeof chrome !== "undefined" && chrome.runtime?.sendMessage) {
-                chrome.runtime.sendMessage({
-                    action: "SYNC_WEB_USER",
-                    uid,
-                    email,
-                    displayName,
-                    photoURL,
-                    isPro: !!isPro,
-                    proExpiresAt: proExpiresAt || null,
-                });
-            }
+            sendAuthSyncIfChanged({
+                uid,
+                email,
+                displayName,
+                photoURL,
+                isPro: !!isPro,
+                proExpiresAt: proExpiresAt || null,
+            });
         }
     });
-    setInterval(syncWebAuth, 3000);
+    setInterval(syncWebAuth, 10000);
 }

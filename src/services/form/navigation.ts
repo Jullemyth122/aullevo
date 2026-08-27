@@ -101,8 +101,157 @@ export function findNextButton(): HTMLElement | null {
   return scored[0].btn as HTMLElement;
 }
 
+export interface NavigationResult {
+  success: boolean;
+  navigated?: boolean;
+  reason?: "validation_error" | "did_not_advance" | "no_button" | "navigated";
+  message: string;
+}
+
 /**
- * Clicks the Next button if found.
+ * Checks if the DOM currently displays visible form validation errors.
+ */
+export function hasFormValidationErrors(): boolean {
+  // Google Forms specific error indicators
+  const gfErrors = document.querySelectorAll(
+    '[role="alert"], .oJeWuf, .RHiWh, .LXRPh, .kssQ7b, [data-error], .freebirdFormviewerComponentsQuestionBaseErrorText, div[jsname="BOHaEe"]'
+  );
+  for (const el of Array.from(gfErrors)) {
+    if (isVisible(el as HTMLElement) && (el.textContent || "").trim().length > 0) {
+      return true;
+    }
+  }
+
+  // General HTML5 / Framework error indicators
+  const generalErrors = document.querySelectorAll(
+    ':invalid, [aria-invalid="true"], .is-invalid, .invalid-feedback, .error-message, .field-validation-error, [data-invalid="true"]'
+  );
+  for (const el of Array.from(generalErrors)) {
+    if (isVisible(el as HTMLElement)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Extracts a snapshot of current visible fields and pagination status.
+ */
+function getFormPageSnapshot(): { url: string; pageIndicator: string; visibleFieldIds: string } {
+  const url = window.location.href;
+
+  // Google Forms & web form page indicators e.g. "Page 2 of 4"
+  const pageIndicatorEl = document.querySelector(
+    '.freebirdFormviewerViewNavigationPageIndicator, [role="progressbar"], div[jsname="O42U8e"]'
+  );
+  const pageIndicator = pageIndicatorEl?.textContent?.trim() || "";
+
+  // Visible field identifiers
+  const inputs = Array.from(
+    document.querySelectorAll<HTMLElement>(
+      "input, select, textarea, [role='radiogroup'], [role='listbox']"
+    )
+  )
+    .filter(isVisible)
+    .map(
+      (el) =>
+        el.id || el.getAttribute("name") || el.getAttribute("aria-label") || ""
+    )
+    .filter(Boolean)
+    .sort()
+    .join(",");
+
+  return { url, pageIndicator, visibleFieldIds: inputs };
+}
+
+/**
+ * Asynchronously clicks the Next button and waits/verifies if navigation or page progression actually occurred.
+ */
+export async function clickNextButtonAsync(timeoutMs = 2500): Promise<NavigationResult> {
+  const btn = findNextButton();
+  if (!btn) {
+    return { success: false, reason: "no_button", message: 'No "Next" button found.' };
+  }
+
+  const beforeSnapshot = getFormPageSnapshot();
+
+  // Trigger natural click and pointer events
+  btn.focus();
+  btn.click();
+  btn.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, cancelable: true }));
+  btn.dispatchEvent(new MouseEvent("mouseup", { bubbles: true, cancelable: true }));
+
+  // Poll for page state change or validation errors
+  const startTime = Date.now();
+  const pollInterval = 150;
+
+  while (Date.now() - startTime < timeoutMs) {
+    await new Promise((r) => setTimeout(r, pollInterval));
+
+    const currentSnapshot = getFormPageSnapshot();
+
+    // 1. URL changed
+    if (currentSnapshot.url !== beforeSnapshot.url) {
+      return { success: true, navigated: true, reason: "navigated", message: "Navigated to next page URL." };
+    }
+
+    // 2. Page indicator changed (e.g. "Page 2 of 4" -> "Page 3 of 4")
+    if (
+      beforeSnapshot.pageIndicator &&
+      currentSnapshot.pageIndicator &&
+      beforeSnapshot.pageIndicator !== currentSnapshot.pageIndicator
+    ) {
+      return {
+        success: true,
+        navigated: true,
+        reason: "navigated",
+        message: `Advanced from ${beforeSnapshot.pageIndicator} to ${currentSnapshot.pageIndicator}.`,
+      };
+    }
+
+    // 3. Visible fields changed significantly
+    if (
+      beforeSnapshot.visibleFieldIds &&
+      currentSnapshot.visibleFieldIds &&
+      beforeSnapshot.visibleFieldIds !== currentSnapshot.visibleFieldIds
+    ) {
+      return {
+        success: true,
+        navigated: true,
+        reason: "navigated",
+        message: "Advanced to next form section.",
+      };
+    }
+
+    // 4. Check for validation errors (after 350ms to allow validation messages to render)
+    if (Date.now() - startTime >= 350 && hasFormValidationErrors()) {
+      return {
+        success: false,
+        reason: "validation_error",
+        message: "Form has validation errors or missing required fields.",
+      };
+    }
+  }
+
+  // Timeout reached without visible advance
+  if (hasFormValidationErrors()) {
+    return {
+      success: false,
+      reason: "validation_error",
+      message: "Form validation error prevented advancing.",
+    };
+  }
+
+  return {
+    success: false,
+    reason: "did_not_advance",
+    message: "Page did not advance to the next step.",
+  };
+}
+
+/**
+ * Synchronously clicks the Next button (legacy fallback).
  */
 export function clickNextButton(): { success: boolean; message: string } {
   const btn = findNextButton();

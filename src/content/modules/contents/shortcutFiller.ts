@@ -4,7 +4,7 @@ import {
   computeStepFingerprint,
   executeFormFillStep,
   shouldAddNextGroupItem,
-  clickNextButton,
+  clickNextButtonAsync,
   clickElement,
   detectPageCaptcha,
   findChatInputField,
@@ -227,11 +227,17 @@ export async function runShortcutFill() {
     // Try clicking Next
     if (filledCount > 0) {
       await sleep(1000);
-      const nextResult = clickNextButton();
-      if (nextResult.success) {
+      const nextResult = await clickNextButtonAsync();
+      if (nextResult.success && nextResult.navigated) {
         showToast("➡️ Moving to next step...", "info");
-        await sleep(3000);
+        await sleep(1500);
         continue;
+      } else if (nextResult.reason === "validation_error") {
+        showToast(
+          "⚠️ Form has validation errors. Please review highlighted fields.",
+          "error",
+        );
+        break;
       }
     }
 

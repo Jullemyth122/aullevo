@@ -1,10 +1,12 @@
+import { useState } from 'react';
 import { FolderOpen, Check, X, Save } from 'lucide-react';
-import type { CustomField } from '../../../../types';
+import type { CustomField, UserData } from '../../../../types';
 import { SectionHeader } from './SectionHeader';
 import { FileIcon } from './FileIcon';
 import { fileSizeStr } from '../sidebarTypes';
 import { fileMatchesField } from '../../../../utils/fileMatch';
 import { useSidebar } from '../SidebarContext';
+import { storageService } from '../../../../services/storageService';
 import {
     PersonalInfoFields,
     JobDetailsFields,
@@ -45,21 +47,52 @@ export const ProfileTab = () => {
         isPro,
     } = useSidebar();
 
+    const [draftCF, setDraftCF] = useState({ label: '', value: '', context: '' });
+
     const profileType = userData.profileType || 'job';
     const customFields = (userData.customFields as CustomField[]) || [];
 
     const handleAddCustomField = (field: CustomField) => {
-        setUserData((p) => ({
-            ...p,
-            customFields: [...((p.customFields as CustomField[]) || []), field],
-        }));
+        setUserData((p) => {
+            const updated = {
+                ...p,
+                customFields: [...((p.customFields as CustomField[]) || []), field],
+            };
+            if (typeof chrome !== 'undefined' && chrome?.storage) {
+                storageService.saveProfile(activeProfile, updated as UserData).catch(() => {
+                    chrome.storage.local.set({ userData: updated });
+                });
+            }
+            return updated;
+        });
     };
 
     const handleRemoveCustomField = (idx: number) => {
-        setUserData((p) => ({
-            ...p,
-            customFields: ((p.customFields as CustomField[]) || []).filter((_, i) => i !== idx),
-        }));
+        setUserData((p) => {
+            const updated = {
+                ...p,
+                customFields: ((p.customFields as CustomField[]) || []).filter((_, i) => i !== idx),
+            };
+            if (typeof chrome !== 'undefined' && chrome?.storage) {
+                storageService.saveProfile(activeProfile, updated as UserData).catch(() => {
+                    chrome.storage.local.set({ userData: updated });
+                });
+            }
+            return updated;
+        });
+    };
+
+    const onSaveProfileClick = async () => {
+        let extra: CustomField | undefined = undefined;
+        if (draftCF.label.trim() || draftCF.value.trim()) {
+            extra = {
+                label: draftCF.label.trim() || draftCF.value.trim() || 'Custom Field',
+                value: draftCF.value.trim(),
+                context: draftCF.context.trim(),
+            };
+            setDraftCF({ label: '', value: '', context: '' });
+        }
+        await handleSave(extra);
     };
 
     return (
@@ -375,11 +408,13 @@ export const ProfileTab = () => {
                         customFields={customFields}
                         onAdd={handleAddCustomField}
                         onRemove={handleRemoveCustomField}
+                        draft={draftCF}
+                        onDraftChange={setDraftCF}
                     />
                 </div>
             )}
 
-            <button className="av-save-btn" onClick={handleSave}>
+            <button className="av-save-btn" onClick={onSaveProfileClick}>
                 <Save size={14} /> {saveMsg || 'Save Profile'}
             </button>
         </div>

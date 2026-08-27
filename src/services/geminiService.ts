@@ -348,8 +348,8 @@ class GeminiService {
         - **Add Buttons**: If you see an "Add" button (e.g. "Add Project", "+ Add Another"), map it with action="click_add".
 
         **Allowed field types:**
-        firstName, lastName, email, phone, phoneCountryCode, address, city, state, zipCode, country, 
-        linkedin, portfolio, github, headline, dateOfBirth, gender, summary,
+        fullName, firstName, middleName, lastName, email, phone, phoneCountryCode, address, city, state, zipCode, country, 
+        linkedin, portfolio, github, facebook, twitter, instagram, youtube, headline, dateOfBirth, gender, summary,
         salaryExpectation, noticePeriod, workAuthorization, yearsOfExperience,
         emergencyContactName, emergencyContactRelationship, emergencyContactPhone, bloodType, allergies,
         medicalConditions, medications, insuranceProvider, policyNumber, occupation, industry,
@@ -361,18 +361,21 @@ class GeminiService {
         experience, education, project, skill
 
         **FUZZY MATCHING RULES:**
-        1. "First Name" / "Given Name" / "fname" / "Your first name" → firstName
-        2. "Last Name" / "Surname" / "Family name" / "lname" → lastName  
-        3. "Email" / "Email Address" / "E-mail" → email (CRITICAL: DO NOT map "Email Address" to "address"!)
-        4. "Address" / "Street Address" / "Location" / "Current Address" → address (Physical street address only)
-        5. "Phone" / "Mobile" / "Contact number" / "Cell" → phone
-        6. "LinkedIn" / "LinkedIn URL" / "LinkedIn Profile" → linkedin
-        7. "Headline" / "Professional headline" / "Title" (in profile context) → headline
-        8. "Expected salary" / "Salary expectations" / "Desired compensation" → salaryExpectation
-        9. "Notice period" / "How soon can you start" / "Availability" → noticePeriod
-        10. "Work authorization" / "Are you authorized to work" / "Visa status" → workAuthorization
-        11. "Years of experience" / "Total experience" → yearsOfExperience
-        12. For custom fields: Match by comparing the field's label/context with each custom field's context description.
+        1. "Name" / "Full Name" / "Your Name" / "Applicant Name" → fullName (Single name field)
+        2. "First Name" / "Given Name" / "fname" / "Your first name" → firstName
+        3. "Middle Name" / "Middle Initial" → middleName
+        4. "Last Name" / "Surname" / "Family name" / "lname" → lastName  
+        5. "Email" / "Email Address" / "E-mail" → email (CRITICAL: DO NOT map "Email Address" to "address"!)
+        6. "Address" / "Street Address" / "Location" / "Current Address" → address (Physical street address only)
+        7. "Phone" / "Mobile" / "Contact number" / "Cell" → phone
+        8. "LinkedIn" / "LinkedIn URL" / "LinkedIn Profile" → linkedin
+        9. "Facebook" / "Facebook URL" / "Facebook Link" → facebook
+        10. "Headline" / "Professional headline" / "Title" (in profile context) → headline
+        11. "Expected salary" / "Salary expectations" / "Desired compensation" → salaryExpectation
+        12. "Notice period" / "How soon can you start" / "Availability" → noticePeriod
+        13. "Work authorization" / "Are you authorized to work" / "Visa status" → workAuthorization
+        14. "Years of experience" / "Total experience" → yearsOfExperience
+        15. For custom fields: Match by comparing the field's label/context with each custom field's context description.
 
         **Special Rules:**
         1. **Select/Radio/Checkbox/Toggle/Range**: DO NOT pick a "selectedValue". Only return the "fieldType" and any necessary grouping metadata. The extension will automatically map your selected "fieldType" to the user's saved profile data.
@@ -523,10 +526,10 @@ User context (career summary and saved memories):
 ${contextString || "No context available."}
 
 Provide a SHORT, professional, and friendly answer (1-3 sentences). 
-If the question is answered by the SAVED MEMORIES, prioritize that information!
-If you cannot answer from the context, reply exactly: [MANUAL_INPUT_NEEDED]
+If the question is answered by the SAVED MEMORIES or context, prioritize that information!
+If you cannot answer from the context, return an empty string.
 
-Return ONLY the answer text, nothing else.
+Return ONLY the answer text, or nothing if unknown.
 `;
 
     try {
@@ -535,10 +538,18 @@ Return ONLY the answer text, nothing else.
         "gemini-3-flash-preview",
         { responseMimeType: "text/plain" },
       );
-      return responseText.trim();
+      const trimmed = responseText.trim();
+      if (
+        trimmed === "[MANUAL_INPUT_NEEDED]" ||
+        trimmed === "[ERROR]" ||
+        trimmed.startsWith("[ERROR")
+      ) {
+        return "";
+      }
+      return trimmed;
     } catch (error) {
       console.error("Gemini answer error:", error);
-      return "[ERROR]";
+      return "";
     }
   }
 
@@ -591,7 +602,7 @@ Draft a natural, context-aware reply to the latest message on behalf of the user
       return responseText.trim();
     } catch (error) {
       console.error("Gemini conversational engine execution error:", error);
-      return "[Error generating automated response]";
+      return "";
     }
   }
 

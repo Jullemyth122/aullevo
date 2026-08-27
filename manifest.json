@@ -2,14 +2,8 @@
   "manifest_version": 3,
   "name": "Aullevo - Automation Forms Filler with or without AI",
   "version": "1.0.0",
-  "description": "Auto-fill forms using your profilers with or without AI. Press Ctrl+Shift+E to open the sidebar!",
-  "permissions": [
-    "activeTab",
-    "tabs",
-    "scripting",
-    "storage",
-    "unlimitedStorage"
-  ],
+  "description": "Auto-fill forms using your profiles with or without AI. Press Ctrl+Shift+E to open the sidebar!",
+  "permissions": ["activeTab", "storage"],
   "background": {
     "service_worker": "assets/background.js",
     "type": "module"

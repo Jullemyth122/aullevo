@@ -3,7 +3,7 @@ import { showToast } from './modules/contents/toastSystem';
 import { initSPAWatcher } from './modules/contents/spaWatcher';
 import { initShortcutFiller, extractAllFields } from './modules/contents/shortcutFiller';
 import { initWebAuthSync } from './modules/contents/webAuthSync';
-import { executeFormFillStep, clickNextButton, clickPrevButton } from '../services/formAnalyzer';
+import { executeFormFillStep, clickNextButtonAsync, clickPrevButton } from '../services/formAnalyzer';
 import type { ChromeMessage, ChromeResponse, FieldMapping } from '../types';
 import './sidebar.css';
 
@@ -81,9 +81,11 @@ chrome.runtime.onMessage.addListener(
         }
 
         if (request.action === 'clickNext') {
-            const { success, message } = clickNextButton();
-            sendResponse({ success, message });
-            return false;
+            (async () => {
+                const navResult = await clickNextButtonAsync();
+                sendResponse(navResult);
+            })();
+            return true;
         }
 
         if (request.action === 'clickPrev') {

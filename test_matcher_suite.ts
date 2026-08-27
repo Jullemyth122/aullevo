@@ -762,7 +762,9 @@ async function runTests() {
   // =========================================================================
   // Test 6: Multi-Column Table Layout Without 'for' Attributes (Personal Info Grid)
   // =========================================================================
-  console.log("\n--- Test 6: Multi-Column Table Layout Without 'for' Attributes ---");
+  console.log(
+    "\n--- Test 6: Multi-Column Table Layout Without 'for' Attributes ---",
+  );
 
   const tableFormHtml = `
     <!DOCTYPE html>
@@ -797,7 +799,10 @@ async function runTests() {
   setupDom(tableFormHtml);
 
   const tblFields = extractFormFields();
-  assert(tblFields.length === 5, `Extracted 5 fields from table form (got ${tblFields.length})`);
+  assert(
+    tblFields.length === 5,
+    `Extracted 5 fields from table form (got ${tblFields.length})`,
+  );
 
   const tblLastField = tblFields.find((f) => f.id === "tbl_last");
   const tblFirstField = tblFields.find((f) => f.id === "tbl_first");
@@ -805,19 +810,38 @@ async function runTests() {
   const tblAddrField = tblFields.find((f) => f.id === "tbl_addr");
   const tblPhoneField = tblFields.find((f) => f.id === "tbl_phone");
 
-  assert(tblLastField?.label === "LAST NAME", `tbl_last label is "LAST NAME" (got "${tblLastField?.label}")`);
-  assert(tblFirstField?.label === "FIRST NAME", `tbl_first label is "FIRST NAME" (got "${tblFirstField?.label}")`);
-  assert(tblMiddleField?.label === "MIDDLE", `tbl_middle label is "MIDDLE" (got "${tblMiddleField?.label}")`);
-  assert(tblAddrField?.label === "PRESENT ADDRESS", `tbl_addr label is "PRESENT ADDRESS" (got "${tblAddrField?.label}")`);
-  assert(tblPhoneField?.label === "PHONE NO.", `tbl_phone label is "PHONE NO." (got "${tblPhoneField?.label}")`);
+  assert(
+    tblLastField?.label === "LAST NAME",
+    `tbl_last label is "LAST NAME" (got "${tblLastField?.label}")`,
+  );
+  assert(
+    tblFirstField?.label === "FIRST NAME",
+    `tbl_first label is "FIRST NAME" (got "${tblFirstField?.label}")`,
+  );
+  assert(
+    tblMiddleField?.label === "MIDDLE",
+    `tbl_middle label is "MIDDLE" (got "${tblMiddleField?.label}")`,
+  );
+  assert(
+    tblAddrField?.label === "PRESENT ADDRESS",
+    `tbl_addr label is "PRESENT ADDRESS" (got "${tblAddrField?.label}")`,
+  );
+  assert(
+    tblPhoneField?.label === "PHONE NO.",
+    `tbl_phone label is "PHONE NO." (got "${tblPhoneField?.label}")`,
+  );
 
   const tblCustomFields: CustomField[] = [
     { label: "Last Name", value: "Vicentillo", context: "Last Name" },
     { label: "First Name", value: "Julle Myth", context: "First Name" },
     { label: "Phone", value: "09853047403", context: "Phone" },
-    { label: "Residential Address", value: "PMS BLDG Unit 17 Brgy 186 Tala Caloocan City", context: "Residential Address" },
+    {
+      label: "Residential Address",
+      value: "PMS BLDG Unit 17 Brgy 186 Tala Caloocan City",
+      context: "Residential Address",
+    },
     { label: "Salutation", value: "Mr", context: "Salutation" },
-    { label: "Email", value: "mythicalxenon12@gmail.com", context: "Email" }
+    { label: "Email", value: "mythicalxenon12@gmail.com", context: "Email" },
   ];
 
   const tblUserData: Partial<UserData> = {
@@ -825,8 +849,19 @@ async function runTests() {
     customFields: tblCustomFields,
   };
 
-  const tblMappings = matchFieldsHeuristically(tblFields, tblCustomFields, tblUserData);
-  await resolveFieldValues(tblMappings, tblFields, tblUserData, tblCustomFields, [], false);
+  const tblMappings = matchFieldsHeuristically(
+    tblFields,
+    tblCustomFields,
+    tblUserData,
+  );
+  await resolveFieldValues(
+    tblMappings,
+    tblFields,
+    tblUserData,
+    tblCustomFields,
+    [],
+    false,
+  );
 
   for (const m of tblMappings) {
     if (m.selectedValue !== undefined) {
@@ -834,17 +869,38 @@ async function runTests() {
     }
   }
 
-  const domTblLast = (document.getElementById("tbl_last") as HTMLInputElement).value;
-  const domTblFirst = (document.getElementById("tbl_first") as HTMLInputElement).value;
-  const domTblMiddle = (document.getElementById("tbl_middle") as HTMLInputElement).value;
-  const domTblAddr = (document.getElementById("tbl_addr") as HTMLInputElement).value;
-  const domTblPhone = (document.getElementById("tbl_phone") as HTMLInputElement).value;
+  const domTblLast = (document.getElementById("tbl_last") as HTMLInputElement)
+    .value;
+  const domTblFirst = (document.getElementById("tbl_first") as HTMLInputElement)
+    .value;
+  const domTblMiddle = (
+    document.getElementById("tbl_middle") as HTMLInputElement
+  ).value;
+  const domTblAddr = (document.getElementById("tbl_addr") as HTMLInputElement)
+    .value;
+  const domTblPhone = (document.getElementById("tbl_phone") as HTMLInputElement)
+    .value;
 
-  assert(domTblLast === "Vicentillo", `Table Last Name filled "Vicentillo" (got "${domTblLast}")`);
-  assert(domTblFirst === "Julle Myth", `Table First Name filled "Julle Myth" (got "${domTblFirst}")`);
-  assert(domTblMiddle === "", `Table Middle Name remains empty (no bleed from Last Name) (got "${domTblMiddle}")`);
-  assert(domTblAddr === "PMS BLDG Unit 17 Brgy 186 Tala Caloocan City", `Table Present Address filled correctly (got "${domTblAddr}")`);
-  assert(domTblPhone === "09853047403", `Table Phone Number filled "09853047403" (got "${domTblPhone}")`);
+  assert(
+    domTblLast === "Vicentillo",
+    `Table Last Name filled "Vicentillo" (got "${domTblLast}")`,
+  );
+  assert(
+    domTblFirst === "Julle Myth",
+    `Table First Name filled "Julle Myth" (got "${domTblFirst}")`,
+  );
+  assert(
+    domTblMiddle === "",
+    `Table Middle Name remains empty (no bleed from Last Name) (got "${domTblMiddle}")`,
+  );
+  assert(
+    domTblAddr === "PMS BLDG Unit 17 Brgy 186 Tala Caloocan City",
+    `Table Present Address filled correctly (got "${domTblAddr}")`,
+  );
+  assert(
+    domTblPhone === "09853047403",
+    `Table Phone Number filled "09853047403" (got "${domTblPhone}")`,
+  );
 
   // =========================================================================
   // Test 7: Real Google Forms Structure (Heading extraction, whsOnd, radios, paragraphs)
@@ -907,17 +963,42 @@ async function runTests() {
   setupDom(googleFormsInternHtml);
 
   const gfInternFields = extractFormFields();
-  assert(gfInternFields.length >= 4, `Google Forms: Extracted at least 4 fields (got ${gfInternFields.length})`);
+  assert(
+    gfInternFields.length >= 4,
+    `Google Forms: Extracted at least 4 fields (got ${gfInternFields.length})`,
+  );
 
-  const gfFirstField = gfInternFields.find((f) => f.label.toLowerCase().includes("first name"));
-  const gfLastField = gfInternFields.find((f) => f.label.toLowerCase().includes("surname") || f.label.toLowerCase().includes("last name"));
-  const gfSalutationField = gfInternFields.find((f) => f.label.toLowerCase().includes("salutation"));
-  const gfAddrField = gfInternFields.find((f) => f.label.toLowerCase().includes("address"));
+  const gfFirstField = gfInternFields.find((f) =>
+    f.label.toLowerCase().includes("first name"),
+  );
+  const gfLastField = gfInternFields.find(
+    (f) =>
+      f.label.toLowerCase().includes("surname") ||
+      f.label.toLowerCase().includes("last name"),
+  );
+  const gfSalutationField = gfInternFields.find((f) =>
+    f.label.toLowerCase().includes("salutation"),
+  );
+  const gfAddrField = gfInternFields.find((f) =>
+    f.label.toLowerCase().includes("address"),
+  );
 
-  assert(!!gfFirstField, `Google Forms: Successfully extracted "First Name" field (label: "${gfFirstField?.label}")`);
-  assert(!!gfLastField, `Google Forms: Successfully extracted "Surname/Last Name" field (label: "${gfLastField?.label}")`);
-  assert(!!gfSalutationField, `Google Forms: Successfully extracted "Salutation" radio group (label: "${gfSalutationField?.label}")`);
-  assert(!!gfAddrField, `Google Forms: Successfully extracted "Residential Address" field (label: "${gfAddrField?.label}")`);
+  assert(
+    !!gfFirstField,
+    `Google Forms: Successfully extracted "First Name" field (label: "${gfFirstField?.label}")`,
+  );
+  assert(
+    !!gfLastField,
+    `Google Forms: Successfully extracted "Surname/Last Name" field (label: "${gfLastField?.label}")`,
+  );
+  assert(
+    !!gfSalutationField,
+    `Google Forms: Successfully extracted "Salutation" radio group (label: "${gfSalutationField?.label}")`,
+  );
+  assert(
+    !!gfAddrField,
+    `Google Forms: Successfully extracted "Residential Address" field (label: "${gfAddrField?.label}")`,
+  );
 
   const gfInternUserData: Partial<UserData> = {
     firstName: "Vicentillo",
@@ -925,12 +1006,27 @@ async function runTests() {
     address: "Nigga What?",
     customFields: [
       { label: "Salutation", value: "Mr.", context: "Salutation" },
-      { label: "Residential Address", value: "Nigga What?", context: "Residential Address" }
-    ]
+      {
+        label: "Residential Address",
+        value: "Nigga What?",
+        context: "Residential Address",
+      },
+    ],
   };
 
-  const gfInternMappings = matchFieldsHeuristically(gfInternFields, gfInternUserData.customFields, gfInternUserData);
-  await resolveFieldValues(gfInternMappings, gfInternFields, gfInternUserData, gfInternUserData.customFields, [], false);
+  const gfInternMappings = matchFieldsHeuristically(
+    gfInternFields,
+    gfInternUserData.customFields,
+    gfInternUserData,
+  );
+  await resolveFieldValues(
+    gfInternMappings,
+    gfInternFields,
+    gfInternUserData,
+    gfInternUserData.customFields,
+    [],
+    false,
+  );
 
   for (const m of gfInternMappings) {
     if (m.selectedValue !== undefined) {
@@ -938,15 +1034,32 @@ async function runTests() {
     }
   }
 
-  const domGfFirst = (document.getElementById("gf_fname") as HTMLInputElement).value;
-  const domGfLast = (document.getElementById("gf_lname") as HTMLInputElement).value;
-  const domGfAddr = (document.getElementById("gf_addr") as HTMLTextAreaElement).value;
-  const domGfRadioMrChecked = document.getElementById("gf_radio_mr")?.getAttribute("aria-checked") === "true";
+  const domGfFirst = (document.getElementById("gf_fname") as HTMLInputElement)
+    .value;
+  const domGfLast = (document.getElementById("gf_lname") as HTMLInputElement)
+    .value;
+  const domGfAddr = (document.getElementById("gf_addr") as HTMLTextAreaElement)
+    .value;
+  const domGfRadioMrChecked =
+    document.getElementById("gf_radio_mr")?.getAttribute("aria-checked") ===
+    "true";
 
-  assert(domGfFirst === "Vicentillo", `Google Forms: First Name filled "Vicentillo" (got "${domGfFirst}")`);
-  assert(domGfLast === "Nigga", `Google Forms: Last Name filled "Nigga" (got "${domGfLast}")`);
-  assert(domGfAddr === "Nigga What?", `Google Forms: Address filled "Nigga What?" (got "${domGfAddr}")`);
-  assert(domGfRadioMrChecked, `Google Forms: Salutation Mr. radio selected (got aria-checked="${document.getElementById("gf_radio_mr")?.getAttribute("aria-checked")}")`);
+  assert(
+    domGfFirst === "Vicentillo",
+    `Google Forms: First Name filled "Vicentillo" (got "${domGfFirst}")`,
+  );
+  assert(
+    domGfLast === "Nigga",
+    `Google Forms: Last Name filled "Nigga" (got "${domGfLast}")`,
+  );
+  assert(
+    domGfAddr === "Nigga What?",
+    `Google Forms: Address filled "Nigga What?" (got "${domGfAddr}")`,
+  );
+  assert(
+    domGfRadioMrChecked,
+    `Google Forms: Salutation Mr. radio selected (got aria-checked="${document.getElementById("gf_radio_mr")?.getAttribute("aria-checked")}")`,
+  );
 
   console.log(
     "\n🎉 ALL REAL-DOM 2D MATRIX, GOOGLE FORMS, & FORMANALYZER TESTS PASSED WITH 100% SUCCESS! 🚀\n",

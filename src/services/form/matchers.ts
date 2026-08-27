@@ -3,12 +3,27 @@ import { cleanLabelText, findLabel, findMatrixHeaders } from "./labels";
 
 /**
  * Normalizes strings and checks for substring containment.
+ * Number-aware: prevents "100%" matching "0%".
  */
 export function fuzzyMatch(a: string, b: string): boolean {
   if (!a || !b) return false;
   const aNorm = a.toLowerCase().replace(/[^a-z0-9]/g, "");
   const bNorm = b.toLowerCase().replace(/[^a-z0-9]/g, "");
   if (!aNorm || !bNorm) return false;
+
+  const aHasDigits = /\d/.test(aNorm);
+  const bHasDigits = /\d/.test(bNorm);
+  if (aHasDigits || bHasDigits) {
+    if (aNorm === bNorm) return true;
+    const aNum = aNorm.match(/\d+/)?.[0];
+    const bNum = bNorm.match(/\d+/)?.[0];
+    if (aNum && bNum) return aNum === bNum;
+    return false;
+  }
+
+  if (Math.min(aNorm.length, bNorm.length) < 3) {
+    return aNorm === bNorm;
+  }
   return aNorm.includes(bNorm) || bNorm.includes(aNorm);
 }
 
@@ -21,7 +36,18 @@ export function smartMatch(label: string, value: string): boolean {
   const lLower = label.toLowerCase().trim();
   const vLower = value.toLowerCase().trim();
 
-  if (lLower === vLower || lLower.includes(vLower) || vLower.includes(lLower)) {
+  if (lLower === vLower) return true;
+
+  const lHasDigits = /\d/.test(lLower);
+  const vHasDigits = /\d/.test(vLower);
+  if (lHasDigits || vHasDigits) {
+    const lNum = lLower.match(/\d+/)?.[0];
+    const vNum = vLower.match(/\d+/)?.[0];
+    if (lNum && vNum) return lNum === vNum;
+    return lLower === vLower;
+  }
+
+  if (lLower.includes(vLower) || vLower.includes(lLower)) {
     return true;
   }
 
@@ -186,8 +212,18 @@ export function optionMatchesValue(
     .trim()
     .toLowerCase();
 
+  const valHasDigits = /\d/.test(valStr);
+
   return descriptors.some((desc) => {
     if (desc === valStr) return true;
+
+    // Number / percentage matching
+    if (valHasDigits && /\d/.test(desc)) {
+      const dNum = desc.match(/\d+/)?.[0];
+      const vNum = valStr.match(/\d+/)?.[0];
+      if (dNum && vNum) return dNum === vNum;
+    }
+
     if (fuzzyMatch(desc, valStr)) return true;
     if (smartMatch(desc, valStr)) return true;
 
@@ -197,6 +233,7 @@ export function optionMatchesValue(
       .trim()
       .toLowerCase();
     if (
+      !valHasDigits &&
       normDesc &&
       normVal &&
       (normDesc === normVal ||
@@ -207,7 +244,7 @@ export function optionMatchesValue(
     }
 
     // Safe boundary match for multi-word or short/special tokens
-    if (valStr.length >= 2 && desc.length >= 2) {
+    if (!valHasDigits && valStr.length >= 2 && desc.length >= 2) {
       const escaped = valStr.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       if (new RegExp(`(?:^|\\b|\\s)${escaped}(?:$|\\b|\\s)`, "i").test(desc))
         return true;
@@ -229,27 +266,41 @@ export function extractCustomSelectOptions(
   if (listboxId) listbox = document.getElementById(listboxId);
   if (!listbox) {
     listbox = el.querySelector(
-      '[role="listbox"], [role="menu"], [class*="menu"], [class*="options"], [class*="dropdown"]',
+      '[role="listbox"], [role="menu"], [class*="menu"], [class*="options"], [class*="dropdown"], .OA0qNb, [jsname="V68bde"]',
     );
   }
   if (!listbox && el.parentElement) {
     listbox = el.parentElement.querySelector(
-      '[role="listbox"], [role="menu"], [class*="menu-list"], [class*="options-list"]',
+      '[role="listbox"], [role="menu"], [class*="menu-list"], [class*="options-list"], .OA0qNb, [jsname="V68bde"]',
     );
   }
   if (listbox) {
     const optionEls = listbox.querySelectorAll(
-      '[role="option"], [class*="option"], li',
+      '[role="option"], [class*="option"], [jsname="Nmvb"], .MocG8c, [data-automation-id="selectOption"], .office-form-question-dropdown-item, li',
     );
     optionEls.forEach((opt) => {
-      const text = opt.textContent?.trim() || "";
-      if (text && text.length < 100) {
+      const text = (
+        opt.querySelector(".vRMGwf, [data-automation-id='selectOptionText'], span")?.textContent ||
+        opt.textContent ||
+        ""
+      ).trim();
+      const val = (opt as HTMLElement).getAttribute("data-value") || text;
+      // Skip "choose", "select", or "select an option" placeholder
+      if (
+        text &&
+        text.length < 100 &&
+        text.toLowerCase() !== "choose" &&
+        text.toLowerCase() !== "select" &&
+        text.toLowerCase() !== "select an option"
+      ) {
         options.push({
           label: text,
-          value: (opt as HTMLElement).getAttribute("data-value") || text,
+          value: val,
         });
       }
     });
   }
+
   return options;
 }
+

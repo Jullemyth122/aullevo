@@ -1,33 +1,6 @@
 /**
- * @file fieldResolver.ts
- * @module background/modules
- *
- * ─── ROLE IN THE ARCHITECTURE
- * The VALUE RESOLUTION engine — the single source of truth for deciding
- * WHAT to put into each detected form field.
- *
- * Once the AI or heuristic matcher has identified WHICH user data key maps
- * to WHICH form field (e.g. "firstName" → input#fname), this file determines
- * the actual string/file value to inject (e.g. userData.firstName = "Alex").
- *
- * It handles every value category the extension supports:
- *   A. Custom questions   → answered by Gemini AI
- *   B. Custom fields      → matched from userData.customFields (memories, links)
- *   C. Array groups       → experience / education / skills by index
- *   D. Standard fields    → firstName, email, phone, etc. from UserData
- *   E. File vault         → PDF/DOCX uploads matched to file-type inputs
- *
- * WHO IMPORTS THIS FILE:
- *   • formStepProcessor.ts → processFieldsAI() and processFormStep()
- *     both call resolveFieldValues() after getting field mappings.
- *
- * DEPENDENCY DIRECTION:
- *   formStepProcessor.ts
- *     └── fieldResolver.ts   ← YOU ARE HERE
- *           ├── geminiService           (for custom_question AI answers)
- *           ├── fileMatch utils         (for file vault matching)
- *           ├── heuristic/rules         (STANDARD_TO_CUSTOM_LABEL alias map)
- *           └── heuristic/customFieldMatcher (token-based fuzzy label matching)
+ * Value resolution engine: decides what data string or file to inject
+ * into each mapped form field based on user profile and custom rules.
  */
 
 import { geminiService } from "../../services/geminiService";
@@ -42,19 +15,9 @@ import type {
 import { STANDARD_TO_CUSTOM_LABEL } from "../../services/heuristic/rules";
 import { matchCustomField } from "../../services/heuristic/customFieldMatcher";
 
-// KNOWN STANDARD FIELD KEYS
-
 /**
- * STANDARD_FIELD_KEYS
- * ───────────────────
  * The complete set of field type keys that map directly to properties
  * on a UserData object (e.g. "firstName" → userData.firstName).
- *
- * Used in resolveFieldValues() Section D to know when to look up a
- * value from userData directly vs. falling through to custom-field matching.
- *
- * If you add a new standard field to the UserData type, add its key here
- * so the resolver recognises it.
  */
 export const STANDARD_FIELD_KEYS = new Set([
   "firstName",
@@ -72,6 +35,10 @@ export const STANDARD_FIELD_KEYS = new Set([
   "linkedin",
   "portfolio",
   "github",
+  "facebook",
+  "twitter",
+  "instagram",
+  "youtube",
   "summary",
   "headline",
   "dateOfBirth",
@@ -96,11 +63,86 @@ export const STANDARD_FIELD_KEYS = new Set([
   "maritalStatus",
 ]);
 
-// MAIN RESOLVER
+/**
+ * Safely decomposes and normalizes user name components to prevent duplicate fills.
+ * Handles cases where:
+ * 1. User has separate firstName, middleName, and lastName.
+ * 2. User only has a single fullName string (e.g. "Julle Myth Vicentillo").
+ * 3. User has duplicate full names stored in both firstName and lastName.
+ */
+export function parseNameParts(userData: Partial<UserData>): {
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  fullName: string;
+} {
+  let first = (userData.firstName || "").trim();
+  let middle = (userData.middleName || "").trim();
+  let last = (userData.lastName || "").trim();
+  let full = (userData.fullName || "").trim();
+
+  // If first and last are identical strings with multiple words (e.g. "Julle Myth Vicentillo" in both)
+  if (
+    first &&
+    last &&
+    first.toLowerCase() === last.toLowerCase() &&
+    first.includes(" ")
+  ) {
+    full = full || first;
+    first = "";
+    last = "";
+  }
+
+  // If firstName contains multiple words and lastName is empty or same
+  if (
+    first &&
+    (!last || last.toLowerCase() === first.toLowerCase()) &&
+    first.includes(" ")
+  ) {
+    full = full || first;
+    first = "";
+    last = "";
+  }
+
+  // If lastName contains multiple words and firstName is empty
+  if (last && !first && last.includes(" ")) {
+    full = full || last;
+    last = "";
+  }
+
+  // If fullName is not set, compose it
+  if (!full) {
+    full = [first, middle, last].filter(Boolean).join(" ");
+  }
+
+  // If we have a full string but are missing firstName or lastName, split it intelligently
+  if (full && (!first || !last)) {
+    const parts = full.split(/\s+/).filter(Boolean);
+    if (parts.length === 1) {
+      first = first || parts[0];
+      last = last || "";
+    } else if (parts.length === 2) {
+      first = first || parts[0];
+      last = last || parts[1];
+    } else if (parts.length >= 3) {
+      // e.g. "Julle Myth Vicentillo" -> first: "Julle", middle: "Myth", last: "Vicentillo"
+      first = first || parts[0];
+      if (!middle && parts.length > 2) {
+        middle = parts.slice(1, -1).join(" ");
+      }
+      last = last || parts[parts.length - 1];
+    }
+  }
+
+  if (!full) {
+    full = [first, middle, last].filter(Boolean).join(" ");
+  }
+
+  return { firstName: first, middleName: middle, lastName: last, fullName: full };
+}
 
 /**
- * resolveFieldValues
- * ──────────────────
+ * Resolves user data, custom fields, memories, links, and files into concrete values for each mapping.
  * Mutates each mapping object inside `fieldMappings` by setting
  * `mapping.selectedValue` (and optionally `mapping.fileData` /
  * `mapping.files` for file inputs).
@@ -200,11 +242,11 @@ export async function resolveFieldValues(
         } catch (e: unknown) {
           const msg = e instanceof Error ? e.message : String(e);
           console.warn("Aullevo: Failed to answer question:", msg);
-          mapping.selectedValue = "[MANUAL_INPUT_NEEDED]";
+          mapping.selectedValue = "";
         }
       } else {
-        // Heuristic mode: can't answer open questions, signal the user
-        mapping.selectedValue = "[MANUAL_INPUT_NEEDED]";
+        // Heuristic mode: leave blank for manual input without injecting placeholder text
+        mapping.selectedValue = "";
       }
       continue; // Done with this mapping
     }
@@ -374,14 +416,20 @@ export async function resolveFieldValues(
         // Strip country code if the form has a dedicated country-code field
         if (hasCountryCodeField) val = val.replace(/^\+\d+[- ]?/, "");
         if (val) resolvedVal = val;
-      } else if (mapping.fieldType === "fullName") {
-        // Prefer explicit fullName; fall back to composing from parts
-        const full =
-          userData.fullName ||
-          [userData.firstName, userData.middleName, userData.lastName]
-            .filter(Boolean)
-            .join(" ");
-        if (full) resolvedVal = full;
+      } else if (
+        mapping.fieldType === "fullName" ||
+        mapping.fieldType === "firstName" ||
+        mapping.fieldType === "middleName" ||
+        mapping.fieldType === "lastName"
+      ) {
+        const nameParts = parseNameParts(userData);
+        if (mapping.fieldType === "fullName") resolvedVal = nameParts.fullName;
+        else if (mapping.fieldType === "firstName")
+          resolvedVal = nameParts.firstName;
+        else if (mapping.fieldType === "middleName")
+          resolvedVal = nameParts.middleName;
+        else if (mapping.fieldType === "lastName")
+          resolvedVal = nameParts.lastName;
       } else if (
         mapping.fieldType === "skill" &&
         mapping.groupType !== "skill"
@@ -401,6 +449,23 @@ export async function resolveFieldValues(
 
       if (resolvedVal !== undefined && resolvedVal !== "") {
         mapping.selectedValue = resolvedVal;
+      }
+
+      // Fallback to savedLinks for link/social standard fields
+      if (
+        !mapping.selectedValue &&
+        userData.savedLinks &&
+        userData.savedLinks.length > 0
+      ) {
+        const linkTarget = mapping.fieldType.toLowerCase();
+        const foundLink = userData.savedLinks.find(
+          (l) =>
+            l.title.toLowerCase().includes(linkTarget) ||
+            l.url.toLowerCase().includes(linkTarget),
+        );
+        if (foundLink) {
+          mapping.selectedValue = foundLink.url;
+        }
       }
 
       // ✨ FALLBACK TO CUSTOM FIELDS:
@@ -529,6 +594,27 @@ export async function resolveFieldValues(
             `Aullevo FileVault: "${bestMatch.name}" matched to [${fileField.label || fileField.name || fileField.id}] (Single)`,
           );
         }
+      }
+    }
+  }
+
+  // Final sanitation pass: ensure no error placeholders or invalid URL formats break form validation
+  for (const m of fieldMappings) {
+    if (typeof m.selectedValue === "string") {
+      if (
+        m.selectedValue === "[ERROR]" ||
+        m.selectedValue === "[MANUAL_INPUT_NEEDED]" ||
+        m.selectedValue.startsWith("[ERROR") ||
+        m.selectedValue.startsWith("[Error")
+      ) {
+        m.selectedValue = "";
+      }
+    }
+    // URL type validation: don't inject non-URL strings into URL inputs
+    const orig = fields.find((f) => f.id === m.id || f.id === m.fieldId);
+    if (orig?.type === "url" && typeof m.selectedValue === "string" && m.selectedValue) {
+      if (!/^https?:\/\//i.test(m.selectedValue) && !m.selectedValue.includes(".")) {
+        m.selectedValue = "";
       }
     }
   }

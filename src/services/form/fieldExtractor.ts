@@ -64,7 +64,7 @@ export function extractFormFields(): FormField[] {
     document.body || document.documentElement,
   );
 
-  // ── Tab Panel Awareness: Activate hidden tab panels to extract their fields ──
+  // Activate hidden tab panels to discover and extract their enclosed fields
   const tabPanels = querySelectorAllDeep<HTMLElement>(
     '[role="tabpanel"]',
     document.body || document.documentElement,
@@ -141,7 +141,7 @@ export function extractFormFields(): FormField[] {
       input.tagName === "INPUT" && (input as HTMLInputElement).type === "file";
     if (!isVisible(input) && !isFileInput) return;
 
-    // ── HONEYPOT SKIP ──
+    // Skip honeypot anti-spam trap fields
     if (isHoneypot(input)) {
       console.log(
         "Aullevo: honeypot field detected — skipping:",
@@ -150,7 +150,7 @@ export function extractFormFields(): FormField[] {
       return;
     }
 
-    // ── CAPTCHA SKIP ──
+    // Skip CAPTCHA challenge fields
     const captchaWrapper = input.closest(
       '[class*="captcha"], [id*="captcha"], [data-sitekey]',
     ) as HTMLElement | null;
@@ -220,7 +220,12 @@ export function extractFormFields(): FormField[] {
           name = container.id;
         } else {
           const parent = input.parentElement;
-          if (parent && parent !== input && parent.tagName !== "BODY" && parent.tagName !== "FORM") {
+          if (
+            parent &&
+            parent !== input &&
+            parent.tagName !== "BODY" &&
+            parent.tagName !== "FORM"
+          ) {
             if (!parent.id) parent.id = `group_${index}`;
             name = parent.id;
           } else {
@@ -230,8 +235,20 @@ export function extractFormFields(): FormField[] {
         }
       }
 
+      let isGenuine2DMatrix = false;
+      if (matrixInfo.rowHeader && matrixInfo.colHeader) {
+        const matrixContainer = input.closest(
+          'table, [role="grid"], [role="table"], [class*="grid" i], [class*="matrix" i]',
+        );
+        const cardRadiogroupCount =
+          input.closest('[role="listitem"], .Qr7Oae')?.querySelectorAll('[role="radiogroup"]').length ?? 0;
+        if (matrixContainer || cardRadiogroupCount > 1) {
+          isGenuine2DMatrix = true;
+        }
+      }
+
       let groupKey: string;
-      if (matrixInfo.rowHeader) {
+      if (isGenuine2DMatrix && matrixInfo.rowHeader) {
         const matrixContainer =
           input.closest(
             'table, [role="grid"], [role="table"], [class*="grid" i], [class*="matrix" i], [class*="table" i], [class*="availability" i], section, fieldset',
@@ -432,7 +449,7 @@ export function extractFormFields(): FormField[] {
   // Add grouped fields to the main list
   fields.push(...Array.from(groupMap.values()));
 
-  // ── Detect custom/div-based selects (React-Select, MUI, Ant Design, etc.) ──
+  // Detect custom/div-based selects (React-Select, MUI, Ant Design, etc.)
   const customSelects = querySelectorAllDeep<HTMLElement>(
     CUSTOM_SELECT_SELECTORS.join(","),
     document.body || document.documentElement,
@@ -475,7 +492,7 @@ export function extractFormFields(): FormField[] {
     });
   });
 
-  // ── Detect div-based toggle switches (not real inputs) ──
+  // Detect div-based toggle switches (not real inputs)
   const toggleEls = document.querySelectorAll<HTMLElement>(
     TOGGLE_SELECTORS.join(","),
   );
@@ -515,7 +532,7 @@ export function extractFormFields(): FormField[] {
     });
   });
 
-  // ── Restore hidden tab panels after extraction ──
+  // Restore hidden tab panels after extraction
   for (const {
     panel,
     originalAriaHidden,

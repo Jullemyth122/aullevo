@@ -15,11 +15,12 @@ export const DYNAMIC_ID_PATTERNS = [
 
 // Standard field matching rules
 export const STANDARD_RULES: Record<string, RegExp> = {
-  firstName: /\b(first|given)\s*name\b/i,
-  middleName: /\b(middle|second)\s*name\b|\bmiddle\s*initial\b|\bmiddle\b/i,
-  lastName: /\b(last|family|surname)\s*name\b|\b(last|surname)\b/i,
+  firstName: /\b(first|given|fore)\s*names?\b|\bfirst_name\b/i,
+  middleName:
+    /\b(middle|second)\s*names?\b|\bmiddle\s*initial\b|\bmiddle_name\b/i,
+  lastName: /\b(last|family|sur)\s*names?\b|\b(last|surname)\b|\blast_name\b/i,
   fullName:
-    /\b(full|complete)\s*name\b|\byour\s*name\b(?!\s*(first|last|given|sur|middle))/i,
+    /\b(full|complete|applicant|candidate|personal|legal|your)?\s*name\b(?!\s*(first|last|given|sur|middle|of\s*company|of\s*school|of\s*institution|of\s*employer|of\s*business|file))/i,
   email: /e?-?mail/i,
   phoneCountryCode: /country\s*code|dial\s*code/i,
   phone: /\b(phone|mobile|cell|phone\s*no|telephone)\b/i,
@@ -32,6 +33,10 @@ export const STANDARD_RULES: Record<string, RegExp> = {
   linkedin: /linkedin/i,
   portfolio: /portfolio|website|personal\s*site/i,
   github: /github/i,
+  facebook: /\b(facebook|fb)(\.com|\s*url|\s*link|\s*profile)?\b/i,
+  twitter: /\b(twitter|x)(\.com|\s*handle|\s*profile|\s*url|\s*link)?\b/i,
+  instagram: /\b(instagram|ig)(\.com|\s*handle|\s*profile|\s*url|\s*link)?\b/i,
+  youtube: /\b(youtube|yt)(\.com|\s*channel|\s*link|\s*url)?\b/i,
   headline: /headline/i,
   dateOfBirth: /birth|dob|bday|生日|出生日期|date\s*of\s*birth/i,
   gender: /gender|sex|性别/i,
@@ -66,10 +71,17 @@ export const STANDARD_RULES: Record<string, RegExp> = {
  * Lives here alongside STANDARD_RULES so there is a single source of truth.
  */
 export const STANDARD_TO_CUSTOM_LABEL: Record<string, string[]> = {
-  firstName: ["first name", "given name", "firstname"],
+  firstName: ["first name", "given name", "firstname", "forename"],
   lastName: ["last name", "surname", "family name", "lastname"],
   middleName: ["middle name", "middle initial", "middle"],
-  fullName: ["full name", "complete name"],
+  fullName: [
+    "full name",
+    "complete name",
+    "name",
+    "your name",
+    "applicant name",
+    "candidate name",
+  ],
   email: ["email", "e-mail", "email address"],
   phone: ["phone", "mobile", "phone number", "cell", "telephone"],
   phoneCountryCode: ["country code", "dial code", "phone country code"],
@@ -81,6 +93,16 @@ export const STANDARD_TO_CUSTOM_LABEL: Record<string, string[]> = {
   linkedin: ["linkedin", "linkedin url", "linkedin profile"],
   portfolio: ["portfolio", "website", "personal site", "personal website"],
   github: ["github", "github url", "github profile"],
+  facebook: [
+    "facebook",
+    "facebook url",
+    "facebook link",
+    "facebook profile",
+    "fb",
+  ],
+  twitter: ["twitter", "x", "twitter url", "twitter profile", "x profile"],
+  instagram: ["instagram", "instagram url", "ig", "instagram profile"],
+  youtube: ["youtube", "youtube channel", "youtube link", "youtube url"],
   headline: ["headline", "professional headline", "title"],
   summary: ["summary", "about", "bio", "professional summary"],
   dateOfBirth: ["date of birth", "dob", "birthday"],

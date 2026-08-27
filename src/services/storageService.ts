@@ -1,13 +1,6 @@
 /**
- * @file storageService.ts
- * @module services
- *
- * ─── ROLE IN THE ARCHITECTURE ───────────────────────────────────────────────
  * Structured profile vault repository for user profile data and multi-profile vaults.
  * Accounts are strictly isolated by account namespace (authenticated user vs guest).
- *
- * Architecture Design System — Layer 4: Data Layer
- * ────────────────────────────────────────────────────────────────────────────
  */
 
 import type { UserData } from '../types';
@@ -16,8 +9,7 @@ const LEGACY_PROFILES_KEY = 'aullevo_profiles';
 const LEGACY_ACTIVE_KEY = 'aullevo_active_profile';
 const LEGACY_CRYPTO_KEY_RAW = 'aullevo_ck';
 
-/* ── ACCOUNT NAMESPACE RESOLUTION ── */
-
+// Account namespace resolution
 export async function getAccountKey(explicitKey?: string | null): Promise<string> {
     if (explicitKey !== undefined) {
         if (!explicitKey || explicitKey === 'guest') return 'guest';
@@ -51,8 +43,7 @@ async function getStorageKeys(explicitKey?: string | null) {
     };
 }
 
-/* ── LEGACY DECRYPTION HELPER (FOR TRANSPARENT MIGRATION) ── */
-
+// Legacy decryption helper for transparent migration from older versions
 function base64ToBuffer(base64: string): Uint8Array {
     const binary = atob(base64);
     const bytes = new Uint8Array(binary.length);
@@ -85,8 +76,7 @@ async function tryDecryptLegacy(ciphertext: string, rawKeyBase64?: string): Prom
     }
 }
 
-/* ── VAULT READ / WRITE ── */
-
+// Vault read and write operations
 async function readVault(profilesKey: string, legacyCryptoKey: string): Promise<Record<string, UserData>> {
     return new Promise((resolve) => {
         if (typeof chrome === 'undefined' || !chrome.storage?.local) {
@@ -147,7 +137,7 @@ async function writeVault(vault: Record<string, UserData>, profilesKey: string):
     });
 }
 
-/* ── PROFILE STORAGE SERVICE ── */
+// Profile storage service API
 
 export const storageService = {
     /** Get current account key namespace */

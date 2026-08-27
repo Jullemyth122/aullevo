@@ -6,6 +6,11 @@ import {
   getOptionDescriptors,
   optionMatchesValue,
 } from "./matchers";
+import { isGoogleFormsDropdown, fillGoogleFormsDropdown } from "./googleForms";
+import {
+  isMicrosoftFormsDropdown,
+  fillMicrosoftFormsDropdown,
+} from "./microsoftForms";
 
 /**
  * Universal helper to safely set check state for checkboxes or radios natively and in React
@@ -63,72 +68,26 @@ export function setCustomRadioState(
 ): void {
   const isCurrentlyChecked =
     el.getAttribute("aria-checked") === "true" ||
-    el.classList.contains("selected") ||
-    el.classList.contains("checked");
+    el.getAttribute("data-checked") === "true";
   if (isCurrentlyChecked === desiredState) return;
 
-  const eventOpts = {
-    bubbles: true,
-    cancelable: true,
-    composed: true,
-    view: typeof window !== "undefined" ? window : undefined,
-  };
-
-  // Collect all potential click targets: the radio element itself, its parent option wrapper, and its text label
-  const parentContainer =
-    (el.parentElement && el.parentElement !== el ? el.parentElement : null) ||
+  const target =
+    el.closest("label") ||
+    (el.id
+      ? (document.querySelector(`label[for="${el.id}"]`) as HTMLElement | null)
+      : null) ||
     (el.closest(
-      'label, [role="presentation"], [role="listitem"], [data-value], [class*="radio" i], [class*="choice" i]',
-    ) as HTMLElement | null);
-  const textLabel =
-    parentContainer?.querySelector<HTMLElement>(
-      "span, label, [class*='label' i], [class*='text' i]",
-    ) || null;
+      '[data-value], [class*="ToggleLabeledContainer" i], div.bz0duf, div.jT5eGX, div.g3VIId, [class*="radio" i], [class*="choice" i]',
+    ) as HTMLElement | null) ||
+    el;
 
-  const targetElements = new Set<HTMLElement>();
-  targetElements.add(el);
-  if (parentContainer && parentContainer !== el)
-    targetElements.add(parentContainer);
-  if (textLabel && textLabel !== el) targetElements.add(textLabel);
-
-  for (const target of Array.from(targetElements)) {
-    try {
-      target.dispatchEvent(
-        new FocusEvent("focus", { bubbles: true, composed: true }),
-      );
-      target.dispatchEvent(
-        new FocusEvent("focusin", { bubbles: true, composed: true }),
-      );
-      target.dispatchEvent(new PointerEvent("pointerdown", eventOpts));
-      target.dispatchEvent(new MouseEvent("mousedown", eventOpts));
-      target.dispatchEvent(new PointerEvent("pointerup", eventOpts));
-      target.dispatchEvent(new MouseEvent("mouseup", eventOpts));
-      target.dispatchEvent(new MouseEvent("click", eventOpts));
-      target.click();
-    } catch {
-      // Ignore synthetic click dispatch errors on disconnected elements
-    }
+  try {
+    target.click();
+  } catch {
+    // Ignore click error
   }
 
-  if (desiredState) {
-    el.setAttribute("aria-checked", "true");
-    el.classList.add("selected", "checked", "active");
-    if (parentContainer)
-      parentContainer.classList.add("selected", "checked", "active");
-  } else {
-    el.setAttribute("aria-checked", "false");
-    el.classList.remove("selected", "checked", "active");
-    if (parentContainer)
-      parentContainer.classList.remove("selected", "checked", "active");
-  }
-
-  el.dispatchEvent(new Event("input", { bubbles: true, composed: true }));
-  el.dispatchEvent(new Event("change", { bubbles: true, composed: true }));
-  el.dispatchEvent(new FocusEvent("blur", { bubbles: true, composed: true }));
-  el.dispatchEvent(
-    new FocusEvent("focusout", { bubbles: true, composed: true }),
-  );
-  highlightElement(parentContainer || el);
+  highlightElement(target);
 }
 
 /**
@@ -255,17 +214,6 @@ export function fillRadioGroup(
         }
       } else {
         setCustomRadioState(radio, true);
-      }
-
-      const parentLabel = radio.closest("label");
-      if (parentLabel && !parentLabel.classList.contains("selected")) {
-        const groupContainer = radio.closest(
-          '.radio-group, [role="radiogroup"], fieldset, table, tbody, [role="row"], tr',
-        );
-        groupContainer
-          ?.querySelectorAll("label")
-          .forEach((l) => l.classList.remove("selected", "checked", "active"));
-        parentLabel.classList.add("selected", "checked", "active");
       }
       return true;
     }
@@ -592,11 +540,34 @@ export function clickMatchingOption(
 
   for (const root of searchRoots) {
     const optionEls = root.querySelectorAll<HTMLElement>(
-      '[role="option"], [class*="option"], [class*="menu"] li, [class*="dropdown"] li, [class*="listbox"] > div',
+      '[role="option"], [class*="option"], [jsname="Nmvb"], .MocG8c, [data-automation-id="selectOption"], .office-form-question-dropdown-item, [class*="menu"] li, [class*="dropdown"] li, [class*="listbox"] > div',
     );
     for (const opt of Array.from(optionEls)) {
-      const text = opt.textContent?.trim() || "";
+      const text = (
+        opt.querySelector(
+          ".vRMGwf, [data-automation-id='selectOptionText'], span",
+        )?.textContent ||
+        opt.textContent ||
+        ""
+      ).trim();
       const valAttr = opt.getAttribute("data-value") || "";
+      const rawText = valAttr || text;
+
+      // Skip "choose" or "select an option" placeholder unless expressly asked
+      if (
+        !rawText ||
+        rawText.toLowerCase() === "choose" ||
+        rawText.toLowerCase() === "select" ||
+        rawText.toLowerCase() === "select an option"
+      ) {
+        if (
+          valLower !== "choose" &&
+          valLower !== "select" &&
+          valLower !== "select an option"
+        )
+          continue;
+      }
+
       const score = scoreOptionMatch(text, valAttr, valLower);
       if (score > bestScore) {
         bestScore = score;
@@ -663,9 +634,12 @@ export function clickMatchingOption(
 }
 
 /**
- * Fills custom div-based selects (e.g. React-Select, MUI, Ant Design).
+ * Fills custom div-based selects (e.g. React-Select, MUI, Ant Design, Google Forms).
  */
-export function fillCustomSelect(elementId: string, value: string): boolean {
+export async function fillCustomSelect(
+  elementId: string,
+  value: string,
+): Promise<boolean> {
   let el = document.getElementById(elementId);
   if (!el) el = document.querySelector(`[data-testid="${elementId}"]`);
   if (!el) {
@@ -676,6 +650,16 @@ export function fillCustomSelect(elementId: string, value: string): boolean {
     if (!isNaN(idx) && idx < customSelects.length) el = customSelects[idx];
   }
   if (!el) return false;
+
+  // Dedicated Google Forms Dropdown Interactor
+  if (isGoogleFormsDropdown(el)) {
+    return await fillGoogleFormsDropdown(el, value);
+  }
+
+  // Dedicated Microsoft Forms Dropdown Interactor
+  if (isMicrosoftFormsDropdown(el)) {
+    return await fillMicrosoftFormsDropdown(el, value);
+  }
 
   const valLower = value.toLowerCase();
   el.dispatchEvent(
@@ -710,6 +694,6 @@ export function fillCustomSelect(elementId: string, value: string): boolean {
   }
 
   highlightElement(el);
-  setTimeout(() => clickMatchingOption(el!, valLower), 300);
-  return true;
+  await new Promise((r) => setTimeout(r, 250));
+  return clickMatchingOption(el, valLower);
 }

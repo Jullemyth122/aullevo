@@ -18,7 +18,7 @@ import {
     MapPin, Building, GraduationCap, PlusCircle, Clock
 } from 'lucide-react';
 
-/* ── TYPES ── */
+// Type definitions
 type NavSection = 'account' | 'api' | 'profiles' | 'files' | 'privacy' | 'shortcuts' | 'about';
 type StatusType = 'success' | 'error' | 'info' | '';
 type ThemeMode = 'dark' | 'light' | 'system';
@@ -26,7 +26,7 @@ interface StatusMsg { text: string; type: StatusType; }
 
 const EMPTY_USER: UserData = createEmptyUserData('job');
 
-/* ── PROFILE TEMPLATE CONFIG ── */
+// Profile template configuration
 export const PROFILE_TEMPLATES: Record<string, { label: string; icon: React.ReactNode; desc: string; badgeClass: string }> = {
     job: {
         label: 'Job Application',
@@ -54,7 +54,7 @@ export const PROFILE_TEMPLATES: Record<string, { label: string; icon: React.Reac
     },
 };
 
-/* ── FILE TYPE ICON HELPER ── */
+// File type icon resolver
 function fileIconForType(type: string) {
     if (type.startsWith('image/')) return <ImageIcon size={18} className="icon-blue" />;
     if (type === 'application/pdf') return <FileText size={18} className="icon-red" />;
@@ -72,7 +72,7 @@ function fileSizeStr(bytes: number) {
 let fileUid = 0;
 const newFileId = () => `sf-${Date.now()}-${fileUid++}`;
 
-/* ── NAV ITEMS ── */
+// Navigation sidebar items
 const NAV_ITEMS: { id: NavSection; icon: React.ReactNode; label: string }[] = [
     { id: 'account', icon: <Sparkles size={16} />, label: 'Account & Plan' },
     { id: 'api', icon: <Key size={16} />, label: 'API Keys' },
@@ -83,7 +83,7 @@ const NAV_ITEMS: { id: NavSection; icon: React.ReactNode; label: string }[] = [
     { id: 'about', icon: <Info size={16} />, label: 'About' },
 ];
 
-/* ── STATUS COMPONENT ── */
+// Status banner component
 function StatusBanner({ status }: { status: StatusMsg }) {
     if (!status.text) return null;
     return (
@@ -96,7 +96,7 @@ function StatusBanner({ status }: { status: StatusMsg }) {
     );
 }
 
-/* ── OPTIONS MAIN COMPONENT ── */
+// Options main dashboard component
 function Options() {
     const [section, setSection] = useState<NavSection>('account');
     const [status, setStatus] = useState<StatusMsg>({ text: '', type: '' });
@@ -149,12 +149,12 @@ function Options() {
         setTimeout(() => setStatus({ text: '', type: '' }), ms);
     };
 
-    /* ── Apply theme to document ── */
+    // Apply theme to document
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', effectiveTheme);
     }, [effectiveTheme]);
 
-    /* ── Load initial data ── */
+    // Load initial data and storage configurations
     useEffect(() => {
         // Theme preference & sync
         chrome.storage.local.get(['themeMode', 'geminiApiKey', 'allowQAContext', 'autoSubmit', 'isPro', 'proExpiresAt', 'userUid', 'userEmail', 'displayName', 'photoURL', 'typingDelayMs', 'stealthMode'], (r) => {
@@ -280,7 +280,7 @@ function Options() {
         chrome.storage.local.set({ themeMode: mode });
     };
 
-    /* ── Web Auth & Sync Handlers ── */
+    // Web Authentication and synchronization handlers
     const openAuthWindow = (url: string) => {
         const width = 520;
         const height = 680;
@@ -507,7 +507,7 @@ function Options() {
         setProfileVaultMap(vaultMap);
     };
 
-    /* ── API Key section ── */
+    // Gemini API Key management
     const saveApiKey = () => {
         chrome.storage.local.set({ geminiApiKey: apiKey.trim() }, () => flash('API Key saved successfully!'));
     };
@@ -528,7 +528,7 @@ function Options() {
         }
     };
 
-    /* ── Profile section ── */
+    // Profile vault management
     const createProfile = async () => {
         if (!isPro && profiles.length >= 1) {
             return flash('Profiles are limited to 1 on the Free tier. Upgrade to Pro for unlimited profiles!', 'error', 5000);
@@ -580,7 +580,7 @@ function Options() {
         flash(`Profile "${editingProfile}" saved successfully.`);
     };
 
-    /* ── Subfield Helpers (Experience / Education / Custom Fields) ── */
+    // Subfield helpers (Experience, Education, Custom Fields)
     const addExperience = () => {
         setProfileData(prev => ({
             ...prev,
@@ -647,7 +647,7 @@ function Options() {
         }));
     };
 
-    /* ── Import / Export ── */
+    // Profile backup import and export
     const handleExport = async () => {
         const json = await storageService.exportAllProfiles();
         const blob = new Blob([json], { type: 'application/json' });
@@ -675,7 +675,7 @@ function Options() {
         e.target.value = '';
     };
 
-    /* ── Privacy & Auto-Submit ── */
+    // Privacy and auto-submit preferences
     const savePrivacy = () => {
         chrome.storage.local.set({
             allowQAContext,
@@ -692,10 +692,10 @@ function Options() {
         setProfileData(prev => ({ ...prev, [name]: value }));
     };
 
-    /* ── RENDER ── */
+    // Render dashboard interface
     return (
         <div className="options-layout" data-theme={effectiveTheme}>
-            {/* ── Sidebar Nav ── */}
+            {/* Sidebar navigation */}
             <nav className="options-nav">
                 <div className="nav-brand">
                     <LogoA size={24} />
@@ -714,7 +714,7 @@ function Options() {
                     ))}
                 </div>
 
-                {/* ── Theme Switcher in Nav Footer ── */}
+                {/* Theme switcher in navigation footer */}
                 <div className="nav-footer">
                     <div className="theme-switcher-label">Theme</div>
                     <div className="theme-toggle-group">
@@ -749,11 +749,11 @@ function Options() {
                 </div>
             </nav>
 
-            {/* ── Main Content ── */}
+            {/* Main content viewport */}
             <main className="options-main">
                 <StatusBanner status={status} />
 
-                {/* ────── PRO ACCOUNT ────── */}
+                {/* Account & Pro plan tab */}
                 {section === 'account' && (
                     <>
                         <div className="page-header">
@@ -862,7 +862,7 @@ function Options() {
                     </>
                 )}
 
-                {/* ────── API KEY ────── */}
+                {/* API Key tab */}
                 {section === 'api' && (
                     <>
                         <div className="page-header">
@@ -907,7 +907,7 @@ function Options() {
                     </>
                 )}
 
-                {/* ────── PROFILES LIST ────── */}
+                {/* Profiles list tab */}
                 {section === 'profiles' && !editingProfile && (
                     <>
                         <div className="page-header">
@@ -1046,7 +1046,7 @@ function Options() {
                     </>
                 )}
 
-                {/* ────── PROFILE EDIT ────── */}
+                {/* Profile edit tab */}
                 {section === 'profiles' && editingProfile && (
                     <>
                         <div className="page-header">
@@ -1141,7 +1141,7 @@ function Options() {
                             </div>
                         )}
 
-                        {/* ────── JOB APPLICATION SPECIFIC ────── */}
+                        {/* Job application specific fields */}
                         {(profileData.profileType || 'job') === 'job' && (
                             <>
                                 <div className="card">
@@ -1296,7 +1296,7 @@ function Options() {
                             </>
                         )}
 
-                        {/* ────── MEDICAL FORM SPECIFIC ────── */}
+                        {/* Medical form specific fields */}
                         {profileData.profileType === 'medical' && (
                             <>
                                 <div className="card">
@@ -1361,7 +1361,7 @@ function Options() {
                             </>
                         )}
 
-                        {/* ────── SURVEY & DEMOGRAPHICS SPECIFIC ────── */}
+                        {/* Survey and demographics specific fields */}
                         {profileData.profileType === 'survey' && (
                             <div className="card">
                                 <div className="card-title">
@@ -1390,7 +1390,7 @@ function Options() {
                             </div>
                         )}
 
-                        {/* ────── CUSTOM FIELDS SECTION ────── */}
+                        {/* Custom fields section */}
                         <div className="card">
                             <div className="card-title">
                                 <Layers size={18} /> Custom Q&A Fields ({(profileData.customFields || []).length})
@@ -1468,7 +1468,7 @@ function Options() {
                     </>
                 )}
 
-                {/* ────── PRIVACY ────── */}
+                {/* Privacy and Automation tab */}
                 {section === 'privacy' && (
                     <>
                         <div className="page-header">
@@ -1588,7 +1588,7 @@ function Options() {
                     </>
                 )}
 
-                {/* ────── SHORTCUTS ────── */}
+                {/* Shortcuts tab */}
                 {section === 'shortcuts' && (
                     <>
                         <div className="page-header">
@@ -1615,7 +1615,7 @@ function Options() {
                     </>
                 )}
 
-                {/* ────── FILE VAULT ────── */}
+                {/* File vault library tab */}
                 {section === 'files' && (
                     <>
                         <div className="page-header">
@@ -1692,7 +1692,7 @@ function Options() {
                     </>
                 )}
 
-                {/* ────── ABOUT ────── */}
+                {/* About tab */}
                 {section === 'about' && (
                     <>
                         <div className="page-header">
@@ -1722,6 +1722,9 @@ function Options() {
     );
 }
 
-/* ── MOUNT ── */
-const container = document.getElementById('options-root')!;
-createRoot(container).render(<Options />);
+// Application root mount
+const container = document.getElementById('options-root') || document.getElementById('root');
+if (container) {
+    const root = createRoot(container);
+    root.render(<Options />);
+}

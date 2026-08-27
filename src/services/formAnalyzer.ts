@@ -39,124 +39,70 @@ import {
   isGoogleFormLabelMatch,
   fillGoogleFormQuestionContainer,
 } from "./form/googleForms";
+import {
+  getMicrosoftFormQuestionHeading,
+  fillMicrosoftFormQuestionContainer,
+} from "./form/microsoftForms";
 
-// Re-export all submodules so existing imports throughout the codebase remain 100% compatible
+// Re-export submodules for full backwards compatibility
 export * from "./form";
 export type { FormField, FieldMapping };
 
+export interface FillContextOpts {
+  resumeFileData?: string;
+  resumeFileName?: string;
+  autoSubmit?: boolean;
+  stealthMode?: boolean;
+  typingDelayMs?: number;
+}
+
 /**
- * Fills a form field with the provided value based on field type and accessibility metadata.
+ * Splits a text into search tokens across whitespace and delimiters.
  */
+function extractTokens(text: string): string[] {
+  return text
+    .split(/[\s\-_/\\|:*xX]+/)
+    .map((t) => t.trim().toLowerCase())
+    .filter((t) => t.length > 0);
+}
 
-export async function fillFormField(
-  fieldIdentifier: FieldMapping,
-  value: string | string[] | boolean,
-  contextOpts?: {
-    resumeFileData?: string;
-    resumeFileName?: string;
-    autoSubmit?: boolean;
-    stealthMode?: boolean;
-    typingDelayMs?: number;
-  },
-): Promise<boolean> {
-  if (
-    value === undefined ||
-    value === null ||
-    value === "[MANUAL_INPUT_NEEDED]"
-  ) {
-    return false;
-  }
+/**
+ * Determines if an element is a container element rather than a standard input.
+ */
+function isContainerElement(el: HTMLElement): boolean {
+  return (
+    el.tagName !== "INPUT" &&
+    el.tagName !== "SELECT" &&
+    el.tagName !== "TEXTAREA" &&
+    el.tagName !== "BUTTON"
+  );
+}
 
-  let input = findElementByIdOrSelector(fieldIdentifier.id || "");
+/**
+ * Resolves target input elements for a given FieldMapping using multi-stage lookup:
+ * 1. Direct ID / selector lookup
+ * 2. 2D Matrix cell lookup (rowHeader, colHeader, compoundLabel, tokens)
+ * 3. 2D Matrix row lookup for radio/checkbox groups
+ * 4. Name attribute lookup
+ * 5. Chat / contenteditable fallback
+ */
+function resolveTargetElement(fieldIdentifier: FieldMapping): {
+  input: HTMLElement | null;
+  inputs: NodeListOf<Element> | null;
+} {
+  let input: HTMLElement | null = null;
   let inputs: NodeListOf<Element> | null = null;
 
-  // Tab panel activation: if the field is inside a hidden tabpanel, click its tab first
-  if (input) {
-    activateTabForField(input);
-  }
-
+  // 1. Direct ID / selector lookup
   if (fieldIdentifier.id) {
     input = findElementByIdOrSelector(fieldIdentifier.id);
-
-    // If the id resolves to a container div (not an input),
-    // check if it wraps radio/checkbox inputs and handle as a group
-    if (
-      input &&
-      input.tagName !== "INPUT" &&
-      input.tagName !== "SELECT" &&
-      input.tagName !== "TEXTAREA" &&
-      input.tagName !== "BUTTON"
-    ) {
-      // Check if input itself is a custom radio or checkbox
-      const isSelfRadio = input.getAttribute("role") === "radio";
-      const isSelfCheckbox = input.getAttribute("role") === "checkbox";
-
-      if (isSelfRadio || isSelfCheckbox) {
-        const groupContainer =
-          input.closest(
-            '[role="radiogroup"], [role="group"], [role="listitem"], fieldset, [data-params], [jscontroller], [jsmodel], [class*="radio" i], [class*="check" i], form',
-          ) || input.parentElement;
-        if (groupContainer) {
-          if (isSelfRadio) {
-            const siblingRadios = groupContainer.querySelectorAll<
-              HTMLElement | HTMLInputElement
-            >('input[type="radio"], [role="radio"]');
-            if (siblingRadios.length > 0) {
-              return fillRadioGroup(siblingRadios, value);
-            }
-          } else {
-            const siblingCheckboxes = groupContainer.querySelectorAll<
-              HTMLElement | HTMLInputElement
-            >('input[type="checkbox"], [role="checkbox"]');
-            if (siblingCheckboxes.length > 0) {
-              return fillCheckboxGroup(siblingCheckboxes, value);
-            }
-          }
-        }
-        if (isSelfRadio) return fillRadioGroup([input], value);
-        if (isSelfCheckbox) return fillCheckboxGroup([input], value);
-      }
-
-      const childRadios = input.querySelectorAll<
-        HTMLInputElement | HTMLElement
-      >('input[type="radio"], [role="radio"]');
-      const childCheckboxes = input.querySelectorAll<
-        HTMLInputElement | HTMLElement
-      >('input[type="checkbox"], [role="checkbox"]');
-
-      if (childRadios.length > 0) {
-        return fillRadioGroup(childRadios, value);
-      }
-      if (childCheckboxes.length > 0) {
-        return fillCheckboxGroup(childCheckboxes, value);
-      }
-
-      // Handle toggle/switch divs
-      if (
-        input.classList.contains("toggle") ||
-        input.getAttribute("role") === "switch" ||
-        input.classList.contains("switch") ||
-        input.classList.contains("toggle-switch")
-      ) {
-        return fillToggle(input, value);
-      }
-
-      // Handle div-based ARIA slider and spinbutton
-      if (input.getAttribute("role") === "slider") {
-        return fillAriaSlider(input, value);
-      }
-      if (input.getAttribute("role") === "spinbutton") {
-        return fillAriaSpinbutton(input, value);
-      }
-    }
-
     if (!input) {
       inputs = document.querySelectorAll(`[name="${fieldIdentifier.id}"]`);
       if (inputs.length === 0) inputs = null;
     }
   }
 
-  // ── 2D Matrix Cell Lookup for Inputs (Tables, Grids, Multiplication tables, Availability) ──
+  // 2. 2D Matrix Cell Lookup for Inputs
   if (!input && !inputs) {
     if (
       fieldIdentifier.rowHeader ||
@@ -171,34 +117,26 @@ export async function fillFormField(
     }
 
     if (!input && fieldIdentifier.fieldType?.startsWith("custom_field:")) {
-      const customLabel = fieldIdentifier.fieldType.slice(
-        "custom_field:".length,
-      );
-      const tokens = customLabel
-        .split(/[\s\-_/\\|:*xX]+/)
-        .map((t) => t.trim().toLowerCase())
-        .filter((t) => t.length > 0);
+      const customLabel = fieldIdentifier.fieldType.slice("custom_field:".length);
+      const tokens = extractTokens(customLabel);
       if (tokens.length >= 2) {
         input = find2DMatrixInput({ tokens });
       }
     }
 
     if (!input && (fieldIdentifier as Partial<FormField>).label) {
-      const tokens = String((fieldIdentifier as Partial<FormField>).label)
-        .split(/[\s\-_/\\|:*xX]+/)
-        .map((t) => t.trim().toLowerCase())
-        .filter((t) => t.length > 0);
+      const tokens = extractTokens(String((fieldIdentifier as Partial<FormField>).label));
       if (tokens.length >= 2) {
         input = find2DMatrixInput({ tokens });
       }
     }
   }
 
-  // ── 2D Matrix Row Lookup for Radios/Checkboxes ──
+  // 3. 2D Matrix Row Lookup for Radios/Checkboxes
   if (!input && !inputs && fieldIdentifier.rowHeader) {
     const rowNorm = fieldIdentifier.rowHeader.toLowerCase().trim();
 
-    // Strategy A: Inspect table/grid rows with matching row header cell
+    // Strategy A: Table/grid rows with matching header cell
     const allRows = document.querySelectorAll<HTMLElement>(
       "tr, [role='row'], [class*='matrix-row'], [class*='table-row'], [class*='matrix_row']",
     );
@@ -207,9 +145,7 @@ export async function fillFormField(
         "th, td:first-child, [role='rowheader'], [class*='row-header'], [class*='rowHeader']",
       );
       const firstCellText = firstCell
-        ? cleanLabelText(firstCell.textContent || "")
-            .toLowerCase()
-            .trim()
+        ? cleanLabelText(firstCell.textContent || "").toLowerCase().trim()
         : "";
 
       if (firstCellText === rowNorm) {
@@ -217,41 +153,39 @@ export async function fillFormField(
           'input[type="radio"], [role="radio"]',
         );
         if (rowRadios.length > 0) {
-          return fillRadioGroup(rowRadios, value);
+          inputs = rowRadios as unknown as NodeListOf<Element>;
+          break;
         }
 
         const rowCheckboxes = row.querySelectorAll<HTMLInputElement>(
           'input[type="checkbox"], [role="checkbox"]',
         );
         if (rowCheckboxes.length > 0) {
-          return fillCheckboxGroup(rowCheckboxes, value);
+          inputs = rowCheckboxes as unknown as NodeListOf<Element>;
+          break;
         }
       }
     }
 
     // Strategy B: Raycasting & Matrix header extraction matching
-    const allMatrixInputs = document.querySelectorAll<HTMLInputElement>(
-      'input[type="radio"], input[type="checkbox"], [role="radio"], [role="checkbox"]',
-    );
-    const matchingRowInputs = Array.from(allMatrixInputs).filter((el) => {
-      const mInfo = findMatrixHeaders(el);
-      return (
-        mInfo.rowHeader && mInfo.rowHeader.toLowerCase().trim() === rowNorm
+    if (!inputs) {
+      const allMatrixInputs = document.querySelectorAll<HTMLInputElement>(
+        'input[type="radio"], input[type="checkbox"], [role="radio"], [role="checkbox"]',
       );
-    });
+      const matchingRowInputs = Array.from(allMatrixInputs).filter((el) => {
+        const mInfo = findMatrixHeaders(el);
+        return (
+          mInfo.rowHeader && mInfo.rowHeader.toLowerCase().trim() === rowNorm
+        );
+      });
 
-    if (matchingRowInputs.length > 0) {
-      const isRadio =
-        matchingRowInputs[0].type === "radio" ||
-        matchingRowInputs[0].getAttribute("role") === "radio";
-      if (isRadio) {
-        return fillRadioGroup(matchingRowInputs, value);
-      } else {
-        return fillCheckboxGroup(matchingRowInputs, value);
+      if (matchingRowInputs.length > 0) {
+        inputs = matchingRowInputs as unknown as NodeListOf<Element>;
       }
     }
   }
 
+  // 4. Name attribute lookup
   if (!input && !inputs && fieldIdentifier.name) {
     const namedInputs = document.querySelectorAll(
       `[name="${fieldIdentifier.name}"]`,
@@ -263,7 +197,7 @@ export async function fillFormField(
     }
   }
 
-  // Fallback for Messenger/React chat boxes that strip IDs on re-render
+  // 5. Fallback for chat boxes / contenteditable
   if (
     !input &&
     !inputs &&
@@ -275,301 +209,442 @@ export async function fillFormField(
     );
   }
 
-  if (!input && !inputs && fieldIdentifier.id) {
-    const isCustomSelect =
-      fieldIdentifier.id.startsWith("custom_select_") ||
-      document.querySelector(`[data-testid="${fieldIdentifier.id}"]`);
-    if (isCustomSelect) {
-      return fillCustomSelect(fieldIdentifier.id, String(value));
-    }
-  }
+  return { input, inputs };
+}
 
-  // ── Google Forms Question Container Fallback ──
-  if (!input && !inputs) {
-    const targetLabel =
-      (fieldIdentifier as Partial<FormField>).label ||
-      (fieldIdentifier.fieldType?.startsWith("custom_field:")
-        ? fieldIdentifier.fieldType.slice("custom_field:".length)
-        : "") ||
-      fieldIdentifier.id;
+/**
+ * Attempts to handle container elements (custom radios/checkboxes, sliders, spinbuttons, toggles).
+ */
+async function tryFillContainerDiv(
+  input: HTMLElement,
+  value: string | string[] | boolean,
+): Promise<boolean> {
+  const isSelfRadio = input.getAttribute("role") === "radio";
+  const isSelfCheckbox = input.getAttribute("role") === "checkbox";
 
-    if (targetLabel) {
-      const questionContainers = Array.from(
-        document.querySelectorAll<HTMLElement>(
-          "div[role='listitem'], div.Qr7Oae, div.geS5n, div.m7Wjg",
-        ),
-      );
-      for (const container of questionContainers) {
-        const heading = getGoogleFormQuestionHeading(container);
-        if (isGoogleFormLabelMatch(targetLabel, heading)) {
-          const filled = fillGoogleFormQuestionContainer(container, value);
-          if (filled) return true;
-        }
-      }
-    }
-  }
+  if (isSelfRadio || isSelfCheckbox) {
+    const groupContainer =
+      input.closest(
+        '[role="radiogroup"], [role="group"], [role="listitem"], fieldset, [data-params], [jscontroller], [jsmodel], [class*="radio" i], [class*="check" i], form',
+      ) || input.parentElement;
 
-  if (!input && !inputs) return false;
-
-  if (inputs && inputs.length > 0) {
-    let filledAny = false;
-    const allInputs = Array.from(inputs).filter(
-      (el): el is HTMLInputElement | HTMLElement =>
-        el instanceof HTMLInputElement ||
-        el.getAttribute("role") === "radio" ||
-        el.getAttribute("role") === "checkbox",
-    );
-
-    if (allInputs.length > 0) {
-      const candidateInputs = allInputs;
-      const firstEl = candidateInputs[0];
-      const firstType =
-        firstEl instanceof HTMLInputElement
-          ? firstEl.type
-          : firstEl.getAttribute("role") || "";
-
-      if (firstType === "radio") {
-        return fillRadioGroup(candidateInputs, value);
-      }
-      if (firstType === "checkbox") {
-        return fillCheckboxGroup(candidateInputs, value);
-      }
-
-      candidateInputs.forEach((el) => {
-        const valStr = String(value).toLowerCase().trim();
-        const label = findLabel(el).toLowerCase().trim();
-        const elVal =
-          el instanceof HTMLInputElement
-            ? el.value.toLowerCase()
-            : (
-                el.getAttribute("data-value") ||
-                el.getAttribute("value") ||
-                ""
-              ).toLowerCase();
-        if (
-          elVal === valStr ||
-          label.includes(valStr) ||
-          valStr.includes(label) ||
-          fuzzyMatch(label, valStr) ||
-          (elVal && fuzzyMatch(elVal, valStr))
-        ) {
-          if (el instanceof HTMLInputElement) {
-            setCheckboxState(el, true);
-          } else {
-            el.click();
-          }
-          filledAny = true;
-        }
-      });
-      if (filledAny) return true;
-    }
-  }
-
-  if (input) {
-    if (input instanceof HTMLSelectElement) {
-      fillSelect(input, value as string);
-      return select_was_filled(input);
-    } else if (input instanceof HTMLInputElement) {
-      if (input.type === "checkbox") {
-        const valLower = String(value).toLowerCase().trim();
-        const isExplicitTrue =
-          ["true", "yes", "y", "1", "checked", "on"].includes(valLower) ||
-          /\b(agree|accept|consent|confirm)\b/i.test(valLower);
-
-        const isExplicitFalse = [
-          "false",
-          "no",
-          "n",
-          "0",
-          "unchecked",
-          "off",
-          "disagree",
-          "decline",
-        ].includes(valLower);
-
-        if (isExplicitTrue) {
-          setCheckboxState(input, true);
-          return true;
-        } else if (isExplicitFalse) {
-          setCheckboxState(input, false);
-          return true;
-        }
-
-        const descriptors = getOptionDescriptors(input);
-        const valuesToCheck = parseValueTokens(valLower);
-        const matches = valuesToCheck.some((valStr) =>
-          optionMatchesValue(descriptors, valStr),
-        );
-
-        if (matches) {
-          setCheckboxState(input, true);
-          return true;
-        } else {
-          setCheckboxState(input, false);
-          return false;
-        }
-      } else if (input.type === "file") {
-        if (value === "FILE_UPLOAD") {
-          if (fieldIdentifier.files && fieldIdentifier.files.length > 0) {
-            return fillMultiFileInput(input, fieldIdentifier.files);
-          }
-          const fData = fieldIdentifier.fileData || contextOpts?.resumeFileData;
-          const fName = fieldIdentifier.fileName || contextOpts?.resumeFileName;
-          if (fData && fName) {
-            return fillFileInput(input, fData, fName);
-          }
-        }
-        return false;
-      } else if (input.type === "radio") {
-        return fillRadio(input, value as string);
-      } else if (input.type === "range") {
-        const numVal = Number(value);
-        if (!isNaN(numVal)) {
-          const min = Number(input.min) || 0;
-          const max = Number(input.max) || 100;
-          const clamped = Math.max(min, Math.min(max, numVal));
-          const nativeSetter = Object.getOwnPropertyDescriptor(
-            HTMLInputElement.prototype,
-            "value",
-          )?.set;
-          if (nativeSetter) nativeSetter.call(input, String(clamped));
-          else input.value = String(clamped);
-          input.dispatchEvent(new Event("input", { bubbles: true }));
-          input.dispatchEvent(new Event("change", { bubbles: true }));
-        }
-      } else if (input.type === "number") {
-        const valStr = String(value);
-        const numMatch = valStr.match(/-?\d+(\.\d+)?/);
-        const numVal = numMatch ? Number(numMatch[0]) : NaN;
-        if (!isNaN(numVal)) {
-          const min = input.min !== "" ? Number(input.min) : -Infinity;
-          const max = input.max !== "" ? Number(input.max) : Infinity;
-          const clamped = Math.max(min, Math.min(max, numVal));
-          const nativeSetter = Object.getOwnPropertyDescriptor(
-            HTMLInputElement.prototype,
-            "value",
-          )?.set;
-          if (nativeSetter) nativeSetter.call(input, String(clamped));
-          else input.value = String(clamped);
-          input.dispatchEvent(new Event("input", { bubbles: true }));
-          input.dispatchEvent(new Event("change", { bubbles: true }));
-          console.log(
-            `Aullevo number: "${valStr}" → ${clamped} (min=${min}, max=${max})`,
-          );
-        } else {
-          console.warn(
-            `Aullevo: Could not extract number from "${valStr}" for input#${input.id}`,
-          );
-          return false;
-        }
-      } else if (
-        input.type === "date" ||
-        fieldIdentifier.fieldType === "dateOfBirth" ||
-        input.id.toLowerCase().includes("date") ||
-        input.id.toLowerCase().includes("dob") ||
-        input.name.toLowerCase().includes("date") ||
-        input.name.toLowerCase().includes("dob") ||
-        findLabel(input).toLowerCase().includes("date") ||
-        findLabel(input).toLowerCase().includes("dob")
-      ) {
-        const valStr = String(value);
-        const isoDate = parseDateString(valStr);
-        if (isoDate) {
-          let setVal = isoDate;
-          if (input.type === "text") {
-            setVal = formatDateForDisplay(isoDate);
-          }
-
-          const nativeSetter = Object.getOwnPropertyDescriptor(
-            Object.getPrototypeOf(input),
-            "value",
-          )?.set;
-          if (nativeSetter) {
-            nativeSetter.call(input, setVal);
-          } else {
-            input.value = setVal;
-          }
-          triggerEvents(input);
-
-          // For custom date pickers, if there is a sibling hidden input, fill that too!
-          const container = input.closest(
-            ".field-block, .form-group, .date-trigger-container, div",
-          );
-          if (container) {
-            const hiddenInputs = container.querySelectorAll(
-              'input[type="hidden"]',
-            );
-            hiddenInputs.forEach((hiddenInput) => {
-              if (hiddenInput instanceof HTMLInputElement) {
-                const hiddenSetter = Object.getOwnPropertyDescriptor(
-                  HTMLInputElement.prototype,
-                  "value",
-                )?.set;
-                if (hiddenSetter) {
-                  hiddenSetter.call(hiddenInput, isoDate);
-                } else {
-                  hiddenInput.value = isoDate;
-                }
-                hiddenInput.dispatchEvent(
-                  new Event("input", { bubbles: true }),
-                );
-                hiddenInput.dispatchEvent(
-                  new Event("change", { bubbles: true }),
-                );
-              }
-            });
-          }
-        } else {
-          const nativeSetter = Object.getOwnPropertyDescriptor(
-            Object.getPrototypeOf(input),
-            "value",
-          )?.set;
-          if (nativeSetter) {
-            nativeSetter.call(input, valStr);
-          } else {
-            input.value = valStr;
-          }
-          triggerEvents(input);
+    if (groupContainer) {
+      if (isSelfRadio) {
+        const siblingRadios = groupContainer.querySelectorAll<
+          HTMLElement | HTMLInputElement
+        >('input[type="radio"], [role="radio"]');
+        if (siblingRadios.length > 0) {
+          return fillRadioGroup(siblingRadios, value);
         }
       } else {
-        const delayMs = contextOpts?.typingDelayMs !== undefined 
-          ? contextOpts.typingDelayMs 
-          : (contextOpts?.stealthMode ? 25 : 0);
-
-        if (delayMs > 0 || contextOpts?.stealthMode) {
-          await humanTypeValue(input, value as string, delayMs);
-        } else {
-          setNativeInputValue(input, value as string);
+        const siblingCheckboxes = groupContainer.querySelectorAll<
+          HTMLElement | HTMLInputElement
+        >('input[type="checkbox"], [role="checkbox"]');
+        if (siblingCheckboxes.length > 0) {
+          return fillCheckboxGroup(siblingCheckboxes, value);
         }
       }
-    } else if (input instanceof HTMLTextAreaElement) {
-      const delayMs = contextOpts?.typingDelayMs !== undefined 
-        ? contextOpts.typingDelayMs 
-        : (contextOpts?.stealthMode ? 25 : 0);
+    }
+    if (isSelfRadio) return fillRadioGroup([input], value);
+    if (isSelfCheckbox) return fillCheckboxGroup([input], value);
+  }
 
-      if (delayMs > 0 || contextOpts?.stealthMode) {
-        await humanTypeValue(input, value as string, delayMs);
-      } else {
-        setNativeInputValue(input, value as string);
-      }
-    } else if (
-      input.isContentEditable ||
-      input.getAttribute("role") === "textbox"
+  const childRadios = input.querySelectorAll<HTMLInputElement | HTMLElement>(
+    'input[type="radio"], [role="radio"]',
+  );
+  if (childRadios.length > 0) {
+    return fillRadioGroup(childRadios, value);
+  }
+
+  const childCheckboxes = input.querySelectorAll<HTMLInputElement | HTMLElement>(
+    'input[type="checkbox"], [role="checkbox"]',
+  );
+  if (childCheckboxes.length > 0) {
+    return fillCheckboxGroup(childCheckboxes, value);
+  }
+
+  // Toggles and switches
+  if (
+    input.classList.contains("toggle") ||
+    input.getAttribute("role") === "switch" ||
+    input.classList.contains("switch") ||
+    input.classList.contains("toggle-switch")
+  ) {
+    return fillToggle(input, value);
+  }
+
+  // ARIA role slider and spinbutton
+  if (input.getAttribute("role") === "slider") {
+    return fillAriaSlider(input, value);
+  }
+  if (input.getAttribute("role") === "spinbutton") {
+    return fillAriaSpinbutton(input, value);
+  }
+
+  return false;
+}
+
+/**
+ * Attempts platform-specific question container fallbacks for Google Forms and Microsoft Forms.
+ */
+async function tryFillQuestionContainers(
+  fieldIdentifier: FieldMapping,
+  value: string | string[] | boolean,
+): Promise<boolean> {
+  const targetLabel =
+    (fieldIdentifier as Partial<FormField>).label ||
+    (fieldIdentifier.fieldType?.startsWith("custom_field:")
+      ? fieldIdentifier.fieldType.slice("custom_field:".length)
+      : "") ||
+    fieldIdentifier.id;
+
+  if (!targetLabel) return false;
+
+  // 1. Google Forms Question Containers
+  const googleQuestionContainers = Array.from(
+    document.querySelectorAll<HTMLElement>(
+      "div[role='listitem'], div.Qr7Oae, div.geS5n, div.m7Wjg",
+    ),
+  );
+  for (const container of googleQuestionContainers) {
+    const heading = getGoogleFormQuestionHeading(container);
+    if (isGoogleFormLabelMatch(targetLabel, heading)) {
+      const filled = await fillGoogleFormQuestionContainer(container, value);
+      if (filled) return true;
+    }
+  }
+
+  // 2. Microsoft Forms Question Containers
+  const msQuestionContainers = Array.from(
+    document.querySelectorAll<HTMLElement>(
+      "[data-automation-id='questionItem'], .office-form-question",
+    ),
+  );
+  for (const container of msQuestionContainers) {
+    const heading = getMicrosoftFormQuestionHeading(container);
+    if (isGoogleFormLabelMatch(targetLabel, heading)) {
+      const filled = await fillMicrosoftFormQuestionContainer(container, value);
+      if (filled) return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Fills multiple candidate elements (e.g. named radio or checkbox groups).
+ */
+function fillMultipleElements(
+  inputs: NodeListOf<Element> | HTMLElement[],
+  value: string | string[] | boolean,
+): boolean {
+  const candidateInputs = Array.from(inputs).filter(
+    (el): el is HTMLInputElement | HTMLElement =>
+      el instanceof HTMLInputElement ||
+      el.getAttribute("role") === "radio" ||
+      el.getAttribute("role") === "checkbox",
+  );
+
+  if (candidateInputs.length === 0) return false;
+
+  const firstEl = candidateInputs[0];
+  const firstType =
+    firstEl instanceof HTMLInputElement
+      ? firstEl.type
+      : firstEl.getAttribute("role") || "";
+
+  if (firstType === "radio") {
+    return fillRadioGroup(candidateInputs, value);
+  }
+  if (firstType === "checkbox") {
+    return fillCheckboxGroup(candidateInputs, value);
+  }
+
+  let filledAny = false;
+  candidateInputs.forEach((el) => {
+    const valStr = String(value).toLowerCase().trim();
+    const label = findLabel(el).toLowerCase().trim();
+    const elVal =
+      el instanceof HTMLInputElement
+        ? el.value.toLowerCase()
+        : (
+            el.getAttribute("data-value") ||
+            el.getAttribute("value") ||
+            ""
+          ).toLowerCase();
+
+    if (
+      elVal === valStr ||
+      label.includes(valStr) ||
+      valStr.includes(label) ||
+      fuzzyMatch(label, valStr) ||
+      (elVal && fuzzyMatch(elVal, valStr))
     ) {
-      const injected = fillChatInputField(input, value as string);
-      const isError =
-        String(value).includes("[Error") || String(value).includes("I'm sorry");
-
-      if (injected && contextOpts?.autoSubmit && !isError) {
-        setTimeout(() => {
-          if (!input) return;
-          submitChatField(input);
-        }, 300);
+      if (el instanceof HTMLInputElement) {
+        setCheckboxState(el, true);
+      } else {
+        el.click();
       }
+      filledAny = true;
+    }
+  });
+
+  return filledAny;
+}
+
+/**
+ * Fills a single resolved input element according to its HTML tag and attributes.
+ */
+async function fillSingleInputElement(
+  input: HTMLElement,
+  fieldIdentifier: FieldMapping,
+  value: string | string[] | boolean,
+  contextOpts?: FillContextOpts,
+): Promise<boolean> {
+  // 1. Select element
+  if (input instanceof HTMLSelectElement) {
+    fillSelect(input, value as string);
+    return select_was_filled(input);
+  }
+
+  // 2. Input element
+  if (input instanceof HTMLInputElement) {
+    const inputType = input.type.toLowerCase();
+
+    if (inputType === "checkbox") {
+      const valLower = String(value).toLowerCase().trim();
+      const isExplicitTrue =
+        ["true", "yes", "y", "1", "checked", "on"].includes(valLower) ||
+        /\b(agree|accept|consent|confirm)\b/i.test(valLower);
+      const isExplicitFalse =
+        ["false", "no", "n", "0", "unchecked", "off", "disagree", "decline"].includes(valLower);
+
+      if (isExplicitTrue) {
+        setCheckboxState(input, true);
+        return true;
+      }
+      if (isExplicitFalse) {
+        setCheckboxState(input, false);
+        return true;
+      }
+
+      const descriptors = getOptionDescriptors(input);
+      const valuesToCheck = parseValueTokens(valLower);
+      const matches = valuesToCheck.some((valStr) =>
+        optionMatchesValue(descriptors, valStr),
+      );
+
+      setCheckboxState(input, matches);
+      return matches;
+    }
+
+    if (inputType === "file") {
+      if (value === "FILE_UPLOAD") {
+        if (fieldIdentifier.files && fieldIdentifier.files.length > 0) {
+          return fillMultiFileInput(input, fieldIdentifier.files);
+        }
+        const fData = fieldIdentifier.fileData || contextOpts?.resumeFileData;
+        const fName = fieldIdentifier.fileName || contextOpts?.resumeFileName;
+        if (fData && fName) {
+          return fillFileInput(input, fData, fName);
+        }
+      }
+      return false;
+    }
+
+    if (inputType === "radio") {
+      return fillRadio(input, value as string);
+    }
+
+    if (inputType === "range") {
+      const numVal = Number(value);
+      if (!isNaN(numVal)) {
+        const min = Number(input.min) || 0;
+        const max = Number(input.max) || 100;
+        const clamped = Math.max(min, Math.min(max, numVal));
+        const nativeSetter = Object.getOwnPropertyDescriptor(
+          HTMLInputElement.prototype,
+          "value",
+        )?.set;
+        if (nativeSetter) nativeSetter.call(input, String(clamped));
+        else input.value = String(clamped);
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+        return true;
+      }
+      return false;
+    }
+
+    if (inputType === "number") {
+      const valStr = String(value);
+      const numMatch = valStr.match(/-?\d+(\.\d+)?/);
+      const numVal = numMatch ? Number(numMatch[0]) : NaN;
+      if (!isNaN(numVal)) {
+        const min = input.min !== "" ? Number(input.min) : -Infinity;
+        const max = input.max !== "" ? Number(input.max) : Infinity;
+        const clamped = Math.max(min, Math.min(max, numVal));
+        const nativeSetter = Object.getOwnPropertyDescriptor(
+          HTMLInputElement.prototype,
+          "value",
+        )?.set;
+        if (nativeSetter) nativeSetter.call(input, String(clamped));
+        else input.value = String(clamped);
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+        return true;
+      }
+      return false;
+    }
+
+    // Date inputs or date-related labels
+    const isDateField =
+      inputType === "date" ||
+      fieldIdentifier.fieldType === "dateOfBirth" ||
+      input.id.toLowerCase().includes("date") ||
+      input.id.toLowerCase().includes("dob") ||
+      input.name.toLowerCase().includes("date") ||
+      input.name.toLowerCase().includes("dob") ||
+      findLabel(input).toLowerCase().includes("date") ||
+      findLabel(input).toLowerCase().includes("dob");
+
+    if (isDateField) {
+      const valStr = String(value);
+      const isoDate = parseDateString(valStr);
+      if (isoDate) {
+        const setVal = inputType === "text" ? formatDateForDisplay(isoDate) : isoDate;
+        const nativeSetter = Object.getOwnPropertyDescriptor(
+          Object.getPrototypeOf(input),
+          "value",
+        )?.set;
+        if (nativeSetter) nativeSetter.call(input, setVal);
+        else input.value = setVal;
+        triggerEvents(input);
+
+        // Fill sibling hidden date inputs if present in custom pickers
+        const container = input.closest(".field-block, .form-group, .date-trigger-container, div");
+        if (container) {
+          const hiddenInputs = container.querySelectorAll('input[type="hidden"]');
+          hiddenInputs.forEach((hiddenInput) => {
+            if (hiddenInput instanceof HTMLInputElement) {
+              const hiddenSetter = Object.getOwnPropertyDescriptor(
+                HTMLInputElement.prototype,
+                "value",
+              )?.set;
+              if (hiddenSetter) hiddenSetter.call(hiddenInput, isoDate);
+              else hiddenInput.value = isoDate;
+              hiddenInput.dispatchEvent(new Event("input", { bubbles: true }));
+              hiddenInput.dispatchEvent(new Event("change", { bubbles: true }));
+            }
+          });
+        }
+      } else {
+        const nativeSetter = Object.getOwnPropertyDescriptor(
+          Object.getPrototypeOf(input),
+          "value",
+        )?.set;
+        if (nativeSetter) nativeSetter.call(input, valStr);
+        else input.value = valStr;
+        triggerEvents(input);
+      }
+      return true;
+    }
+
+    // Standard text input
+    const delayMs =
+      contextOpts?.typingDelayMs !== undefined
+        ? contextOpts.typingDelayMs
+        : contextOpts?.stealthMode
+          ? 25
+          : 0;
+
+    if (delayMs > 0 || contextOpts?.stealthMode) {
+      await humanTypeValue(input, value as string, delayMs);
     } else {
-      return fillCustomSelect(fieldIdentifier.id || "", String(value));
+      setNativeInputValue(input, value as string);
     }
     return true;
+  }
+
+  // 3. Textarea element
+  if (input instanceof HTMLTextAreaElement) {
+    const delayMs =
+      contextOpts?.typingDelayMs !== undefined
+        ? contextOpts.typingDelayMs
+        : contextOpts?.stealthMode
+          ? 25
+          : 0;
+
+    if (delayMs > 0 || contextOpts?.stealthMode) {
+      await humanTypeValue(input, value as string, delayMs);
+    } else {
+      setNativeInputValue(input, value as string);
+    }
+    return true;
+  }
+
+  // 4. Contenteditable / Chat Input
+  if (input.isContentEditable || input.getAttribute("role") === "textbox") {
+    const injected = fillChatInputField(input, value as string);
+    const isError =
+      String(value).includes("[Error") || String(value).includes("I'm sorry");
+
+    if (injected && contextOpts?.autoSubmit && !isError) {
+      setTimeout(() => {
+        if (!input) return;
+        submitChatField(input);
+      }, 300);
+    }
+    return injected;
+  }
+
+  // 5. Custom Select fallback
+  return await fillCustomSelect(fieldIdentifier.id || "", String(value));
+}
+
+/**
+ * Fills a form field with the provided value based on field type and accessibility metadata.
+ */
+export async function fillFormField(
+  fieldIdentifier: FieldMapping,
+  value: string | string[] | boolean,
+  contextOpts?: FillContextOpts,
+): Promise<boolean> {
+  if (
+    value === undefined ||
+    value === null ||
+    value === "[MANUAL_INPUT_NEEDED]"
+  ) {
+    return false;
+  }
+
+  // 1. Resolve element(s) from DOM
+  const { input, inputs } = resolveTargetElement(fieldIdentifier);
+
+  // 2. Tab panel activation if field is inside a hidden tab
+  if (input) {
+    activateTabForField(input);
+  }
+
+  // 3. Container element handling (divs acting as radio/checkbox groups, sliders, toggles)
+  if (input && isContainerElement(input)) {
+    const filled = await tryFillContainerDiv(input, value);
+    if (filled) return true;
+  }
+
+  // 4. Platform-specific question container fallbacks (Google Forms & Microsoft Forms)
+  if (!input && !inputs) {
+    const filled = await tryFillQuestionContainers(fieldIdentifier, value);
+    if (filled) return true;
+  }
+
+  // 5. Fill multiple elements (e.g. named radio or checkbox groups)
+  if (inputs && inputs.length > 0) {
+    return fillMultipleElements(inputs, value);
+  }
+
+  // 6. Fill single resolved element
+  if (input) {
+    return fillSingleInputElement(input, fieldIdentifier, value, contextOpts);
   }
 
   return false;
@@ -589,16 +664,24 @@ export function setNativeInputValue(input: HTMLElement, value: string): void {
     try {
       input.focus();
     } catch {
-      // Ignore focus error in headless
+      // Ignore focus error in headless/test environments
     }
 
     try {
       if (typeof FocusEvent !== "undefined") {
-        input.dispatchEvent(new FocusEvent("focus", { bubbles: true, composed: true }));
-        input.dispatchEvent(new FocusEvent("focusin", { bubbles: true, composed: true }));
+        input.dispatchEvent(
+          new FocusEvent("focus", { bubbles: true, composed: true }),
+        );
+        input.dispatchEvent(
+          new FocusEvent("focusin", { bubbles: true, composed: true }),
+        );
       } else {
-        input.dispatchEvent(new Event("focus", { bubbles: true, composed: true }));
-        input.dispatchEvent(new Event("focusin", { bubbles: true, composed: true }));
+        input.dispatchEvent(
+          new Event("focus", { bubbles: true, composed: true }),
+        );
+        input.dispatchEvent(
+          new Event("focusin", { bubbles: true, composed: true }),
+        );
       }
     } catch {
       // Ignore dispatch errors in test environment
@@ -618,13 +701,19 @@ export function setNativeInputValue(input: HTMLElement, value: string): void {
       Object.getOwnPropertyDescriptor(prototype, "value") ||
       Object.getOwnPropertyDescriptor(Object.getPrototypeOf(input), "value");
 
+    const previousValue = (input as HTMLInputElement | HTMLTextAreaElement).value;
     if (valueDescriptor && valueDescriptor.set) {
       valueDescriptor.set.call(input, value);
     } else {
       (input as HTMLInputElement | HTMLTextAreaElement).value = value;
     }
 
-    // Input and key simulation - triggers input state change across Google Forms, React, Vue, and Angular
+    const tracker = (input as unknown as { _valueTracker?: { setValue: (v: string) => void } })._valueTracker;
+    if (tracker && typeof tracker.setValue === "function") {
+      tracker.setValue(previousValue);
+    }
+
+    // Key and input simulation for framework change detection
     input.dispatchEvent(
       new KeyboardEvent("keydown", {
         bubbles: true,
@@ -644,11 +733,19 @@ export function setNativeInputValue(input: HTMLElement, value: string): void {
 
     try {
       if (typeof FocusEvent !== "undefined") {
-        input.dispatchEvent(new FocusEvent("blur", { bubbles: true, composed: true }));
-        input.dispatchEvent(new FocusEvent("focusout", { bubbles: true, composed: true }));
+        input.dispatchEvent(
+          new FocusEvent("blur", { bubbles: true, composed: true }),
+        );
+        input.dispatchEvent(
+          new FocusEvent("focusout", { bubbles: true, composed: true }),
+        );
       } else {
-        input.dispatchEvent(new Event("blur", { bubbles: true, composed: true }));
-        input.dispatchEvent(new Event("focusout", { bubbles: true, composed: true }));
+        input.dispatchEvent(
+          new Event("blur", { bubbles: true, composed: true }),
+        );
+        input.dispatchEvent(
+          new Event("focusout", { bubbles: true, composed: true }),
+        );
       }
     } catch {
       // Ignore dispatch errors in test environment
@@ -719,10 +816,7 @@ export function processCustomFields(
   fields.forEach(({ label, value }) => {
     if (!label || !value) return;
 
-    const rawTokens = label
-      .split(/[\s\-_/\\|:*xX]+/)
-      .map((t) => t.trim().toLowerCase())
-      .filter((t) => t.length > 0);
+    const rawTokens = extractTokens(label);
 
     if (rawTokens.length < 2) {
       if (fill1DField(rawTokens[0] || label, value)) filledCount++;

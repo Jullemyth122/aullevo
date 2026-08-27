@@ -9,8 +9,7 @@ import { LogoA } from '../components/LogoA';
 
 import { migrateCustomFields } from '../types';
 
-/* ─── collapsible section component ─── */
-
+// Collapsible accordion section component
 interface SectionProps {
     icon: React.ReactNode;
     title: string;
@@ -36,8 +35,7 @@ function Section({ icon, title, defaultOpen = true, children }: SectionProps) {
     );
 }
 
-/* ─── floating-label field helper ─── */
-
+// Floating label form field helper
 interface FieldProps {
     label: string;
     name: string;
@@ -163,16 +161,23 @@ function Popup() {
         }
     }, []);
 
-    /* ── Custom Fields CRUD ── */
-
+    // Custom Fields CRUD
     const addCustomField = () => {
-        if (!newCFLabel.trim()) return;
-        const updated = [...customFields, { label: newCFLabel.trim(), value: newCFValue.trim(), context: newCFContext.trim() }];
+        if (!newCFLabel.trim() && !newCFValue.trim()) return;
+        const cf = {
+            label: newCFLabel.trim() || newCFValue.trim() || 'Custom Field',
+            value: newCFValue.trim(),
+            context: newCFContext.trim(),
+        };
+        const updated = [...customFields, cf];
         setUserData({ ...userData, customFields: updated });
         setNewCFLabel('');
         setNewCFValue('');
         setNewCFContext('');
         if (typeof chrome !== 'undefined' && chrome?.storage) {
+            storageService.getActiveProfileName().then((activeName) => {
+                storageService.saveProfile(activeName, { ...userData, customFields: updated } as UserData).catch(() => {});
+            });
             chrome.storage.local.set({ userData: { ...userData, customFields: updated } });
         }
     };
@@ -181,11 +186,14 @@ function Popup() {
         const updated = customFields.filter((_, i) => i !== index);
         setUserData({ ...userData, customFields: updated });
         if (typeof chrome !== 'undefined' && chrome?.storage) {
+            storageService.getActiveProfileName().then((activeName) => {
+                storageService.saveProfile(activeName, { ...userData, customFields: updated } as UserData).catch(() => {});
+            });
             chrome.storage.local.set({ userData: { ...userData, customFields: updated } });
         }
     };
 
-    /* ── Memories CRUD ── */
+    // Memories CRUD
     const addMemory = () => {
         if (!isPro && memories.length >= 2) {
             setStatus({ message: '🔒 Memories are limited to 2 on the Free tier. Please upgrade to Pro!', type: 'error' });
@@ -209,7 +217,7 @@ function Popup() {
         }
     };
 
-    /* ── Links CRUD ── */
+    // Links CRUD
     const addLink = () => {
         if (!isPro && savedLinks.length >= 2) {
             setStatus({ message: '🔒 Links are limited to 2 on the Free tier. Please upgrade to Pro!', type: 'error' });
@@ -243,8 +251,7 @@ function Popup() {
         }
     };
 
-    /* ── Resume Upload Handlers ── */
-
+    // Resume Upload Handlers
     const handleSelectFile = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -303,24 +310,35 @@ function Popup() {
         }
     };
 
-    /* ── Generic Input Handler ── */
-
+    // Generic Input Handler
     const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setUserData({ ...userData, [name]: value });
     };
 
-    /* ── Save ── */
-
+    // Save profile data
     const handleSave = async () => {
+        const dataToSave = { ...userData };
+        if (newCFLabel.trim() || newCFValue.trim()) {
+            const extraCF = {
+                label: newCFLabel.trim() || newCFValue.trim() || 'Custom Field',
+                value: newCFValue.trim(),
+                context: newCFContext.trim(),
+            };
+            dataToSave.customFields = [...((dataToSave.customFields as CustomField[]) || []), extraCF];
+            setUserData(dataToSave);
+            setNewCFLabel('');
+            setNewCFValue('');
+            setNewCFContext('');
+        }
         try {
             const activeName = await storageService.getActiveProfileName();
-            await storageService.saveProfile(activeName, userData as UserData);
+            await storageService.saveProfile(activeName, dataToSave as UserData);
         } catch (e) {
             console.warn('storageService save fallback:', e);
         }
         if (typeof chrome !== 'undefined' && chrome?.storage) {
-            chrome.storage.local.set({ userData }, () => {
+            chrome.storage.local.set({ userData: dataToSave }, () => {
                 setStatus({ message: '💾 Data saved!', type: 'success' });
                 setTimeout(() => setStatus({ message: '', type: '' }), 2000);
             });
@@ -330,8 +348,7 @@ function Popup() {
         }
     };
 
-    /* ── AI Form Filler ── */
-
+    // AI Form Filler
     const processFormStep = async (tabId: number, step: number) => {
         if (step > 15) {
             setStatus({ message: '🛑 Max steps reached (safety limit).', type: 'info' });
@@ -445,9 +462,12 @@ function Popup() {
 
             const nextResponse = await sendMessagePromise(tabId, { action: 'clickNext' });
 
-            if (nextResponse?.success) {
+            if (nextResponse?.success && nextResponse.navigated) {
                 setStatus({ message: `➡️ Moving to next step...`, type: 'info' });
-                setTimeout(() => processFormStep(tabId, step + 1), 3000);
+                setTimeout(() => processFormStep(tabId, step + 1), 1500);
+            } else if (nextResponse?.reason === 'validation_error') {
+                setIsProcessing(false);
+                setStatus({ message: '⚠️ Form validation error. Please review highlighted fields.', type: 'error' });
             } else {
                 setIsProcessing(false);
                 setStatus({ message: '✨ Form filling complete!', type: 'success' });
@@ -691,7 +711,7 @@ function Popup() {
                         )}
                     </div>
 
-                    {/* ── SECTION: Personal Info ── */}
+                    {/* Personal Info section */}
                     <Section icon={<User size={14} />} title="Personal Information" defaultOpen={true}>
                         <div className="form-row">
                             <Field label="First Name" name="firstName" value={userData.firstName || ''} onChange={handleInputChange} />
@@ -712,14 +732,14 @@ function Popup() {
                         </div>
                     </Section>
 
-                    {/* ── SECTION: Links ── */}
+                    {/* Links section */}
                     <Section icon={<Link size={14} />} title="Links & URLs" defaultOpen={false}>
                         <Field label="LinkedIn" name="linkedin" value={userData.linkedin || ''} onChange={handleInputChange} type="url" />
                         <Field label="GitHub" name="github" value={userData.github || ''} onChange={handleInputChange} type="url" />
                         <Field label="Portfolio" name="portfolio" value={userData.portfolio || ''} onChange={handleInputChange} type="url" />
                     </Section>
 
-                    {/* ── SECTION: Skills & Summary ── */}
+                    {/* Skills and summary section */}
                     <Section icon={<PenTool size={14} />} title="Skills & Summary" defaultOpen={false}>
                         <div className="input-group">
                             <label>Skills (comma-separated)</label>
@@ -744,7 +764,7 @@ function Popup() {
                         />
                     </Section>
 
-                    {/* ── SECTION: Extended Fields ── */}
+                    {/* Extended job fields section */}
                     <Section icon={<Briefcase size={14} />} title="Job Platform Fields" defaultOpen={false}>
                         <div className="extended-fields-grid">
                             <Field label="Years of Exp." name="yearsOfExperience" value={userData.yearsOfExperience || ''} onChange={handleInputChange} />
@@ -760,7 +780,7 @@ function Popup() {
                         </div>
                     </Section>
 
-                    {/* ── SECTION: Custom Fields ── */}
+                    {/* Custom fields section */}
                     <Section icon={<Plus size={14} />} title={`Custom Fields (${customFields.length})`} defaultOpen={true}>
                         <div className="custom-fields-list">
                             {customFields.length === 0 && (
@@ -795,12 +815,14 @@ function Popup() {
                                     placeholder="Label (e.g. Pronouns)"
                                     value={newCFLabel}
                                     onChange={(e) => setNewCFLabel(e.target.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomField())}
                                 />
                                 <input
                                     type="text"
                                     placeholder="Value (e.g. He/Him)"
                                     value={newCFValue}
                                     onChange={(e) => setNewCFValue(e.target.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomField())}
                                 />
                                 <button className="icon-btn add" onClick={addCustomField} title="Add custom field">
                                     <Plus size={16} />
@@ -812,11 +834,12 @@ function Popup() {
                                 placeholder="AI Context (e.g. Use when asked about preferred pronouns)"
                                 value={newCFContext}
                                 onChange={(e) => setNewCFContext(e.target.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomField())}
                             />
                         </div>
                     </Section>
 
-                    {/* ── SECTION: Knowledge Base ── */}
+                    {/* Knowledge base section */}
                     <Section icon={<Database size={14} />} title={`Knowledge Base (${((userData.memories as Memory[]) || []).length})`} defaultOpen={false}>
                         <div className="custom-fields-list">
                             {((userData.memories as Memory[]) || []).length === 0 && (
@@ -859,7 +882,7 @@ function Popup() {
                         </div>
                     </Section>
 
-                    {/* ── SECTION: Autopilot Links ── */}
+                    {/* Autopilot links section */}
                     <Section icon={<Zap size={14} />} title={`Autopilot Links (${((userData.savedLinks as SavedLink[]) || []).length})`} defaultOpen={false}>
                         <div className="custom-fields-list">
                             {((userData.savedLinks as SavedLink[]) || []).length === 0 && (
@@ -907,7 +930,7 @@ function Popup() {
                         </div>
                     </Section>
 
-                    {/* ── ACTION BUTTONS ── */}
+                    {/* Action buttons */}
                     <button className="save-btn" onClick={handleSave} disabled={isProcessing}>
                         <Save size={16} />
                         Save Data

@@ -18,8 +18,13 @@ export interface LabelRectItem {
  */
 export function cleanLabelText(text: string): string {
   if (!text) return "";
+  // Strip leading question numbers or bullets e.g. "1.", "1)", "1 -", "Q1:", "10."
+  let cleaned = text.replace(
+    /^\s*(?:question\s*\d+[:\-.]?|\d+[.)\-:]|[a-zA-Z][.)\-:])\s*/i,
+    "",
+  );
   // Strip all newlines and carriage returns completely
-  let cleaned = text.replace(/[\r\n]+/g, " ");
+  cleaned = cleaned.replace(/[\r\n]+/g, " ");
   // Strip asterisks and mandatory symbols
   cleaned = cleaned.replace(/[*∗★•]/g, "");
   // Strip field notices e.g. "(required)", "(optional)", "(if not applicable...)"
@@ -105,7 +110,7 @@ export function findVisualLabelForInput(
       score = distYAbove + alignmentPenalty;
     } else if (isLeft && distXLeft < 250 && distYLeft < 30) {
       score = distXLeft + distYLeft * 2;
-    } else if (isRight && distXRight < 150 && distYRight < 20) {
+    } else if (isRight && distXRight < 150 && distYRight < 30) {
       score = distXRight + distYRight * 3;
     } else if (isBelow && distYBelow < 60) {
       const distXBelow = Math.abs(labelRect.left - inputRect.left);
@@ -136,9 +141,9 @@ export function findLabel(
   input: HTMLElement,
   labelRects?: LabelRectItem[],
 ): string {
-  // 0. Google Forms Question Card and Option Detection
+  // 0a. Google Forms Question Card and Option Detection
   const gfContainer = input.closest<HTMLElement>(
-    "div[role='listitem'], div.Qr7Oae, div.geS5n, div.m7Wjg"
+    "div[role='listitem'], div.Qr7Oae, div.geS5n, div.m7Wjg",
   );
   if (gfContainer) {
     const isOption =
@@ -148,7 +153,7 @@ export function findLabel(
         (input.type === "radio" || input.type === "checkbox"));
     if (isOption) {
       const optContainer = input.closest<HTMLElement>(
-        "label, .docssharedWizToggleLabeledContainer, div.bz0duf"
+        "label, .docssharedWizToggleLabeledContainer, div.bz0duf, div.jT5eGX, div.g3VIId, div[role='radio'], div[role='checkbox']",
       );
       if (optContainer) {
         const optText = cleanLabelText(optContainer.textContent || "");
@@ -156,10 +161,45 @@ export function findLabel(
       }
     } else {
       const headingEl = gfContainer.querySelector<HTMLElement>(
-        "div[role='heading'], span.M7eMe, div.M7eMe, div.HofdId, div.c2gGi, .HoFid"
+        "div[role='heading'], span.M7eMe, div.M7eMe, div.HofdId, div.c2gGi, .HoFid",
       );
       if (headingEl && !headingEl.contains(input)) {
         const text = cleanLabelText(headingEl.textContent || "");
+        if (text && text.length >= 2) return text;
+      }
+    }
+  }
+
+  // 0b. Microsoft Forms Question Card and Option Detection
+  const msContainer = input.closest<HTMLElement>(
+    "[data-automation-id='questionItem'], .office-form-question",
+  );
+  if (msContainer) {
+    const isOption =
+      input.getAttribute("role") === "radio" ||
+      input.getAttribute("role") === "checkbox" ||
+      (input instanceof HTMLInputElement &&
+        (input.type === "radio" || input.type === "checkbox")) ||
+      input.getAttribute("data-automation-id") === "radio" ||
+      input.getAttribute("data-automation-id") === "checkbox" ||
+      input.closest("[data-automation-id='choiceItem']");
+    if (isOption) {
+      const choiceEl =
+        input
+          .closest("[data-automation-id='choiceItem']")
+          ?.querySelector<HTMLElement>(
+            "[data-automation-id='choiceLabel'], .office-form-question-choice-item-text, label, span",
+          ) || input.parentElement;
+      if (choiceEl) {
+        const choiceText = cleanLabelText(choiceEl.textContent || "");
+        if (choiceText && choiceText.length >= 1) return choiceText;
+      }
+    } else {
+      const titleEl = msContainer.querySelector<HTMLElement>(
+        "[data-automation-id='questionTitle'], .office-form-question-title, .text-format-content, [role='heading']",
+      );
+      if (titleEl && !titleEl.contains(input) && titleEl !== input) {
+        const text = cleanLabelText(titleEl.textContent || "");
         if (text && text.length >= 2) return text;
       }
     }
@@ -169,7 +209,7 @@ export function findLabel(
   const ariaLabel = input.getAttribute("aria-label");
   if (ariaLabel) {
     const cleaned = cleanLabelText(ariaLabel);
-    if (cleaned && cleaned.length > 1) return cleaned;
+    if (cleaned && cleaned.length >= 1) return cleaned;
   }
 
   const ariaLabelledby = input.getAttribute("aria-labelledby");
@@ -250,29 +290,29 @@ export function findLabel(
     prevSibling = prevSibling.previousElementSibling as HTMLElement | null;
   }
 
-  // 4. Single-field container wrapper check (ONLY if wrapper contains ONLY this interactive input)
+  // 4. Single-field container wrapper check
   let container: HTMLElement | null = input.parentElement;
   let depth = 0;
   while (
     container &&
-    depth < 4 &&
+    depth < 8 &&
     container.tagName !== "BODY" &&
-    container.tagName !== "FORM"
+    container.tagName !== "HTML" &&
+    container !== document.documentElement
   ) {
-    // Only inspect container if it is dedicated to this single field
     const siblingInputs = container.querySelectorAll("input, select, textarea");
     if (siblingInputs.length <= 1) {
       const labelEl = container.querySelector<HTMLElement>(
-        "label, .label, [class*='label' i], [class*='lbl' i], [class*='title' i]",
+        "legend, [role='heading'], label, .label, [class*='label' i], [class*='lbl' i], [class*='title' i], [class*='question' i], h1, h2, h3, h4, h5, h6",
       );
       if (labelEl && labelEl !== input && !labelEl.contains(input)) {
         const text = cleanLabelText(labelEl.textContent || "");
-        if (text && text.length >= 2 && text.length <= 100) {
+        if (text && text.length >= 2 && text.length <= 200) {
           return text;
         }
       }
 
-      // Check previous siblings of the container level ONLY if it is not a multi-column row/table
+      // Check previous siblings of the container level
       let prevContainerSib =
         container.previousElementSibling as HTMLElement | null;
       while (prevContainerSib) {
@@ -283,7 +323,7 @@ export function findLabel(
           !prevContainerSib.querySelector("input, select, textarea, button")
         ) {
           const text = cleanLabelText(prevContainerSib.textContent || "");
-          if (text && text.length >= 2 && text.length <= 80) {
+          if (text && text.length >= 2 && text.length <= 120) {
             return text;
           }
         }
@@ -543,7 +583,12 @@ export function getAxesText(
             el.tagName === "INPUT" ||
             el.tagName === "SELECT" ||
             el.tagName === "TEXTAREA" ||
-            el.tagName === "BUTTON"
+            el.tagName === "BUTTON" ||
+            el.getAttribute("role") === "radio" ||
+            el.getAttribute("role") === "checkbox" ||
+            el.closest(
+              "[role='radio'], [role='checkbox'], .docssharedWizToggleLabeledContainer, .bz0duf, div.jT5eGX, div.g3VIId",
+            )
           )
             continue;
           const elRect = el.getBoundingClientRect();
@@ -620,11 +665,11 @@ export function findGroupLabel(
 ): string {
   // 0. Google Forms Question Card Heading
   const gfContainer = input.closest<HTMLElement>(
-    "div[role='listitem'], div.Qr7Oae, div.geS5n, div.m7Wjg"
+    "div[role='listitem'], div.Qr7Oae, div.geS5n, div.m7Wjg",
   );
   if (gfContainer) {
     const headingEl = gfContainer.querySelector<HTMLElement>(
-      "div[role='heading'], span.M7eMe, div.M7eMe, div.HofdId, div.c2gGi, .HoFid"
+      "div[role='heading'], span.M7eMe, div.M7eMe, div.HofdId, div.c2gGi, .HoFid",
     );
     if (headingEl && !headingEl.contains(input)) {
       const txt = cleanLabelText(headingEl.textContent || "");
