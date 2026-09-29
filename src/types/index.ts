@@ -1,248 +1,291 @@
-export interface CustomField {
-  label: string; // e.g. "Pronouns"
-  value: string; // e.g. "He/Him"
-  context: string; // e.g. "Use when form asks about preferred pronouns"
+// CF => short term for ===> CustomField <===
+
+export interface CM {
+    id: string;
+    label: string; // e.g. "Core Labels"
+    value: string; // e.g. "Core Values"
+    enabled: boolean; // for enabling the field
+    context: string; // e.g. "This would help AI to find such similarities of labels based on context"
+    group?: string;
+    isSensitive: boolean; //  this is required
+}
+
+export interface ProfileFile {
+    id: string;
+    label: string;
+    fileName: string;
+    mimeType: string;
+    fileSize: number;
+    dataBase64: string;
+    enabled: boolean;
 }
 
 export interface Memory {
-  id: string;
-  title: string;
-  content: string;
-  createdAt?: string;
+    id: string;
+    title: string;
+    content: string;
+    createdAt?: string;
+    enabled: boolean;
 }
 
 export interface SavedLink {
-  id: string;
-  title: string;
-  url: string;
-  autoFill: boolean;
-  createdAt?: string;
+    id: string;
+    title: string;
+    url: string;
+    enabled: boolean;
+    createdAt?: string;
 }
 
-// User data structure
-export interface UserData {
-  profileType?: 'job' | 'medical' | 'survey' | 'custom';
-  firstName: string;
-  middleName?: string;
-  lastName: string;
-  fullName?: string;
-  email: string;
-  phone: string;
-  address: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  country: string;
-  linkedin: string;
-  portfolio: string;
-  github: string;
-  summary: string;
-  skills: string[];
-  experience: Experience[];
-  education: Education[];
-  // Extended fields for job platforms
-  headline?: string;
-  dateOfBirth?: string;
-  gender?: string;
-  salaryExpectation?: string;
-  noticePeriod?: string;
-  workAuthorization?: string;
-  yearsOfExperience?: string;
-  // Medical-specific fields
-  emergencyContactName?: string;
-  emergencyContactRelationship?: string;
-  emergencyContactPhone?: string;
-  bloodType?: string;
-  allergies?: string;
-  medicalConditions?: string;
-  medications?: string;
-  insuranceProvider?: string;
-  policyNumber?: string;
-  // Survey-specific fields
-  occupation?: string;
-  industry?: string;
-  educationLevel?: string;
-  maritalStatus?: string;
-  customFields: CustomField[];
-  memories: Memory[];
-  savedLinks: SavedLink[];
+// Supported Profile Types
+
+export type ProfileType =
+    | "job"
+    | "medical"
+    | "government"
+    | "survey"
+    | "academic"
+    | "financial"
+    | "custom";
+
+
+// -----------
+// Base User Profile (Common personal & contact fields across all profile types)
+// BU => short term of ===> BaseUser <===
+
+export interface BUData {
+    id: string;
+    profileName: string; // e.g. "Tech Job Profile", "Personal Medical", "DMV Renewal"
+    enabled: boolean;
+    createdAt?: string;
+    updatedAt?: string;
+
+    // Core Identity & Contact CustomFields
+    firstName: CM;
+    middleName?: CM;
+    lastName: CM;
+    fullName?: CM;
+    email: CM;
+    phone: CM;
+    gender?: CM;
+    dateOfBirth?: CM;
+
+    // Address Details
+    address?: CM;
+    city?: CM;
+    state?: CM;
+    zipCode?: CM;
+    country?: CM;
+
+    // files
+    files?: ProfileFile[];
+    // Optional ad-hoc custom fields allowed in any profile
+    customFields?: CM[];
 }
 
-export interface Experience {
-  company: string;
-  position: string;
-  duration: string;
-  description: string;
+// export interface CustomBUData {
+//     id: string;
+// }
+
+
+// ---------------------------------------------------------------------------
+// 1. Job / Employment Profile
+
+export interface JobUserData extends BUData {
+    profileType: "job";
+    headline?: CM;
+    summary?: CM;
+    linkedin?: CM;
+    portfolio?: CM;
+    github?: CM;
+    website?: CM;
+    currentCompany?: CM;
+    currentTitle?: CM;
+    yearsOfExperience?: CM;
+    desiredSalary?: CM;
+    noticePeriod?: CM;
+    workAuthorization?: CM; // e.g. "US Citizen", "Green Card", "Requires Sponsorship"
+    education?: CM;
+    certifications?: CM;
+    skills: CM[];
+
 }
 
-export interface Education {
-  school: string;
-  degree: string;
-  year: string;
+// ---------------------------------------------------------------------------
+// 2. Medical / Healthcare Profile
+
+export interface MedicalUserData extends BUData {
+    profileType: "medical";
+    bloodType?: CM;
+    allergies?: CM[];
+    chronicConditions?: CM[];
+    currentMedications?: CM[];
+    primaryPhysicianName?: CM;
+    primaryPhysicianPhone?: CM;
+    primaryClinicOrHospital?: CM;
+    emergencyContactName?: CM;
+    emergencyContactPhone?: CM;
+    emergencyContactRelation?: CM;
+    insuranceProvider?: CM;
+    insurancePolicyNumber?: CM;
+    insuranceGroupNumber?: CM;
+    organDonorStatus?: CM;
 }
 
-// Form field types
-export interface FormField {
-  id: string;
-  name: string;
-  type: string;
-  placeholder: string;
-  label: string;
-  ariaLabel: string;
-  autocomplete: string;
-  required: boolean;
-  context?: string; // Surrounding text/header
-  section?: string; // Visual section name
-  accept?: string; // For file inputs: e.g. ".pdf,.doc,.docx"
-  multiple?: boolean; // For file inputs: whether multiple files are allowed
-  options?: {
-    label: string;
-    value: string;
-    rowHeader?: string;
-    colHeader?: string;
-    compoundLabel?: string;
-  }[]; // For select fields, radio_groups, and checkbox_groups
-  min?: string; // For range inputs
-  max?: string; // For range inputs
-  step?: string; // For range inputs
-  currentValue?: string; // For toggles: current on/off state
-  chatContext?: string[]; // Array of previous chat messages for context
-  // 2D Matrix / Multi-Axis Form Fields Support
-  rowHeader?: string; // e.g. "Mon", "React"
-  colHeader?: string; // e.g. "From", "Morning", "Expert"
-  compoundLabel?: string; // e.g. "Availability > Mon > From"
+// ---------------------------------------------------------------------------
+// 3. Government / Civic / Official Profile
+// ---------------------------------------------------------------------------
+
+export interface GovernmentUserData extends BUData {
+    profileType: "government";
+    nationalIdOrSSN?: CM;
+    passportNumber?: CM;
+    passportExpiry?: CM;
+    driversLicenseNumber?: CM;
+    driversLicenseState?: CM;
+    taxIdOrTIN?: CM;
+    citizenship?: CM;
+    placeOfBirth?: CM;
+    maritalStatus?: CM;
+    voterId?: CM;
+    militaryOrVeteranStatus?: CM;
+    residencyStatus?: CM;
 }
 
-export interface FieldMapping {
-  fieldId: string;
-  fieldType: keyof UserData | "custom_question" | string;
-  confidence: number;
-  reasoning?: string;
-  id?: string;
-  name?: string;
-  selectedValue?: string | string[]; // For select fields, radio_group, and checkbox_group
-  headerContext?: string; // The specific context (e.g. "Additional Questions")
-  originalQuestion?: string; // For custom Q&A
+// ---------------------------------------------------------------------------
+// 4. Survey / Demographics / Market Research Profile
+// ---------------------------------------------------------------------------
 
-  // Dynamic / Repeater support
-  groupType?: "experience" | "education" | "project" | "skill";
-  groupIndex?: number; // 0-based index for repeater items
-  action?: "fill" | "click_add"; // 'fill' is default. 'click_add' means this mapping targets an "Add" button.
-
-  // Custom File Injection Support
-  fileData?: string; // Data URL bridging (for Content script injection)
-  fileName?: string; // Real file original name
-  files?: { name: string; dataUrl: string }[]; // Array of files for multiple injection
-
-  // 2D Matrix Support
-  rowHeader?: string;
-  colHeader?: string;
-  compoundLabel?: string;
+export interface SurveyUserData extends BUData {
+    profileType: "survey";
+    ageRange?: CM;
+    householdIncomeRange?: CM;
+    educationLevel?: CM;
+    employmentStatus?: CM;
+    industry?: CM;
+    jobRoleOrTitle?: CM;
+    householdSize?: CM;
+    maritalStatus?: CM;
+    homeOwnershipStatus?: CM;
+    interestsAndHobbies?: CM[];
+    preferredLanguage?: CM;
 }
 
-export interface SavedFile {
-  id: string;
-  name: string;
-  size: number;
-  type: string;
-  dataUrl: string;
-  savedAt: string;
+// ---------------------------------------------------------------------------
+// 5. Academic / Student / Education Profile
+// ---------------------------------------------------------------------------
+
+export interface AcademicUserData extends BUData {
+    profileType: "academic";
+    institutionName?: CM;
+    studentIdNumber?: CM;
+    degreeLevel?: CM;
+    majorOrFieldOfStudy?: CM;
+    minorOrSpecialization?: CM;
+    gpaOrGrade?: CM;
+    graduationYearOrExpected?: CM;
+    advisorOrCounselorName?: CM;
+    honorsAndAwards?: CM[];
+    extracurricularActivities?: CM[];
+    standardizedTestScores?: CM;
 }
 
-// Message types for Chrome extension
-export interface ChromeMessage {
-  action:
-    | "analyzeForm"
-    | "fillForm"
-    | "clickNext"
-    | "clickPrev"
-    | "domChanged"
-    | "urlChanged"
-    | "toggleSidebar"
-    | "triggerFillFromPopup"
-    | "triggerFillFromSidebar"
-    | "processFieldsAI"
-    | "openAutopilotLink"
-    | "showToast";
-  data?: {
-    fieldMappings?: FieldMapping[];
-    userData?: Partial<UserData>;
-    resumeFileData?: string;
-    resumeFileName?: string;
-  };
-  fields?: FormField[];
-  tabUrl?: string; // Current URL for AI domain cache
-  url?: string; // Used by urlChanged
-  message?: string;
-  type?: "info" | "success" | "error";
+// ---------------------------------------------------------------------------
+// 6. Financial / E-Commerce / Billing Profile
+// ---------------------------------------------------------------------------
+
+export interface FinancialUserData extends BUData {
+    profileType: "financial";
+    billingAddress?: CM;
+    billingCity?: CM;
+    billingState?: CM;
+    billingZipCode?: CM;
+    billingCountry?: CM;
+    shippingAddress?: CM;
+    shippingCity?: CM;
+    shippingState?: CM;
+    shippingZipCode?: CM;
+    shippingCountry?: CM;
+    preferredPaymentMethod?: CM;
+    cardholderName?: CM;
+    bankName?: CM;
+    vatOrBusinessNumber?: CM;
+    deliveryNotesOrInstructions?: CM;
 }
 
-export interface ChromeResponse {
-  success: boolean;
-  fields?: FormField[];
-  filledCount?: number;
-  total?: number;
-  message?: string;
-  nextButtonFound?: boolean;
-  prevButtonFound?: boolean;
-  error?: string;
-  mappings?: FieldMapping[];
-  addButtons?: FieldMapping[];
-  userData?: Partial<UserData>;
-  resumeFileData?: string;
-  resumeFileName?: string;
+// ---------------------------------------------------------------------------
+// 7. Custom / General Purpose Profile
+
+export interface CustomUserData extends BUData {
+    profileType: "custom";
+    customFields: CM[];
 }
 
-// Status for UI
-export interface Status {
-  message: string;
-  type: "info" | "success" | "error" | "";
+
+// 8. Add New Profiles 
+
+export interface CustomProfileData {
+    id: string;
+    profileType: string;     // e.g. "Shopping Profile", "Freelance", "Social"
+    profileName: string;
+    enabled: boolean;        // ON / OFF
+    files?: ProfileFile[];
+    customFields: CM[];      // array of your custom fields (label, value, context)
 }
 
-/**
- * Factory for creating an empty UserData template based on profile type.
- */
-export const createEmptyUserData = (profileType: 'job' | 'medical' | 'survey' | 'custom' = 'job'): UserData => ({
-  profileType,
-  firstName: '',
-  lastName: '',
-  email: '',
-  phone: '',
-  address: '',
-  city: '',
-  state: '',
-  zipCode: '',
-  country: '',
-  linkedin: '',
-  portfolio: '',
-  github: '',
-  headline: '',
-  summary: '',
-  skills: [],
-  yearsOfExperience: '',
-  salaryExpectation: '',
-  noticePeriod: '',
-  workAuthorization: '',
-  dateOfBirth: '',
-  gender: '',
-  emergencyContactName: '',
-  emergencyContactRelationship: '',
-  emergencyContactPhone: '',
-  bloodType: '',
-  allergies: '',
-  medicalConditions: '',
-  medications: '',
-  insuranceProvider: '',
-  policyNumber: '',
-  occupation: '',
-  industry: '',
-  educationLevel: '',
-  maritalStatus: '',
-  customFields: [],
-  experience: [],
-  education: [],
-  memories: [],
-  savedLinks: [],
-});
 
-export { migrateCustomFields } from '../utils/customFields';
+// ---------------------------------------------------------------------------
+// Discriminated Union of all Profiles
+
+export type UserData =
+    | JobUserData
+    | MedicalUserData
+    | GovernmentUserData
+    | SurveyUserData
+    | AcademicUserData
+    | FinancialUserData
+    | CustomUserData
+    | CustomProfileData;
+
+// ---------------------------------------------------------------------------
+// Profile Store & Storage Interfaces
+
+export interface UserProfileStore {
+    activeProfileId: string;
+    profiles: UserData[];
+}
+
+export interface StorageDefault {
+    fields?: CM[];
+    userProfiles?: UserProfileStore;
+    activeProfile?: UserData;
+    memories?: Memory[];
+    savedLinks?: SavedLink[];
+}
+
+// ---------------------------------------------------------------------------
+// Type Guard Utilities
+
+// pf => profile
+export const isJobProfile = (pf: UserData): pf is JobUserData =>
+    pf.profileType === "job";
+
+export const isMedicalProfile = (pf: UserData): pf is MedicalUserData =>
+    pf.profileType === "medical";
+
+export const isGovernmentProfile = (pf: UserData): pf is GovernmentUserData =>
+    pf.profileType === "government";
+
+export const isSurveyProfile = (pf: UserData): pf is SurveyUserData =>
+    pf.profileType === "survey";
+
+export const isAcademicProfile = (pf: UserData): pf is AcademicUserData =>
+    pf.profileType === "academic";
+
+export const isFinancialProfile = (pf: UserData): pf is FinancialUserData =>
+    pf.profileType === "financial";
+
+export const isCustomProfile = (pf: UserData): pf is CustomUserData =>
+    pf.profileType === "custom";
+
+
+export { createDefaultProfiles, getProfileCustomFields } from './defaults';

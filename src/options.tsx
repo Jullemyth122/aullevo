@@ -1,3 +1,4 @@
+// Full-page version of the side panel (chrome.runtime.openOptionsPage / "Extension options")
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
@@ -7,7 +8,7 @@ import { VaultGate } from './components/VaultGate'
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <VaultGate>
-      <App />
+      <App layout="page" />
     </VaultGate>
   </StrictMode>,
 )

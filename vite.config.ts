@@ -1,78 +1,29 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react-swc';
-import { resolve } from 'path';
+import { resolve } from 'path'
+import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite'
 
-export default defineConfig(({ mode }) => {
-
-  // ── content script: fully self-contained IIFE (no import statements) ──
-  if (mode === 'content') {
-    return {
-      plugins: [react()],
-      define: { 'process.env.NODE_ENV': '"production"' },
-      build: {
-        outDir: 'dist',
-        emptyOutDir: false,
-        lib: {
-          entry: resolve(__dirname, 'src/content/content.tsx'),
-          name: 'AullevoContent',
-          formats: ['iife'],
-          fileName: () => 'assets/content.js',
-        },
-        rollupOptions: {
-          output: {
-            inlineDynamicImports: true,
-            assetFileNames: (assetInfo) => {
-              if (assetInfo.name?.endsWith('.css')) {
-                return 'assets/content.css';
-              }
-              return 'assets/[name].[ext]';
-            },
-          },
-        },
+export default defineConfig(({ mode }) => ({
+  plugins: [react()],
+  build: {
+    rolldownOptions: {
+      input: {
+        index: resolve(import.meta.dirname, 'index.html'),
+        options: resolve(import.meta.dirname, 'options.html'),
+        background: resolve(import.meta.dirname, 'src/background/background.ts'),
+        content: resolve(import.meta.dirname, 'src/content/content.ts'),
       },
-    };
-  }
-
-  // ── background service worker: ES module (MV3 requires it) ──
-  if (mode === 'background') {
-    return {
-      plugins: [react()],
-      define: { 'process.env.NODE_ENV': '"production"' },
-      build: {
-        outDir: 'dist',
-        emptyOutDir: false,
-        lib: {
-          entry: resolve(__dirname, 'src/background/background.ts'),
-          name: 'AullevoBackground',
-          formats: ['es'],
-          fileName: () => 'assets/background.js',
-        },
-        rollupOptions: {
-          output: {
-            inlineDynamicImports: true,
-          },
-        },
-      },
-    };
-  }
-
-  // ── default: popup + options HTML pages (code splitting is fine here) ──
-  return {
-    plugins: [react()],
-    build: {
-      modulePreload: false,
-      outDir: 'dist',
-      emptyOutDir: true,
-      rollupOptions: {
-        input: {
-          popup:   resolve(__dirname, 'index.html'),
-          options: resolve(__dirname, 'options.html'),
-        },
-        output: {
-          chunkFileNames: 'assets/[name]-[hash].js',
-          assetFileNames: 'assets/[name].[ext]',
+      // Release builds drop debug logging (console.warn/error stay for real problems)
+      treeshake: mode === 'production'
+        ? { manualPureFunctions: ['console.log', 'console.info', 'console.debug'] }
+        : undefined,
+      output: {
+        entryFileNames: (chunkInfo) => {
+          if (chunkInfo.name === 'background' || chunkInfo.name === 'content') {
+            return '[name].js'
+          }
+          return 'assets/[name]-[hash].js'
         },
       },
     },
-  };
-});
+  },
+}))

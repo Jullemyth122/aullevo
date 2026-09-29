@@ -1,72 +1,83 @@
 {
   "manifest_version": 3,
-  "name": "Aullevo - Automation Forms Filler with or without AI",
-  "version": "1.0.0",
-  "description": "Auto-fill forms using your profilers with or without AI. Press Ctrl+Shift+E to open the sidebar!",
-  "permissions": ["activeTab", "scripting", "storage"],
-  "background": {
-    "service_worker": "assets/background.js",
-    "type": "module"
+  "name": "Aullevo - AI Form Autofill & Job Application Filler",
+  "short_name": "Aullevo",
+  "version": "0.5.0",
+  "description": "AI form filler for job applications, surveys, and any web form. Saved profiles, resume upload, and smart autofill.",
+  "permissions": [
+    "storage",
+    "scripting",
+    "sidePanel",
+    "unlimitedStorage"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "action": {
+    "default_title": "Open Aullevo Side Panel",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
   },
   "options_ui": {
     "page": "options.html",
     "open_in_tab": true
   },
-  "commands": {
-    "toggle-sidebar": {
-      "suggested_key": {
-        "default": "Ctrl+Shift+E",
-        "mac": "Command+Shift+E"
-      },
-      "description": "Activate the extension"
-    },
-    "trigger-ai-fill": {
-      "suggested_key": {
-        "default": "Ctrl+Shift+F",
-        "mac": "Command+Shift+F"
-      },
-      "description": "Trigger AI Form Fill on the current page"
-    }
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
   },
-  "icons": {
-    "16": "icon16.png",
-    "48": "icon48.png",
-    "128": "icon128.png"
-  },
-  "action": {
-    "default_title": "Aullevo — Toggle Sidebar (Ctrl+Shift+E)",
-    "default_icon": {
-      "16": "icon16.png",
-      "48": "icon48.png",
-      "128": "icon128.png"
-    }
-  },
-  "host_permissions": [
-    "https://www.messenger.com/*",
-    "https://www.facebook.com/*",
-    "https://mail.google.com/*",
-    "https://chat.google.com/*",
-    "https://hangouts.google.com/*"
-  ],
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["assets/content.js"],
-      "run_at": "document_idle",
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
       "all_frames": true,
-      "match_about_blank": true
+      "match_about_blank": true,
+      "run_at": "document_idle"
     }
   ],
   "web_accessible_resources": [
     {
       "resources": [
-        "pdf.worker.min.js",
-        "assets/content.css",
-        "icon16.png",
-        "icon48.png",
-        "icon128.png"
+        "icons/*"
       ],
-      "matches": ["<all_urls>"]
+      "matches": [
+        "<all_urls>"
+      ]
     }
-  ]
+  ],
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Alt+Q",
+        "mac": "Alt+Q"
+      },
+      "description": "Toggle Aullevo Side Panel"
+    },
+    "trigger-ai-fill": {
+      "suggested_key": {
+        "default": "Alt+Shift+L",
+        "mac": "Option+Shift+L"
+      },
+      "description": "Trigger AI or Keyword Form Autofill on Page"
+    },
+    "trigger-batch-fill": {
+      "suggested_key": {
+        "default": "Alt+Shift+B",
+        "mac": "Option+Shift+B"
+      },
+      "description": "Trigger Multi-Link Batch Form Autofill"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
 }

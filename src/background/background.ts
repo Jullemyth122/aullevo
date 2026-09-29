@@ -1,544 +1,492 @@
+// background.ts - Service Worker managing per-tab side panel triggers, shortcuts, and tab messaging
+
+import { resolveFormQuestionsWithAI, checkAiPermission, resolveFieldValue, getEffectiveUsageCount, getCurrentUsageWeek, countsTowardFreeLimit } from '../services/aiService';
+import { readVault } from '../services/vault';
+import { verifyAndSyncAccount, TRUSTED_WEB_ORIGINS } from '../services/account';
+import { isProUser, effectiveTypingDelay, filesAllowedForPlan, exceedsFreeProfileLimit, DEFAULT_TYPING_DELAY } from '../services/tier';
+
+
+// ---------------------------------------------------------------------------
+// Auto-Reinject Content Script into all open tabs on extension install/reload
+// (Prevents "Extension context invalidated" and eliminates manual F5 refreshing!)
+// ---------------------------------------------------------------------------
+
+chrome.runtime.onInstalled.addListener(async () => {
+    console.log("[Aullevo] Extension reloaded/installed. Auto-refreshing content scripts across tabs...");
+    const tabs = await chrome.tabs.query({ url: ["http://*/*", "https://*/*"] });
+    for (const tab of tabs) {
+        if (!tab.id) continue;
+        try {
+            await chrome.scripting.executeScript({
+                target: { tabId: tab.id, allFrames: true },
+                files: ["content.js"],
+            });
+        } catch {
+            // Ignore restricted internal pages (like chrome://extensions)
+        }
+    }
+});
+
+// 1. Helpers & State Tracking
+
+// Tracks which browser windows have an active side panel port connection
+const openWindowIds = new Set<number>();
+const windowSidePanelPorts = new Map<number, chrome.runtime.Port>();
+
+// 🎯 Tracks specifically which TAB IDs have their side panel toggled ON
+const enabledTabIds = new Set<number>();
+
+// Listen for connections from the side panel specifying its windowId
+chrome.runtime.onConnect.addListener((port) => {
+    if (port.name.startsWith("sidepanel-")) {
+        const windowId = Number(port.name.replace("sidepanel-", ""));
+        if (!windowId) return;
+
+        openWindowIds.add(windowId);
+        windowSidePanelPorts.set(windowId, port);
+
+        // When the user closes the panel via the browser's native "X" button:
+        port.onDisconnect.addListener(() => {
+            openWindowIds.delete(windowId);
+            windowSidePanelPorts.delete(windowId);
+
+            // Clean up the active tab's toggle state
+            getActiveTab().then((activeTab) => {
+                if (activeTab?.id) {
+                    enabledTabIds.delete(activeTab.id);
+                    chrome.sidePanel.setOptions({ tabId: activeTab.id, enabled: false }).catch(() => { });
+                }
+            });
+        });
+    }
+});
+
+// Clean up state when a browser window closes
+chrome.windows.onRemoved.addListener((windowId) => {
+    openWindowIds.delete(windowId);
+    windowSidePanelPorts.delete(windowId);
+});
+
+// Clean up state when a tab is closed
+chrome.tabs.onRemoved.addListener((closedTabId) => {
+    enabledTabIds.delete(closedTabId);
+});
+
 /**
- * @file background.ts
- * @module background
- *
- * ─── ROLE IN THE ARCHITECTURE
- * The Chrome Extension SERVICE WORKER — the top-level event hub that boots
- * when the extension loads and never unloads until the browser closes.
- *
- * This file is the ENTRY POINT for everything in the background.
- * It does NOT contain business logic — it only:
- *   • Listens for browser/Chrome events (commands, messages, tab updates, storage)
- *   • Validates/pre-processes incoming data
- *   • Delegates to the modules in ./modules/
- *
- * ─── MESSAGE FLOW OVERVIEW
- *
- *  User / UI            background.ts           Module
- *
- *  Ctrl+M shortcut  →   onCommand("toggle-sidebar") → sendMessage("toggleSidebar")
- *  Extension icon   →   action.onClicked           → sendMessage("toggleSidebar")
- *  Options page btn →   "openOptionsPage"           → chrome.runtime.openOptionsPage()
- *  Web page login   →   "SYNC_WEB_USER"             → Firestore uid/email lookup
- *  Popup Fill btn   →   "triggerFillFromPopup"      → runAIFill()
- *  Sidebar Fill btn →   "triggerFillFromSidebar"    → processFormStep()
- *  Content script   →   "processFieldsAI"           → processFieldsAI()
- *  Sidebar chat     →   "processChatAI"             → geminiService.generateChatReply()
- *  Autopilot link   →   "openAutopilotLink"         → chrome.tabs.create()
- *
- *  Tab navigation   →   tabs.onUpdated              → processFormStep() (autopilot)
- *  Storage change   →   storage.onChanged           → domainCache.clear()
- *
- * ─── DEPENDENCY DIRECTION
- *   background.ts  ← YOU ARE HERE (top of the tree)
- *     ├── geminiService         (direct: only for processChatAI)
- *     ├── backgroundUtils       (getActiveUserData, getHostname, badge, status)
- *     ├── domainCache           (domainCache.clear() on config change)
- *     └── formStepProcessor     (processFieldsAI, runAIFill, processFormStep)
- *           └── (see formStepProcessor.ts for its own deps)
- *
+ * Automatically hide/show the side panel as the user switches between tabs.
+ */
+// chrome.tabs.onActivated.addListener(async (activeInfo) => {
+//     const tabId = activeInfo.tabId;
+//     if (enabledTabIds.has(tabId)) {
+//         // Tab is toggled ON: display side panel
+//         await chrome.sidePanel.setOptions({
+//             tabId,
+//             path: "index.html",
+//             enabled: true
+//         });
+//     } else {
+//         // Tab is toggled OFF: hide side panel
+//         await chrome.sidePanel.setOptions({
+//             tabId,
+//             enabled: false
+//         });
+//     }
+// });
+
+/**
+ * Safely sends a message to the content script running on a specific tab.
  */
 
-import { geminiService } from "../services/geminiService";
-import { storageService } from "../services/storageService";
-import type { UserData } from "../types";
-import {
-  getActiveUserData,
-  getHostname,
-  showBadge,
-  clearBadge,
-  sendSidebarStatus,
-  sendToTab,
-} from "./modules/backgroundUtils";
-import { domainCache } from "./modules/domainCache";
-import {
-  processFieldsAI,
-  runAIFill,
-  processFormStep,
-} from "./modules/formStepProcessor";
+async function sendToTab(tabId: number, message: unknown): Promise<void> {
+    try {
+        await chrome.tabs.sendMessage(tabId, message);
+    } catch (err) {
+        console.warn("[Aullevo] Content script not reachable yet — refresh the page.", err);
+    }
+}
 
 /**
- * Background service worker for Aullevo.
- * Ctrl+M (toggle-sidebar command) → toggles the sidebar via content script.
- * Alt+F (via content script keydown) → triggers AI form fill directly.
+ * Helper to get the currently active tab in the focused window.
  */
-
-/* 
-   COMMANDS & MESSAGE HANDLING
-*/
-
-// KEYBOARD SHORTCUT: Ctrl+M  →  Toggle Sidebar
-
-/**
- * Keyboard shortcut listener.
- * "toggle-sidebar" is defined in manifest.json under "commands".
- *
- * Finds the active tab and tells the content script to toggle the sidebar panel.
- * The content script handles the actual DOM show/hide animation.
- */
-chrome.commands.onCommand.addListener(async (command) => {
-  if (command === "toggle-sidebar") {
+async function getActiveTab(): Promise<chrome.tabs.Tab | undefined> {
     const [tab] = await chrome.tabs.query({
-      active: true,
-      currentWindow: true,
+        active: true,
+        currentWindow: true,
     });
-    if (tab?.id) {
-      sendToTab(tab.id, { action: "toggleSidebar" }).catch((err: unknown) => {
-        console.warn("Aullevo: Sidebar toggle failed", err);
-      });
-    }
-  } else if (command === "trigger-ai-fill") {
-    runAIFill().catch((err: unknown) => {
-      console.warn("Aullevo: trigger-ai-fill failed", err);
-    });
-  }
-});
-
-// EXTENSION ICON CLICK  →  Toggle Sidebar
+    return tab;
+}
 
 /**
- * Clicking the extension toolbar icon does the same thing as Ctrl+M:
- * sends a "toggleSidebar" message to the current page's content script.
- *
- * Falls back with a warning if the content script hasn't loaded yet
- * (e.g. on chrome:// pages or freshly opened tabs).
+ * Decrypts the vault and applies plan limits for fills started from background.ts
+ * (keyboard shortcut and batch). Returns null while the vault is locked.
  */
-chrome.action.onClicked.addListener((tab) => {
-  if (!tab.id) return;
-  chrome.tabs.sendMessage(tab.id, { action: "toggleSidebar" }).catch(() => {
-    console.warn("Aullevo: Content script not loaded yet — refresh the page.");
-  });
+async function loadFillContext() {
+    const [vault, settings, isPro] = await Promise.all([
+        readVault(),
+        chrome.storage.local.get(['aullevo_use_ai', 'aullevo_typing_delay']) as Promise<any>,
+        isProUser()
+    ]);
+    if (!vault) return null;
+
+    const activeProfile: any = vault.activeProfile;
+    const rawFields = Array.isArray(vault.fields) ? vault.fields : [];
+    const rawFiles = Array.isArray(activeProfile?.files) ? activeProfile.files : [];
+    const typingDelay = typeof settings?.aullevo_typing_delay === 'number' ? settings.aullevo_typing_delay : DEFAULT_TYPING_DELAY;
+
+    return {
+        profileEnabled: Boolean(activeProfile?.enabled),
+        overProfileLimit: exceedsFreeProfileLimit(vault.userProfiles?.profiles ?? [], isPro),
+        fields: rawFields.filter((f: any) => f.enabled && f.value?.trim()),
+        files: filesAllowedForPlan(rawFiles.filter((f: any) => f.enabled), isPro), // Pro-only
+        useAi: Boolean(settings?.aullevo_use_ai),
+        typingSpeed: effectiveTypingDelay(typingDelay, isPro)                   // Slow/custom are Pro-only
+    };
+}
+
+/** Shows a lock badge on the toolbar icon when a shortcut is pressed while the vault is locked. */
+function flashLockedBadge(): void {
+    chrome.action.setBadgeBackgroundColor({ color: '#ef4444' }).catch(() => { });
+    chrome.action.setBadgeText({ text: 'LOCK' }).catch(() => { });
+    setTimeout(() => chrome.action.setBadgeText({ text: '' }).catch(() => { }), 4000);
+}
+
+// --- 2. Per-Tab Toggle Helper ---
+function toggleSidePanel(tab?: chrome.tabs.Tab): void {
+    if (!tab?.id) return;
+    const tabId = tab.id;
+
+    const isOpen = enabledTabIds.has(tabId);
+
+    if (isOpen) {
+        // 🛑 TOGGLE OFF for THIS tab
+        enabledTabIds.delete(tabId);
+
+        chrome.sidePanel.setOptions({
+            tabId,
+            enabled: false
+        }).catch(() => { });
+
+    } else {
+        // 🟢 TOGGLE ON for THIS tab
+        enabledTabIds.add(tabId);
+
+        chrome.sidePanel.setOptions({
+            tabId,
+            path: "index.html",
+            enabled: true
+        }).catch((err) => console.warn("[Aullevo] setOptions error:", err));
+
+        // Synchronous call to preserve the active user gesture
+        chrome.sidePanel.open({ tabId }).catch((err) => {
+            console.warn("[Aullevo] Could not open side panel for tab:", err);
+            enabledTabIds.delete(tabId);
+        });
+    }
+}
+
+// ---------------------------------------------------------------------------
+// 3. The 3 Doors to Toggle the Native Side Panel
+// ---------------------------------------------------------------------------
+
+// 🚪 DOOR 1: Clicking the extension icon in the browser toolbar
+if (chrome.sidePanel && chrome.sidePanel.setPanelBehavior) {
+    chrome.sidePanel
+        .setPanelBehavior({ openPanelOnActionClick: false })
+        .catch((err: unknown) => console.warn("[Aullevo] Error configuring side panel behavior:", err));
+}
+
+chrome.action.onClicked.addListener((tab: chrome.tabs.Tab) => {
+    toggleSidePanel(tab);
 });
 
-// MAIN MESSAGE ROUTER
-
-/**
- * Central message handler. All chrome.runtime.sendMessage() calls from
- * popup, options page, sidebar, and content scripts arrive here.
- *
- * Each `if (request.action === "...")` block handles one specific action.
- * Blocks that need async work return `true` to keep the message channel open
- * until sendResponse() is called.
- */
-chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
-  // ── openOptionsPage ─────────────────────────────────────────
-  // Opens the extension's settings page. Sent by the popup when the user
-  // clicks the "Settings" icon. Uses openOptionsPage() API with a fallback
-  // to creating a new tab manually for older Chrome versions.
-  if (request.action === "openOptionsPage") {
-    if (typeof chrome !== "undefined" && chrome.runtime?.openOptionsPage) {
-      chrome.runtime.openOptionsPage().catch(() => {
-        chrome.tabs.create({ url: chrome.runtime.getURL("options.html") });
-      });
-    } else if (typeof chrome !== "undefined" && chrome.tabs) {
-      chrome.tabs.create({ url: chrome.runtime.getURL("options.html") });
-    }
-    sendResponse({ success: true });
-    return true;
-  }
-
-  // ── SYNC_WEB_USER ───────────────────────────────────────────
-  // Fired by the web app (aullevo.com) when the user logs in or updates
-  // their subscription status. Syncs Firebase Firestore user data into
-  // chrome.storage.local so the extension always knows if the user is Pro.
-  //
-  // Flow:
-  //   1. Try to load by UID from Firestore "users" collection.
-  //   2. If not Pro and email is known, search by email as a fallback.
-  //   3. Validate proExpiresAt against current timestamp.
-  //   4. Persist { isPro, proExpiresAt, userUid, userEmail, displayName, photoURL } locally.
-  if (request.action === "SYNC_WEB_USER" && (request.uid || request.email)) {
-    (async () => {
-      try {
-        const { doc, getDoc, collection, query, where, getDocs } =
-          await import("firebase/firestore");
-        const { db } = await import("../config/firebase");
-
-        const checkSubscriptionActive = (data: any): boolean => {
-          if (!data || !data.isPro) return false;
-          if (data.proExpiresAt) {
-            return new Date(data.proExpiresAt).getTime() > Date.now();
-          }
-          return false;
-        };
-
-        // Preserve existing local storage values if not explicitly provided in request
-        const currentLocal = await chrome.storage.local.get([
-          "isPro",
-          "proExpiresAt",
-          "userUid",
-          "userEmail",
-          "displayName",
-          "photoURL",
-        ]);
-        let isPro =
-          request.isPro !== undefined
-            ? !!request.isPro
-            : currentLocal.isPro || false;
-        let proExpiresAt =
-          request.proExpiresAt !== undefined
-            ? request.proExpiresAt
-            : currentLocal.proExpiresAt || null;
-        let uid = request.uid || currentLocal.userUid;
-        let email = request.email || currentLocal.userEmail || "";
-        let displayName = request.displayName || currentLocal.displayName || "";
-        let photoURL = request.photoURL || currentLocal.photoURL || "";
-
-        // Attempt Firestore verification
-        if (uid) {
-          try {
-            const userRef = doc(db, "users", uid);
-            const userSnap = await getDoc(userRef);
-            if (userSnap.exists()) {
-              const data = userSnap.data();
-              isPro = checkSubscriptionActive(data);
-              proExpiresAt = data.proExpiresAt || null;
-              if (!email) email = data.email || "";
-              if (!displayName) displayName = data.displayName || "";
-              if (!photoURL) photoURL = data.photoURL || "";
-            }
-          } catch (err) {
-            console.warn(
-              "Aullevo: getDoc by uid failed (using existing value, isPro=" +
-                isPro +
-                ")",
-              err,
-            );
-          }
-        }
-
-        // Secondary lookup by email if UID lookup didn't set isPro
-        if (!isPro && email) {
-          try {
-            const q = query(
-              collection(db, "users"),
-              where("email", "==", email),
-            );
-            const querySnap = await getDocs(q);
-            querySnap.forEach((docSnap) => {
-              const data = docSnap.data();
-              if (checkSubscriptionActive(data)) {
-                isPro = true;
-                proExpiresAt = data.proExpiresAt || null;
-              }
-              if (!uid) uid = docSnap.id;
-              if (!displayName && data.displayName) displayName = data.displayName;
-              if (!photoURL && data.photoURL) photoURL = data.photoURL;
-            });
-          } catch (err) {
-            console.warn(
-              "Aullevo: query by email failed (using existing value, isPro=" +
-                isPro +
-                ")",
-              err,
-            );
-          }
-        }
-
-        // Check if proExpiresAt has passed
-        if (proExpiresAt && new Date(proExpiresAt).getTime() <= Date.now()) {
-          isPro = false;
-        }
-
-        // Persist the final verified values to local storage
-        await chrome.storage.local.set({
-          isPro,
-          proExpiresAt,
-          userUid: uid || null,
-          userEmail: email,
-          displayName,
-          photoURL,
-        });
-
-        // Switch storage service active account
-        await storageService.switchAccount(uid || email || "guest");
-
-        sendResponse({ success: true, isPro, proExpiresAt });
-      } catch (e) {
-        console.warn("Aullevo: SYNC_WEB_USER outer error", e);
-        sendResponse({ success: false });
-      }
-    })();
-    return true; // Keep message channel open for async response
-  }
-
-  // ── triggerFillFromPopup ────────────────────────────────────
-  // Fired when the user clicks the "Fill Form" button in the popup.
-  // Also triggered by the Ctrl+M keyboard shortcut in some configurations.
-  //
-  // Delegates entirely to runAIFill() which sets up the autopilot session
-  // and starts the processFormStep() loop.
-  if (request.action === "triggerFillFromPopup") {
-    runAIFill().then(() => sendResponse({ success: true }));
-    return true;
-  }
-
-  // ── triggerFillFromSidebar ──────────────────────────────────
-  // Fired when the user clicks "Fill" inside the sidebar panel.
-  // Similar to triggerFillFromPopup but:
-  //   • Reads the active tab from within the handler (sidebar has its own tabId).
-  //   • Sends sendResponse({ success: true }) immediately (fire and forget)
-  //     so the sidebar UI can update right away.
-  //   • processFormStep() runs asynchronously and updates the sidebar via
-  //     sendSidebarStatus() messages throughout the fill process.
-  if (request.action === "triggerFillFromSidebar") {
-    (async () => {
-      try {
-        const [tab] = await chrome.tabs.query({
-          active: true,
-          currentWindow: true,
-        });
-        if (!tab?.id)
-          return sendResponse({ success: false, error: "No active tab found" });
-
-        const tabId = tab.id;
-        const tabHostname = getHostname(tab.url || "");
-
-        const stored = await chrome.storage.local.get([
-          "resumeFileData",
-          "resumeFileName",
-          "autoSubmit",
-        ]);
-        const userData = (request.data?.userData as UserData) || (await getActiveUserData());
-        const autoSubmit = !!stored.autoSubmit;
-
-        // Initialise or clear the autopilot session before starting
-        if (autoSubmit) {
-          await chrome.storage.local.set({
-            autopilotSession: {
-              tabId: tabId,
-              step: 0,
-              hostname: tabHostname,
-              fingerprints: [],
-            },
-          });
+// 🚪 DOOR 2: Pressing Alt+Q (or command fallback)
+chrome.commands.onCommand.addListener((command: string, tab?: chrome.tabs.Tab) => {
+    if (command === "toggle-sidebar" || command === "_execute_action") {
+        if (tab?.id) {
+            toggleSidePanel(tab);
         } else {
-          await chrome.storage.local.remove(["autopilotSession"]);
+            getActiveTab().then((activeTab) => {
+                if (activeTab) toggleSidePanel(activeTab);
+            });
         }
+    } else if (command === "trigger-ai-fill") {
+        (async () => {
+            const activeTab = await getActiveTab();
+            if (!activeTab?.id) return;
 
-        showBadge("⏳", "#3B82F6"); // Blue hourglass = working
-
-        // Kick off recursive processFormStep asynchronously so callback completes immediately
-        // The sidebar will receive status updates via sendSidebarStatus() as filling progresses.
-        processFormStep(
-          tabId,
-          userData,
-          0,
-          tabHostname,
-          stored.resumeFileData as string | undefined,
-          stored.resumeFileName as string | undefined,
-        ).catch((err) => {
-          console.error("Sidebar initiated fill failed:", err);
-          sendSidebarStatus(tabId, err.message || "Filling failed", "error");
-        });
-
-        sendResponse({ success: true }); // Immediately ACK the sidebar
-      } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : String(err);
-        showBadge("✗", "#f87171");
-        setTimeout(clearBadge, 3000);
-        sendResponse({ success: false, error: msg });
-      }
-    })();
-    return true;
-  }
-
-  // ── processFieldsAI ─────────────────────────────────────────
-  // Fired by the content script when it has already collected FormField[]
-  // and wants the background to match + resolve values.
-  //
-  // The content script is responsible for injecting the returned mappings
-  // into the DOM — background.ts just returns data, no DOM interaction here.
-  if (request.action === "processFieldsAI") {
-    const hostname = getHostname(request.tabUrl || "");
-    processFieldsAI(request.fields, hostname)
-      .then((result) => sendResponse(result))
-      .catch((err) => sendResponse({ success: false, error: err.message }));
-    return true;
-  }
-
-  // ── processChatAI ───────────────────────────────────────────
-  // Fired by the sidebar chat panel when the user sends a message.
-  // Uses geminiService.generateChatReply() to produce an AI response
-  // given the full conversation history and the user's profile data.
-  //
-  // This is the only place geminiService is used directly in background.ts;
-  // all form-related AI calls go through formStepProcessor.ts instead.
-  if (request.action === "processChatAI") {
-    (async () => {
-      try {
-        const stored = await chrome.storage.local.get(["geminiApiKey"]);
-        const userData = await getActiveUserData();
-        const apiKey = ((stored.geminiApiKey || "") as string).trim();
-
-        if (!apiKey) {
-          sendResponse({
-            success: false,
-            error:
-              "No API key found. Save your Gemini API key in the extension settings.",
-          });
-          return;
-        }
-
-        geminiService.setApiKey(apiKey);
-        const replyText = await geminiService.generateChatReply(
-          request.conversationHistory || [],
-          userData,
-        );
-
-        sendResponse({ success: true, replyText });
-      } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : String(err);
-        sendResponse({ success: false, error: msg });
-      }
-    })();
-    return true;
-  }
-
-  // ── urlChanged ──────────────────────────────────────────────
-  // Notification from the content script that the URL changed (SPA navigation).
-  // Currently just ACKs. Could be used to trigger re-analysis in the future.
-  if (request.action === "urlChanged") {
-    sendResponse({ success: true });
-    return false; // Synchronous response, no need to keep channel open
-  }
-
-  // ── domChanged ──────────────────────────────────────────────
-  // Notification from the content script that the DOM changed significantly.
-  // Currently just ACKs. Could be used to re-trigger scanning in the future.
-  if (request.action === "domChanged") {
-    sendResponse({ success: true });
-    return false;
-  }
-
-  // ── openAutopilotLink ───────────────────────────────────────
-  // Opens a new tab at the given URL and initialises an autopilot session
-  // for it. Used when the AI suggests applying to a job at an external link.
-  // The tab's onUpdated event will pick up the session and start filling.
-  if (request.action === "openAutopilotLink") {
-    chrome.tabs.create({ url: request.url }, (tab) => {
-      if (tab.id) {
-        chrome.storage.local.set({
-          autopilotSession: {
-            tabId: tab.id,
-            step: 0,
-            hostname: getHostname(request.url || ""),
-          },
-        });
-      }
-    });
-    sendResponse({ success: true });
-    return false;
-  }
-});
-
-// TAB NAVIGATION LISTENER  (Autopilot continuation)
-
-/**
- * Fires whenever a tab finishes loading (changeInfo.status === "complete").
- *
- * PURPOSE: Autopilot multi-page support.
- * When processFormStep() clicks "Next" and the page navigates away,
- * the background script can't await the new page load.  Instead, this
- * listener detects when the SAME tab finishes loading and resumes the
- * autopilot session from where it left off.
- *
- * Safety checks:
- *   • Is there an active autopilot session for this specific tab? (session.tabId === tabId)
- *   • Has the user navigated AWAY from the original hostname?
- *     If yes → cancel autopilot (they left the job site).
- *   • Has the step counter exceeded 30? → stop to avoid infinite loops.
- *
- * A 2-second delay (setTimeout) is applied before resuming to let the new
- * page's content script fully initialise before "analyzeForm" is sent.
- */
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (changeInfo.status === "complete") {
-    chrome.storage.local.get(["autopilotSession"], (result) => {
-      const session = result.autopilotSession as { tabId?: number; hostname?: string; step?: number } | undefined;
-      if (session && session.tabId === tabId) {
-        const currentHostname = getHostname(tab.url || "");
-
-        // If the user navigated to a different domain, cancel autopilot
-        if (session.hostname && currentHostname !== session.hostname) {
-          chrome.storage.local.remove(["autopilotSession"]);
-          clearBadge();
-          return;
-        }
-
-        console.log(
-          `Aullevo Autopilot: Tab loaded, resuming auto-fill step ${session.step}...`,
-        );
-        showBadge("⏳", "#3B82F6");
-
-        // Delay 2 s to let the new page's content script inject and initialise
-        setTimeout(async () => {
-          try {
-            const stored = await chrome.storage.local.get([
-              "resumeFileData",
-              "resumeFileName",
-            ]);
-            const userData = await getActiveUserData();
-
-            const nextStep = (session.step ?? 0) + 1;
-            if (nextStep > 30) {
-              // Hard cap: stop if we've been through 30+ steps
-              chrome.storage.local.remove(["autopilotSession"]);
-              showBadge("✓", "#34d399");
-              setTimeout(clearBadge, 4000);
-              return;
+            const ctx = await loadFillContext();
+            if (!ctx) {
+                console.log("[Aullevo] Vault is locked. Open the side panel and unlock to use shortcuts.");
+                flashLockedBadge();
+                return;
+            }
+            // Same rule as the side panel Fill button: a profile switched OFF must not autofill
+            if (!ctx.profileEnabled) {
+                console.log("[Aullevo] Active profile is disabled. Shortcut autofill skipped.");
+                return;
+            }
+            if (ctx.overProfileLimit) {
+                console.log("[Aullevo] Free plan: more than 2 profiles are ON. Shortcut autofill skipped.");
+                return;
             }
 
-            // Increment the step counter in storage so the next navigation
-            // starts at the right step if the page loads again.
-            await chrome.storage.local.set({
-              autopilotSession: { ...session, step: nextStep },
+            sendToTab(activeTab.id, {
+                action: "INJECT_FORM_FIELDS",
+                fields: ctx.fields,
+                files: ctx.files,
+                useAi: ctx.useAi,
+                typingSpeed: ctx.typingSpeed
             });
-
-            // Resume the fill loop for the new page
-            await processFormStep(
-              tabId,
-              userData,
-              nextStep,
-              currentHostname,
-              stored.resumeFileData as string | undefined,
-              stored.resumeFileName as string | undefined,
-            );
-          } catch (error) {
-            console.error("Autopilot fill error:", error);
-            showBadge("✗", "#f87171");
-            setTimeout(clearBadge, 3000);
-            chrome.storage.local.remove(["autopilotSession"]);
-          }
-        }, 2000); // 2 s grace period for new page to load
-      }
-    });
-  }
-});
-
-// STORAGE CHANGE LISTENER  (Cache invalidation)
-
-/**
- * Clears the entire domain cache whenever the user changes settings that
- * would affect how fields are mapped:
- *
- *   • userData       — profile changed → different values to fill
- *   • matchingMode   — switched AI ↔ heuristic → different mapping results
- *   • geminiApiKey   — API key changed → need to re-authenticate with Gemini
- *
- * Without this, a cached AI result from the old profile/mode would be used
- * on the next fill, causing incorrect data to be entered.
- */
-chrome.storage.onChanged.addListener(async (changes, areaName) => {
-  if (areaName === "local") {
-    if (changes.userData || changes.matchingMode || changes.geminiApiKey) {
-      await domainCache.clear();
-      console.log(
-        "Aullevo: domainCache cleared due to configuration/profile change.",
-      );
+        })();
+    } else if (command === "trigger-batch-fill") {
+        // 🚀 Shortcut pressed: Alt+Shift+B / Option+Shift+B
+        chrome.storage?.local?.get(['aullevo_saved_links'], (storage: any) => {
+            const rawLinks = Array.isArray(storage?.aullevo_saved_links) ? storage.aullevo_saved_links : [];
+            const activeLinks = rawLinks.filter((l: any) => l.enabled);
+            if (activeLinks.length > 0) {
+                runBatchAutofill(activeLinks);
+            } else {
+                console.log("[Aullevo:Batch] No active links in queue to fill.");
+            }
+        });
     }
-  }
+
+
 });
 
-// Service worker successfully loaded
-console.log("Aullevo background service worker loaded!");
+// One form fill can send several AI requests (one per iframe). Count them as one free fill.
+const AI_FILL_WINDOW_MS = 60_000;
+const lastCountedAiFill = new Map<number, number>();
+
+function shouldCountAiFill(tabId: number | undefined): boolean {
+    if (tabId === undefined) return true;
+    const now = Date.now();
+    const last = lastCountedAiFill.get(tabId);
+    if (last !== undefined && now - last < AI_FILL_WINDOW_MS) return false;
+    lastCountedAiFill.set(tabId, now);
+    return true;
+}
+
+// 🚪 DOOR 3: Clicking the blue floating icon button on the webpage & AI Resolution
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === "OPEN_SIDE_PANEL") {
+        toggleSidePanel(sender.tab);
+    } else if (message.action === "CLOSE_PANEL") {
+        getActiveTab().then((activeTab) => {
+            if (activeTab?.id) {
+                enabledTabIds.delete(activeTab.id);
+                chrome.sidePanel.setOptions({ tabId: activeTab.id, enabled: false }).catch(() => { });
+            }
+        });
+    } else if (message.action === "START_BATCH_FILL") {
+        // 🚀 Button clicked inside MultiLinkTab:
+        const activeLinks = Array.isArray(message.links) ? message.links : [];
+        runBatchAutofill(activeLinks);
+    } else if (message.action === "WEB_AUTH_SYNC") {
+        // 🔗 Account sync from aullevo-web: only accept tokens relayed from the real website
+        const senderOrigin = sender.origin || (sender.url ? new URL(sender.url).origin : '');
+        if (!TRUSTED_WEB_ORIGINS.includes(senderOrigin) || typeof message.idToken !== 'string') {
+            sendResponse({ success: false, error: "Untrusted sender." });
+            return false;
+        }
+        verifyAndSyncAccount(message.idToken)
+            .then((account) => sendResponse({ success: true, isPro: account.isPro }))
+            .catch((err) => sendResponse({ success: false, error: err.message || "Account sync failed." }));
+        return true; // Keep channel open for async response
+    } else if (message.action === "CHECK_AI_PERMISSION") {
+        // 🔐 Preflight: lets content.ts fall back to full keyword mode when AI can't run
+        (async () => {
+            const [vault, storage, isPro]: [any, any, boolean] = await Promise.all([
+                readVault(),
+                chrome.storage.local.get(['aullevo_ai_usage_count', 'aullevo_ai_usage_week']),
+                isProUser()
+            ]);
+            if (!vault) {
+                sendResponse({ allowed: false, reason: "Aullevo is locked. Unlock it in the side panel." });
+                return;
+            }
+            const apiKey = typeof vault.geminiApiKey === 'string' ? vault.geminiApiKey : "";
+            const usageCount = getEffectiveUsageCount(storage?.aullevo_ai_usage_count, storage?.aullevo_ai_usage_week);
+            sendResponse(checkAiPermission(isPro, Boolean(apiKey.trim()), usageCount));
+        })();
+        return true; // Keep channel open for async response
+    } else if (message.action === "RESOLVE_AI_QUESTIONS") {
+        // 🧠 AI Smart Fill: Resolve leftover questions using Privacy-Safe Gemini Engine
+        (async () => {
+            try {
+                const [vault, storage, isPro]: [any, any, boolean] = await Promise.all([
+                    readVault(),
+                    chrome.storage.local.get([
+                        'aullevo_gemini_model',
+                        'aullevo_ai_usage_count',
+                        'aullevo_ai_usage_week',
+                        'aullevo_memories'
+                    ]),
+                    isProUser()
+                ]);
+                if (!vault) {
+                    sendResponse({ success: false, error: "Aullevo is locked. Unlock it in the side panel." });
+                    return;
+                }
+
+                const activeProfile = vault.activeProfile;
+                if (!activeProfile) {
+                    sendResponse({ success: false, error: "No active profile found in storage." });
+                    return;
+                }
+
+                const apiKey: string = vault.geminiApiKey || "";
+                const model = storage?.aullevo_gemini_model || "gemini-3.5-flash-lite";
+                const usageCount = getEffectiveUsageCount(storage?.aullevo_ai_usage_count, storage?.aullevo_ai_usage_week);
+                const memories = Array.isArray(storage?.aullevo_memories) ? storage.aullevo_memories : [];
+
+                // Check quota & permissions
+                const perm = checkAiPermission(isPro, Boolean(apiKey.trim()), usageCount);
+                if (!perm.allowed) {
+                    sendResponse({ success: false, error: perm.reason });
+                    return;
+                }
+
+                // Call Privacy-First Zero-Knowledge resolution
+                const result = await resolveFormQuestionsWithAI(
+                    apiKey,
+                    message.questions || [],
+                    activeProfile,
+                    memories,
+                    model
+                );
+
+                if (result.error) {
+                    sendResponse({ success: false, error: result.error });
+                    return;
+                }
+
+                // Free plan: every AI fill counts toward the weekly limit, own key or not
+                // (once per fill: every iframe of a page sends its own request)
+                if (countsTowardFreeLimit(isPro) && shouldCountAiFill(sender.tab?.id)) {
+                    chrome.storage?.local?.set({
+                        aullevo_ai_usage_count: usageCount + 1,
+                        aullevo_ai_usage_week: getCurrentUsageWeek()
+                    });
+                }
+
+                // Resolve matchedKey or matchedKeys → actual value LOCALLY before sending to content.ts
+                const resolvedAnswers = result.answers.map(ans => {
+                    const keys = (Array.isArray(ans.matchedKeys) && ans.matchedKeys.length > 0)
+                        ? ans.matchedKeys
+                        : (ans.matchedKey ? ans.matchedKey : null);
+
+                    if (keys) {
+                        const resolvedValue = resolveFieldValue(activeProfile, keys);
+                        const effectiveKey = Array.isArray(keys) ? keys.join('+') : keys;
+                        return {
+                            id: ans.id,
+                            matchedKey: effectiveKey,
+                            matchedKeys: Array.isArray(keys) ? keys : undefined,
+                            answer: resolvedValue || ans.answer || '',
+                            resolvedFromProfile: Boolean(resolvedValue)
+                        };
+                    }
+                    return ans;
+                });
+
+                sendResponse({
+                    success: true,
+                    answers: resolvedAnswers,
+                    tokensUsed: result.tokensUsed
+                });
+
+
+            } catch (err: any) {
+                console.error("[Aullevo:Background] AI resolution error:", err);
+                sendResponse({ success: false, error: err.message || "Failed to resolve with AI." });
+            }
+        })();
+        return true; // Keep channel open for async response
+    }
+});
+
+
+// ---------------------------------------------------------------------------
+// 4. Multi-Link Batch Autofill Engine
+// ---------------------------------------------------------------------------
+// Helper: Waits for a tab to finish loading before attempting form injection
+function waitForTabComplete(tabId: number, timeoutMs = 25000): Promise<void> {
+    return new Promise((resolve) => {
+        const timer = setTimeout(() => {
+            chrome.tabs.onUpdated.removeListener(listener);
+            resolve(); // Timeout fallback: proceed anyway so the batch loop doesn't freeze
+        }, timeoutMs);
+
+        // ✅ Replace `chrome.tabs.TabChangeInfo` with `{ status?: string }`
+        const listener = (id: number, changeInfo: { status?: string }) => {
+            if (id === tabId && changeInfo.status === 'complete') {
+                clearTimeout(timer);
+                chrome.tabs.onUpdated.removeListener(listener);
+                resolve();
+            }
+        };
+        chrome.tabs.onUpdated.addListener(listener);
+    });
+}
+
+
+// Main Runner: Iterates through each enabled link in sequence
+async function runBatchAutofill(links: Array<{ id: string; url: string }>) {
+    console.log(`[Aullevo:Batch] Starting batch autofill for ${links.length} links...`);
+    // 1. Decrypt profile data and apply plan limits (files, speed)
+    const ctx = await loadFillContext();
+    if (!ctx) {
+        console.log("[Aullevo:Batch] Vault is locked. Batch autofill skipped.");
+        flashLockedBadge();
+        chrome.runtime.sendMessage({ action: "BATCH_COMPLETE", total: 0 }).catch(() => { });
+        return;
+    }
+    // A profile switched OFF must not autofill (also unblocks the side panel's running state)
+    if (!ctx.profileEnabled || ctx.overProfileLimit) {
+        console.log("[Aullevo:Batch] Profile is disabled or Free plan profile limit exceeded. Batch autofill skipped.");
+        chrome.runtime.sendMessage({ action: "BATCH_COMPLETE", total: 0 }).catch(() => { });
+        return;
+    }
+    const { fields: fieldsToInject, files: filesToInject, typingSpeed, useAi } = ctx;
+    for (let i = 0; i < links.length; i++) {
+        const link = links[i];
+        console.log(`[Aullevo:Batch] Processing [${i + 1}/${links.length}]: ${link.url}`);
+        // Broadcast progress to side panel UI
+        chrome.runtime.sendMessage({
+            action: "BATCH_PROGRESS",
+            current: i + 1,
+            total: links.length,
+            url: link.url
+        }).catch(() => { });
+        try {
+            // 2. Open tab in background so it doesn't interrupt your current screen
+            const tab = await chrome.tabs.create({ url: link.url, active: false });
+            if (!tab?.id) continue;
+            // 3. Wait for the page DOM to finish loading
+            await waitForTabComplete(tab.id);
+            // 4. Grace period for dynamic SPAs (Workday, Greenhouse, React) to render inputs
+            await new Promise(r => setTimeout(r, 2000));
+            // 5. Inject fields + files into the new tab
+            await new Promise<void>((resolve) => {
+                chrome.tabs.sendMessage(tab.id!, {
+                    action: "INJECT_FORM_FIELDS",
+                    fields: fieldsToInject,
+                    files: filesToInject,
+                    useAi: useAi,
+                    typingSpeed: typingSpeed
+                }, (res) => {
+                    console.log(`[Aullevo:Batch] Tab ${tab.id} filled ${res?.matchedCount ?? 0} inputs.`);
+                    resolve();
+                });
+            });
+            // 6. Pause 1 second before the next link to avoid browser throttling
+            await new Promise(r => setTimeout(r, 1000));
+        } catch (err) {
+            console.error(`[Aullevo:Batch] Failed to autofill link: ${link.url}`, err);
+        }
+    }
+    console.log("[Aullevo:Batch] All batch links finished.");
+    chrome.runtime.sendMessage({ action: "BATCH_COMPLETE", total: links.length }).catch(() => { });
+}
+
