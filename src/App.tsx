@@ -21,7 +21,8 @@ import { useProfileManager } from './hooks/useProfileManager';
 
 // account sync with aullevo-web (plan status only)
 import { useAccount } from './hooks/useAccount';
-import { exceedsFreeProfileLimit, PROFILE_LIMIT_MESSAGE } from './services/tier';
+import { exceedsFreeProfileLimit, autoPaginateAllowed, PROFILE_LIMIT_MESSAGE } from './services/tier';
+import { AUTO_PAGINATE_STORAGE_KEY, AUTO_PAGINATE_PRO_MESSAGE } from './services/pagination';
 
 
 import { Header } from './components/layout/Header';
@@ -50,6 +51,16 @@ export default function App({ layout = 'panel' }: AppProps) {
     const [isBatchRunning, setIsBatchRunning] = useState<boolean>(false);
 
     const [showFloatingIcon, setShowFloatingIcon] = useState<boolean>(true);
+
+    // Auto-pagination (Pro): off by default
+    const [autoPaginate, setAutoPaginate] = useState<boolean>(false);
+    useEffect(() => {
+        chrome.storage?.local?.get([AUTO_PAGINATE_STORAGE_KEY], (res) => {
+            if (typeof res[AUTO_PAGINATE_STORAGE_KEY] === 'boolean') {
+                setAutoPaginate(res[AUTO_PAGINATE_STORAGE_KEY]);
+            }
+        });
+    }, []);
 
     // Hydrate floating icon toggle on mount
     useEffect(() => {
@@ -163,7 +174,17 @@ export default function App({ layout = 'panel' }: AppProps) {
         handleToggleHighlight,
         triggerFormFill,
         handleClosePanel
-    } = useExtensionBridge(currentProfile, useAiFill, typingDelayMs, isPro, isPage);
+    } = useExtensionBridge(currentProfile, useAiFill, typingDelayMs, isPro, isPage, autoPaginate);
+
+    const handleToggleAutoPaginate = () => {
+        if (!isPro) {
+            showStatus(AUTO_PAGINATE_PRO_MESSAGE, 'error', 5000);
+            return;
+        }
+        const next = !autoPaginate;
+        setAutoPaginate(next);
+        chrome.storage?.local?.set({ [AUTO_PAGINATE_STORAGE_KEY]: next });
+    };
 
     // CRUD for profiles, custom fields, and JSON import logic
     const {
@@ -252,6 +273,7 @@ export default function App({ layout = 'panel' }: AppProps) {
                         isHighlighting={isHighlighting}
                         isFilling={isFilling}
                         useAiFill={useAiFill}
+                        autoPaginate={autoPaginateAllowed(autoPaginate, isPro)}
                         onToggleHighlight={handleToggleHighlight}
                         onRescan={checkActiveTabFields}
                         onFill={() => {
@@ -329,6 +351,8 @@ export default function App({ layout = 'panel' }: AppProps) {
                         onChangeTypingDelay={handleUpdateTypingDelay}
                         showFloatingIcon={showFloatingIcon}
                         onToggleFloatingIcon={handleToggleFloatingIcon}
+                        autoPaginate={autoPaginate}
+                        onToggleAutoPaginate={handleToggleAutoPaginate}
                         accountState={accountState}
                     />
                 )}

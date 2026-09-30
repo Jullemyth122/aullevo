@@ -1,10 +1,11 @@
-import { Zap, User, Clock, Sliders, Keyboard, Bot, Lock, EyeOff, Eye, KeyRound, ExternalLink, ShieldCheck, Sparkles, Crown, LogIn, LogOut } from 'lucide-react';
+import { Zap, User, Clock, Sliders, Keyboard, Bot, Lock, EyeOff, Eye, KeyRound, ExternalLink, ShieldCheck, Sparkles, Crown, LogIn, LogOut, ChevronsRight } from 'lucide-react';
 import { GEMINI_MODELS, FREE_TIER_WEEKLY_LIMIT, getEffectiveUsageCount, isHostedAiAvailable } from '../../services/aiService';
 import { readVault, writeVault, lockVault } from '../../services/vault';
 import { canUseTypingDelay } from '../../services/tier';
 import type { useAccount } from '../../hooks/useAccount';
 import { AULLEVO_WEB_URL } from '../../services/account';
 import { useEffect, useRef, useState } from 'react';
+import { MemoriesCard } from './MemoriesCard';
 
 interface SettingsTabProps {
     isDark: boolean;
@@ -15,6 +16,8 @@ interface SettingsTabProps {
     onChangeTypingDelay: (delayMs: number) => void;
     showFloatingIcon: boolean;
     onToggleFloatingIcon: () => void;
+    autoPaginate: boolean;
+    onToggleAutoPaginate: () => void;
     accountState: ReturnType<typeof useAccount>;
 }
 
@@ -27,6 +30,8 @@ export function SettingsTab({
     onChangeTypingDelay,
     showFloatingIcon,
     onToggleFloatingIcon,
+    autoPaginate,
+    onToggleAutoPaginate,
     accountState
 }: SettingsTabProps) {
     const { account, isPro, isConnecting, connect, disconnect } = accountState;
@@ -328,6 +333,50 @@ export function SettingsTab({
                     </div>
                 </div>
             )}
+
+            {/* AI Memories (read by background.ts for AI Smart Fill) */}
+            <MemoriesCard useAiFill={useAiFill} />
+
+            {/* Auto-Pagination Card (Pro) */}
+            <div className="av-card">
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <div className="av-label" style={{ margin: 0 }}>Auto-Pagination</div>
+                    <span className="av-plan-badge av-plan-badge--pro">
+                        <Crown size={10} />
+                        PRO
+                    </span>
+                </div>
+                <div className="av-toggle-row">
+                    <div>
+                        <div className="av-toggle-title" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <ChevronsRight size={13} color={isPro ? 'var(--av-accent, #6366f1)' : 'var(--av-text-muted)'} />
+                            <span>Fill Multi-Page Forms</span>
+                        </div>
+                        <div style={{ fontSize: 10, color: 'var(--av-text-muted)' }}>
+                            Fills each page, clicks Next / Continue, and presses Submit at the end. Corrects answers the form rejects; pauses when it can't.
+                        </div>
+                    </div>
+                    <button
+                        className={`av-toggle ${isPro && autoPaginate ? 'av-toggle--active' : ''}`}
+                        onClick={onToggleAutoPaginate}
+                        disabled={!isPro}
+                        title={isPro ? 'Toggle Auto-Pagination' : 'Pro feature'}
+                    >
+                        <div className="av-toggle__thumb" />
+                    </button>
+                </div>
+                {!isPro && (
+                    <a
+                        href={AULLEVO_WEB_URL}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 8, fontSize: 10.5, fontWeight: 600, color: 'var(--av-yellow)', textDecoration: 'none' }}
+                    >
+                        <Crown size={11} />
+                        <span>Upgrade to Pro to use Auto-Pagination</span>
+                    </a>
+                )}
+            </div>
 
             {/* Webpage Floating Trigger Card */}
             <div className="av-card">

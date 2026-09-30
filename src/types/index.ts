@@ -61,20 +61,12 @@ export interface BUData {
 
     // Core Identity & Contact CustomFields
     firstName: CM;
-    middleName?: CM;
     lastName: CM;
-    fullName?: CM;
     email: CM;
     phone: CM;
-    gender?: CM;
-    dateOfBirth?: CM;
 
-    // Address Details
+    // Address
     address?: CM;
-    city?: CM;
-    state?: CM;
-    zipCode?: CM;
-    country?: CM;
 
     // files
     files?: ProfileFile[];
@@ -93,17 +85,9 @@ export interface BUData {
 export interface JobUserData extends BUData {
     profileType: "job";
     headline?: CM;
-    summary?: CM;
     linkedin?: CM;
     portfolio?: CM;
     github?: CM;
-    website?: CM;
-    currentCompany?: CM;
-    currentTitle?: CM;
-    yearsOfExperience?: CM;
-    desiredSalary?: CM;
-    noticePeriod?: CM;
-    workAuthorization?: CM; // e.g. "US Citizen", "Green Card", "Requires Sponsorship"
     education?: CM;
     certifications?: CM;
     skills: CM[];
@@ -117,18 +101,8 @@ export interface MedicalUserData extends BUData {
     profileType: "medical";
     bloodType?: CM;
     allergies?: CM[];
-    chronicConditions?: CM[];
-    currentMedications?: CM[];
-    primaryPhysicianName?: CM;
-    primaryPhysicianPhone?: CM;
-    primaryClinicOrHospital?: CM;
     emergencyContactName?: CM;
-    emergencyContactPhone?: CM;
-    emergencyContactRelation?: CM;
     insuranceProvider?: CM;
-    insurancePolicyNumber?: CM;
-    insuranceGroupNumber?: CM;
-    organDonorStatus?: CM;
 }
 
 // ---------------------------------------------------------------------------
@@ -139,16 +113,8 @@ export interface GovernmentUserData extends BUData {
     profileType: "government";
     nationalIdOrSSN?: CM;
     passportNumber?: CM;
-    passportExpiry?: CM;
     driversLicenseNumber?: CM;
-    driversLicenseState?: CM;
-    taxIdOrTIN?: CM;
     citizenship?: CM;
-    placeOfBirth?: CM;
-    maritalStatus?: CM;
-    voterId?: CM;
-    militaryOrVeteranStatus?: CM;
-    residencyStatus?: CM;
 }
 
 // ---------------------------------------------------------------------------
@@ -161,13 +127,6 @@ export interface SurveyUserData extends BUData {
     householdIncomeRange?: CM;
     educationLevel?: CM;
     employmentStatus?: CM;
-    industry?: CM;
-    jobRoleOrTitle?: CM;
-    householdSize?: CM;
-    maritalStatus?: CM;
-    homeOwnershipStatus?: CM;
-    interestsAndHobbies?: CM[];
-    preferredLanguage?: CM;
 }
 
 // ---------------------------------------------------------------------------
@@ -177,15 +136,9 @@ export interface SurveyUserData extends BUData {
 export interface AcademicUserData extends BUData {
     profileType: "academic";
     institutionName?: CM;
-    studentIdNumber?: CM;
-    degreeLevel?: CM;
     majorOrFieldOfStudy?: CM;
-    minorOrSpecialization?: CM;
     gpaOrGrade?: CM;
     graduationYearOrExpected?: CM;
-    advisorOrCounselorName?: CM;
-    honorsAndAwards?: CM[];
-    extracurricularActivities?: CM[];
     standardizedTestScores?: CM;
 }
 
@@ -196,20 +149,8 @@ export interface AcademicUserData extends BUData {
 export interface FinancialUserData extends BUData {
     profileType: "financial";
     billingAddress?: CM;
-    billingCity?: CM;
-    billingState?: CM;
-    billingZipCode?: CM;
-    billingCountry?: CM;
-    shippingAddress?: CM;
-    shippingCity?: CM;
-    shippingState?: CM;
-    shippingZipCode?: CM;
-    shippingCountry?: CM;
     preferredPaymentMethod?: CM;
     cardholderName?: CM;
-    bankName?: CM;
-    vatOrBusinessNumber?: CM;
-    deliveryNotesOrInstructions?: CM;
 }
 
 // ---------------------------------------------------------------------------

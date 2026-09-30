@@ -57,6 +57,11 @@ export function filesAllowedForPlan<T>(files: T[], isPro: boolean): T[] {
     return isPro ? files : [];
 }
 
+// Auto-pagination (fill every page of a multi-step form) is Pro-only
+export function autoPaginateAllowed(enabled: boolean, isPro: boolean): boolean {
+    return isPro && enabled;
+}
+
 export const PROFILE_LIMIT_MESSAGE = `Free plan allows ${FREE_MAX_ACTIVE_PROFILES} active profiles. Turn extra profiles OFF or upgrade to Pro.`;
 
 // True when a Free account has more profiles ON than allowed (e.g. after Pro expired)

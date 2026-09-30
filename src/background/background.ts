@@ -3,7 +3,8 @@
 import { resolveFormQuestionsWithAI, checkAiPermission, resolveFieldValue, getEffectiveUsageCount, getCurrentUsageWeek, countsTowardFreeLimit } from '../services/aiService';
 import { readVault } from '../services/vault';
 import { verifyAndSyncAccount, TRUSTED_WEB_ORIGINS } from '../services/account';
-import { isProUser, effectiveTypingDelay, filesAllowedForPlan, exceedsFreeProfileLimit, DEFAULT_TYPING_DELAY } from '../services/tier';
+import { isProUser, effectiveTypingDelay, filesAllowedForPlan, exceedsFreeProfileLimit, autoPaginateAllowed, DEFAULT_TYPING_DELAY } from '../services/tier';
+import { AUTO_PAGINATE_STORAGE_KEY, AUTO_PAGINATE_MAX_PAGES, AUTO_PAGINATE_PRO_MESSAGE, type PaginationRunResult, type PaginationStepResult } from '../services/pagination';
 
 
 // ---------------------------------------------------------------------------
@@ -123,7 +124,7 @@ async function getActiveTab(): Promise<chrome.tabs.Tab | undefined> {
 async function loadFillContext() {
     const [vault, settings, isPro] = await Promise.all([
         readVault(),
-        chrome.storage.local.get(['aullevo_use_ai', 'aullevo_typing_delay']) as Promise<any>,
+        chrome.storage.local.get(['aullevo_use_ai', 'aullevo_typing_delay', AUTO_PAGINATE_STORAGE_KEY]) as Promise<any>,
         isProUser()
     ]);
     if (!vault) return null;
@@ -139,7 +140,8 @@ async function loadFillContext() {
         fields: rawFields.filter((f: any) => f.enabled && f.value?.trim()),
         files: filesAllowedForPlan(rawFiles.filter((f: any) => f.enabled), isPro), // Pro-only
         useAi: Boolean(settings?.aullevo_use_ai),
-        typingSpeed: effectiveTypingDelay(typingDelay, isPro)                   // Slow/custom are Pro-only
+        typingSpeed: effectiveTypingDelay(typingDelay, isPro),                  // Slow/custom are Pro-only
+        autoPaginate: autoPaginateAllowed(Boolean(settings?.[AUTO_PAGINATE_STORAGE_KEY]), isPro) // Pro-only
     };
 }
 
@@ -230,6 +232,12 @@ chrome.commands.onCommand.addListener((command: string, tab?: chrome.tabs.Tab) =
                 return;
             }
 
+            if (ctx.autoPaginate) {
+                const result = await runAutoPaginate(activeTab.id, ctx);
+                console.log("[Aullevo] Shortcut auto-pagination finished:", result);
+                return;
+            }
+
             sendToTab(activeTab.id, {
                 action: "INJECT_FORM_FIELDS",
                 fields: ctx.fields,
@@ -278,6 +286,31 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 chrome.sidePanel.setOptions({ tabId: activeTab.id, enabled: false }).catch(() => { });
             }
         });
+    } else if (message.action === "START_AUTO_PAGINATE") {
+        // 📄 Fill button in the side panel with Auto-Pagination ON (Pro): fill every page of the form
+        // Only extension pages (side panel) may start a run, never a content script on a web page
+        if (!sender.url?.startsWith(chrome.runtime.getURL('')) || typeof message.tabId !== 'number') {
+            return false;
+        }
+        (async () => {
+            if (!(await isProUser())) {
+                sendResponse({ success: false, status: 'error', pages: 0, totalFilled: 0, error: AUTO_PAGINATE_PRO_MESSAGE } satisfies PaginationRunResult);
+                return;
+            }
+            sendResponse(await runAutoPaginate(message.tabId, {
+                fields: Array.isArray(message.fields) ? message.fields : [],
+                files: Array.isArray(message.files) ? message.files : [],
+                useAi: Boolean(message.useAi),
+                typingSpeed: message.typingSpeed
+            }));
+        })();
+        return true; // Keep channel open for async response
+    } else if (message.action === "PAGINATION_PAGE_FILLED") {
+        // content.ts reports a page's fill count before clicking Next (a full page load drops its reply)
+        if (sender.tab?.id !== undefined && typeof message.matchedCount === 'number') {
+            lastPageFillCount.set(sender.tab.id, message.matchedCount);
+            lastPageClick.set(sender.tab.id, message.clicked === 'submit' ? 'submit' : 'next');
+        }
     } else if (message.action === "START_BATCH_FILL") {
         // 🚀 Button clicked inside MultiLinkTab:
         const activeLinks = Array.isArray(message.links) ? message.links : [];
@@ -448,7 +481,7 @@ async function runBatchAutofill(links: Array<{ id: string; url: string }>) {
         chrome.runtime.sendMessage({ action: "BATCH_COMPLETE", total: 0 }).catch(() => { });
         return;
     }
-    const { fields: fieldsToInject, files: filesToInject, typingSpeed, useAi } = ctx;
+    const { fields: fieldsToInject, files: filesToInject, typingSpeed, useAi, autoPaginate } = ctx;
     for (let i = 0; i < links.length; i++) {
         const link = links[i];
         console.log(`[Aullevo:Batch] Processing [${i + 1}/${links.length}]: ${link.url}`);
@@ -467,7 +500,13 @@ async function runBatchAutofill(links: Array<{ id: string; url: string }>) {
             await waitForTabComplete(tab.id);
             // 4. Grace period for dynamic SPAs (Workday, Greenhouse, React) to render inputs
             await new Promise(r => setTimeout(r, 2000));
-            // 5. Inject fields + files into the new tab
+            // 5. Inject fields + files into the new tab (every page of it with Auto-Pagination, Pro)
+            if (autoPaginate) {
+                const result = await runAutoPaginate(tab.id, ctx);
+                console.log(`[Aullevo:Batch] Tab ${tab.id} auto-pagination: ${result.status}, ${result.totalFilled} inputs over ${result.pages} page(s).`);
+                await new Promise(r => setTimeout(r, 1000));
+                continue;
+            }
             await new Promise<void>((resolve) => {
                 chrome.tabs.sendMessage(tab.id!, {
                     action: "INJECT_FORM_FIELDS",
@@ -488,5 +527,217 @@ async function runBatchAutofill(links: Array<{ id: string; url: string }>) {
     }
     console.log("[Aullevo:Batch] All batch links finished.");
     chrome.runtime.sendMessage({ action: "BATCH_COMPLETE", total: links.length }).catch(() => { });
+}
+
+
+// ---------------------------------------------------------------------------
+// 5. Auto-Pagination Engine (Pro)
+// Each step: content.ts fills the page and clicks Next / Continue (Submit on the
+// last page) only when no question it must not skip is left empty.
+// ---------------------------------------------------------------------------
+
+interface FillPayload {
+    fields: unknown[];
+    files: unknown[];
+    useAi: boolean;
+    typingSpeed: unknown;
+}
+
+interface FrameProbe {
+    frameId: number;
+    controls: number;
+    hasNext: boolean;
+    hasSubmit: boolean;
+    signature: string;
+}
+
+const PAGINATION_STEP_TIMEOUT_MS = 180_000; // AI + slow typing on a long page
+const PAGE_SETTLE_MS = 1200;                // render time after a step change
+const PAGE_LOAD_PATIENCE_MS = 20_000;       // a slow next step still gets found
+const FRAME_BUTTON_GRACE_MS = 4000;         // fields are there: give Next / Submit a moment to render
+const activePaginationTabs = new Set<number>();
+const lastPageFillCount = new Map<number, number>();
+const lastPageClick = new Map<number, 'next' | 'submit'>();
+
+const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
+
+// Asks the content script of every frame (same isolated world) how much form it holds
+async function probePaginationFrames(tabId: number): Promise<FrameProbe[]> {
+    try {
+        const results = await chrome.scripting.executeScript({
+            target: { tabId, allFrames: true },
+            func: () => {
+                const probe = (globalThis as any).__aullevoProbePagination;
+                return typeof probe === "function" ? probe() : null;
+            }
+        });
+        return results
+            .filter(r => r.result)
+            .map(r => ({ frameId: r.frameId, ...(r.result as Omit<FrameProbe, 'frameId'>) }));
+    } catch {
+        return []; // restricted page (chrome://, Web Store), tab closed, or mid-navigation
+    }
+}
+
+// The frame with a Next button, else Submit, else the most fields. Waits for slow pages:
+// up to waitMs while nothing shows, and a few more seconds for buttons once fields have rendered.
+// Frames with only a button count too (e.g. Indeed's "Apply anyway" page has no fields).
+async function findPaginationFrame(tabId: number, waitMs: number): Promise<FrameProbe | null> {
+    const rank = (f: FrameProbe) => (f.hasNext ? 100_000 : 0) + (f.hasSubmit ? 50_000 : 0) + f.controls;
+    const deadline = Date.now() + waitMs;
+    let fieldsSeenAt = 0;
+    for (;;) {
+        const frames = (await probePaginationFrames(tabId))
+            .filter(f => f.controls > 0 || f.hasNext || f.hasSubmit)
+            .sort((a, b) => rank(b) - rank(a));
+        const best = frames[0] ?? null;
+        if (best && (best.hasNext || best.hasSubmit)) return best;
+        if (best && !fieldsSeenAt) fieldsSeenAt = Date.now();
+        const buttonsGraceOver = fieldsSeenAt > 0 && Date.now() - fieldsSeenAt >= FRAME_BUTTON_GRACE_MS;
+        if (buttonsGraceOver || Date.now() >= deadline) return best;
+        await delay(700);
+    }
+}
+
+function watchTabNavigation(tabId: number) {
+    let navigated = false;
+    const listener = (id: number, info: { status?: string; url?: string }) => {
+        if (id === tabId && (info.status === 'loading' || info.url)) navigated = true;
+    };
+    chrome.tabs.onUpdated.addListener(listener);
+    return {
+        get navigated() { return navigated; },
+        stop: () => chrome.tabs.onUpdated.removeListener(listener)
+    };
+}
+
+// False when the tab was closed. Polls: a get-then-listen pair can miss a 'complete' that lands in between.
+async function waitForTabSettled(tabId: number, timeoutMs = 25000): Promise<boolean> {
+    const deadline = Date.now() + timeoutMs;
+    try {
+        while ((await chrome.tabs.get(tabId)).status !== 'complete' && Date.now() < deadline) {
+            await delay(250);
+        }
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+function sendPaginationStep(tabId: number, frameId: number, message: object): Promise<{ result?: PaginationStepResult; disconnected: boolean; timedOut: boolean }> {
+    return new Promise((resolve) => {
+        const timer = setTimeout(() => resolve({ disconnected: false, timedOut: true }), PAGINATION_STEP_TIMEOUT_MS);
+        chrome.tabs.sendMessage(tabId, message, { frameId }, (res?: PaginationStepResult) => {
+            clearTimeout(timer);
+            // No reply: the page unloaded (Next loaded a new page) or the frame went away
+            const lost = Boolean(chrome.runtime.lastError) || !res;
+            resolve({ result: lost ? undefined : res, disconnected: lost, timedOut: false });
+        });
+    });
+}
+
+async function runAutoPaginate(tabId: number, fill: FillPayload): Promise<PaginationRunResult> {
+    if (activePaginationTabs.has(tabId)) {
+        return { success: false, status: 'error', pages: 0, totalFilled: 0, error: 'Auto-pagination is already running on this tab.' };
+    }
+    activePaginationTabs.add(tabId);
+    // Extension API calls keep the service worker alive while a long page is being filled
+    const keepAlive = setInterval(() => chrome.runtime.getPlatformInfo().catch(() => { }), 20_000);
+
+    const fillMessage = { fields: fill.fields, files: fill.files, useAi: fill.useAi, typingSpeed: fill.typingSpeed };
+    let totalFilled = 0;
+    let repaired = 0;
+    let useAi = fill.useAi;
+    let aiNotice: string | undefined;
+    let lastSignature = '';
+
+    try {
+        for (let page = 1; page <= AUTO_PAGINATE_MAX_PAGES; page++) {
+            const frame = await findPaginationFrame(tabId, PAGE_LOAD_PATIENCE_MS);
+            if (!frame) {
+                return page === 1
+                    ? { success: false, status: 'no-form', pages: 0, totalFilled, error: 'No form found on this page (or Aullevo cannot run here).' }
+                    : { success: true, status: 'no-next', pages: page - 1, totalFilled, useAi, aiNotice }; // e.g. a confirmation screen
+            }
+
+            // Single-page form: the usual fill in every frame
+            if (page === 1 && !frame.hasNext && !frame.hasSubmit) {
+                const res: any = await chrome.tabs.sendMessage(tabId, { action: "INJECT_FORM_FIELDS", ...fillMessage }).catch(() => null);
+                return {
+                    success: Boolean(res?.success),
+                    status: res?.success ? 'no-next' : 'error',
+                    pages: 1,
+                    totalFilled: res?.matchedCount ?? 0,
+                    useAi: res?.useAi ?? useAi,
+                    aiNotice: res?.aiNotice,
+                    error: res ? res.error : 'Refresh the tab to connect autofill.'
+                };
+            }
+
+            // Same fields as before the click: the page did not really move on
+            if (page > 1 && frame.signature === lastSignature) {
+                return { success: false, status: 'stuck', pages: page - 1, totalFilled, useAi, aiNotice };
+            }
+            lastSignature = frame.signature;
+
+            chrome.runtime.sendMessage({ action: "PAGINATION_PROGRESS", tabId, page, totalFilled }).catch(() => { });
+
+            lastPageFillCount.delete(tabId);
+            lastPageClick.delete(tabId);
+            const nav = watchTabNavigation(tabId);
+            const reply = await sendPaginationStep(tabId, frame.frameId, {
+                action: "AUTO_PAGINATE_STEP",
+                ...fillMessage,
+                advance: page < AUTO_PAGINATE_MAX_PAGES
+            });
+            nav.stop();
+
+            const result = reply.result;
+            if (!result) totalFilled += lastPageFillCount.get(tabId) ?? 0;
+            if (result) {
+                totalFilled += result.matchedCount ?? 0;
+                repaired += result.repaired ?? 0;
+                if (typeof result.useAi === 'boolean') useAi = result.useAi;
+                if (result.aiNotice) aiNotice = result.aiNotice;
+            }
+            if (reply.timedOut) {
+                return { success: false, status: 'error', pages: page, totalFilled, useAi, aiNotice, error: 'The page took too long to respond.' };
+            }
+
+            const status = result?.pagination?.status;
+
+            // Submit loaded a confirmation page (e.g. Google Forms): done
+            if (reply.disconnected && lastPageClick.get(tabId) === 'submit') {
+                return { success: true, status: 'submitted', pages: page, totalFilled, repaired, useAi, aiNotice };
+            }
+            if (reply.disconnected || status === 'advanced' || (status === 'stuck' && nav.navigated)) {
+                if (!(await waitForTabSettled(tabId))) {
+                    return { success: false, status: 'error', pages: page, totalFilled, useAi, aiNotice, error: 'The tab was closed.' };
+                }
+                await delay(PAGE_SETTLE_MS);
+                continue;
+            }
+
+            return {
+                success: status === 'submitted' || status === 'no-next',
+                status: status ?? 'error',
+                pages: page,
+                totalFilled,
+                repaired,
+                useAi,
+                aiNotice,
+                blockers: result?.pagination.blockers,
+                buttonLabel: result?.pagination.buttonLabel,
+                errorText: result?.pagination.errorText,
+                error: result?.error
+            };
+        }
+        return { success: false, status: 'max-pages', pages: AUTO_PAGINATE_MAX_PAGES, totalFilled, useAi, aiNotice };
+    } finally {
+        clearInterval(keepAlive);
+        activePaginationTabs.delete(tabId);
+        lastPageFillCount.delete(tabId);
+        lastPageClick.delete(tabId);
+    }
 }
 

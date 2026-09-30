@@ -1068,6 +1068,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   padding: 8px 10px;
   background: var(--av-surface-alt);
   border-radius: 8px;
@@ -1096,7 +1097,13 @@ body {
   border-radius: 10px;
   cursor: pointer;
   position: relative;
+  flex-shrink: 0; // long descriptions next to it must not squash the switch
   transition: background 0.25s;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 
   &--active {
     background: linear-gradient(90deg, var(--av-violet), var(--av-yellow));

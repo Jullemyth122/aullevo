@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Aullevo - AI Form Autofill & Job Application Filler",
   "short_name": "Aullevo",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "AI form filler for job applications, surveys, and any web form. Saved profiles, resume upload, and smart autofill.",
   "permissions": [
     "storage",

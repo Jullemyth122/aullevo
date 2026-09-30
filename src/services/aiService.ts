@@ -85,6 +85,9 @@ export interface AiQuestionToResolve {
     type: 'text' | 'textarea' | 'radio' | 'checkbox' | 'select';
     options?: string[];
     context?: string;
+    format?: string;           // e.g. "whole number only, digits only (e.g. 5)"
+    rejectedBecause?: string;  // the form's error message for the previous answer
+    previousAnswer?: string;   // only AI-generated or AI SAFE values, never sensitive ones
 }
 
 // Privacy Schema: Sent to AI without ANY private values
@@ -327,7 +330,9 @@ export async function resolveFormQuestionsWithAI(
             3. For multiple choice questions (radio, dropdown, select, checkbox): ALWAYS select the most reasonable option from the provided options list. Use profile context if available, otherwise use your best professional judgment. Return the verbatim option text in the "answer" property.
             4. For text/textarea fields with NO matching profile field, return a brief professional answer in the "answer" property if you can reasonably infer one.
             5. Only leave matchedKey/matchedKeys and answer empty if the question is completely unanswerable.
-            6. Return ONLY a valid JSON array of objects with format:
+            7. If a question has a "format", the value you return must satisfy it exactly (e.g. "whole number only" -> answer "5", not "5 years").
+            8. If a question has "rejectedBecause", the form rejected the previous answer with that error message. Return a corrected "answer" that fixes exactly that problem (use "previousAnswer" when given, and the profile context, e.g. "5 years" -> "5" when a whole number is required). Prefer "answer" over matchedKey for these questions. If the error clearly is not about this question (e.g. a phone-number error on a name question), leave the answer empty.
+            9. Return ONLY a valid JSON array of objects with format:
             [ { "id": "question_id", "matchedKey": "field_key" } ] OR [ { "id": "question_id", "matchedKeys": ["key1", "key2", "key3"] } ] OR [ { "id": "question_id", "answer": "Selected Option" } ]`;
 
         const userPrompt = JSON.stringify({
@@ -337,7 +342,10 @@ export async function resolveFormQuestionsWithAI(
                 id: q.id,
                 question: q.label,
                 type: q.type,
-                options: q.options || []
+                options: q.options || [],
+                ...(q.format ? { format: q.format } : {}),
+                ...(q.rejectedBecause ? { rejectedBecause: q.rejectedBecause } : {}),
+                ...(q.previousAnswer ? { previousAnswer: q.previousAnswer } : {})
             }))
         });
 

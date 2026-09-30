@@ -41,7 +41,6 @@ export const createDefaultProfiles = (): Record<ProfileType, UserData> => ({
         skills: [cm('job_sk1', 'Skills', 'Core technical skills', false)],
         education: cm('job_edu', 'Highest Education / Degree', 'Highest degree and university', false),
         certifications: cm('job_cert', 'Certifications', 'Professional certifications and licenses', false),
-        experience: [],
         customFields: []
     } as JobUserData,
 

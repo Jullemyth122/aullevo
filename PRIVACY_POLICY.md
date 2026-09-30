@@ -1,6 +1,6 @@
 # Aullevo Privacy Policy
 
-**Effective date:** September 29 2026
+**Effective date:** September 30 2026
 **Contact:** mythicalxenon12@gmail.com
 
 Aullevo is a Chrome extension that fills web forms using information you save in it. This policy explains what data Aullevo handles, where it is stored, and when it leaves your device.
@@ -14,12 +14,13 @@ You choose what to enter. Depending on the profiles you use, this may include:
 - Custom fields you create
 - Documents you upload (for example, a resume or ID scan)
 - Links you add to the Multi-link queue
+- AI Memories you add (short notes such as "Work style: remote only" that AI Smart Fill can use)
 - Your own Google Gemini API key, if you add one
-- Settings (theme, typing speed, AI mode, floating button preference) and a weekly AI usage counter
+- Settings (theme, typing speed, AI mode, Auto-Pagination, floating button preference) and a weekly AI usage counter
 
 **All of this is stored only in your browser's local extension storage (`chrome.storage.local`) on your device.** Aullevo does not operate a server that receives, stores, or syncs this data.
 
-Your profiles, custom fields, documents, and Gemini API key are **encrypted with a passphrase you choose** (AES-256-GCM, with a key derived from your passphrase using PBKDF2-SHA256). Your passphrase is never stored. While Aullevo is unlocked, the encryption key is held in the browser's in-memory session storage and is cleared when you close the browser or press "Lock now". If you forget your passphrase, your data cannot be recovered. Settings, the Multi-link queue, and the usage counter are stored unencrypted because they are not personal profile data.
+Your profiles, custom fields, documents, and Gemini API key are **encrypted with a passphrase you choose** (AES-256-GCM, with a key derived from your passphrase using PBKDF2-SHA256). Your passphrase is never stored. While Aullevo is unlocked, the encryption key is held in the browser's in-memory session storage and is cleared when you close the browser or press "Lock now". If you forget your passphrase, your data cannot be recovered. Settings, the Multi-link queue, the usage counter, and AI Memories are stored unencrypted. Don't put passwords, ID numbers, or other secrets in an AI Memory.
 
 ## 2. Optional account connection
 
@@ -33,19 +34,22 @@ Aullevo **does not upload your profiles, fields, documents, or API key** to Fire
 
 ## 3. Data Aullevo reads from web pages
 
-To detect and fill forms, Aullevo reads the structure of web pages you visit: form fields, their labels, and their answer options. This happens locally in your browser. Aullevo does not collect your browsing history and does not send page content anywhere, except for the form questions described in Section 4 when AI Smart Fill is on.
+To detect and fill forms, Aullevo reads the structure of web pages you visit: form fields, their labels, and their answer options. When Auto-Pagination is on, it also reads the form's buttons (such as Next, Continue, and Submit) and any error messages the form shows, so it can move between pages and correct rejected answers. This happens locally in your browser. Aullevo does not collect your browsing history and does not send page content anywhere, except for the form questions described in Section 4 when AI Smart Fill is on.
 
 ## 4. Data shared with Google Gemini (only when AI Smart Fill is on)
 
 AI Smart Fill is **off by default**. When you turn it on and fill a form, Aullevo sends the following to Google's Gemini API to decide how to answer fields it could not match on its own:
 
-- The text of the form's questions and their answer options
+- The text of the form's questions and their answer options, plus a short description of the format an input expects (for example "whole number only")
 - The labels and context notes of your enabled profile fields
 - The **values** of enabled fields marked **AI SAFE**
+- The title and content of your **enabled AI Memories**
+- When Auto-Pagination asks the AI to correct an answer a form rejected: the form's error message, and the rejected answer **only if** the AI wrote it or it came from an AI SAFE field
 
 Aullevo **never** sends:
 
 - The values of fields marked **SENSITIVE** (only their labels and context notes are sent)
+- Values a website filled in by itself
 - Your uploaded documents
 
 Requests are sent directly from your browser to Google using the API key you provide. Google processes this data under its own terms and privacy policy: <https://ai.google.dev/gemini-api/terms> and <https://policies.google.com/privacy>. Depending on your Google account and API tier, Google's terms may allow it to use submitted data to improve its services. Mark any field you do not want shared as SENSITIVE, or leave AI Smart Fill off.
@@ -54,7 +58,9 @@ If Aullevo later offers a hosted AI option that does not require your own key, t
 
 ## 5. Data entered into websites
 
-When you fill a form, Aullevo types your saved values and attaches your chosen documents into that website's form. Once you submit the form, that website handles the data under its own privacy policy. Aullevo only fills forms when you trigger it (Fill button, keyboard shortcut, or a Multi-link batch you start).
+When you fill a form, Aullevo types your saved values and attaches your chosen documents into that website's form. Once the form is submitted, that website handles the data under its own privacy policy. Aullevo only fills forms when you trigger it (Fill button, keyboard shortcut, or a Multi-link batch you start).
+
+**Auto-Pagination (Pro, off by default):** when you turn it on, Aullevo also clicks the form's Next / Continue buttons and **presses Submit on the last page for you**, which sends your answers to that website. It pauses instead of submitting when a field the form marks as required is still empty, or when the form shows an error it cannot fix. Turn Auto-Pagination off if you want to review and submit every form yourself.
 
 ## 6. What Aullevo does not do
 
@@ -83,4 +89,4 @@ If this policy changes, we will update the effective date above and publish the 
 
 ## 11. Contact
 
-Questions about this policy: [Insert your support email]
+Questions about this policy: mythicalxenon12@gmail.com

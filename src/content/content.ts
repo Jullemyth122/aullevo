@@ -1,4 +1,5 @@
 import type { ProfileFile } from "../types";
+import type { PaginationBlocker, PaginationStepResult } from "../services/pagination";
 
 // Keep in sync with TRUSTED_WEB_ORIGINS in services/account.ts.
 // (Duplicated on purpose: importing a runtime module shared with background.ts would make Vite
@@ -51,6 +52,18 @@ chrome.runtime.onMessage.addListener((message, _sender, _sendResponse) => {
             .catch(err => {
                 console.error("[InjectToGoogle] Form injection error:", err);
                 _sendResponse({ success: false, error: err.message });
+            });
+        return true;
+    }
+
+    // 4. Auto-pagination (Pro): background.ts picked this frame and drives one page per message
+    if (message.action === "AUTO_PAGINATE_STEP") {
+        const speed = message.typingSpeed !== undefined ? message.typingSpeed : "human";
+        runPaginationStep(message.fields || [], Boolean(message.useAi), speed, message.files || [], message.advance !== false)
+            .then((result) => _sendResponse(result))
+            .catch(err => {
+                console.error("[Aullevo] Auto-pagination step error:", err);
+                _sendResponse({ success: false, error: err.message, pagination: { status: "error" } });
             });
         return true;
     }
@@ -2306,6 +2319,12 @@ export async function applyValueToControl(
             }
         }
 
+        // Respect the input's own rules: "5 years" into a number-only box becomes "5"
+        const inputRules = readFormatFromControl(element);
+        if (inputRules.numeric || inputRules.digitsOnly || inputRules.maxLength) {
+            resolvedValue = conformValue(String(resolvedValue), inputRules) || resolvedValue;
+        }
+
         if (speedConfig.charDelayMs > 0) {
             await typeTextStealth(element, resolvedValue, speedConfig.charDelayMs);
         } else {
@@ -2457,6 +2476,28 @@ function injectHighlightStylesToRoot(root: Document | ShadowRoot) {
         .aullevo-badge-fading {
             opacity: 0 !important;
             transform: translateY(-50%) scale(0.92) !important;
+        }
+        /* Auto-pagination: question that stops the run */
+        .aullevo-needs-input {
+            outline: 2px solid #ef4444 !important;
+            outline-offset: 3px !important;
+        }
+        .aullevo-blocker-badge {
+            position: absolute !important;
+            top: 4px !important;
+            right: 8px !important;
+            background: #dc2626 !important;
+            color: #ffffff !important;
+            font-size: 11px !important;
+            font-weight: 700 !important;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+            padding: 2px 8px !important;
+            border-radius: 6px !important;
+            box-shadow: 0 2px 8px rgba(220, 38, 38, 0.35) !important;
+            pointer-events: none !important;
+            z-index: 2147483640 !important;
+            white-space: nowrap !important;
+            line-height: 1.4 !important;
         }
     `;
 
@@ -3254,6 +3295,21 @@ function isChoiceGroupAnswered(control: HTMLElement): boolean {
     return Array.from(options).some(isControlChecked);
 }
 
+// Where Aullevo got the value it typed: a SENSITIVE profile value must never be sent to the AI
+// when asking it to correct an answer the form rejected
+const filledOrigin = new WeakMap<HTMLElement, "profile" | "sensitive" | "ai">();
+
+/**
+ * True when a control already holds an answer (typed, selected or ticked), whoever put it there.
+ */
+function hasExistingAnswer(item: HarvestedControl): boolean {
+    const el = item.control;
+    if (item.isChoice) return isChoiceGroupAnswered(el) || isControlChecked(el);
+    if (el instanceof HTMLSelectElement) return isSelectAnswered(el);
+    if (item.isCustomDropdown) return isDropdownAnswered(el);
+    return readControlText(el).length > 0;
+}
+
 /**
  * Asks background.ts whether AI can run right now (API key, hosted backend, quota).
  */
@@ -3661,6 +3717,7 @@ export async function injectFormFields(fields: any[], useAi: boolean = false, sp
             highlightFilledElement(pair.control, badgeLabel);
 
             assignedControls.add(pair.control);
+            filledOrigin.set(pair.control, pair.field.isSensitive ? "sensitive" : "profile");
 
             if (pair.isChoice && pair.choiceType === "radio") {
                 assignedRadioGroups.add(fieldKey + "_radio");
@@ -3733,6 +3790,7 @@ export async function injectFormFields(fields: any[], useAi: boolean = false, sp
                         }
                         highlightFilledElement(ctrl.control, displayBadge);
                         assignedControls.add(ctrl.control);
+                        filledOrigin.set(ctrl.control, field.isSensitive ? "sensitive" : "profile");
                         assignedFields.add(fieldKey);
                         filledCount++;
 
@@ -3756,7 +3814,9 @@ export async function injectFormFields(fields: any[], useAi: boolean = false, sp
         console.log("[Aullevo:AI] Running AI smart resolution on remaining unfilled controls...");
 
         // 1. Gather all unfilled interactive controls on the page
-        const unfilled = harvestedControls.filter(c => !assignedControls.has(c.control));
+        // Skip controls that already hold an answer: the site pre-filled them (e.g. a PDF viewer's
+        // page box, the applicant's saved e-mail) and an AI guess must not overwrite that
+        const unfilled = harvestedControls.filter(c => !assignedControls.has(c.control) && !hasExistingAnswer(c));
 
         // Group choice controls (radios/checkboxes) by their question label
         const choiceGroups = new Map<string, { questionLabel: string; type: 'radio' | 'checkbox'; controls: HarvestedControl[] }>();
@@ -3782,6 +3842,7 @@ export async function injectFormFields(fields: any[], useAi: boolean = false, sp
             label: string;
             type: 'text' | 'textarea' | 'radio' | 'checkbox' | 'select';
             options?: string[];
+            format?: string;
         }> = [];
 
         // Track how to reach the DOM element from the question ID
@@ -3810,7 +3871,8 @@ export async function injectFormFields(fields: any[], useAi: boolean = false, sp
                 type: isTextarea ? 'textarea' : (tagName === 'select' || item.isCustomDropdown ? 'select' : 'text'),
                 options: tagName === 'select'
                     ? Array.from((item.control as HTMLSelectElement).options || []).map(o => o.text).filter(Boolean)
-                    : undefined
+                    : undefined,
+                format: describeFormat(readFormatFromControl(item.control)) || undefined
             });
 
             aiTargetMap.set(qId, {
@@ -3905,6 +3967,7 @@ export async function injectFormFields(fields: any[], useAi: boolean = false, sp
 
                                 highlightFilledElement(target.control, `[AI] ${effectiveKey}`);
                                 assignedControls.add(target.control);
+                                filledOrigin.set(target.control, "sensitive");
                                 filledCount++;
                                 await sleep(speedConfig.actionDelayMs > 0 ? getJitteredDelay(speedConfig.actionDelayMs) : 60);
                             }
@@ -3952,6 +4015,7 @@ export async function injectFormFields(fields: any[], useAi: boolean = false, sp
 
                                 highlightFilledElement(target.control, `[AI] Generated`);
                                 assignedControls.add(target.control);
+                                filledOrigin.set(target.control, "ai");
                                 filledCount++;
                                 await sleep(speedConfig.actionDelayMs > 0 ? getJitteredDelay(speedConfig.actionDelayMs) : 60);
                             }
@@ -4001,3 +4065,1008 @@ export async function injectFormFields(fields: any[], useAi: boolean = false, sp
         details
     };
 }
+
+
+// ============================================================================
+// LAYER 6: AUTO-PAGINATION (Pro)
+// background.ts drives the loop and sends one AUTO_PAGINATE_STEP per page.
+// A step fills the page, audits it, then clicks Next / Continue (Submit on the last page).
+// The site is the judge of what it needs:
+//   - answered (by us or pre-filled by the site, incl. an uploaded file) or labeled optional: fine
+//   - empty and marked required on its own (required, aria-required, *, "required"): pause first,
+//     so a form with a required gap is never submitted
+//   - empty and unmarked: click anyway and verify. If the page moves on, the site did not need it;
+//     if it stays or shows an error, pause and point at those fields.
+// Back / Previous buttons are recognized but never clicked.
+//
+// Fixes over injectToGoogle's autoPaginateForm:
+//   - "optional" / "*" are read from the question's own block, not the nearest <div>,
+//     so a neighbour's "(optional)" can no longer let a required question be skipped
+//   - "Accepted: .pdf, .docx" hint text is not mistaken for an uploaded file
+//   - Next is clicked once (the inner-span + element double click could skip a page)
+//   - carousel / date picker "Next" and "Continue with Google" buttons are ignored
+// ============================================================================
+
+interface PaginationButton {
+    element: HTMLElement;
+    kind: "next" | "submit";
+    label: string;
+    disabled: boolean;
+}
+
+type AuditKind = "text" | "select" | "dropdown" | "radio" | "checkbox" | "file";
+
+interface AuditQuestion {
+    kind: AuditKind;
+    members: HTMLElement[];
+    label: string;
+    scope: HTMLElement; // the question's own block of the page
+    fileArea?: HTMLElement; // file questions: the whole upload widget, up to the next upload field
+}
+
+type AuditBlocker = PaginationBlocker & { scope: HTMLElement };
+
+// Buttons that carry the application forward from an in-between page. Checked before Submit:
+// "Apply anyway" starts with "Apply" but is not the final submit.
+const PROCEED_BUTTON_RE = /^((?:apply|continue|proceed)\s+anyway|continue\s+(?:to\s+)?(?:the\s+)?(?:application|applying|apply)|(?:start|begin)\s+(?:my\s+|the\s+|your\s+)?application|get\s+started|(?:i\s+)?(?:agree|accept|acknowledge|understand)\s*(?:&|and)\s*(?:continue|proceed)|review\s+(?:your\s+|my\s+)?application)\b/i;
+// Leave the application: never clicked
+const EXIT_BUTTON_RE = /^(return\s+to|back\s+to|save\s*(?:&|and)\s*(?:close|exit)|exit|cancel|withdraw|discard)\b/i;
+const NEXT_BUTTON_RE = /^(next|continue|proceed|save\s*(?:&|and)\s*(?:continue|next|proceed)|go\s+to\s+(?:the\s+)?next|siguiente|continuar|suivant|continuer|weiter|avanti|pr[oó]ximo|volgende|dalej|susunod|magpatuloy)\b/i;
+const NOT_A_STEP_RE = /^(continue\s+(?:with|as|using|shopping|reading|browsing)|next\s+(?:article|post|story|image|photo|slide|video|month|year|week|day))\b/i;
+const SUBMIT_BUTTON_RE = /^(submit|apply|send|finish|complete|done|confirm|review\s*(?:&|and)\s*submit|enviar|soumettre|absenden|isumite)\b/i;
+const BACK_BUTTON_RE = /^(back|prev|previous|return|go\s+back|atr[aá]s|anterior|pr[eé]c[eé]dent|zur[uü]ck|bumalik)\b/i;
+// Next buttons of carousels, date pickers and search results are not form steps
+const NON_FORM_NAV_SELECTOR = "[class*='carousel' i], [class*='swiper' i], [class*='slick' i], [aria-roledescription='carousel'], [role='tablist'], [class*='datepicker' i], [class*='calendar' i], .pagination, [aria-label*='pagination' i]";
+// Site chrome (search bars, newsletter boxes) never blocks a step
+const PAGE_CHROME_SELECTOR = "header, nav, footer, [role='banner'], [role='navigation'], [role='contentinfo'], [role='search']";
+// One question per card on these platforms (keeps grid rows and split dates under their title)
+const QUESTION_CARD_SELECTOR = ".Qr7Oae, .geS5n, [data-automation-id='questionItem'], .office-form-question";
+
+const OPTIONAL_LABEL_RE = /\b(optional|opcional|facultatif|facultative|optionnel(?:le)?|facoltativo|opsyonal)\b|\(\s*if\s+(?:applicable|any)\s*\)|\bnot\s+(?:required|mandatory)\b/i;
+const NOT_OPTIONAL_RE = /\bnot\s+optional\b/i;
+const REQUIRED_WORD_RE = /\b(required|mandatory|obligatorio|obligatoire|erforderlich|pflichtfeld|obbligatorio)\b/i;
+const REQUIRED_CLASS_RE = /(^|[-_])(required|req|asterisk|mandatory)($|[-_])/i;
+const PLACEHOLDER_CHOICE_RE = /^(?:-+\s*)?(?:please\s+)?(?:select|choose|pick)\b|^[-—–\s]*$|^none selected$/i;
+// "resume.pdf" (a word character before the dot), not "Accepted: .pdf, .docx"
+const UPLOADED_FILE_NAME_RE = /[\w)\]-]\.(?:pdf|docx?|rtf|txt|odt|pages|png|jpe?g|heic|webp|xlsx?|csv|pptx?|zip)\b/i;
+const UPLOAD_BUTTON_RE = /\b(add|upload|attach|choose|select|browse)\b.{0,20}\b(files?|documents?|resume|cv|attachments?)\b/i;
+const FILE_REMOVE_BUTTON_RE = /^(remove|delete|replace|change|clear)\b/i;
+// "Uploaded Sep 5, 2026", "Uploaded on 05/09", "Uploaded today"
+const UPLOADED_ON_RE = /\buploaded\s+(?:on\s+|at\s+)?(?:\d|[a-z]{3,9}\.?\s+\d|today|yesterday)/i;
+// Words that make a label describe a file field (not e.g. the name heading inside a resume preview)
+const FILE_LABEL_WORDS_RE = /\b(resume|cv|cover\s+letter|files?|documents?|upload|attach(?:ment)?|photo|picture|transcript|portfolio|certificate)\b/i;
+const DROPDOWN_HOST_SELECTOR = "[class*='select__control'], .ant-select, .MuiAutocomplete-root, .MuiInputBase-root, .slds-combobox, lightning-combobox, .v-select, .select2-container, .choices";
+const DROPDOWN_VALUE_SELECTOR = "[class*='single-value'], [class*='singleValue'], [class*='multi-value'], [class*='multiValue'], .ant-select-selection-item, .MuiChip-root, .choices__item--selectable";
+const UPLOAD_BUSY_SELECTOR = ".picker-dialog, iframe[src*='picker'], [class*='upload' i] [role='progressbar'], [class*='upload' i][aria-busy='true'], [data-automation-id*='upload' i] [role='progressbar']";
+const VALIDATION_ERROR_SELECTOR = "[role='alert'], [aria-live='assertive'], .error, .errors, .is-invalid, .invalid-feedback, .field-error, .form-error, [class*='error-message' i], [class*='errorMessage'], [class*='error-text' i], [data-automation-id*='error' i]";
+const SCOPE_TEXT_SKIP_SELECTOR = "select, option, [role='option'], script, style, noscript, template, textarea, [contenteditable='true'], .aullevo-field-badge, .aullevo-blocker-badge";
+const BLOCKER_CLASS = "aullevo-needs-input";
+
+// Parent across shadow-root boundaries
+function composedParent(el: Element): HTMLElement | null {
+    if (el.parentElement) return el.parentElement;
+    const root = el.getRootNode();
+    return root instanceof ShadowRoot ? (root.host as HTMLElement) : null;
+}
+
+function composedContains(ancestor: Element, node: Element): boolean {
+    if (ancestor.contains(node)) return true;
+    if (node.getRootNode() === ancestor.getRootNode()) return false;
+    for (let curr = composedParent(node); curr; curr = composedParent(curr)) {
+        if (curr === ancestor) return true;
+    }
+    return false;
+}
+
+function lowestCommonAncestor(els: HTMLElement[]): HTMLElement {
+    let anc: HTMLElement | null = els[0];
+    while (anc && !els.every(el => composedContains(anc as HTMLElement, el))) {
+        anc = composedParent(anc);
+    }
+    return anc || els[0];
+}
+
+// On screen (unlike isVisible, disabled buttons still count)
+function isRendered(el: HTMLElement): boolean {
+    const rect = el.getBoundingClientRect();
+    if (rect.width === 0 && rect.height === 0) return false;
+    const style = window.getComputedStyle(el);
+    return style.display !== "none" && style.visibility !== "hidden" && style.opacity !== "0";
+}
+
+function truncateLabel(text: string, max = 60): string {
+    const clean = text.replace(/\s+/g, " ").trim();
+    return clean.length > max ? clean.substring(0, max - 3).trim() + "..." : clean;
+}
+
+function hashString(text: string): string {
+    let hash = 5381;
+    for (let i = 0; i < text.length; i++) {
+        hash = ((hash << 5) + hash + text.charCodeAt(i)) | 0;
+    }
+    return (hash >>> 0).toString(36);
+}
+
+// ---------------------------------------------------------------------------
+// Next / Submit buttons
+// ---------------------------------------------------------------------------
+
+function getButtonText(el: HTMLElement): string {
+    const raw = el instanceof HTMLInputElement ? el.value : (el.innerText || el.textContent || "");
+    const text = raw.trim() || el.getAttribute("aria-label") || el.getAttribute("title") || "";
+    return text.replace(/[→›»←‹«✓✔>]+/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function findPaginationButtons(): PaginationButton[] {
+    const selector = "button, input[type='submit'], input[type='button'], input[type='image'], a, [role='button']";
+    const found: PaginationButton[] = [];
+
+    for (const root of getAllDOMRoots()) {
+        let elements: HTMLElement[];
+        try {
+            elements = Array.from(root.querySelectorAll<HTMLElement>(selector));
+        } catch {
+            continue;
+        }
+
+        for (const el of elements) {
+            if (el.id === "aullevo-floating-trigger" || !isRendered(el)) continue;
+            // A <span role="button"> inside an already found <button> is the same button
+            if (found.some(b => b.element.contains(el))) continue;
+            if (el.closest(NON_FORM_NAV_SELECTOR)) continue;
+
+            const label = getButtonText(el);
+            if (label.length > 40 || BACK_BUTTON_RE.test(label) || NOT_A_STEP_RE.test(label) || EXIT_BUTTON_RE.test(label)) continue;
+
+            // Links that load another page are site navigation, except same-site "Apply anyway"-style steps
+            if (el.tagName === "A") {
+                const href = (el.getAttribute("href") || "").trim();
+                const isPageLink = href && !href.startsWith("#") && !/^javascript:/i.test(href);
+                if (isPageLink) {
+                    let sameSite = false;
+                    try { sameSite = new URL(href, location.href).origin === location.origin; } catch { }
+                    if (!sameSite || !PROCEED_BUTTON_RE.test(label)) continue;
+                }
+            }
+
+            const automationId = (el.getAttribute("data-automation-id") || "").toLowerCase();
+            const testId = (el.getAttribute("data-testid") || el.getAttribute("data-test") || el.getAttribute("data-qa") || "").toLowerCase();
+            const jsname = (el.getAttribute("jsname") || "").toLowerCase();
+            const classTokens = Array.from(el.classList).map(c => c.toLowerCase());
+
+            let kind: PaginationButton["kind"] | null = null;
+            if (
+                NEXT_BUTTON_RE.test(label) ||
+                PROCEED_BUTTON_RE.test(label) ||
+                jsname === "ocpkoe" ||                                   // Google Forms Next
+                automationId.includes("next") ||                         // Workday, Microsoft Forms
+                /(^|[-_])(next|continue)([-_]|$)/.test(testId) ||
+                classTokens.some(c => ["btn-next", "next-btn", "btn-continue", "continue-btn"].includes(c))
+            ) {
+                kind = "next";
+            } else if (
+                SUBMIT_BUTTON_RE.test(label) ||
+                jsname === "m2uyvd" ||                                   // Google Forms Submit
+                automationId.includes("submit") ||
+                /(^|[-_])submit([-_]|$)/.test(testId)
+            ) {
+                kind = "submit";
+            }
+            if (!kind) continue;
+
+            found.push({
+                element: el,
+                kind,
+                label: label || (kind === "next" ? "Next" : "Submit"),
+                disabled: (el as HTMLButtonElement).disabled === true ||
+                    el.getAttribute("aria-disabled") === "true" ||
+                    el.classList.contains("disabled") ||
+                    el.classList.contains("is-disabled")
+            });
+        }
+    }
+    return found;
+}
+
+// Prefers an enabled button of the given kind inside the <form> that holds the fields
+function pickPaginationButton(buttons: PaginationButton[], kind: PaginationButton["kind"], controls: HTMLElement[]): PaginationButton | null {
+    let best: PaginationButton | null = null;
+    let bestScore = -1;
+    for (const btn of buttons) {
+        if (btn.kind !== kind) continue;
+        const form = btn.element.closest("form");
+        const score = (form && controls.some(c => composedContains(form, c)) ? 2 : 0) + (btn.disabled ? 0 : 1);
+        if (score > bestScore) {
+            best = btn;
+            bestScore = score;
+        }
+    }
+    return best;
+}
+
+// One activation only: a second click could skip a whole page
+function clickPaginationButton(el: HTMLElement): void {
+    try {
+        el.scrollIntoView({ block: "center" });
+    } catch { }
+    const rect = el.getBoundingClientRect();
+    const opts = { bubbles: true, cancelable: true, composed: true, view: window, clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2, button: 0 };
+    try { el.dispatchEvent(new PointerEvent("pointerdown", { ...opts, buttons: 1, pointerId: 1, pointerType: "mouse", isPrimary: true })); } catch { }
+    try { el.dispatchEvent(new MouseEvent("mousedown", { ...opts, buttons: 1 })); } catch { }
+    try { el.dispatchEvent(new PointerEvent("pointerup", { ...opts, buttons: 0, pointerId: 1, pointerType: "mouse", isPrimary: true })); } catch { }
+    try { el.dispatchEvent(new MouseEvent("mouseup", { ...opts, buttons: 0 })); } catch { }
+    el.click();
+}
+
+// ---------------------------------------------------------------------------
+// Question audit: which empty questions may be skipped
+// ---------------------------------------------------------------------------
+
+function classifyAuditControl(item: HarvestedControl): AuditKind | null {
+    const el = item.control;
+    const tag = el.tagName.toUpperCase();
+    const type = (el.getAttribute("type") || "").toLowerCase();
+    if (tag === "INPUT" && type === "file") return "file";
+    if (item.isChoice) return item.choiceType === "radio" ? "radio" : "checkbox";
+    if (item.isCountryCode) return null; // dial code pickers come pre-set
+    if (tag === "SELECT") return "select";
+    if (item.isCustomDropdown || tag === "LIGHTNING-COMBOBOX") return "dropdown";
+    if (tag === "INPUT") return ["search", "range", "color", "image", "reset", "submit", "button"].includes(type) ? null : "text";
+    if (tag === "TEXTAREA" || tag === "LIGHTNING-INPUT" || tag === "LIGHTNING-TEXTAREA") return "text";
+    if (el.isContentEditable || el.getAttribute("role") === "textbox") return "text";
+    return null; // CAPTCHA widgets, framework wrappers
+}
+
+// Radios / checkboxes answering the same question share a key
+function getChoiceGroupKey(control: HTMLElement, kind: AuditKind, entries: { el: HTMLElement; kind: AuditKind }[]): string | HTMLElement {
+    const card = control.closest<HTMLElement>(QUESTION_CARD_SELECTOR);
+    if (card) return card;
+
+    if (control instanceof HTMLInputElement && control.name) {
+        const sameName = entries.filter(e => e.el instanceof HTMLInputElement && e.el.name === control.name && e.el.form === control.form);
+        if (kind === "radio" || sameName.length > 1) return `${kind}:${control.name}`;
+    }
+
+    const container = control.closest<HTMLElement>("[role='radiogroup'], [role='group'], fieldset, [role='list']");
+    if (container) {
+        const inside = entries.filter(e => composedContains(container, e.el));
+        if (inside.length > 1 && inside.every(e => e.kind === kind)) return container;
+    }
+    return control;
+}
+
+// The question's own block: grows from its controls until the next ancestor would also hold another question
+function findQuestionScope(start: HTMLElement, others: HTMLElement[], root: HTMLElement | null): HTMLElement {
+    const card = start.closest<HTMLElement>(QUESTION_CARD_SELECTOR);
+    if (card) return card;
+
+    let scope = start;
+    for (let parent = composedParent(scope); parent; parent = composedParent(scope)) {
+        if (parent === root || /^(FORM|BODY|HTML|MAIN|DIALOG)$/.test(parent.tagName)) break;
+        const role = parent.getAttribute("role");
+        if (role === "main" || role === "dialog") break;
+        if (others.some(o => composedContains(parent as HTMLElement, o))) break;
+        if ((parent.innerText || "").length > 1500) break;
+        scope = parent;
+    }
+    return scope;
+}
+
+// Visible text of an element, without dropdown options, typed answers or Aullevo badges
+function getVisibleText(el: HTMLElement, maxLength = 4000): string {
+    const parts: string[] = [];
+    let total = 0;
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    for (let node = walker.nextNode(); node && total < maxLength; node = walker.nextNode()) {
+        const parent = node.parentElement;
+        const text = node.nodeValue?.trim();
+        if (!parent || !text || parent.closest(SCOPE_TEXT_SKIP_SELECTOR)) continue;
+        if (typeof parent.checkVisibility === "function" && !parent.checkVisibility({ checkOpacity: false, checkVisibilityCSS: true })) continue;
+        parts.push(text);
+        total += text.length;
+    }
+    return parts.join(" ");
+}
+
+function getQuestionText(q: AuditQuestion): string {
+    const parts = [getVisibleText(q.scope)];
+    for (const el of q.members) {
+        (el as HTMLInputElement).labels?.forEach(label => parts.push(getVisibleText(label)));
+        for (const attr of ["aria-labelledby", "aria-describedby"]) {
+            for (const id of (el.getAttribute(attr) || "").split(/\s+/).filter(Boolean)) {
+                const ref = (el.getRootNode() as Document | ShadowRoot).getElementById(id);
+                if (ref) parts.push(getVisibleText(ref));
+            }
+        }
+        parts.push(el.getAttribute("aria-label") || "", (el as HTMLInputElement).placeholder || "", el.getAttribute("title") || "");
+    }
+    return parts.join(" ").replace(/\s+/g, " ");
+}
+
+function readRequirementMarkers(q: AuditQuestion, text: string): { hardRequired: boolean; softRequired: boolean; optionalLabel: boolean } {
+    // required / aria-required: the site itself will refuse to continue without an answer
+    const hardRequired = q.members.some(el => {
+        if ((el as HTMLInputElement).required === true || el.getAttribute("aria-required") === "true" || el.getAttribute("data-required") === "true") return true;
+        const marked = el.closest("[aria-required='true']");
+        return Boolean(marked && composedContains(q.scope, marked));
+    });
+
+    const optionalLabel = OPTIONAL_LABEL_RE.test(text) && !NOT_OPTIONAL_RE.test(text);
+
+    const markerEls = [q.scope, ...Array.from(q.scope.querySelectorAll<HTMLElement>("[class*='req' i], [class*='asterisk' i], [class*='mandatory' i]"))];
+    const hasRequiredClass = markerEls.some(el => Array.from(el.classList).some(c => REQUIRED_CLASS_RE.test(c) && !/not[-_]?required|optional/i.test(c)));
+    const softRequired = !optionalLabel && (/[*∗＊]/.test(text) || REQUIRED_WORD_RE.test(text) || hasRequiredClass);
+
+    return { hardRequired, softRequired, optionalLabel };
+}
+
+function readControlText(el: HTMLElement): string {
+    const value = (el as HTMLInputElement).value;
+    return typeof value === "string" ? value.trim() : (el.innerText || "").trim();
+}
+
+function isSelectAnswered(select: HTMLSelectElement): boolean {
+    if (select.multiple) return select.selectedOptions.length > 0;
+    const opt = select.options[select.selectedIndex];
+    return Boolean(opt) && select.value.trim() !== "" && !opt.disabled && !PLACEHOLDER_CHOICE_RE.test(opt.text.trim());
+}
+
+function isDropdownAnswered(el: HTMLElement): boolean {
+    const host = el.closest<HTMLElement>(DROPDOWN_HOST_SELECTOR) || el;
+    if (host.querySelector(DROPDOWN_VALUE_SELECTOR)) return true;
+
+    // Google Forms / ARIA listbox: the chosen option carries aria-selected (Google's "Choose" has data-value="")
+    const selected = host.querySelector<HTMLElement>("[role='option'][aria-selected='true']");
+    if (selected) {
+        const dataValue = selected.getAttribute("data-value");
+        return dataValue !== null ? dataValue.trim() !== "" : !PLACEHOLDER_CHOICE_RE.test(getCleanElementText(selected));
+    }
+
+    if (el instanceof HTMLInputElement && el.value.trim()) return !PLACEHOLDER_CHOICE_RE.test(el.value.trim());
+
+    let text = host.innerText || "";
+    host.querySelectorAll<HTMLElement>("[class*='placeholder' i]").forEach(p => {
+        if (p.innerText) text = text.replace(p.innerText, "");
+    });
+    text = text.replace(/\s+/g, " ").trim();
+    return text.length > 0 && !PLACEHOLDER_CHOICE_RE.test(text);
+}
+
+// Grows a file question's block past its neighbours (e.g. the selected-resume card around a hidden
+// "replace file" input) until the next ancestor would also hold another upload field.
+// No size limit: a resume preview rendered as text makes the card thousands of characters long.
+function findUploadArea(scope: HTMLElement, otherFileEls: HTMLElement[], root: HTMLElement | null): HTMLElement {
+    let area = scope;
+    for (let parent = composedParent(area); parent; parent = composedParent(area)) {
+        if (parent === root || /^(FORM|BODY|HTML)$/.test(parent.tagName)) break;
+        if (otherFileEls.some(o => composedContains(parent as HTMLElement, o))) break;
+        area = parent;
+    }
+    return area;
+}
+
+// Page shows a picked file: a selected option (radio / card) whose text names a file,
+// e.g. Indeed's "JULLE MYTH VICENTILLO RESUME.pdf ✓ Uploaded Sep 5, 2026" card
+function hasSelectedFileOption(area: HTMLElement): boolean {
+    const selected = Array.from(area.querySelectorAll<HTMLElement>(
+        "input[type='radio'], input[type='checkbox'], [role='radio'], [role='checkbox'], [role='option'], [aria-selected='true'], [aria-checked='true'], [aria-pressed='true']"
+    )).filter(isControlChecked);
+    return selected.some((el) => {
+        const option = el.closest<HTMLElement>("label, [role='radio'], [role='option'], li, [class*='card' i]") || el.parentElement;
+        const optionText = option ? getVisibleText(option, 400) : "";
+        return UPLOADED_FILE_NAME_RE.test(optionText) || UPLOADED_ON_RE.test(optionText);
+    });
+}
+
+function hasUploadedFile(q: AuditQuestion, text: string): boolean {
+    if (q.members.some(el => el instanceof HTMLInputElement && (el.files?.length ?? 0) > 0)) return true;
+    const area = q.fileArea || q.scope;
+    const areaText = area === q.scope ? text : `${text} ${getVisibleText(area, 20000)}`;
+    if (UPLOADED_FILE_NAME_RE.test(areaText) || UPLOADED_ON_RE.test(areaText)) return true;
+    if (hasSelectedFileOption(area)) return true;
+
+    const fileItem = Array.from(area.querySelectorAll<HTMLElement>(
+        "[class*='uploaded' i], [class*='file-name' i], [class*='filename' i], [class*='file-item' i], [data-automation-id*='file-upload-item' i], [data-automation-id*='uploaded' i]"
+    )).some(el => {
+        const itemText = getCleanElementText(el);
+        return itemText.length > 0 && !/no\s+file|not\s+uploaded|^none$/i.test(itemText);
+    });
+    if (fileItem) return true;
+
+    // "Remove" / "Replace" next to the upload only shows once a file is attached
+    return Array.from(q.scope.querySelectorAll<HTMLElement>("button, [role='button']"))
+        .some(btn => isRendered(btn) && FILE_REMOVE_BUTTON_RE.test(getButtonText(btn)));
+}
+
+function isQuestionAnswered(q: AuditQuestion, text: string): boolean {
+    switch (q.kind) {
+        case "radio":
+        case "checkbox":
+            return q.members.some(isControlChecked);
+        case "select":
+            return q.members.some(el => isSelectAnswered(el as HTMLSelectElement));
+        case "dropdown":
+            return q.members.some(isDropdownAnswered);
+        case "file":
+            return hasUploadedFile(q, text);
+        default:
+            return q.members.some(el => readControlText(el).length > 0);
+    }
+}
+
+// Upload widgets without an <input type="file"> on the page (e.g. Google Forms "Add file")
+function findCustomUploadButtons(inScope: (el: HTMLElement) => boolean): HTMLElement[] {
+    const result: HTMLElement[] = [];
+    for (const root of getAllDOMRoots()) {
+        root.querySelectorAll<HTMLElement>("button, [role='button']").forEach((btn) => {
+            if (!isRendered(btn) || !inScope(btn) || result.some(r => r.contains(btn) || btn.contains(r))) return;
+            const text = getButtonText(btn);
+            if (text.length > 60 || !UPLOAD_BUTTON_RE.test(text)) return;
+            // Buttons that open a real file input are audited through that input
+            let anc: HTMLElement | null = btn;
+            for (let i = 0; i < 4 && anc; i++, anc = composedParent(anc)) {
+                if (anc.querySelector("input[type='file']")) return;
+            }
+            result.push(btn);
+        });
+    }
+    return result;
+}
+
+function collectAuditQuestions(root: HTMLElement | null): AuditQuestion[] {
+    const inScope = (el: HTMLElement) => root ? composedContains(root, el) : !el.closest(PAGE_CHROME_SELECTOR);
+
+    const entries = harvestAllControls()
+        .map(item => ({ item, el: item.control, kind: classifyAuditControl(item) }))
+        .filter((e): e is { item: HarvestedControl; el: HTMLElement; kind: AuditKind } => e.kind !== null && e.kind !== "file" && inScope(e.el));
+    // Keep the innermost control when a framework wrapper and its native input were both harvested
+    const controls = entries.filter(e => !entries.some(o => o !== e && composedContains(e.el, o.el)));
+
+    const groups = new Map<string | HTMLElement, { kind: AuditKind; members: HTMLElement[]; item: HarvestedControl; start: HTMLElement }>();
+    for (const { item, el, kind } of controls) {
+        const key = kind === "radio" || kind === "checkbox" ? getChoiceGroupKey(el, kind, controls) : el;
+        const group = groups.get(key);
+        if (group) group.members.push(el);
+        else groups.set(key, { kind, members: [el], item, start: key instanceof HTMLElement ? key : el });
+    }
+
+    const uploads = harvestActiveFileInputs().filter(u => inScope(u.input));
+    const uploadButtons = findCustomUploadButtons(inScope);
+    const allQuestionEls = [...controls.map(c => c.el), ...uploads.map(u => u.input), ...uploadButtons];
+
+    const questions: AuditQuestion[] = [];
+    const fileEls = [...uploads.map(u => u.input), ...uploadButtons];
+    const addQuestion = (kind: AuditKind, members: HTMLElement[], start: HTMLElement, label: string) => {
+        const others = allQuestionEls.filter(el => !members.includes(el));
+        const scope = findQuestionScope(start, others, root);
+        const fileArea = kind === "file" ? findUploadArea(scope, fileEls.filter(el => !members.includes(el)), root) : undefined;
+        questions.push({ kind, members, label: truncateLabel(label || "Unlabeled field"), scope, fileArea });
+    };
+    // The page's own wording for the side panel message (harvested labelTexts are normalized to lowercase)
+    const labelOf = (el: HTMLElement, labelTexts: string[], isChoice = false) => {
+        const own = isChoice
+            ? el.closest("fieldset")?.querySelector("legend")
+            : (el as HTMLInputElement).labels?.[0];
+        const ownText = own ? getVisibleText(own as HTMLElement).replace(/[*∗＊]/g, "").trim() : "";
+        return ownText || labelTexts.find(Boolean) || el.getAttribute("aria-label") || (el as HTMLInputElement).placeholder || (el as HTMLInputElement).name || "";
+    };
+
+    for (const group of groups.values()) {
+        const start = group.members.length > 1 ? lowestCommonAncestor(group.members) : group.start;
+        const isChoice = group.kind === "radio" || group.kind === "checkbox";
+        addQuestion(group.kind, group.members, start, labelOf(group.item.control, group.item.labelTexts, isChoice));
+    }
+
+    // File inputs are often hidden behind a button: only trust labels that talk about files
+    const fileLabelOf = (input: HTMLInputElement) => {
+        const own = input.labels?.[0] ? getVisibleText(input.labels[0]).replace(/[*∗＊]/g, "").trim() : "";
+        const candidates = [own, input.getAttribute("aria-label") || "", input.title, ...resolveControlLabels(input)];
+        return candidates.find(t => t && FILE_LABEL_WORDS_RE.test(t)) || "File upload";
+    };
+
+    for (const { input, container } of uploads) {
+        const holdsOthers = allQuestionEls.some(o => o !== input && composedContains(container, o));
+        addQuestion("file", [input], holdsOthers ? input : container, fileLabelOf(input));
+    }
+
+    for (const btn of uploadButtons) {
+        if (questions.some(q => q.kind === "file" && composedContains(q.fileArea || q.scope, btn))) continue;
+        const title = btn.closest(QUESTION_CARD_SELECTOR)?.querySelector<HTMLElement>("[role='heading'], .M7eMe");
+        addQuestion("file", [btn], btn, cleanText(getCleanElementText(title)) || getButtonText(btn));
+    }
+
+    return questions;
+}
+
+// blockers: empty and marked required -> never click past them
+// unsure:   empty and unmarked -> click, and blame them if the site refuses to move on
+function auditQuestions(questions: AuditQuestion[]): { blockers: AuditBlocker[]; unsure: AuditBlocker[] } {
+    const blockers: AuditBlocker[] = [];
+    const unsure: AuditBlocker[] = [];
+
+    for (const q of questions) {
+        const text = getQuestionText(q);
+        if (isQuestionAnswered(q, text)) continue;
+
+        const { hardRequired, softRequired, optionalLabel } = readRequirementMarkers(q, text);
+        if (hardRequired) blockers.push({ name: q.label, reason: q.kind === "file" ? "required file" : "required", scope: q.scope });
+        else if (optionalLabel) continue;
+        else if (softRequired) blockers.push({ name: q.label, reason: q.kind === "file" ? "required file" : "marked required", scope: q.scope });
+        else if (q.kind === "checkbox" && q.members.length === 1) continue; // an unticked single box is a valid answer
+        else unsure.push({ name: q.label, reason: "empty", scope: q.scope });
+    }
+    return { blockers, unsure };
+}
+
+// ---------------------------------------------------------------------------
+// Blocker highlights (kept apart from the fill badges, which clear after 4.5s)
+// ---------------------------------------------------------------------------
+
+let blockerHighlightTimer: number | undefined;
+
+function clearBlockerHighlights(): void {
+    getAllDOMRoots().forEach((root) => {
+        root.querySelectorAll<HTMLElement>(`.${BLOCKER_CLASS}`).forEach((el) => {
+            el.classList.remove(BLOCKER_CLASS);
+            if (el.dataset.aullevoPrevPosition !== undefined) {
+                el.style.position = el.dataset.aullevoPrevPosition;
+                delete el.dataset.aullevoPrevPosition;
+            }
+        });
+        root.querySelectorAll(".aullevo-blocker-badge").forEach(badge => badge.remove());
+    });
+}
+
+function highlightBlockers(targets: HTMLElement[], badgeText: string): void {
+    clearBlockerHighlights();
+    for (const scope of targets) {
+        const target = /^(INPUT|SELECT|TEXTAREA)$/.test(scope.tagName) ? findOptionRowContainer(scope) : scope;
+        injectHighlightStylesToRoot(target.getRootNode() as Document | ShadowRoot);
+        target.classList.add(BLOCKER_CLASS);
+        if (window.getComputedStyle(target).position === "static") {
+            target.dataset.aullevoPrevPosition = target.style.position;
+            target.style.position = "relative";
+        }
+        const badge = document.createElement("div");
+        badge.className = "aullevo-blocker-badge";
+        badge.textContent = badgeText;
+        target.appendChild(badge);
+    }
+    try {
+        targets[0]?.scrollIntoView({ behavior: "smooth", block: "center" });
+    } catch { }
+    window.clearTimeout(blockerHighlightTimer);
+    blockerHighlightTimer = window.setTimeout(clearBlockerHighlights, 10000);
+}
+
+// ---------------------------------------------------------------------------
+// Step runner
+// ---------------------------------------------------------------------------
+
+// Visible loading indicators. Step progress bars (aria-valuenow, e.g. Indeed's "50%") are not loading.
+const PAGE_BUSY_SELECTOR = "[aria-busy='true'], [role='progressbar']:not([aria-valuenow]), [class*='spinner' i], [class*='loader' i], [class*='loading' i], [data-testid*='loading' i], [data-testid*='spinner' i]";
+
+function getBusyIndicators(): HTMLElement[] {
+    return Array.from(document.querySelectorAll<HTMLElement>(PAGE_BUSY_SELECTOR))
+        .filter(el => isRendered(el) && !el.closest("#aullevo-floating-trigger, .aullevo-field-badge, .aullevo-blocker-badge"));
+}
+
+// Waits (up to maxMs) until no loading indicator shows, ignoring ones that were already there
+// (a decorative "loading" class that never goes away must not cost 20s per page)
+async function waitForPageIdle(maxMs: number, ignore: Set<HTMLElement> = new Set(), isReady?: () => boolean): Promise<void> {
+    const deadline = Date.now() + maxMs;
+    while (Date.now() < deadline) {
+        if (isReady?.()) return;
+        if (!getBusyIndicators().some(el => !ignore.has(el))) return;
+        await sleep(400);
+    }
+}
+
+async function waitForUploadsToSettle(maxMs: number): Promise<void> {
+    const deadline = Date.now() + maxMs;
+    while (Date.now() < deadline) {
+        const busy = Array.from(document.querySelectorAll<HTMLElement>(UPLOAD_BUSY_SELECTOR)).some(isRendered);
+        if (!busy) return;
+        await sleep(400);
+    }
+}
+
+function getVisibleControlSet(): Set<HTMLElement> {
+    return new Set([...harvestAllControls().map(c => c.control), ...harvestActiveFileInputs().map(u => u.input)]);
+}
+
+// True once the click led somewhere: new URL, most fields replaced, or new fields revealed
+async function waitForStepChange(beforeUrl: string, before: Set<HTMLElement>, timeoutMs: number, isDone?: () => boolean, isRefused?: () => boolean): Promise<boolean> {
+    const start = Date.now();
+    const deadline = start + timeoutMs;
+    while (Date.now() < deadline) {
+        await sleep(400);
+        if (location.href !== beforeUrl || isDone?.()) return true;
+        // Errors appeared and the page stayed for a moment: it refused (a slow page load still gets its time)
+        if (isRefused && Date.now() - start > 1500 && isRefused()) return false;
+        const now = getVisibleControlSet();
+        let gone = 0;
+        before.forEach((el) => {
+            if (!now.has(el)) gone++;
+        });
+        const added = Array.from(now).some(el => !before.has(el));
+        if (added || (before.size > 0 && gone >= Math.ceil(before.size / 2))) return true;
+    }
+    return false;
+}
+
+const SUBMIT_CONFIRMATION_RE = /\b(thank\s*you|thanks|(?:successfully\s+)?submitted|has\s+been\s+(?:received|recorded|sent)|response\s+(?:was\s+|has\s+been\s+)?recorded|application\s+(?:was\s+|has\s+been\s+)?(?:received|sent))\b/i;
+
+// A confirmation line that was not on the page before the Submit click
+function hasNewSubmitConfirmation(beforeText: string): boolean {
+    const lines = (document.body?.innerText || "").split("\n").map(l => l.trim()).filter(Boolean);
+    return lines.some(line => line.length <= 200 && SUBMIT_CONFIRMATION_RE.test(line) && !beforeText.includes(line));
+}
+
+function collectValidationErrors(): string[] {
+    const texts: string[] = [];
+    for (const el of Array.from(document.querySelectorAll<HTMLElement>(VALIDATION_ERROR_SELECTOR))) {
+        if (!isRendered(el) || el.closest(".aullevo-blocker-badge, #aullevo-floating-trigger")) continue;
+        const text = getCleanElementText(el);
+        if (text.length >= 3 && text.length <= 200 && !texts.includes(text)) texts.push(text);
+        if (texts.length >= 3) break;
+    }
+    return texts;
+}
+
+async function runPaginationStep(
+    fields: any[],
+    useAi: boolean,
+    speedPreset: string | SpeedConfig,
+    files: ProfileFile[],
+    advance: boolean
+): Promise<PaginationStepResult> {
+    clearBlockerHighlights();
+
+    // A step that is still loading shows a spinner and no fields or buttons yet
+    const hasContent = () => harvestAllControls().length > 0 || findPaginationButtons().length > 0;
+    await waitForPageIdle(PAGE_LOAD_PATIENCE_MS, new Set(), hasContent);
+
+    const busyBeforeFill = new Set(getBusyIndicators());
+    const fill = await injectFormFields(fields, useAi, speedPreset, files);
+    if (!fill.success) {
+        return { success: false, error: fill.error, pagination: { status: "error" } };
+    }
+    const filled = { success: true, matchedCount: fill.matchedCount, useAi: fill.useAi, aiNotice: fill.aiNotice };
+
+    // Let frameworks validate and reveal conditional questions, and uploads finish
+    await sleep(500);
+    await waitForUploadsToSettle(files.length > 0 ? PAGE_LOAD_PATIENCE_MS : 3000);
+    // Spinners our answers triggered (e.g. the site checking an answer) must finish before clicking
+    await waitForPageIdle(PAGE_LOAD_PATIENCE_MS, busyBeforeFill);
+
+    const controlEls = harvestAllControls().map(c => c.control);
+    const buttons = findPaginationButtons();
+    const next = pickPaginationButton(buttons, "next", controlEls);
+    const submit = pickPaginationButton(buttons, "submit", controlEls);
+    const auditForm = (next ?? submit)?.element.closest("form");
+    const auditRoot = auditForm && controlEls.some(c => composedContains(auditForm, c)) ? auditForm : null;
+
+    const { blockers, unsure } = auditQuestions(collectAuditQuestions(auditRoot));
+    const toInfo = (list: AuditBlocker[]) => list.map(({ name, reason }) => ({ name, reason }));
+    const blockerInfo = toInfo(blockers);
+    if (blockers.length > 0) {
+        highlightBlockers(blockers.map(b => b.scope), "Needs your input");
+    }
+
+    // Next on middle pages, Submit on the last one
+    const target = next ?? submit;
+    if (!target) {
+        return { ...filled, pagination: { status: "no-next", blockers: toInfo([...blockers, ...unsure]) } };
+    }
+    const isSubmit = target === submit;
+    if (blockers.length > 0) {
+        return { ...filled, pagination: { status: "blocked", blockers: blockerInfo, buttonLabel: target.label } };
+    }
+    if (target.disabled) {
+        return { ...filled, pagination: { status: "next-disabled", buttonLabel: target.label } };
+    }
+    if (!isSubmit && !advance) {
+        return { ...filled, pagination: { status: "max-pages", buttonLabel: target.label } };
+    }
+
+    const errorsBefore = collectValidationErrors();
+    const speedConfig = resolveSpeedConfig(speedPreset);
+    let repaired = 0;
+    let lastFieldErrors: FieldError[] = [];
+
+    for (let round = 0; ; round++) {
+        const outcome = await clickAndWaitForStep(target, isSubmit, fill.matchedCount ?? 0, errorsBefore);
+        if (outcome) {
+            return { ...filled, repaired, pagination: { status: outcome, buttonLabel: target.label } };
+        }
+
+        // The site refused: read the error under each field, correct those answers, press again
+        lastFieldErrors = findFieldErrors();
+        if (round >= MAX_REPAIR_ROUNDS || lastFieldErrors.length === 0) break;
+        const fixed = await repairRejectedFields(lastFieldErrors, Boolean(fill.useAi), speedConfig);
+        if (fixed === 0) break;
+        repaired += fixed;
+        console.log(`[Aullevo] Auto-pagination: corrected ${fixed} rejected answer(s), retrying "${target.label}"`);
+        await sleep(400);
+    }
+
+    // Still refused: point at the fields the site complained about, then the unmarked empty ones
+    const errors = collectValidationErrors();
+    const errorText = lastFieldErrors[0]?.error || errors.find(e => !errorsBefore.includes(e)) || errors[0];
+    const invalid = harvestAllControls().map(c => c.control).filter(el => el.getAttribute("aria-invalid") === "true");
+    const suspects = [...lastFieldErrors.map(e => e.scope), ...invalid, ...unsure.map(u => u.scope)];
+    if (suspects.length > 0) {
+        highlightBlockers(suspects, "Check this field");
+    }
+    const named = [...lastFieldErrors.map(e => ({ name: e.label, reason: e.error })), ...toInfo(unsure)];
+    return {
+        ...filled,
+        repaired,
+        pagination: {
+            status: errorText || invalid.length > 0 ? "validation-error" : "stuck",
+            errorText: errorText ? truncateLabel(errorText, 120) : undefined,
+            blockers: named,
+            buttonLabel: target.label
+        }
+    };
+}
+
+// Clicks Next / Submit once and waits for the page to move on. Null when the site refused.
+async function clickAndWaitForStep(target: PaginationButton, isSubmit: boolean, matchedCount: number, errorsBefore: string[]): Promise<"advanced" | "submitted" | null> {
+    const beforeUrl = location.href;
+    const beforeControls = getVisibleControlSet();
+    const beforeText = isSubmit ? (document.body?.innerText || "") : "";
+    const invalidBefore = new Set(Array.from(document.querySelectorAll("[aria-invalid='true']")));
+
+    // If the click loads a new page, this script dies before replying: report the count first
+    // (throws synchronously when the extension was reloaded; that must not stop the click)
+    try {
+        chrome.runtime.sendMessage({ action: "PAGINATION_PAGE_FILLED", matchedCount, clicked: isSubmit ? "submit" : "next" }).catch(() => { });
+    } catch { }
+    console.log(`[Aullevo] Auto-pagination: clicking "${target.label}"`);
+    clickPaginationButton(target.element);
+
+    // A full page load ends this script before it answers; background.ts handles that.
+    // Some sites submit in the background and only show a confirmation next to the form.
+    const confirmed = isSubmit ? () => hasNewSubmitConfirmation(beforeText) : undefined;
+    // Stop waiting early once the site shows new errors (the page is not going anywhere)
+    const refused = () =>
+        Array.from(document.querySelectorAll("[aria-invalid='true']")).some(el => !invalidBefore.has(el)) ||
+        collectValidationErrors().some(e => !errorsBefore.includes(e));
+    const moved = await waitForStepChange(beforeUrl, beforeControls, PAGE_LOAD_PATIENCE_MS, confirmed, refused);
+    return moved ? (isSubmit ? "submitted" : "advanced") : null;
+}
+
+// ---------------------------------------------------------------------------
+// Self-correction: read the site's error under a field, fix the value, try again
+// ---------------------------------------------------------------------------
+
+const MAX_REPAIR_ROUNDS = 2;
+// How long a slow site gets to load a step or react to a click (errors still end the wait early)
+const PAGE_LOAD_PATIENCE_MS = 20000;
+
+interface ValueFormat {
+    numeric?: boolean;
+    integer?: boolean;
+    digitsOnly?: boolean;
+    min?: number;
+    max?: number;
+    maxLength?: number;
+}
+
+interface FieldError {
+    el: HTMLElement;
+    label: string;
+    error: string;
+    scope: HTMLElement;
+}
+
+// Sentences that read like a validation message
+const FIELD_ERROR_RE = /\b(must\s+(?:be|contain|include|have)|(?:is|are)\s+required|this\s+field|invalid|not\s+(?:a\s+)?valid|(?:please\s+)?enter\s+a\s+valid|please\s+(?:enter|provide|use|select|choose|add)|too\s+(?:long|short)|exceeds?|at\s+(?:least|most)|no\s+(?:more|less|fewer)\s+than|only\s+(?:numbers|digits|letters)|(?:numbers|digits|letters)\s+only)\b/i;
+const FIELD_ERROR_SELECTOR = `${VALIDATION_ERROR_SELECTOR}, [id*='error' i], [class*='error' i], [class*='invalid' i], [data-testid*='error' i]`;
+
+function readFormatFromControl(el: HTMLElement): ValueFormat {
+    if (!(el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement)) return {};
+    const f: ValueFormat = {};
+    const type = (el.getAttribute("type") || "").toLowerCase();
+    const mode = (el.getAttribute("inputmode") || "").toLowerCase();
+    const pattern = el.getAttribute("pattern") || "";
+    const step = (el.getAttribute("step") || "").toLowerCase();
+
+    if (type === "number" || mode === "numeric" || mode === "decimal" || /^\^?(?:\\d|\[0-9\])[+*]\$?$/.test(pattern)) {
+        f.numeric = true;
+        f.integer = mode === "numeric" || /^\^?(?:\\d|\[0-9\])/.test(pattern) || (type === "number" && step !== "any" && !step.includes("."));
+        const min = parseFloat(el.getAttribute("min") || "");
+        const max = parseFloat(el.getAttribute("max") || "");
+        if (!isNaN(min)) f.min = min;
+        if (!isNaN(max)) f.max = max;
+    }
+    if (el.maxLength > 0) f.maxLength = el.maxLength;
+    return f;
+}
+
+function readFormatFromError(text: string): ValueFormat {
+    const f: ValueFormat = {};
+    if (/\b(numbers?|numeric|digits?|whole|integer)\b/i.test(text)) {
+        if (/\bdigits?\b|\b(?:numbers|numerals)\s+only\b|\bonly\s+numbers\b/i.test(text) && !/\bvalid\s+number\b/i.test(text)) {
+            f.digitsOnly = true;
+        } else {
+            f.numeric = true;
+            f.integer = /no\s+decimals?|whole|integer|without\s+decimals?/i.test(text);
+        }
+    }
+    const between = text.match(/between\s+(-?\d+(?:\.\d+)?)\s+and\s+(-?\d+(?:\.\d+)?)/i);
+    if (between && !/char/i.test(text)) {
+        f.numeric = true;
+        f.min = parseFloat(between[1]);
+        f.max = parseFloat(between[2]);
+    }
+    const maxChars = text.match(/(?:maximum|max\.?|at\s+most|up\s+to|no\s+more\s+than|fewer\s+than|less\s+than)\s+(?:of\s+)?(\d+)\s*char/i)
+        || text.match(/(\d+)\s*char\w*\s*(?:or\s+(?:less|fewer)|max(?:imum)?|limit)/i);
+    if (maxChars) f.maxLength = parseInt(maxChars[1], 10);
+    const maxValue = !/char/i.test(text) && text.match(/(?:less\s+than\s+or\s+equal\s+to|at\s+most|no\s+more\s+than|maximum(?:\s+of)?|cannot\s+exceed)\s+(-?\d+(?:\.\d+)?)/i);
+    if (maxValue) {
+        f.numeric = true;
+        f.max = parseFloat(maxValue[1]);
+    }
+    const minValue = !/char/i.test(text) && text.match(/(?:greater\s+than\s+or\s+equal\s+to|at\s+least|no\s+less\s+than|minimum(?:\s+of)?)\s+(-?\d+(?:\.\d+)?)/i);
+    if (minValue) {
+        f.numeric = true;
+        f.min = parseFloat(minValue[1]);
+    }
+    return f;
+}
+
+// Reshapes a value to a format; "" when it cannot (e.g. no number in "Senior level")
+function conformValue(value: string, f: ValueFormat): string {
+    let v = String(value ?? "").trim();
+    if (f.numeric) {
+        // "5 years" -> 5, "5 - 7 years" -> 5 (first number), "1,200" -> 1200
+        const match = v.replace(/(\d),(?=\d{3}\b)/g, "$1").match(/-?\d+(?:\.\d+)?/);
+        if (!match) return "";
+        let n = parseFloat(match[0]);
+        if (f.integer) n = Math.floor(n);
+        if (f.min !== undefined) n = Math.max(f.min, n);
+        if (f.max !== undefined) n = Math.min(f.max, n);
+        v = String(n);
+    } else if (f.digitsOnly) {
+        v = v.replace(/\D/g, "");
+    }
+    if (f.maxLength && v.length > f.maxLength) {
+        const cut = v.slice(0, f.maxLength);
+        const lastSpace = cut.lastIndexOf(" ");
+        v = (lastSpace > f.maxLength * 0.6 ? cut.slice(0, lastSpace) : cut).trim();
+    }
+    return v;
+}
+
+// Plain-language format for the AI prompt
+function describeFormat(f: ValueFormat): string {
+    const parts: string[] = [];
+    if (f.integer) parts.push("whole number only, digits only (e.g. 5)");
+    else if (f.numeric) parts.push("number only (e.g. 5 or 2.5)");
+    else if (f.digitsOnly) parts.push("digits only, no spaces or symbols");
+    if (f.min !== undefined && f.max !== undefined) parts.push(`between ${f.min} and ${f.max}`);
+    else if (f.min !== undefined) parts.push(`at least ${f.min}`);
+    else if (f.max !== undefined) parts.push(`at most ${f.max}`);
+    if (f.maxLength) parts.push(`at most ${f.maxLength} characters`);
+    return parts.join("; ");
+}
+
+// The site's error message for each text answer it rejected
+function findFieldErrors(): FieldError[] {
+    const result: FieldError[] = [];
+    for (const q of collectAuditQuestions(null)) {
+        if (q.kind !== "text") continue;
+        const el = q.members[0];
+        const invalid = el.getAttribute("aria-invalid") === "true";
+        let error = "";
+
+        // 1. Linked on purpose: aria-errormessage / aria-describedby
+        for (const attr of ["aria-errormessage", "aria-describedby"]) {
+            for (const id of (el.getAttribute(attr) || "").split(/\s+/).filter(Boolean)) {
+                const ref = (el.getRootNode() as Document | ShadowRoot).getElementById(id);
+                const text = ref && isRendered(ref) ? getCleanElementText(ref) : "";
+                if (text && (attr === "aria-errormessage" || invalid || FIELD_ERROR_RE.test(text))) {
+                    error = text;
+                    break;
+                }
+            }
+            if (error) break;
+        }
+
+        // 2. Shown under the field inside its question block (after it in the page, so not the question itself)
+        if (!error) {
+            const candidates = Array.from(q.scope.querySelectorAll<HTMLElement>(`${FIELD_ERROR_SELECTOR}, div, span, p, small`))
+                .filter(e => !e.contains(el) && isRendered(e) && !e.closest(".aullevo-blocker-badge, .aullevo-field-badge") &&
+                    (el.compareDocumentPosition(e) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0)
+                .map(e => ({ e, text: getCleanElementText(e) }))
+                .filter(({ text }) => text.length >= 3 && text.length <= 200 && FIELD_ERROR_RE.test(text))
+                .sort((a, b) => a.text.length - b.text.length); // innermost element first
+            if (candidates[0]) error = candidates[0].text;
+        }
+
+        if (error || invalid) {
+            result.push({ el, label: q.label, error: error || "The form marked this answer as invalid.", scope: q.scope });
+        }
+    }
+    return result;
+}
+
+// Same privacy pipeline as the fill: background.ts only sends AI SAFE values to Gemini
+function askAiToCorrect(questions: object[]): Promise<Array<{ id: string; answer?: string }>> {
+    return new Promise((resolve) => {
+        const timer = setTimeout(() => resolve([]), 30000);
+        try {
+            chrome.runtime.sendMessage({ action: "RESOLVE_AI_QUESTIONS", questions }, (res) => {
+                clearTimeout(timer);
+                resolve(!chrome.runtime.lastError && res?.success && Array.isArray(res.answers) ? res.answers : []);
+            });
+        } catch {
+            clearTimeout(timer);
+            resolve([]);
+        }
+    });
+}
+
+// Fixes rejected answers: by rule when the error says what it wants, otherwise by asking the AI. Returns how many changed.
+async function repairRejectedFields(errors: FieldError[], useAi: boolean, speedConfig: SpeedConfig): Promise<number> {
+    let fixed = 0;
+    const apply = async (e: FieldError, value: string) => {
+        await applyValueToControl(e.el, value, e.label, speedConfig);
+        highlightFilledElement(e.el, `Fixed: ${value.length > 20 ? value.substring(0, 17) + "..." : value}`);
+        filledOrigin.set(e.el, filledOrigin.get(e.el) === "sensitive" ? "sensitive" : "ai");
+        fixed++;
+    };
+
+    const forAi: { e: FieldError; current: string; format: ValueFormat }[] = [];
+    for (const e of errors) {
+        const current = readControlText(e.el);
+        const format = { ...readFormatFromControl(e.el), ...readFormatFromError(e.error) };
+        const conformed = current ? conformValue(current, format) : "";
+        if (conformed && conformed !== current) {
+            await apply(e, conformed);
+        } else {
+            forAi.push({ e, current, format });
+        }
+    }
+
+    if (forAi.length > 0 && useAi) {
+        const answers = await askAiToCorrect(forAi.map(({ e, current, format }, i) => {
+            const origin = filledOrigin.get(e.el);
+            return {
+                id: `fix_${i}`,
+                label: e.label,
+                type: e.el.tagName === "TEXTAREA" ? "textarea" : "text",
+                format: describeFormat(format) || undefined,
+                rejectedBecause: e.error,
+                // Only answers Aullevo generated or took from AI SAFE fields; never sensitive or site-filled values
+                previousAnswer: current && (origin === "ai" || origin === "profile") ? current : undefined
+            };
+        }));
+        for (const ans of answers) {
+            const target = forAi[parseInt(String(ans.id).replace("fix_", ""), 10)];
+            if (!target || !ans.answer?.trim()) continue;
+            const hasRule = target.format.numeric || target.format.digitsOnly || target.format.maxLength;
+            const value = hasRule ? conformValue(ans.answer, target.format) : ans.answer.trim();
+            if (value && value !== target.current) await apply(target.e, value);
+        }
+    }
+    return fixed;
+}
+
+// background.ts calls this in every frame (chrome.scripting.executeScript) to find the one holding the form
+function probePaginationFrame() {
+    const harvested = harvestAllControls();
+    const buttons = findPaginationButtons();
+    return {
+        controls: harvested.length + harvestActiveFileInputs().length,
+        hasNext: buttons.some(b => b.kind === "next"),
+        hasSubmit: buttons.some(b => b.kind === "submit"),
+        // Same signature before and after a Next click = the page did not really change
+        signature: hashString(location.href + "|" + harvested.map(c => c.labelTexts[0] || c.control.tagName).join("|"))
+    };
+}
+
+(globalThis as any).__aullevoProbePagination = probePaginationFrame;

@@ -7,7 +7,9 @@ AI form autofill for Chrome. Save profiles (identity, job, academic, custom fiel
 - **Profiles:** reusable sets of fields, custom fields, and uploaded documents (resume, ID scans)
 - **Autofill:** keyword matching fills standard inputs, dropdowns, radios, checkboxes, and file uploads, including Google Forms, Microsoft Forms, and Workday-style custom controls
 - **AI Smart Fill (optional, off by default):** Google Gemini maps the questions left unmatched to your profile fields. Values of fields marked SENSITIVE are never sent.
+- **AI Memories:** short notes (e.g. "Work style: remote only") that AI Smart Fill can use for open-ended questions. Stored unencrypted; enabled ones are sent to Gemini
 - **Multi-link batch fill:** queue several application URLs and fill them in background tabs
+- **Auto-pagination (Pro):** fills every page of a multi-step form, clicks Next / Continue, then presses Submit on the last page. It pauses before clicking when a field marked required (`required`, `*`, "required") is empty. Other empty fields are left to the site: if the page does not move on, the run pauses and highlights them. Answers the site pre-filled (including an already uploaded resume) count as filled. When the form rejects an answer (e.g. "must be a valid number"), Aullevo reads the error, corrects the value ("5 years" → `5`, by rule or with AI Smart Fill) and tries again, up to twice
 - **Encrypted vault:** profiles, documents, and the Gemini API key are encrypted locally with a passphrase (AES-256-GCM, PBKDF2-SHA256)
 - **Free / Pro plans:** Pro is purchased on [Aullevo Web](https://aullevo-web.vercel.app) and synced to the extension by signing in there
 
@@ -17,6 +19,7 @@ AI form autofill for Chrome. Save profiles (identity, job, academic, custom fiel
 | AI fills per week | 10 | Unlimited |
 | Document upload into forms | No | Yes |
 | Typing speed | Instant, Natural | Any, including custom |
+| Auto-pagination (multi-page forms) | No | Yes |
 
 ### Keyboard shortcuts
 

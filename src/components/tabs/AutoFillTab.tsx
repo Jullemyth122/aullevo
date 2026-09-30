@@ -8,6 +8,7 @@ interface AutofillTabProps {
     isHighlighting: boolean;
     isFilling: boolean;
     useAiFill: boolean;
+    autoPaginate: boolean;
     onToggleHighlight: () => void;
     onRescan: () => void;
     onFill: () => void;
@@ -19,6 +20,7 @@ export function AutofillTab({
     isHighlighting,
     isFilling,
     useAiFill,
+    autoPaginate,
     onToggleHighlight,
     onRescan,
     onFill
@@ -70,6 +72,11 @@ export function AutofillTab({
                                 : `Fill Form (${profileType})`}
                 </span>
             </button>
+            {autoPaginate && currentProfile.enabled && (
+                <div style={{ fontSize: 10, color: 'var(--av-text-muted)', textAlign: 'center', marginTop: -4, marginBottom: 10 }}>
+                    Auto-pagination on: fills every page, then submits
+                </div>
+            )}
 
             {/* Active Profile Snapshot Card */}
             <div className="av-card">

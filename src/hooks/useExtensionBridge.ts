@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import type { UserData, CM, ProfileFile } from '../types';
 import { getProfileCustomFields } from '../types';
-import { effectiveTypingDelay, filesAllowedForPlan } from '../services/tier';
+import { effectiveTypingDelay, filesAllowedForPlan, autoPaginateAllowed } from '../services/tier';
+import { describePaginationResult, type PaginationRunResult } from '../services/pagination';
 
 // Tab Change Type Definition (extracting the exact Chrome event parameter)
 export type TabChangeInfo = Parameters<Parameters<typeof chrome.tabs.onUpdated.addListener>[0]>[1];
@@ -11,18 +12,32 @@ export function useExtensionBridge(
     useAiFill: boolean,
     typingSpeed: number = 25,
     isPro: boolean = false,
-    isPage: boolean = false // full options page: no side-panel port, no active-tab scanning
+    isPage: boolean = false, // full options page: no side-panel port, no active-tab scanning
+    autoPaginate: boolean = false
 ) {
     const [detectedFields, setDetectedFields] = useState<string>('0');
     const [isHighlighting, setIsHighlighting] = useState<boolean>(false);
     const [isFilling, setIsFilling] = useState<boolean>(false);
     const [statusMessage, setStatusMessage] = useState<{ text: string; type: 'info' | 'success' | 'error' } | null>(null);
 
-    // Toast Notification Helper
-    const showStatus = (text: string, type: 'info' | 'success' | 'error', duration = 3000) => {
+    // Toast Notification Helper (a newer message cancels the older one's timer)
+    const statusTimer = useRef<number | undefined>(undefined);
+    const showStatus = useCallback((text: string, type: 'info' | 'success' | 'error', duration = 3000) => {
         setStatusMessage({ text, type });
-        setTimeout(() => setStatusMessage(null), duration);
-    };
+        window.clearTimeout(statusTimer.current);
+        statusTimer.current = window.setTimeout(() => setStatusMessage(null), duration);
+    }, []);
+
+    // Auto-pagination progress from background.ts for the tab being filled
+    const paginatingTabId = useRef<number | null>(null);
+    useEffect(() => {
+        const handleProgress = (message: any) => {
+            if (message?.action !== 'PAGINATION_PROGRESS' || message.tabId !== paginatingTabId.current) return;
+            showStatus(`Auto-pagination: filling page ${message.page}...`, 'info', 120000);
+        };
+        chrome.runtime?.onMessage?.addListener(handleProgress);
+        return () => chrome.runtime?.onMessage?.removeListener(handleProgress);
+    }, [showStatus]);
 
     // Helper to query active tab (supports Side Panel window context)
     const getActiveTab = async (): Promise<chrome.tabs.Tab | undefined> => {
@@ -169,6 +184,30 @@ export function useExtensionBridge(
             const skippedFilesNote = enabledFiles.length > filesToInject.length
                 ? ` ${enabledFiles.length} document(s) not attached: upload into forms is a Pro feature.`
                 : '';
+
+            // Pro: background.ts fills page after page (Next / Continue), then presses Submit
+            if (autoPaginateAllowed(autoPaginate, isPro)) {
+                paginatingTabId.current = tab.id;
+                chrome.runtime.sendMessage({
+                    action: 'START_AUTO_PAGINATE',
+                    tabId: tab.id,
+                    fields: fieldsToInject,
+                    files: filesToInject,
+                    useAi: useAiFill,
+                    typingSpeed: effectiveTypingDelay(typingSpeed, isPro)
+                }, (res?: PaginationRunResult) => {
+                    paginatingTabId.current = null;
+                    setIsFilling(false);
+                    if (chrome.runtime.lastError || !res) {
+                        showStatus('Auto-pagination stopped: lost connection to the extension.', 'error', 5000);
+                        return;
+                    }
+                    const { text, type } = describePaginationResult(res);
+                    const notes = `${res.aiNotice ? ` ${res.aiNotice}` : ''}${skippedFilesNote}`;
+                    showStatus(text + notes, notes && type === 'success' ? 'info' : type, 9000);
+                });
+                return;
+            }
             chrome.tabs.sendMessage(tab.id, {
                 action: 'INJECT_FORM_FIELDS',
                 fields: fieldsToInject,
