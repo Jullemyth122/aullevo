@@ -1,0 +1,687 @@
+{
+  "autofill": {
+    "detection": {
+      "title": "Deteksi Formulir",
+      "sub": "Kolom di tab aktif",
+      "highlightTitle": "Periksa dan sorot kolom di halaman",
+      "clear": "Bersihkan",
+      "highlight": "Sorot",
+      "rescanTitle": "Pindai ulang halaman",
+      "rescan": "Pindai Ulang"
+    },
+    "fill": {
+      "injecting": "Mengisi...",
+      "disabled": "{type} Dinonaktifkan",
+      "withAi": "Isi Formulir dengan AI ({type})",
+      "standard": "Isi Formulir ({type})",
+      "autoPaginate": "Paginasi Otomatis aktif: mengisi setiap halaman, lalu mengirim"
+    },
+    "activeProfile": {
+      "title": "Profil Aktif",
+      "summary": "{fields} • {docs} siap",
+      "fieldCount": {
+        "other": "{count} kolom"
+      },
+      "docCount": {
+        "other": "{count} dokumen"
+      },
+      "ready": "SIAP",
+      "disabled": "DINONAKTIFKAN"
+    },
+    "shortcuts": {
+      "title": "Pintasan Keyboard",
+      "toggleSidePanel": "Buka/Tutup Panel Samping",
+      "formFill": "Isi Formulir AI / Kata Kunci",
+      "batchFill": "Isi Massal Multi-tautan"
+    }
+  },
+  "content": {
+    "openSidebar": "Buka panel samping Aullevo",
+    "filled": "TERISI",
+    "file": "File: {name}",
+    "files": {
+      "other": "{count} file terlampir"
+    },
+    "matched": "Cocok: {name}",
+    "ranked": "Peringkat: {value}",
+    "ai": "[AI] {text}",
+    "aiGenerated": "[AI] Dibuat",
+    "fixed": "Diperbaiki: {value}"
+  },
+  "header": {
+    "versionLine": "v{version} • Isi Otomatis",
+    "lightTheme": "Tema terang",
+    "darkTheme": "Tema gelap",
+    "jsonConfig": "Konfigurasi JSON",
+    "openFullPage": "Buka halaman penuh",
+    "closeSidePanel": "Tutup panel samping",
+    "footer": {
+      "engine": "Mesin Isi Otomatis Aullevo",
+      "ready": "Siap"
+    }
+  },
+  "json": {
+    "title": "Konfigurasi JSON",
+    "badge": {
+      "fields": {
+        "other": "✓ {count} kolom"
+      },
+      "invalid": "JSON tidak valid"
+    },
+    "actions": {
+      "format": "Format / Rapikan JSON",
+      "fullscreen": "Layar Penuh",
+      "exitFullscreen": "Keluar dari Layar Penuh",
+      "close": "Tutup",
+      "download": "Unduh",
+      "copy": "Salin JSON",
+      "copied": "Tersalin",
+      "upload": "Unggah File",
+      "import": "Impor"
+    },
+    "quota": {
+      "downloadPro": "Unduh (ekspor) adalah fitur Pro."
+    },
+    "errors": {
+      "noFields": "Tidak ada kolom valid dalam JSON yang diberikan.",
+      "invalidFormat": "Format JSON tidak valid: {error}"
+    }
+  },
+  "language": {
+    "title": "Bahasa",
+    "button": "Bahasa: {name}",
+    "search": "Cari bahasa",
+    "auto": "Otomatis: {name}",
+    "autoHint": "Mengikuti bahasa browser Anda",
+    "backToEnglish": "Kembali ke bahasa Inggris",
+    "changed": "Bahasa diubah ke {name}.",
+    "switchBack": "Kembali ke {name}",
+    "keep": "Pertahankan",
+    "noResults": "Bahasa tidak ditemukan",
+    "settingsHint": "Mengubah semua layar Aullevo, termasuk tur panduan."
+  },
+  "manifest": {
+    "appName": "Aullevo - Isi Otomatis Formulir dengan AI & Pengisi Lamaran Kerja",
+    "appDescription": "Pengisi formulir AI untuk lamaran kerja, survei, dan formulir web apa pun. Profil tersimpan, unggah CV, dan isi otomatis cerdas.",
+    "actionTitle": "Buka Panel Samping Aullevo",
+    "commandTogglePanel": "Buka/Tutup Panel Samping Aullevo",
+    "commandFill": "Jalankan Isi Otomatis Formulir dengan AI atau Kata Kunci di Halaman",
+    "commandBatchFill": "Jalankan Isi Otomatis Formulir Massal Multi-tautan"
+  },
+  "multilink": {
+    "batch": {
+      "title": "Antrean Isi Otomatis Massal",
+      "activeCount": "{enabled} dari {total} aktif",
+      "description": "Otomatiskan pembukaan dan pengisian formulir di banyak tab menggunakan profil <b>{type}</b> aktif Anda.",
+      "running": "Isi Otomatis Massal Sedang Berjalan...",
+      "start": {
+        "other": "Isi {count} Formulir secara Massal"
+      }
+    },
+    "add": {
+      "title": "Tambah Tautan Formulir / Lowongan"
+    },
+    "saved": {
+      "title": "Tautan Tersimpan ({count})",
+      "clearAll": "Hapus Semua",
+      "empty": "Belum ada tautan. Tempel URL formulir di atas untuk memulai.",
+      "open": "Buka tautan",
+      "remove": "Hapus tautan"
+    }
+  },
+  "nav": {
+    "autofill": "Isi Otomatis",
+    "profiles": "Profil ({count})",
+    "multiLink": "Multi-tautan",
+    "settings": "Pengaturan"
+  },
+  "profiles": {
+    "types": {
+      "job": "Kerja",
+      "medical": "Medis",
+      "government": "Pemerintah",
+      "survey": "Survei",
+      "academic": "Akademik",
+      "financial": "Keuangan",
+      "custom": "Kustom"
+    },
+    "badges": {
+      "on": "AKTIF",
+      "off": "NONAKTIF",
+      "disabled": "DINONAKTIFKAN",
+      "sensitive": "SENSITIF",
+      "aiSafe": "AMAN AI"
+    },
+    "save": {
+      "button": "Simpan Profil {type}",
+      "saved": "Tersimpan ✓"
+    },
+    "dropdown": {
+      "newProfilePlaceholder": "Nama profil baru...",
+      "add": "Tambah"
+    },
+    "config": {
+      "title": "Konfigurasi Profil",
+      "on": "PROFIL AKTIF",
+      "off": "PROFIL NONAKTIF",
+      "activeTooltip": "Profil {type} aktif",
+      "disabledTooltip": "Profil {type} dinonaktifkan",
+      "namePlaceholder": "Nama Profil"
+    },
+    "identity": {
+      "title": "Identitas & Kontak",
+      "firstName": "Nama Depan",
+      "lastName": "Nama Belakang",
+      "email": "Alamat Email",
+      "phone": "Nomor Telepon",
+      "address": "Alamat Tempat Tinggal"
+    },
+    "attributes": {
+      "title": "Atribut {type}",
+      "customHint": "Tambahkan kolom Anda sendiri di bawah atau impor melalui JSON.",
+      "job": {
+        "headline": "Judul / Jabatan",
+        "linkedin": "LinkedIn",
+        "github": "GitHub",
+        "portfolio": "Portofolio",
+        "skills": "Keahlian",
+        "education": "Pendidikan / Gelar",
+        "certifications": "Sertifikasi"
+      },
+      "medical": {
+        "bloodType": "Golongan Darah",
+        "allergies": "Alergi",
+        "emergencyContact": "Kontak Darurat",
+        "insuranceProvider": "Penyedia Asuransi"
+      },
+      "government": {
+        "nationalId": "No. Identitas Nasional / SSN",
+        "citizenship": "Kewarganegaraan",
+        "passport": "No. Paspor",
+        "driversLicense": "SIM"
+      },
+      "survey": {
+        "ageRange": "Rentang Usia",
+        "income": "Pendapatan",
+        "education": "Pendidikan",
+        "employment": "Pekerjaan"
+      },
+      "academic": {
+        "institution": "Institusi",
+        "major": "Jurusan / Bidang Studi",
+        "gpa": "IPK",
+        "gradYear": "Tahun Lulus",
+        "testScores": "Nilai Tes"
+      },
+      "financial": {
+        "billingAddress": "Alamat Penagihan",
+        "payment": "Pembayaran",
+        "cardholder": "Pemegang Kartu"
+      }
+    },
+    "field": {
+      "sensitiveTooltip": "Sensitif: Nilai disembunyikan dari AI (Zero-Knowledge)",
+      "aiSafeTooltip": "Aman AI: Nilai dibagikan ke AI untuk pemilihan jawaban yang cerdas"
+    },
+    "context": {
+      "buttonTitle": "Konteks AI untuk {label}",
+      "title": "Konteks AI: {label}",
+      "placeholder": "Petunjuk konteks untuk AI (mis. 'Nama depan resmi di paspor')",
+      "hint": "AI menggunakan petunjuk ini untuk mengenali kolom formulir situs yang ambigu."
+    },
+    "custom": {
+      "title": "Kolom Kustom",
+      "labelPlaceholder": "Label Kolom",
+      "valuePlaceholder": "Nilai Kolom",
+      "sensitiveTooltip": "Sensitif: Nilai disembunyikan dari AI",
+      "aiSafeTooltip": "Aman AI: Nilai dibagikan ke AI",
+      "enabledTooltip": "Kolom aktif",
+      "disabledTooltip": "Kolom nonaktif",
+      "delete": "Hapus kolom",
+      "pagination": {
+        "other": "Halaman {page} dari {total} ({count} item)"
+      },
+      "newLabelPlaceholder": "Label",
+      "newValuePlaceholder": "Nilai",
+      "add": "Tambah kolom kustom"
+    },
+    "documents": {
+      "title": "Dokumen Terlampir",
+      "labelPlaceholder": "Label Dokumen",
+      "labelTooltip": "Klik untuk mengedit label dokumen",
+      "remove": "Hapus file",
+      "pagination": "Halaman {page} dari {total}",
+      "categories": {
+        "resume": "CV / Resume",
+        "coverLetter": "Surat Lamaran",
+        "identity": "Identitas / KTP",
+        "academic": "Catatan Akademik",
+        "portfolio": "Portofolio",
+        "other": "Dokumen Lain"
+      },
+      "upload": {
+        "resume": "Unggah CV",
+        "coverLetter": "Unggah Surat Lamaran",
+        "identity": "Unggah Identitas",
+        "academic": "Unggah Catatan Akademik",
+        "portfolio": "Unggah Portofolio",
+        "other": "Unggah Dokumen"
+      },
+      "size": {
+        "bytes": "{size} B",
+        "kilobytes": "{size} KB",
+        "megabytes": "{size} MB"
+      }
+    }
+  },
+  "settings": {
+    "account": {
+      "title": "Akun",
+      "proUntil": "Pro hingga {date}",
+      "proLifetime": "Pro · Seumur Hidup",
+      "disconnect": "Putuskan akun",
+      "waiting": "Menunggu proses masuk…",
+      "connect": "Hubungkan dengan Aullevo Web",
+      "renew": "Pro kedaluwarsa · Perpanjang",
+      "upgrade": "Tingkatkan ke Pro"
+    },
+    "theme": {
+      "title": "Tampilan Tema",
+      "dark": "Tema Gelap",
+      "description": "Beralih antara tema Slate Gelap dan Terang"
+    },
+    "mode": {
+      "title": "Mode Mesin Isi Otomatis",
+      "aiActive": "Isi Cerdas AI (Aktif)",
+      "standard": "Isi Standar (Tanpa AI)",
+      "aiDescription": "Menggunakan penalaran AI untuk memahami pertanyaan & mencocokkan kolom yang rumit",
+      "standardDescription": "Pencocokan langsung atribut profil tanpa panggilan AI",
+      "toggle": "Alihkan Mode Isi AI"
+    },
+    "ai": {
+      "title": "Mesin AI",
+      "unlimited": "Akses Tanpa Batas",
+      "keyRequired": "Kunci API Diperlukan",
+      "freeUsage": "Free: {used}/{limit} minggu ini",
+      "privacy": "<b>Privasi:</b> Kolom bertanda SENSITIF tidak pernah dikirim ke AI, hanya labelnya. Nilai kolom AMAN AI dan pertanyaan formulir dikirim ke {provider}.",
+      "provider": "Penyedia AI",
+      "customProvider": "Kustom (kompatibel dengan OpenAI)",
+      "baseUrl": "URL server",
+      "customHint": "Berfungsi dengan server apa pun yang mendukung API chat OpenAI, seperti OpenRouter, Groq, Mistral, Ollama, atau LM Studio. Server lokal tidak memerlukan kunci.",
+      "model": "Model AI",
+      "modelOption": "{name} ({description})",
+      "models": {
+        "fastest": "Tercepat & Sangat Hemat",
+        "balanced": "Penalaran Seimbang",
+        "capable": "Cepat & Andal",
+        "smartest": "Kecerdasan Tertinggi",
+        "legacy": "Cepat (Versi Lama)"
+      },
+      "otherModel": "Model lain (ketik ID-nya)",
+      "modelIdPlaceholder": "ID model yang tepat, mis. {example}",
+      "apiKey": "Kunci API {provider}",
+      "getKey": "Dapatkan kunci API",
+      "keyPlaceholder": "Tempel kunci API {provider} Anda",
+      "hideKey": "Sembunyikan kunci",
+      "showKey": "Tampilkan kunci",
+      "addKeyHint": "Tambahkan kunci API {provider} Anda untuk menggunakan Isi Cerdas AI.",
+      "proHint": "Pro: isi AI tanpa batas. Kunci Anda tetap di browser ini.",
+      "freeHint": "Paket Free: {limit} isi AI per minggu. Tingkatkan ke Pro untuk tanpa batas."
+    },
+    "paginate": {
+      "title": "Paginasi Otomatis",
+      "toggleTitle": "Isi Formulir Multi-Halaman",
+      "description": "Mengisi setiap halaman, mengklik Berikutnya / Lanjutkan, dan menekan Kirim di akhir. Memperbaiki jawaban yang ditolak formulir; dijeda jika tidak bisa.",
+      "toggle": "Alihkan Paginasi Otomatis",
+      "proFeature": "Fitur Pro",
+      "upgrade": "Tingkatkan ke Pro untuk menggunakan Paginasi Otomatis"
+    },
+    "floating": {
+      "title": "Ikon Mengambang di Halaman Web",
+      "toggleTitle": "Tampilkan Tombol Mengambang",
+      "description": "Tampilkan tab akses cepat Aullevo yang menempel di tepi halaman web",
+      "toggle": "Alihkan Tombol Mengambang di Halaman Web"
+    },
+    "typing": {
+      "title": "Kecepatan Mengetik Manusia",
+      "instant": "Instan ({ms}ms)",
+      "natural": "Alami ({ms}ms)",
+      "slow": "Lambat ({ms}ms)",
+      "custom": "Kustom ({ms}ms)",
+      "naturalFree": "Alami ({ms}ms) · Paket Free",
+      "description": "Mengetik satu karakter demi satu karakter dengan kecepatan manusia, untuk situs yang mengharapkan ketukan tombol sungguhan.",
+      "proFeature": "Fitur Pro",
+      "customDelay": "Jeda Kustom:",
+      "customProFeature": "Jeda kustom adalah fitur Pro",
+      "unitMs": "ms"
+    },
+    "tour": {
+      "title": "Tur Panduan",
+      "toggleTitle": "Tampilkan panduan lagi",
+      "description": "Menelusuri setiap tab lagi, langkah demi langkah",
+      "replay": "Putar Ulang"
+    },
+    "security": {
+      "title": "Terenkripsi Secara Lokal"
+    },
+    "memories": {
+      "title": "Memori AI",
+      "count": "({enabled}/{total} aktif)",
+      "descriptionAiOn": "Fakta tentang Anda yang dapat digunakan AI untuk menjawab pertanyaan terbuka (mis. \"Gaya kerja: hanya remote\"). Memori yang aktif dikirim ke {provider} dan disimpan tanpa enkripsi di browser ini, jadi jangan tambahkan kata sandi atau nomor identitas.",
+      "descriptionAiOff": "Fakta tentang Anda yang dapat digunakan AI untuk menjawab pertanyaan terbuka (mis. \"Gaya kerja: hanya remote\"). Hanya digunakan saat Isi Cerdas AI aktif. Memori yang aktif dikirim ke {provider} dan disimpan tanpa enkripsi di browser ini, jadi jangan tambahkan kata sandi atau nomor identitas.",
+      "titlePlaceholder": "Judul",
+      "contentPlaceholder": "Apa yang perlu diketahui AI",
+      "enabledTitle": "Memori dikirim ke AI",
+      "disabledTitle": "Memori tidak digunakan",
+      "on": "AKTIF",
+      "off": "NONAKTIF",
+      "delete": "Hapus memori",
+      "newTitlePlaceholder": "Judul (mis. Gaya kerja)",
+      "newContentPlaceholder": "Isi (mis. Lebih suka posisi sepenuhnya remote, terbuka untuk kontrak)",
+      "add": "Tambah memori"
+    },
+    "deviceData": {
+      "title": "Data di Perangkat Ini",
+      "total": "Total {size}",
+      "description": "Setiap akun memiliki brankas terenkripsi sendiri di sini. Akun tidak pernah melihat profil, dokumen, kunci API, memori, atau tautan milik akun lain.",
+      "empty": "Belum ada data tersimpan.",
+      "localOwner": "Belum masuk (profil lokal)",
+      "anotherAccount": "Akun lain",
+      "inUse": "{size} · sedang digunakan",
+      "deleteTitle": "Hapus data akun ini dari perangkat ini",
+      "delete": "Hapus",
+      "confirmDelete": "Hapus data Aullevo untuk \"{name}\" dari perangkat ini?\n\nTindakan ini menghapus secara permanen profil terenkripsi, dokumen, kunci API, memori AI, dan antrean tautannya. Tindakan ini tidak dapat dibatalkan.",
+      "bytes": "{size} B",
+      "kilobytes": "{size} KB",
+      "megabytes": "{size} MB"
+    }
+  },
+  "status": {
+    "plan": {
+      "profileLimit": "Paket Free mengizinkan {max} profil aktif. Ubah profil tambahan ke NONAKTIF atau tingkatkan ke Pro.",
+      "activeLimit": "Paket Free mengizinkan {max} profil aktif. Ubah salah satunya ke NONAKTIF atau tingkatkan ke Pro.",
+      "createdOff": "Profil dibuat dalam keadaan NONAKTIF. Paket Free mengizinkan {max} profil aktif. Ubah salah satunya ke NONAKTIF atau tingkatkan ke Pro.",
+      "autoPaginatePro": "Paginasi Otomatis adalah fitur Pro. Tingkatkan ke Pro untuk mengisi formulir multi-halaman.",
+      "jsonImportLimit": "Anda sudah menggunakan semua {limit} impor JSON gratis untuk 2 minggu ini. Kuota direset pada {date}, atau tingkatkan ke Pro untuk impor tanpa batas.",
+      "documentsSkipped": {
+        "other": "{count} dokumen tidak dilampirkan: unggah ke formulir adalah fitur Pro."
+      }
+    },
+    "batch": {
+      "starting": {
+        "other": "Memulai isi massal untuk {count} formulir..."
+      },
+      "progress": "Mengisi {current} dari {total}: {host}",
+      "progressNoHost": "Mengisi {current} dari {total}...",
+      "complete": {
+        "other": "Isi massal selesai untuk {count} formulir!"
+      }
+    },
+    "save": {
+      "success": "Profil {type} berhasil disimpan!",
+      "failed": "Gagal menyimpan: {error}",
+      "noProfile": "Tidak ada profil yang dipilih",
+      "unknownError": "Gagal menyimpan"
+    },
+    "profile": {
+      "nameExists": "Profil dengan nama ini sudah ada!",
+      "disabled": "{type} dinonaktifkan. Ubah ke AKTIF untuk mengisi otomatis.",
+      "defaultType": "PROFIL",
+      "imported": {
+        "other": "Berhasil mengimpor {count} kolom ke {type}!"
+      }
+    },
+    "highlight": {
+      "noActiveTab": "Tidak ada tab aktif.",
+      "refreshToConnect": "Muat ulang halaman untuk menghubungkan sorotan.",
+      "on": {
+        "other": "{count} kolom disorot di halaman!"
+      },
+      "cleared": "Sorotan dihapus."
+    },
+    "fill": {
+      "injectingAi": "Mengisi kolom dengan AI ({type})...",
+      "injecting": "Mengisi kolom ({type})...",
+      "noTab": "Tidak dapat menjangkau tab aktif.",
+      "refreshToConnect": "Muat ulang tab untuk menghubungkan isi otomatis.",
+      "cannotConnect": "Tidak dapat terhubung ke halaman. Muat ulang tab.",
+      "aiPartlySkipped": {
+        "other": "{count} input terisi (AI sebagian dilewati)."
+      },
+      "keywordMode": {
+        "other": "{count} input terisi (mode kata kunci)."
+      },
+      "withAi": {
+        "other": "Formulir diisi dengan AI ({count} input cocok)."
+      },
+      "withoutAi": {
+        "other": "Formulir diisi tanpa AI ({count} input cocok)."
+      },
+      "error": "Kesalahan pengisian: {error}",
+      "injected": {
+        "other": "{count} kolom dimasukkan ke halaman."
+      }
+    },
+    "pagination": {
+      "progress": "Paginasi Otomatis: mengisi halaman {page}...",
+      "lostConnection": "Paginasi Otomatis berhenti: koneksi ke ekstensi terputus.",
+      "filled": {
+        "other": "{filled} input terisi di {count} halaman."
+      },
+      "corrected": {
+        "other": "{count} jawaban yang ditolak formulir telah diperbaiki."
+      },
+      "field": "\"{name}\"",
+      "fieldAndMore": {
+        "other": "\"{name}\" (+{count} lainnya)"
+      },
+      "aField": "sebuah kolom",
+      "nextButton": "Berikutnya",
+      "submitted": "Terkirim!",
+      "noNext": "Tombol Berikutnya / Lanjutkan tidak ditemukan.",
+      "stillEmpty": "{field} masih kosong.",
+      "check": "Periksa {field}.",
+      "blocked": "Dijeda di halaman {page}: {field} wajib diisi tetapi kosong. Isi, lalu jalankan lagi.",
+      "nextDisabled": "Dijeda di halaman {page}: tombol \"{button}\" dinonaktifkan. Periksa halaman, lalu jalankan lagi.",
+      "validationError": "Dijeda di halaman {page}: formulir melaporkan \"{error}\".",
+      "validationErrorUnknown": "Dijeda di halaman {page}: formulir melaporkan kesalahan.",
+      "correctionTried": "(koreksi otomatis sudah dicoba)",
+      "stuck": "Dijeda di halaman {page}: \"{button}\" sudah diklik, tetapi formulir tidak berlanjut.",
+      "maxPages": "Berhenti di batas aman {max} halaman.",
+      "noForm": "Tidak ada formulir di halaman ini (atau Aullevo tidak dapat berjalan di sini).",
+      "stopped": "Paginasi Otomatis berhenti: {error}",
+      "unknownError": "kesalahan tidak diketahui"
+    }
+  },
+  "tour": {
+    "card": {
+      "progress": "{section} · {current} dari {total}",
+      "skip": "Lewati tur",
+      "dontShowAgain": "Jangan tampilkan lagi",
+      "back": "Kembali",
+      "next": "Berikutnya",
+      "done": "Selesai"
+    },
+    "shortcuts": {
+      "allActive": "Ketiga pintasan aktif di browser ini.",
+      "notSet": "Belum diatur di browser ini: {list}. Atur sendiri di pengaturan pintasan Chrome.",
+      "openSettings": "Buka pengaturan pintasan Chrome",
+      "toggleSidePanel": "Buka/Tutup Panel Samping",
+      "fallbackName": "Pintasan"
+    },
+    "sections": {
+      "autofill": "Isi Otomatis",
+      "header": "Tombol atas",
+      "profiles": "Profil",
+      "multilink": "Multi-tautan",
+      "settings": "Pengaturan"
+    },
+    "autofill": {
+      "detection": {
+        "title": "Deteksi formulir",
+        "body": "Aullevo menghitung kolom yang dapat diisi di halaman pada tab Anda saat ini. Buka formulir, dan angka ini akan diperbarui."
+      },
+      "highlight": {
+        "title": "Sorot kolom",
+        "body": "Memberi garis tepi pada setiap kolom yang ditemukan Aullevo di halaman, sehingga Anda dapat melihat apa yang akan diisi sebelum mengisinya. Klik lagi untuk menghapus garis tepi."
+      },
+      "rescan": {
+        "title": "Pindai Ulang",
+        "body": "Beberapa formulir menambahkan kolom setelah halaman dimuat, seperti formulir multi-langkah atau pop-up. Pindai Ulang menghitung kolom lagi."
+      },
+      "fill": {
+        "title": "Isi formulir",
+        "body": "Mengisi halaman dengan profil aktif Anda. Jika isi AI aktif (di Pengaturan), pertanyaan dicocokkan dengan jawaban Anda meskipun kata-katanya berbeda. Jika nonaktif, kolom dicocokkan berdasarkan kata kunci."
+      },
+      "activeProfile": {
+        "title": "Profil aktif",
+        "body": "Profil yang digunakan untuk mengisi, beserta jumlah kolom dan dokumen yang aktif. Ganti profil atau edit jawaban Anda di tab <b>Profil</b>."
+      },
+      "shortcuts": {
+        "title": "Pintasan keyboard",
+        "body": "Chrome mengatur tombol ini saat Aullevo dipasang, tetapi melewati tombol yang sudah digunakan Chrome atau ekstensi lain. Anda dapat mengubahnya kapan saja."
+      }
+    },
+    "header": {
+      "voice": {
+        "title": "Mode suara",
+        "body": "Bicaralah dengan Aullevo alih-alih mengklik. Tombol ini mengalihkan panel ke asisten suara: ucapkan \"fill this page\", \"fill the email\", atau \"fill the first question\", dan asisten akan menjawab dengan suara. Klik lagi untuk kembali ke tampilan ini.",
+        "note": "Fitur Pro. Memerlukan kunci API ElevenLabs milik Anda sendiri, yang ditambahkan di Voice settings. Perintah suara berfungsi dalam bahasa Inggris dan Tagalog."
+      },
+      "language": {
+        "title": "Bahasa",
+        "body": "Pilih bahasa untuk seluruh Aullevo. Bahasa Inggris selalu ada di bagian atas daftar, jadi Anda dapat beralih kembali kapan saja."
+      },
+      "theme": {
+        "title": "Tema terang atau gelap",
+        "body": "Mengalihkan panel antara mode terang dan gelap."
+      },
+      "json": {
+        "title": "Penyiapan cepat JSON",
+        "intro": "Profil Anda dalam format JSON. Cara tercepat untuk menyiapkan profil:",
+        "step1": "Salin JSON dari sini.",
+        "step2": "Berikan ke Gemini, Claude, atau ChatGPT bersama CV Anda atau dokumen lainnya.",
+        "step3": "Minta AI mengisi nilainya dan mempertahankan struktur yang sama.",
+        "step4": "Tempel hasilnya kembali di sini dan klik <b>Impor</b>."
+      },
+      "fullPage": {
+        "title": "Buka halaman penuh",
+        "body": "Membuka Aullevo di tab browser dengan ruang lebih luas untuk mengedit profil. Pengisian tetap dilakukan dari panel samping ini."
+      },
+      "close": {
+        "title": "Tutup panel",
+        "body": "Menutup panel samping. Buka lagi dengan <b>Alt+Q</b> (<b>Option+Q</b> di Mac) atau dengan mengklik ikon Aullevo di toolbar."
+      }
+    },
+    "profiles": {
+      "switcher": {
+        "title": "Ganti profil",
+        "body1": "Setiap profil (Kerja, Akademik, Keuangan, atau buatan Anda sendiri) menyimpan kumpulan jawabannya sendiri. Pilih profil yang ingin Anda edit dan gunakan untuk mengisi.",
+        "body2": "Buka daftar untuk melihat profil mana yang AKTIF atau NONAKTIF, dan untuk membuat profil baru di bagian bawah.",
+        "note": "Paket Free: maksimal 2 profil dapat AKTIF bersamaan."
+      },
+      "config": {
+        "title": "Nama dan sakelar aktif/nonaktif",
+        "body": "Ganti nama profil di sini. <b>PROFIL AKTIF</b> mengaktifkan atau menonaktifkan seluruh profil. Saat nonaktif, profil tidak digunakan untuk mengisi."
+      },
+      "identity": {
+        "title": "Identitas & kontak",
+        "body": "Nama, email, telepon, dan alamat Anda. Klik judul bagian mana pun untuk menciutkan atau meluaskannya. Setiap kolom memiliki tiga kontrol kecil, yang dijelaskan berikutnya."
+      },
+      "fieldContext": {
+        "title": "Petunjuk konteks AI",
+        "body": "Tombol ✨ menambahkan petunjuk yang memberi tahu AI arti kolom ini, seperti \"Nama depan resmi di paspor\". Ini membantu jika pertanyaan formulir kurang jelas. Titik menandakan petunjuk sudah diatur."
+      },
+      "fieldPrivacy": {
+        "title": "Aman AI atau Sensitif",
+        "safe": "<b>Aman AI</b>: nilai dibagikan ke AI agar dapat memilih jawaban yang tepat di dropdown dan pertanyaan pilihan ganda.",
+        "sensitive": "<b>Sensitif</b>: AI hanya melihat nama dan petunjuk kolom, tidak pernah nilainya. Aullevo tetap mengetikkan nilainya di perangkat Anda.",
+        "toggle": "Klik untuk beralih."
+      },
+      "fieldToggle": {
+        "title": "Aktifkan atau nonaktifkan kolom",
+        "body": "Ubah kolom ke NONAKTIF untuk melewatinya saat mengisi, tanpa menghapus yang sudah Anda ketik."
+      },
+      "documents": {
+        "title": "Lampirkan dokumen",
+        "body": "Pilih jenis dokumen, lalu unggah CV, surat lamaran, kartu identitas, dan lainnya. Saat formulir memiliki pertanyaan unggah file, Aullevo melampirkan dokumen Anda yang AKTIF.",
+        "note": "Melampirkan dokumen ke formulir adalah fitur Pro."
+      },
+      "attributes": {
+        "title": "Kolom khusus profil",
+        "body": "Kolom yang sesuai dengan jenis profil ini. Profil Kerja memiliki judul, LinkedIn, keahlian, dan pendidikan. Akademik, Medis, dan lainnya memiliki kolomnya sendiri."
+      },
+      "customFields": {
+        "title": "Tambahkan kolom Anda sendiri",
+        "body": "Untuk apa pun yang tidak dicakup kolom standar, seperti \"Gaji yang diharapkan\" atau \"Mengapa Anda menginginkan pekerjaan ini?\". Ketik label dan nilai, lalu klik <b>+</b>. Menggunakan kata-kata pertanyaan sebagai label sangat efektif."
+      },
+      "save": {
+        "title": "Menyimpan",
+        "body": "Perubahan tersimpan otomatis saat Anda mengetik. Tombol ini langsung menyimpan, berguna tepat sebelum Anda menutup panel."
+      }
+    },
+    "multilink": {
+      "addLink": {
+        "title": "Tambahkan tautan formulir",
+        "body": "Tempel tautan lengkap ke formulir atau lamaran kerja (diawali https://) lalu klik <b>+</b>. Tambahkan sebanyak yang Anda mau."
+      },
+      "savedLinks": {
+        "title": "Antrean tautan Anda",
+        "body": "Setiap tautan yang Anda tambahkan muncul di sini. Centang tautan untuk menyertakannya di batch berikutnya, atau hapus centangnya untuk melewatinya. Ikon panah membuka tautan dan ikon tempat sampah menghapusnya."
+      },
+      "batchRun": {
+        "title": "Isi semuanya sekaligus",
+        "body1": "Membuka setiap tautan yang dicentang di tab latar belakang, satu per satu, dan mengisinya dengan profil aktif Anda. Progres ditampilkan di bagian atas panel.",
+        "note": "Pintasan: Alt+Shift+B (Option+Shift+B di Mac)."
+      }
+    },
+    "settings": {
+      "account": {
+        "title": "Akun Anda",
+        "body": "Hubungkan akun Aullevo Web Anda agar paket Anda (Free atau Pro) berlaku di sini. Profil Anda tetap terenkripsi di perangkat ini dan tidak diunggah."
+      },
+      "aiMode": {
+        "title": "Isi Cerdas AI atau Isi Standar",
+        "standard": "<b>Isi Standar</b> mencocokkan kolom berdasarkan nama, tanpa AI.",
+        "smart": "<b>Isi Cerdas AI</b> memahami pertanyaan yang kata-katanya berbeda dan memilih jawaban di dropdown dan pertanyaan pilihan ganda."
+      },
+      "aiEngine": {
+        "title": "Penyedia AI, model, dan kunci API"
+      },
+      "memories": {
+        "title": "Memori AI",
+        "body": "Fakta singkat yang dapat digunakan AI untuk pertanyaan terbuka, seperti \"Gaya kerja: hanya remote\". Memori dikirim ke penyedia AI pilihan Anda dan tidak dienkripsi, jadi jangan pernah menambahkan kata sandi atau nomor identitas."
+      },
+      "autoPaginate": {},
+      "floatingIcon": {
+        "title": "Tombol mengambang",
+        "body": "Tab kecil Aullevo di tepi halaman web untuk akses cepat. Nonaktifkan jika mengganggu."
+      },
+      "typingSpeed": {
+        "title": "Kecepatan mengetik",
+        "body": "Seberapa cepat Aullevo mengetik ke kolom. <b>Alami</b> lebih mirip orang yang mengetik, dan <b>Instan</b> paling cepat. Kecepatan lambat dan kustom adalah fitur Pro."
+      },
+      "replayTour": {
+        "title": "Putar ulang panduan ini",
+        "body": "Lupa sesuatu? Klik <b>Putar Ulang</b> untuk menjalani seluruh panduan ini lagi."
+      },
+      "deviceData": {
+        "title": "Data di perangkat ini",
+        "body": "Setiap akun memiliki brankas terenkripsi sendiri di browser ini. Hapus data akun yang tidak lagi Anda gunakan."
+      }
+    }
+  },
+  "vault": {
+    "loading": "Memuat…",
+    "account": {
+      "signedInAs": "Masuk sebagai <b>{account}</b>",
+      "notSignedIn": "Belum masuk: profil lokal di perangkat ini",
+      "fallbackName": "akun Anda"
+    },
+    "errors": {
+      "createFailed": "Tidak dapat membuat brankas. Silakan coba lagi.",
+      "wrongPassphrase": "Frasa sandi salah.",
+      "wrongClaimPassphrase": "Frasa sandi untuk profil tersebut salah."
+    }
+  }
+}

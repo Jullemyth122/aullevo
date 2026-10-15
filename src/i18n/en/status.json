@@ -1,0 +1,112 @@
+{
+    "plan": {
+        "profileLimit": "Free plan allows {max} active profiles. Turn extra profiles OFF or upgrade to Pro.",
+        "activeLimit": "Free plan allows {max} active profiles. Turn one OFF or upgrade to Pro.",
+        "createdOff": "Profile created as OFF. Free plan allows {max} active profiles. Turn one OFF or upgrade to Pro.",
+        "autoPaginatePro": "Auto-pagination is a Pro feature. Upgrade to Pro to fill multi-page forms.",
+        "jsonImportLimit": "You've used all {limit} free JSON imports for these 2 weeks. They reset on {date}, or upgrade to Pro for unlimited imports.",
+        "documentsSkipped": {
+            "one": "{count} document not attached: upload into forms is a Pro feature.",
+            "other": "{count} documents not attached: upload into forms is a Pro feature."
+        }
+    },
+    "batch": {
+        "starting": {
+            "one": "Starting batch fill for {count} form...",
+            "other": "Starting batch fill for {count} forms..."
+        },
+        "progress": "Filling {current} of {total}: {host}",
+        "progressNoHost": "Filling {current} of {total}...",
+        "complete": {
+            "one": "Batch fill completed across {count} form!",
+            "other": "Batch fill completed across {count} forms!"
+        }
+    },
+    "save": {
+        "success": "{type} Profile saved successfully!",
+        "failed": "Save failed: {error}",
+        "noProfile": "No profile selected",
+        "unknownError": "Save failed"
+    },
+    "profile": {
+        "nameExists": "A profile with this name already exists!",
+        "disabled": "{type} is disabled. Turn it ON to autofill.",
+        "defaultType": "PROFILE",
+        "imported": {
+            "one": "Successfully imported {count} field into {type}!",
+            "other": "Successfully imported {count} fields into {type}!"
+        }
+    },
+    "highlight": {
+        "noActiveTab": "No active tab found.",
+        "refreshToConnect": "Refresh the page to connect highlights.",
+        "on": {
+            "one": "Highlighted {count} field on page!",
+            "other": "Highlighted {count} fields on page!"
+        },
+        "cleared": "Highlights cleared."
+    },
+    "fill": {
+        "injectingAi": "Injecting fields with AI ({type})...",
+        "injecting": "Injecting fields ({type})...",
+        "noTab": "Could not reach active tab.",
+        "refreshToConnect": "Refresh the tab to connect autofill.",
+        "cannotConnect": "Could not connect to page. Refresh the tab.",
+        "aiPartlySkipped": {
+            "one": "Filled {count} input (AI partly skipped).",
+            "other": "Filled {count} inputs (AI partly skipped)."
+        },
+        "keywordMode": {
+            "one": "Filled {count} input (keyword mode).",
+            "other": "Filled {count} inputs (keyword mode)."
+        },
+        "withAi": {
+            "one": "Form filled with AI ({count} input matched).",
+            "other": "Form filled with AI ({count} inputs matched)."
+        },
+        "withoutAi": {
+            "one": "Form filled without AI ({count} input matched).",
+            "other": "Form filled without AI ({count} inputs matched)."
+        },
+        "error": "Fill error: {error}",
+        "injected": {
+            "one": "Injected {count} field into page.",
+            "other": "Injected {count} fields into page."
+        }
+    },
+    "pagination": {
+        "progress": "Auto-pagination: filling page {page}...",
+        "lostConnection": "Auto-pagination stopped: lost connection to the extension.",
+        "filled": {
+            "one": "Filled {filled} inputs across {count} page.",
+            "other": "Filled {filled} inputs across {count} pages."
+        },
+        "corrected": {
+            "one": "Corrected {count} answer the form rejected.",
+            "other": "Corrected {count} answers the form rejected."
+        },
+        "field": "\"{name}\"",
+        "fieldAndMore": {
+            "one": "\"{name}\" (+{count} more)",
+            "other": "\"{name}\" (+{count} more)"
+        },
+        "aField": "a field",
+        "nextButton": "Next",
+        "submitted": "Submitted!",
+        "noNext": "No Next / Continue button found.",
+        "stillEmpty": "{field} is still empty.",
+        "check": "Check {field}.",
+        "blocked": "Paused on page {page}: {field} is required and empty. Fill it, then run again.",
+        "nextDisabled": "Paused on page {page}: the \"{button}\" button is disabled. Check the page, then run again.",
+        "validationError": "Paused on page {page}: the form reported \"{error}\".",
+        "validationErrorUnknown": "Paused on page {page}: the form reported an error.",
+        "correctionTried": "(automatic correction was tried)",
+        "stuck": "Paused on page {page}: clicked \"{button}\" but the form didn't move on.",
+        "serverError": "Paused on page {page}: clicked \"{button}\" and the site sent your answers, but its server refused them (error {status}). The site shows no message for this. Try \"{button}\" yourself, or try again later.",
+        "maxPages": "Stopped at the {max}-page safety limit.",
+        "noForm": "No form found on this page (or Aullevo cannot run here).",
+        "stopped": "Auto-pagination stopped: {error}",
+        "unknownError": "unknown error",
+        "verification": "Paused on page {page}: complete the security check (\"I'm not a robot\") on the page, then run again."
+    }
+}

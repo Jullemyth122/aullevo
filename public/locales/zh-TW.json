@@ -1,0 +1,687 @@
+{
+  "autofill": {
+    "detection": {
+      "title": "表單偵測",
+      "sub": "目前分頁中的欄位",
+      "highlightTitle": "檢查並標示頁面上的欄位",
+      "clear": "清除",
+      "highlight": "標示",
+      "rescanTitle": "重新掃描頁面",
+      "rescan": "重新掃描"
+    },
+    "fill": {
+      "injecting": "正在填寫...",
+      "disabled": "{type}已停用",
+      "withAi": "用 AI 填寫表單（{type}）",
+      "standard": "填寫表單（{type}）",
+      "autoPaginate": "自動翻頁已開啟：填完所有頁面後送出"
+    },
+    "activeProfile": {
+      "title": "目前的設定檔",
+      "summary": "{fields} • {docs}已就緒",
+      "fieldCount": {
+        "other": "{count} 個欄位"
+      },
+      "docCount": {
+        "other": "{count} 份文件"
+      },
+      "ready": "就緒",
+      "disabled": "已停用"
+    },
+    "shortcuts": {
+      "title": "鍵盤快速鍵",
+      "toggleSidePanel": "開啟/關閉側邊面板",
+      "formFill": "AI / 關鍵字填寫表單",
+      "batchFill": "多連結批次填寫"
+    }
+  },
+  "content": {
+    "openSidebar": "開啟 Aullevo 側邊面板",
+    "filled": "已填寫",
+    "file": "檔案：{name}",
+    "files": {
+      "other": "已附加 {count} 個檔案"
+    },
+    "matched": "已比對：{name}",
+    "ranked": "已排序：{value}",
+    "ai": "[AI] {text}",
+    "aiGenerated": "[AI] 已產生",
+    "fixed": "已修正：{value}"
+  },
+  "header": {
+    "versionLine": "v{version} • 自動填寫",
+    "lightTheme": "淺色主題",
+    "darkTheme": "深色主題",
+    "jsonConfig": "JSON 設定",
+    "openFullPage": "以完整頁面開啟",
+    "closeSidePanel": "關閉側邊面板",
+    "footer": {
+      "engine": "Aullevo 自動填寫引擎",
+      "ready": "就緒"
+    }
+  },
+  "json": {
+    "title": "JSON 設定",
+    "badge": {
+      "fields": {
+        "other": "✓ {count} 個欄位"
+      },
+      "invalid": "JSON 無效"
+    },
+    "actions": {
+      "format": "格式化 JSON",
+      "fullscreen": "全螢幕",
+      "exitFullscreen": "結束全螢幕",
+      "close": "關閉",
+      "download": "下載",
+      "copy": "複製 JSON",
+      "copied": "已複製",
+      "upload": "上傳檔案",
+      "import": "匯入"
+    },
+    "quota": {
+      "downloadPro": "下載（匯出）是 Pro 功能。"
+    },
+    "errors": {
+      "noFields": "提供的 JSON 中沒有有效的欄位。",
+      "invalidFormat": "JSON 格式無效：{error}"
+    }
+  },
+  "language": {
+    "title": "語言",
+    "button": "語言：{name}",
+    "search": "搜尋語言",
+    "auto": "自動：{name}",
+    "autoHint": "跟隨瀏覽器的語言",
+    "backToEnglish": "切換回英文",
+    "changed": "語言已變更為{name}。",
+    "switchBack": "切換回{name}",
+    "keep": "保留",
+    "noResults": "找不到語言",
+    "settingsHint": "變更 Aullevo 所有畫面的語言，包括導覽。"
+  },
+  "manifest": {
+    "appName": "Aullevo - AI 表單自動填寫與求職申請填寫小幫手",
+    "appDescription": "適用於求職申請、問卷調查及各種網頁表單的 AI 填寫工具。支援儲存設定檔、上傳履歷與智慧自動填寫。",
+    "actionTitle": "開啟 Aullevo 側邊面板",
+    "commandTogglePanel": "開啟/關閉 Aullevo 側邊面板",
+    "commandFill": "在頁面上執行 AI 或關鍵字表單自動填寫",
+    "commandBatchFill": "執行多連結批次表單自動填寫"
+  },
+  "multilink": {
+    "batch": {
+      "title": "批次自動填寫佇列",
+      "activeCount": "已啟用 {enabled}/{total}",
+      "description": "使用目前的<b>{type}</b>設定檔，自動在多個分頁中開啟並填寫表單。",
+      "running": "正在批次自動填寫...",
+      "start": {
+        "other": "批次填寫 {count} 份表單"
+      }
+    },
+    "add": {
+      "title": "新增表單/職缺連結"
+    },
+    "saved": {
+      "title": "已儲存的連結（{count}）",
+      "clearAll": "全部清除",
+      "empty": "尚未新增連結。在上方貼上表單網址即可開始。",
+      "open": "開啟連結",
+      "remove": "移除連結"
+    }
+  },
+  "nav": {
+    "autofill": "自動填寫",
+    "profiles": "設定檔（{count}）",
+    "multiLink": "多連結",
+    "settings": "設定"
+  },
+  "profiles": {
+    "types": {
+      "job": "求職",
+      "medical": "醫療",
+      "government": "政府",
+      "survey": "問卷",
+      "academic": "學業",
+      "financial": "財務",
+      "custom": "自訂"
+    },
+    "badges": {
+      "on": "開啟",
+      "off": "關閉",
+      "disabled": "已停用",
+      "sensitive": "敏感",
+      "aiSafe": "AI 可見"
+    },
+    "save": {
+      "button": "儲存{type}設定檔",
+      "saved": "已儲存 ✓"
+    },
+    "dropdown": {
+      "newProfilePlaceholder": "新設定檔名稱...",
+      "add": "新增"
+    },
+    "config": {
+      "title": "設定檔設定",
+      "on": "設定檔開啟",
+      "off": "設定檔關閉",
+      "activeTooltip": "{type}設定檔已啟用",
+      "disabledTooltip": "{type}設定檔已停用",
+      "namePlaceholder": "設定檔名稱"
+    },
+    "identity": {
+      "title": "身分與聯絡資訊",
+      "firstName": "名字",
+      "lastName": "姓氏",
+      "email": "電子郵件地址",
+      "phone": "電話號碼",
+      "address": "居住地址"
+    },
+    "attributes": {
+      "title": "{type}資訊",
+      "customHint": "在下方新增自己的欄位，或透過 JSON 匯入。",
+      "job": {
+        "headline": "職稱/頭銜",
+        "linkedin": "LinkedIn",
+        "github": "GitHub",
+        "portfolio": "作品集",
+        "skills": "技能",
+        "education": "學歷/學位",
+        "certifications": "證照"
+      },
+      "medical": {
+        "bloodType": "血型",
+        "allergies": "過敏",
+        "emergencyContact": "緊急聯絡人",
+        "insuranceProvider": "保險公司"
+      },
+      "government": {
+        "nationalId": "身分證字號/SSN",
+        "citizenship": "國籍",
+        "passport": "護照號碼",
+        "driversLicense": "駕照"
+      },
+      "survey": {
+        "ageRange": "年齡層",
+        "income": "收入",
+        "education": "學歷",
+        "employment": "就業狀況"
+      },
+      "academic": {
+        "institution": "學校",
+        "major": "主修/研究領域",
+        "gpa": "GPA",
+        "gradYear": "畢業年份",
+        "testScores": "考試成績"
+      },
+      "financial": {
+        "billingAddress": "帳單地址",
+        "payment": "付款方式",
+        "cardholder": "持卡人"
+      }
+    },
+    "field": {
+      "sensitiveTooltip": "敏感：值不會提供給 AI（零知識）",
+      "aiSafeTooltip": "AI 可見：值會提供給 AI，用於智慧選擇選項"
+    },
+    "context": {
+      "buttonTitle": "{label}的 AI 提示",
+      "title": "AI 提示：{label}",
+      "placeholder": "給 AI 的提示（例如「護照上的法定名字」）",
+      "hint": "AI 會根據這個提示辨識網站上含意不明確的表單欄位。"
+    },
+    "custom": {
+      "title": "自訂欄位",
+      "labelPlaceholder": "欄位標籤",
+      "valuePlaceholder": "欄位值",
+      "sensitiveTooltip": "敏感：值不會提供給 AI",
+      "aiSafeTooltip": "AI 可見：值會提供給 AI",
+      "enabledTooltip": "欄位已啟用",
+      "disabledTooltip": "欄位已停用",
+      "delete": "刪除欄位",
+      "pagination": {
+        "other": "第 {page}/{total} 頁（共 {count} 項）"
+      },
+      "newLabelPlaceholder": "標籤",
+      "newValuePlaceholder": "值",
+      "add": "新增自訂欄位"
+    },
+    "documents": {
+      "title": "附加文件",
+      "labelPlaceholder": "文件標籤",
+      "labelTooltip": "點選以編輯文件標籤",
+      "remove": "移除檔案",
+      "pagination": "第 {page}/{total} 頁",
+      "categories": {
+        "resume": "履歷/CV",
+        "coverLetter": "求職信",
+        "identity": "身分證件",
+        "academic": "成績單",
+        "portfolio": "作品集",
+        "other": "其他文件"
+      },
+      "upload": {
+        "resume": "上傳履歷",
+        "coverLetter": "上傳求職信",
+        "identity": "上傳身分證件",
+        "academic": "上傳成績單",
+        "portfolio": "上傳作品集",
+        "other": "上傳文件"
+      },
+      "size": {
+        "bytes": "{size} B",
+        "kilobytes": "{size} KB",
+        "megabytes": "{size} MB"
+      }
+    }
+  },
+  "settings": {
+    "account": {
+      "title": "帳戶",
+      "proUntil": "Pro 有效期限至 {date}",
+      "proLifetime": "Pro · 終身",
+      "disconnect": "中斷帳戶連結",
+      "waiting": "正在等待登入…",
+      "connect": "連結 Aullevo Web",
+      "renew": "Pro 已到期 · 續訂",
+      "upgrade": "升級至 Pro"
+    },
+    "theme": {
+      "title": "主題外觀",
+      "dark": "深色主題",
+      "description": "在深石板色與淺色主題之間切換"
+    },
+    "mode": {
+      "title": "自動填寫引擎模式",
+      "aiActive": "AI 智慧填寫（已啟用）",
+      "standard": "標準填寫（不使用 AI）",
+      "aiDescription": "運用 AI 推理理解問題，並比對複雜的欄位",
+      "standardDescription": "不呼叫 AI，直接比對設定檔中的資訊",
+      "toggle": "切換 AI 填寫模式"
+    },
+    "ai": {
+      "title": "AI 引擎",
+      "unlimited": "無限使用",
+      "keyRequired": "需要 API 金鑰",
+      "freeUsage": "Free：本週已用 {used}/{limit}",
+      "privacy": "<b>隱私權：</b>標示為「敏感」的欄位只會傳送標籤，值絕不會傳送給 AI。「AI 可見」欄位的值和表單中的問題會傳送給 {provider}。",
+      "provider": "AI 服務商",
+      "customProvider": "自訂（相容 OpenAI）",
+      "baseUrl": "伺服器 URL",
+      "customHint": "適用於任何支援 OpenAI 聊天 API 的伺服器，例如 OpenRouter、Groq、Mistral、Ollama 或 LM Studio。本機伺服器不需要金鑰。",
+      "model": "AI 模型",
+      "modelOption": "{name}（{description}）",
+      "models": {
+        "fastest": "最快速且超低成本",
+        "balanced": "均衡推理",
+        "capable": "快速且強大",
+        "smartest": "最高智慧",
+        "legacy": "舊版快速"
+      },
+      "otherModel": "其他模型（輸入其 ID）",
+      "modelIdPlaceholder": "精確的模型 ID，例如 {example}",
+      "apiKey": "{provider} API 金鑰",
+      "getKey": "取得 API 金鑰",
+      "keyPlaceholder": "貼上你的 {provider} API 金鑰",
+      "hideKey": "隱藏金鑰",
+      "showKey": "顯示金鑰",
+      "addKeyHint": "新增你的 {provider} API 金鑰，即可使用 AI 智慧填寫。",
+      "proHint": "Pro：AI 填寫不限次數。金鑰只會儲存在這個瀏覽器中。",
+      "freeHint": "Free 方案：每週 {limit} 次 AI 填寫。升級至 Pro 即可無限使用。"
+    },
+    "paginate": {
+      "title": "自動翻頁",
+      "toggleTitle": "填寫多頁表單",
+      "description": "逐頁填寫，點選「下一步/繼續」，最後按下「送出」。表單拒絕的答案會自動修正，無法修正時則暫停。",
+      "toggle": "切換自動翻頁",
+      "proFeature": "Pro 功能",
+      "upgrade": "升級至 Pro 即可使用自動翻頁"
+    },
+    "floating": {
+      "title": "網頁浮動圖示",
+      "toggleTitle": "顯示浮動按鈕",
+      "description": "在網頁邊緣顯示 Aullevo 快速存取標籤",
+      "toggle": "切換網頁浮動按鈕"
+    },
+    "typing": {
+      "title": "模擬真人輸入速度",
+      "instant": "即時（{ms}ms）",
+      "natural": "自然（{ms}ms）",
+      "slow": "慢速（{ms}ms）",
+      "custom": "自訂（{ms}ms）",
+      "naturalFree": "自然（{ms}ms）· Free 方案",
+      "description": "以真人的速度逐字輸入，適用於需要真實按鍵輸入的網站。",
+      "proFeature": "Pro 功能",
+      "customDelay": "自訂延遲：",
+      "customProFeature": "自訂延遲是 Pro 功能",
+      "unitMs": "ms"
+    },
+    "tour": {
+      "title": "導覽",
+      "toggleTitle": "再次顯示導覽",
+      "description": "再次逐步介紹每個分頁",
+      "replay": "重新觀看"
+    },
+    "security": {
+      "title": "本機加密"
+    },
+    "memories": {
+      "title": "AI 記憶",
+      "count": "（已開啟 {enabled}/{total}）",
+      "descriptionAiOn": "AI 可用來回答開放式問題的個人資訊（例如「工作型態：僅限遠端」）。已開啟的記憶會傳送給 {provider}，並以未加密的形式儲存在這個瀏覽器中，因此請勿新增密碼或證件號碼。",
+      "descriptionAiOff": "AI 可用來回答開放式問題的個人資訊（例如「工作型態：僅限遠端」）。只有在開啟 AI 智慧填寫時才會使用。已開啟的記憶會傳送給 {provider}，並以未加密的形式儲存在這個瀏覽器中，因此請勿新增密碼或證件號碼。",
+      "titlePlaceholder": "標題",
+      "contentPlaceholder": "希望 AI 知道的內容",
+      "enabledTitle": "此記憶會傳送給 AI",
+      "disabledTitle": "此記憶未使用",
+      "on": "開啟",
+      "off": "關閉",
+      "delete": "刪除記憶",
+      "newTitlePlaceholder": "標題（例如：工作型態）",
+      "newContentPlaceholder": "內容（例如：偏好完全遠端的職缺，可接受約聘）",
+      "add": "新增記憶"
+    },
+    "deviceData": {
+      "title": "這部裝置上的資料",
+      "total": "共 {size}",
+      "description": "每個帳戶在這裡都有獨立的加密保管庫。帳戶之間無法看到彼此的設定檔、文件、API 金鑰、記憶或連結。",
+      "empty": "尚無已儲存的資料。",
+      "localOwner": "未登入（本機設定檔）",
+      "anotherAccount": "其他帳戶",
+      "inUse": "{size} · 使用中",
+      "deleteTitle": "從這部裝置刪除此帳戶的資料",
+      "delete": "刪除",
+      "confirmDelete": "要從這部裝置刪除「{name}」的 Aullevo 資料嗎？\n\n這會永久移除其加密的設定檔、文件、API 金鑰、AI 記憶和連結佇列，且無法復原。",
+      "bytes": "{size} B",
+      "kilobytes": "{size} KB",
+      "megabytes": "{size} MB"
+    }
+  },
+  "status": {
+    "plan": {
+      "profileLimit": "Free 方案最多可啟用 {max} 個設定檔。請關閉多餘的設定檔，或升級至 Pro。",
+      "activeLimit": "Free 方案最多可啟用 {max} 個設定檔。請關閉其中一個，或升級至 Pro。",
+      "createdOff": "設定檔已建立，狀態為關閉。Free 方案最多可啟用 {max} 個設定檔。請關閉其中一個，或升級至 Pro。",
+      "autoPaginatePro": "自動翻頁是 Pro 功能。升級至 Pro 即可填寫多頁表單。",
+      "jsonImportLimit": "這 2 週的 {limit} 次免費 JSON 匯入已用完。次數將於 {date} 重設，或升級至 Pro 即可無限匯入。",
+      "documentsSkipped": {
+        "other": "{count} 份文件未附加：將檔案上傳至表單是 Pro 功能。"
+      }
+    },
+    "batch": {
+      "starting": {
+        "other": "正在開始批次填寫 {count} 份表單..."
+      },
+      "progress": "正在填寫第 {current}/{total} 份：{host}",
+      "progressNoHost": "正在填寫第 {current}/{total} 份...",
+      "complete": {
+        "other": "已完成 {count} 份表單的批次填寫！"
+      }
+    },
+    "save": {
+      "success": "已成功儲存{type}設定檔！",
+      "failed": "儲存失敗：{error}",
+      "noProfile": "未選取設定檔",
+      "unknownError": "儲存失敗"
+    },
+    "profile": {
+      "nameExists": "已有同名的設定檔！",
+      "disabled": "{type}已停用。請將其開啟後再自動填寫。",
+      "defaultType": "設定檔",
+      "imported": {
+        "other": "已成功將 {count} 個欄位匯入{type}！"
+      }
+    },
+    "highlight": {
+      "noActiveTab": "找不到目前的分頁。",
+      "refreshToConnect": "請重新整理頁面以連結標示功能。",
+      "on": {
+        "other": "已標示頁面上的 {count} 個欄位！"
+      },
+      "cleared": "已清除標示。"
+    },
+    "fill": {
+      "injectingAi": "正在用 AI 填寫欄位（{type}）...",
+      "injecting": "正在填寫欄位（{type}）...",
+      "noTab": "無法存取目前的分頁。",
+      "refreshToConnect": "請重新整理分頁以連結自動填寫。",
+      "cannotConnect": "無法連線至頁面。請重新整理分頁。",
+      "aiPartlySkipped": {
+        "other": "已填寫 {count} 個輸入欄（AI 部分略過）。"
+      },
+      "keywordMode": {
+        "other": "已填寫 {count} 個輸入欄（關鍵字模式）。"
+      },
+      "withAi": {
+        "other": "已用 AI 填寫表單（比對到 {count} 個輸入欄）。"
+      },
+      "withoutAi": {
+        "other": "已在不使用 AI 的情況下填寫表單（比對到 {count} 個輸入欄）。"
+      },
+      "error": "填寫錯誤：{error}",
+      "injected": {
+        "other": "已在頁面中填入 {count} 個欄位。"
+      }
+    },
+    "pagination": {
+      "progress": "自動翻頁：正在填寫第 {page} 頁...",
+      "lostConnection": "自動翻頁已停止：與擴充功能的連線中斷。",
+      "filled": {
+        "other": "已在 {count} 頁中填寫 {filled} 個輸入欄。"
+      },
+      "corrected": {
+        "other": "已修正 {count} 個被表單拒絕的答案。"
+      },
+      "field": "「{name}」",
+      "fieldAndMore": {
+        "other": "「{name}」（另有 {count} 個）"
+      },
+      "aField": "某個欄位",
+      "nextButton": "下一步",
+      "submitted": "已送出！",
+      "noNext": "找不到「下一步/繼續」按鈕。",
+      "stillEmpty": "{field}仍是空的。",
+      "check": "請檢查{field}。",
+      "blocked": "已在第 {page} 頁暫停：{field}為必填但仍是空的。請填寫後再執行一次。",
+      "nextDisabled": "已在第 {page} 頁暫停：「{button}」按鈕無法使用。請檢查頁面後再執行一次。",
+      "validationError": "已在第 {page} 頁暫停：表單顯示「{error}」。",
+      "validationErrorUnknown": "已在第 {page} 頁暫停：表單回報錯誤。",
+      "correctionTried": "（已嘗試自動修正）",
+      "stuck": "已在第 {page} 頁暫停：已點選「{button}」，但表單沒有繼續。",
+      "maxPages": "已達 {max} 頁的安全上限，已停止。",
+      "noForm": "這個頁面上找不到表單（或 Aullevo 無法在此執行）。",
+      "stopped": "自動翻頁已停止：{error}",
+      "unknownError": "不明錯誤"
+    }
+  },
+  "tour": {
+    "card": {
+      "progress": "{section} · {current}/{total}",
+      "skip": "略過導覽",
+      "dontShowAgain": "不要再顯示",
+      "back": "上一步",
+      "next": "下一步",
+      "done": "完成"
+    },
+    "shortcuts": {
+      "allActive": "3 個快速鍵都已在這個瀏覽器中生效。",
+      "notSet": "這個瀏覽器中未設定：{list}。請在 Chrome 的快速鍵設定中自行設定。",
+      "openSettings": "開啟 Chrome 快速鍵設定",
+      "toggleSidePanel": "開啟/關閉側邊面板",
+      "fallbackName": "快速鍵"
+    },
+    "sections": {
+      "autofill": "自動填寫",
+      "header": "頂端按鈕",
+      "profiles": "設定檔",
+      "multilink": "多連結",
+      "settings": "設定"
+    },
+    "autofill": {
+      "detection": {
+        "title": "表單偵測",
+        "body": "Aullevo 會計算目前分頁中可填寫的欄位數量。開啟表單後，這個數字就會更新。"
+      },
+      "highlight": {
+        "title": "標示欄位",
+        "body": "為 Aullevo 在頁面上找到的每個欄位加上外框，讓你在填寫前就能看到哪些內容會被填入。再點選一次即可清除外框。"
+      },
+      "rescan": {
+        "title": "重新掃描",
+        "body": "有些表單會在頁面載入後才加入欄位，例如分步驟表單或彈出式視窗。「重新掃描」會重新計算欄位。"
+      },
+      "fill": {
+        "title": "填寫表單",
+        "body": "使用目前的設定檔填寫頁面。開啟 AI 填寫（在「設定」中）後，即使問題的措辭不同，也能比對到你的答案。關閉時則依關鍵字比對欄位。"
+      },
+      "activeProfile": {
+        "title": "目前的設定檔",
+        "body": "用於填寫的設定檔，以及已開啟的欄位和文件數量。可在<b>設定檔</b>分頁中切換設定檔或編輯答案。"
+      },
+      "shortcuts": {
+        "title": "鍵盤快速鍵",
+        "body": "安裝 Aullevo 時 Chrome 會設定這些按鍵，但會略過已被 Chrome 或其他擴充功能使用的按鍵。你可以隨時變更。"
+      }
+    },
+    "header": {
+      "voice": {
+        "title": "語音模式",
+        "body": "用說話取代點擊來使用 Aullevo。這個按鈕會把面板切換成語音助理：說出 \"fill this page\"、\"fill the email\" 或 \"fill the first question\"，它會用語音回答。再按一次即可回到這個畫面。",
+        "note": "Pro 功能。需要你自己的 ElevenLabs API 金鑰，可在 Voice settings 中新增。語音指令支援英文和他加祿語。"
+      },
+      "language": {
+        "title": "語言",
+        "body": "選擇 Aullevo 的介面語言。英文一律位於清單頂端，方便你隨時切換回來。"
+      },
+      "theme": {
+        "title": "淺色或深色主題",
+        "body": "將面板切換為淺色或深色模式。"
+      },
+      "json": {
+        "title": "JSON 快速設定",
+        "intro": "這是你的設定檔的 JSON 格式。設定設定檔最快的方法：",
+        "step1": "從這裡複製 JSON。",
+        "step2": "將它連同你的履歷或其他文件交給 Gemini、Claude 或 ChatGPT。",
+        "step3": "請 AI 填入各項值，並保留相同的結構。",
+        "step4": "將結果貼回這裡，然後點選<b>匯入</b>。"
+      },
+      "fullPage": {
+        "title": "以完整頁面開啟",
+        "body": "在瀏覽器分頁中開啟 Aullevo，有更大的空間編輯設定檔。填寫仍在這個側邊面板中進行。"
+      },
+      "close": {
+        "title": "關閉面板",
+        "body": "關閉側邊面板。按下 <b>Alt+Q</b>（Mac 上為 <b>Option+Q</b>）或點選工具列中的 Aullevo 圖示即可重新開啟。"
+      }
+    },
+    "profiles": {
+      "switcher": {
+        "title": "切換設定檔",
+        "body1": "每個設定檔（求職、學業、財務或你自建的設定檔）都會保存各自的一組答案。選擇要編輯並用於填寫的設定檔。",
+        "body2": "開啟清單即可查看哪些設定檔為開啟或關閉，也可以在底部建立新的設定檔。",
+        "note": "Free 方案：最多可同時開啟 2 個設定檔。"
+      },
+      "config": {
+        "title": "名稱與開關",
+        "body": "在這裡重新命名設定檔。<b>設定檔開啟</b>可開啟或關閉整個設定檔。關閉時不會用於填寫。"
+      },
+      "identity": {
+        "title": "身分與聯絡資訊",
+        "body": "你的姓名、電子郵件、電話和地址。點選任一區段標題即可收合或展開。每個欄位都有三個小控制項，接下來會介紹。"
+      },
+      "fieldContext": {
+        "title": "AI 提示",
+        "body": "✨ 按鈕可新增提示，告訴 AI 這個欄位的意思，例如「護照上的法定名字」。在表單問題措辭不清楚時很有幫助。出現圓點表示已設定提示。"
+      },
+      "fieldPrivacy": {
+        "title": "AI 可見或敏感",
+        "safe": "<b>AI 可見</b>：值會提供給 AI，讓它能在下拉式選單和選擇題中選出正確答案。",
+        "sensitive": "<b>敏感</b>：AI 只會看到欄位名稱和提示，絕不會看到值。Aullevo 仍會在你的裝置上填入這個值。",
+        "toggle": "點選即可切換。"
+      },
+      "fieldToggle": {
+        "title": "開啟或關閉欄位",
+        "body": "將欄位設為關閉後，填寫時會略過它，但不會刪除你輸入的內容。"
+      },
+      "documents": {
+        "title": "附加文件",
+        "body": "選擇文件類型，然後上傳履歷、求職信、身分證件等。當表單有檔案上傳題目時，Aullevo 會附加已開啟的文件。",
+        "note": "將文件附加到表單是 Pro 功能。"
+      },
+      "attributes": {
+        "title": "設定檔專屬欄位",
+        "body": "屬於此類設定檔的欄位。求職設定檔有職稱、LinkedIn、技能和學歷，學業、醫療等其他設定檔也有各自的欄位。"
+      },
+      "customFields": {
+        "title": "新增自己的欄位",
+        "body": "用於標準欄位未涵蓋的內容，例如「期望薪資」或「你為什麼想要這份工作？」。輸入標籤和值，然後點選 <b>+</b>。直接以問題的原文作為標籤效果很好。"
+      },
+      "save": {
+        "title": "儲存",
+        "body": "變更會在輸入時自動儲存。這個按鈕會立即儲存，適合在關閉面板前使用。"
+      }
+    },
+    "multilink": {
+      "addLink": {
+        "title": "新增表單連結",
+        "body": "貼上表單或求職申請的完整連結（以 https:// 開頭），然後點選 <b>+</b>。想新增多少都可以。"
+      },
+      "savedLinks": {
+        "title": "你的連結佇列",
+        "body": "你新增的所有連結都會顯示在這裡。勾選連結即可納入下一次批次填寫，取消勾選則會略過。箭頭圖示會開啟連結，垃圾桶圖示會移除連結。"
+      },
+      "batchRun": {
+        "title": "一次全部填寫",
+        "body1": "在背景分頁中依序開啟每個已勾選的連結，並使用目前的設定檔填寫。進度會顯示在面板頂端。",
+        "note": "快速鍵：Alt+Shift+B（Mac 上為 Option+Shift+B）。"
+      }
+    },
+    "settings": {
+      "account": {
+        "title": "你的帳戶",
+        "body": "連結你的 Aullevo Web 帳戶，讓你的方案（Free 或 Pro）在這裡生效。你的設定檔會保持加密並存放在這部裝置上，不會上傳。"
+      },
+      "aiMode": {
+        "title": "AI 智慧填寫或標準填寫",
+        "standard": "<b>標準填寫</b>依名稱比對欄位，不使用 AI。",
+        "smart": "<b>AI 智慧填寫</b>能理解措辭不同的問題，並在下拉式選單和選擇題中選出答案。"
+      },
+      "aiEngine": {
+        "title": "AI 服務商、模型與 API 金鑰"
+      },
+      "memories": {
+        "title": "AI 記憶",
+        "body": "AI 可用來回答開放式問題的簡短資訊，例如「工作型態：僅限遠端」。這些內容會傳送給你選擇的 AI 服務商 且不會加密，因此絕對不要新增密碼或證件號碼。"
+      },
+      "autoPaginate": {},
+      "floatingIcon": {
+        "title": "浮動按鈕",
+        "body": "網頁邊緣的 Aullevo 小標籤，方便快速存取。如果覺得礙事，可以將它關閉。"
+      },
+      "typingSpeed": {
+        "title": "輸入速度",
+        "body": "Aullevo 在欄位中輸入的速度。<b>自然</b>看起來更像真人輸入，<b>即時</b>則最快。慢速和自訂速度為 Pro 功能。"
+      },
+      "replayTour": {
+        "title": "重新觀看本導覽",
+        "body": "忘了什麼嗎？點選<b>重新觀看</b>即可從頭再看一次本導覽。"
+      },
+      "deviceData": {
+        "title": "這部裝置上的資料",
+        "body": "每個帳戶在這個瀏覽器中都有獨立的加密保管庫。請刪除不再使用之帳戶的資料。"
+      }
+    }
+  },
+  "vault": {
+    "loading": "載入中…",
+    "account": {
+      "signedInAs": "已登入為 <b>{account}</b>",
+      "notSignedIn": "未登入：這部裝置上的本機設定檔",
+      "fallbackName": "你的帳戶"
+    },
+    "errors": {
+      "createFailed": "無法建立保管庫，請再試一次。",
+      "wrongPassphrase": "密碼片語錯誤。",
+      "wrongClaimPassphrase": "這些設定檔的密碼片語錯誤。"
+    }
+  }
+}

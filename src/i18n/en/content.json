@@ -1,0 +1,14 @@
+{
+    "openSidebar": "Open Aullevo side panel",
+    "filled": "FILLED",
+    "file": "File: {name}",
+    "files": {
+        "one": "{count} file attached",
+        "other": "{count} files attached"
+    },
+    "matched": "Matched: {name}",
+    "ranked": "Ranked: {value}",
+    "ai": "[AI] {text}",
+    "aiGenerated": "[AI] Generated",
+    "fixed": "Fixed: {value}"
+}

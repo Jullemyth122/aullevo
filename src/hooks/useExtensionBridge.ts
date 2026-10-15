@@ -2,7 +2,11 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import type { UserData, CM, ProfileFile } from '../types';
 import { getProfileCustomFields } from '../types';
 import { effectiveTypingDelay, filesAllowedForPlan, autoPaginateAllowed } from '../services/tier';
-import { describePaginationResult, type PaginationRunResult } from '../services/pagination';
+import type { PaginationRunResult } from '../services/pagination';
+import { describePaginationRun } from '../services/runText';
+import type { PlanAccess } from '../services/rewards';
+import { t } from '../i18n';
+import type { AdvanceResult, FillOutcome, FillTarget } from '../voice/types';
 
 // Tab Change Type Definition (extracting the exact Chrome event parameter)
 export type TabChangeInfo = Parameters<Parameters<typeof chrome.tabs.onUpdated.addListener>[0]>[1];
@@ -13,7 +17,8 @@ export function useExtensionBridge(
     typingSpeed: number = 25,
     isPro: boolean = false,
     isPage: boolean = false, // full options page: no side-panel port, no active-tab scanning
-    autoPaginate: boolean = false
+    autoPaginate: boolean = false,
+    access?: PlanAccess // Free plan: features unlocked with a short ad (rewards.ts)
 ) {
     const [detectedFields, setDetectedFields] = useState<string>('0');
     const [isHighlighting, setIsHighlighting] = useState<boolean>(false);
@@ -30,10 +35,12 @@ export function useExtensionBridge(
 
     // Auto-pagination progress from background.ts for the tab being filled
     const paginatingTabId = useRef<number | null>(null);
+    // The tab a fill is running in (voice "stop" cancels it there, even after switching tabs)
+    const fillingTabId = useRef<number | null>(null);
     useEffect(() => {
         const handleProgress = (message: any) => {
             if (message?.action !== 'PAGINATION_PROGRESS' || message.tabId !== paginatingTabId.current) return;
-            showStatus(`Auto-pagination: filling page ${message.page}...`, 'info', 120000);
+            showStatus(t('status.pagination.progress', { page: message.page }), 'info', 120000);
         };
         chrome.runtime?.onMessage?.addListener(handleProgress);
         return () => chrome.runtime?.onMessage?.removeListener(handleProgress);
@@ -52,28 +59,32 @@ export function useExtensionBridge(
     };
 
     // Rescan fields on the active webpage
-    const checkActiveTabFields = useCallback(async () => {
+    // Resolves with the number of fields found (0 when the page can't be reached)
+    const checkActiveTabFields = useCallback(async (): Promise<number> => {
         try {
             const tab = await getActiveTab();
             if (!tab?.id) {
                 setDetectedFields('0');
                 setIsHighlighting(false);
-                return;
+                return 0;
             }
-            chrome.tabs.sendMessage(tab.id, { action: 'RESCAN' }, (res) => {
+            return await new Promise<number>(resolve => chrome.tabs.sendMessage(tab.id!, { action: 'RESCAN' }, (res) => {
                 if (chrome.runtime.lastError || !res) {
                     setDetectedFields('0');
                     setIsHighlighting(false);
+                    resolve(0);
                     return;
                 }
                 setDetectedFields(String(res.fieldsCount ?? 0));
                 if (res.isHighlighting !== undefined) {
                     setIsHighlighting(res.isHighlighting);
                 }
-            });
+                resolve(Number(res.fieldsCount) || 0);
+            }));
         } catch {
             setDetectedFields('0');
             setIsHighlighting(false);
+            return 0;
         }
     }, []);
 
@@ -125,125 +136,203 @@ export function useExtensionBridge(
 
     // -------------------------------------------------------------------
     // Actions: Highlights, Form Injection, and Close Panel
+    // (each one also resolves with its result, so the voice agent can say what happened)
     // -------------------------------------------------------------------
-    const handleToggleHighlight = async () => {
+    // `turnOn` (voice "highlight" / "clear highlights"): only toggles when the page isn't in that state yet
+    const handleToggleHighlight = async (turnOn?: boolean): Promise<{ active: boolean; count: number } | null> => {
         try {
             const tab = await getActiveTab();
             if (!tab?.id) {
-                showStatus('No active tab found.', 'error');
-                return;
+                showStatus(t('status.highlight.noActiveTab'), 'error');
+                return null;
             }
-            chrome.tabs.sendMessage(tab.id, { action: 'TOGGLE_HIGHLIGHT_FIELDS' }, (res) => {
+            const tabId = tab.id;
+            if (turnOn !== undefined) {
+                const state = await new Promise<any>(resolve =>
+                    chrome.tabs.sendMessage(tabId, { action: 'RESCAN' }, (res) => resolve(chrome.runtime.lastError ? null : res)));
+                if (state && Boolean(state.isHighlighting) === turnOn) {
+                    return { active: turnOn, count: Number(state.fieldsCount) || 0 };
+                }
+            }
+            return await new Promise(resolve => chrome.tabs.sendMessage(tabId, { action: 'TOGGLE_HIGHLIGHT_FIELDS' }, (res) => {
                 if (chrome.runtime.lastError) {
                     console.warn('[Aullevo:Bridge] Message error:', chrome.runtime.lastError.message);
-                    showStatus('Refresh the page to connect highlights.', 'error');
+                    showStatus(t('status.highlight.refreshToConnect'), 'error');
+                    resolve(null);
                     return;
                 }
                 if (res && res.active !== undefined) {
                     setIsHighlighting(res.active);
                     if (res.active) {
-                        showStatus(`Highlighted ${res.count} fields on page!`, 'info');
+                        showStatus(t('status.highlight.on', { count: Number(res.count) || 0 }), 'info');
                         setDetectedFields(String(res.count));
                     } else {
-                        showStatus('Highlights cleared.', 'info');
+                        showStatus(t('status.highlight.cleared'), 'info');
                         checkActiveTabFields();
                     }
+                    resolve({ active: Boolean(res.active), count: Number(res.count) || 0 });
+                    return;
                 }
-            });
+                resolve(null);
+            }));
         } catch (err) {
             console.error('[Aullevo:Bridge] Failed to toggle highlights:', err);
+            return null;
         }
     };
 
-    const triggerFormFill = async () => {
+    // options.target (voice): fill only the questions named, or the one clicked. options.paginate overrides the setting.
+    const triggerFormFill = async (options: { target?: FillTarget; paginate?: boolean } = {}): Promise<FillOutcome> => {
+        const fail = (error: string): FillOutcome => ({ ok: false, filled: 0, usedAi: false, filledLabels: [], left: [], error });
         if (!currentProfile || !currentProfile.enabled) {
-            showStatus(`${currentProfile?.profileType?.toUpperCase() || 'PROFILE'} is disabled. Turn it ON to autofill.`, 'error');
-            return;
+            showStatus(t('status.profile.disabled', { type: currentProfile?.profileType?.toUpperCase() || t('status.profile.defaultType') }), 'error');
+            return fail('The profile is switched off.');
         }
 
         setIsFilling(true);
         showStatus(
             useAiFill
-                ? `Injecting fields with AI (${currentProfile.profileType.toUpperCase()})...`
-                : `Injecting fields (${currentProfile.profileType.toUpperCase()})...`,
+                ? t('status.fill.injectingAi', { type: currentProfile.profileType.toUpperCase() })
+                : t('status.fill.injecting', { type: currentProfile.profileType.toUpperCase() }),
             'info'
         );
 
         try {
             const tab = await getActiveTab();
             if (!tab?.id) {
-                showStatus('Could not reach active tab.', 'error');
+                showStatus(t('status.fill.noTab'), 'error');
                 setIsFilling(false);
-                return;
+                return fail('No web page is open.');
             }
+            const tabId = tab.id;
+            fillingTabId.current = tabId;
 
             const fieldsToInject = getProfileCustomFields(currentProfile).filter((f: CM) => f.enabled);
             const enabledFiles = (currentProfile.files || []).filter((f: ProfileFile) => f.enabled);
             // Plan limits: document injection and Slow/custom speeds are Pro-only
             const filesToInject = filesAllowedForPlan(enabledFiles, isPro);
             const skippedFilesNote = enabledFiles.length > filesToInject.length
-                ? ` ${enabledFiles.length} document(s) not attached: upload into forms is a Pro feature.`
+                ? ` ${t('status.plan.documentsSkipped', { count: enabledFiles.length })}`
                 : '';
+            const paginate = !options.target && (options.paginate ?? autoPaginateAllowed(autoPaginate, isPro || Boolean(access?.paginate)));
 
             // Pro: background.ts fills page after page (Next / Continue), then presses Submit
-            if (autoPaginateAllowed(autoPaginate, isPro)) {
-                paginatingTabId.current = tab.id;
-                chrome.runtime.sendMessage({
+            if (paginate) {
+                paginatingTabId.current = tabId;
+                return await new Promise<FillOutcome>(resolve => chrome.runtime.sendMessage({
                     action: 'START_AUTO_PAGINATE',
-                    tabId: tab.id,
+                    tabId,
                     fields: fieldsToInject,
                     files: filesToInject,
                     useAi: useAiFill,
-                    typingSpeed: effectiveTypingDelay(typingSpeed, isPro)
+                    typingSpeed: effectiveTypingDelay(typingSpeed, isPro || Boolean(access?.typing))
                 }, (res?: PaginationRunResult) => {
                     paginatingTabId.current = null;
+                    fillingTabId.current = null;
                     setIsFilling(false);
                     if (chrome.runtime.lastError || !res) {
-                        showStatus('Auto-pagination stopped: lost connection to the extension.', 'error', 5000);
+                        showStatus(t('status.pagination.lostConnection'), 'error', 5000);
+                        resolve(fail('Lost the connection to the page.'));
                         return;
                     }
-                    const { text, type } = describePaginationResult(res);
+                    const { text, type } = describePaginationRun(res, t);
                     const notes = `${res.aiNotice ? ` ${res.aiNotice}` : ''}${skippedFilesNote}`;
                     showStatus(text + notes, notes && type === 'success' ? 'info' : type, 9000);
-                });
-                return;
+                    resolve({
+                        ok: res.success || res.status === 'blocked' || res.status === 'max-pages',
+                        filled: res.totalFilled,
+                        usedAi: Boolean(res.useAi),
+                        filledLabels: [],
+                        left: (res.blockers ?? []).map(b => b.name),
+                        notice: res.aiNotice,
+                        error: res.error || res.errorText || (res.status === 'no-form' ? 'No form found on this page.' : undefined),
+                        stopped: res.status === 'stopped',
+                        pages: res.pages,
+                        pageStatus: res.status,
+                        blockedBy: res.status === 'blocked' ? res.blockers?.[0]?.name : undefined
+                    });
+                }));
             }
-            chrome.tabs.sendMessage(tab.id, {
-                action: 'INJECT_FORM_FIELDS',
+            // background.ts fills every frame that holds a form and adds up the counts
+            return await new Promise<FillOutcome>(resolve => chrome.runtime.sendMessage({
+                action: 'FILL_TAB',
+                tabId,
                 fields: fieldsToInject,
                 files: filesToInject,
                 useAi: useAiFill,
-                typingSpeed: effectiveTypingDelay(typingSpeed, isPro)
+                typingSpeed: effectiveTypingDelay(typingSpeed, isPro || Boolean(access?.typing)),
+                target: options.target
             }, (res) => {
                 setIsFilling(false);
+                fillingTabId.current = null;
                 if (chrome.runtime.lastError) {
                     console.warn('[Aullevo:Bridge] Message error:', chrome.runtime.lastError.message);
-                    showStatus('Refresh the tab to connect autofill.', 'error');
+                    showStatus(t('status.fill.refreshToConnect'), 'error');
+                    resolve(fail('Refresh the page to connect autofill.'));
                     return;
                 }
+                const count = res?.matchedCount ?? res?.filledCount ?? fieldsToInject.length;
+                // Report what actually ran: content.ts falls back to keyword mode when AI is unavailable
+                const usedAi = typeof res?.useAi === 'boolean' ? res.useAi : useAiFill;
                 if (res && res.success) {
-                    const count = res.matchedCount ?? res.filledCount ?? fieldsToInject.length;
-                    // Report what actually ran: content.ts falls back to keyword mode when AI is unavailable
-                    const usedAi = typeof res.useAi === 'boolean' ? res.useAi : useAiFill;
                     if (res.aiNotice) {
-                        const mode = usedAi ? 'AI partly skipped' : 'keyword mode';
-                        showStatus(`Filled ${count} inputs (${mode}). ${res.aiNotice}${skippedFilesNote}`, 'error', 7000);
+                        const filled = usedAi
+                            ? t('status.fill.aiPartlySkipped', { count })
+                            : t('status.fill.keywordMode', { count });
+                        showStatus(`${filled} ${res.aiNotice}${skippedFilesNote}`, 'error', 7000);
                     } else if (skippedFilesNote) {
-                        const mode = usedAi ? 'with AI' : 'without AI';
-                        showStatus(`Form filled ${mode} (${count} inputs matched).${skippedFilesNote}`, 'info', 6000);
+                        const filled = usedAi ? t('status.fill.withAi', { count }) : t('status.fill.withoutAi', { count });
+                        showStatus(`${filled}${skippedFilesNote}`, 'info', 6000);
                     } else {
-                        const mode = usedAi ? 'with AI' : 'without AI';
-                        showStatus(`Form filled ${mode} (${count} inputs matched).`, 'success', 4000);
+                        const filled = usedAi ? t('status.fill.withAi', { count }) : t('status.fill.withoutAi', { count });
+                        showStatus(filled, 'success', 4000);
                     }
                 } else if (res && res.error) {
-                    showStatus(`Fill error: ${res.error}`, 'error', 4000);
+                    showStatus(t('status.fill.error', { error: String(res.error) }), 'error', 4000);
+                    resolve(fail(String(res.error)));
+                    return;
                 } else {
-                    showStatus(`Injected ${fieldsToInject.length} fields into page.`, 'success', 4000);
+                    showStatus(t('status.fill.injected', { count: fieldsToInject.length }), 'success', 4000);
                 }
-            });
+                resolve({
+                    ok: true,
+                    filled: count,
+                    usedAi,
+                    filledLabels: Array.isArray(res?.filledLabels) ? res.filledLabels : [],
+                    left: Array.isArray(res?.left) ? res.left : [],
+                    notice: res?.aiNotice,
+                    stopped: Boolean(res?.stopped),
+                    ...(options.target ? {
+                        target: options.target.focused ? 'this field' : (options.target.texts ?? []).join(', '),
+                        matched: Number(res?.matched) || 0
+                    } : {})
+                });
+            }));
         } catch {
             setIsFilling(false);
-            showStatus('Could not connect to page. Refresh the tab.', 'error');
+            fillingTabId.current = null;
+            showStatus(t('status.fill.cannotConnect'), 'error');
+            return fail('Cannot connect to this page.');
+        }
+    };
+
+    // Voice "stop": ends the fill running in the tab it started on. False when there is no tab to stop.
+    const cancelFormFill = async (): Promise<boolean> => {
+        const tabId = fillingTabId.current ?? (await getActiveTab())?.id;
+        if (tabId === undefined) return false;
+        chrome.runtime.sendMessage({ action: 'CANCEL_FILL', tabId }).catch(() => { });
+        return true;
+    };
+
+    // Voice "next" / "submit": clicks the form's button once
+    const advanceForm = async (submit: boolean): Promise<AdvanceResult> => {
+        const tab = await getActiveTab();
+        if (!tab?.id) return { action: 'none' };
+        try {
+            const res = await chrome.runtime.sendMessage({ action: 'ADVANCE_TAB', tabId: tab.id, submit });
+            return res?.action ? res as AdvanceResult : { action: 'none' };
+        } catch {
+            return { action: 'none' };
         }
     };
 
@@ -264,6 +353,9 @@ export function useExtensionBridge(
         checkActiveTabFields,
         handleToggleHighlight,
         triggerFormFill,
+        cancelFormFill,
+        advanceForm,
+        getActiveTab,
         handleClosePanel
     };
 }

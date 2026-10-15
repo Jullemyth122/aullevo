@@ -1,6 +1,9 @@
 import { Zap, RefreshCw } from 'lucide-react';
 import type { UserData, CM } from '../../types';
 import { getProfileCustomFields } from '../../types';
+import { useT } from '../../i18n';
+import { usePlanRewards } from '../../hooks/useRewards';
+import { PlanUnlock, UnlockStatus } from '../UnlockCard';
 
 interface AutofillTabProps {
     currentProfile: UserData;
@@ -25,6 +28,8 @@ export function AutofillTab({
     onRescan,
     onFill
 }: AutofillTabProps) {
+    const { t } = useT();
+    const plan = usePlanRewards();
     const profileType = currentProfile.profileType.toUpperCase();
     const enabledFieldsCount = getProfileCustomFields(currentProfile).filter((f: CM) => f.enabled).length;
     const enabledFilesCount = (currentProfile.files || []).filter(f => f.enabled).length;
@@ -32,25 +37,26 @@ export function AutofillTab({
     return (
         <>
             {/* Detection Card */}
-            <div className="av-card av-detection">
+            <div className="av-card av-detection" data-tour="detection">
                 <div>
-                    <div className="av-detection__eyebrow">Form Detection</div>
+                    <div className="av-detection__eyebrow">{t('autofill.detection.title')}</div>
                     <div className="av-detection__count av-detection__count--active">
                         {detectedFields}
                     </div>
-                    <div className="av-detection__sub">Fields on active tab</div>
+                    <div className="av-detection__sub">{t('autofill.detection.sub')}</div>
                 </div>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                     <button
                         className={`av-detection__rescan ${isHighlighting ? 'active' : ''}`}
                         onClick={onToggleHighlight}
-                        title="Inspect and highlight fields on page"
+                        data-tour="highlight"
+                        title={t('autofill.detection.highlightTitle')}
                     >
-                        <span>{isHighlighting ? 'Clear' : 'Highlight'}</span>
+                        <span>{isHighlighting ? t('autofill.detection.clear') : t('autofill.detection.highlight')}</span>
                     </button>
-                    <button className="av-detection__rescan" onClick={onRescan} title="Rescan page">
+                    <button className="av-detection__rescan" onClick={onRescan} title={t('autofill.detection.rescanTitle')} data-tour="rescan">
                         <RefreshCw size={11} />
-                        <span>Rescan</span>
+                        <span>{t('autofill.detection.rescan')}</span>
                     </button>
                 </div>
             </div>
@@ -60,28 +66,37 @@ export function AutofillTab({
                 className={`av-fill-btn ${isFilling || !currentProfile.enabled ? 'av-fill-btn--disabled' : ''}`}
                 onClick={onFill}
                 disabled={isFilling || !currentProfile.enabled}
+                data-tour="fill"
             >
                 <Zap size={15} />
                 <span>
                     {isFilling
-                        ? 'Injecting...'
+                        ? t('autofill.fill.injecting')
                         : !currentProfile.enabled
-                            ? `${profileType} Disabled`
+                            ? t('autofill.fill.disabled', { type: profileType })
                             : useAiFill
-                                ? `Fill Form with AI (${profileType})`
-                                : `Fill Form (${profileType})`}
+                                ? t('autofill.fill.withAi', { type: profileType })
+                                : t('autofill.fill.standard', { type: profileType })}
                 </span>
             </button>
             {autoPaginate && currentProfile.enabled && (
                 <div style={{ fontSize: 10, color: 'var(--av-text-muted)', textAlign: 'center', marginTop: -4, marginBottom: 10 }}>
-                    Auto-pagination on: fills every page, then submits
+                    {t('autofill.fill.autoPaginate')}
+                </div>
+            )}
+
+            {/* Free plan: AI fills left today (free, then from a short ad; keyword fill stays free), auto-pagination hours */}
+            {!plan.isPro && (useAiFill || autoPaginate) && (
+                <div style={{ display: 'grid', gap: 6, marginBottom: 10 }}>
+                    {useAiFill && <PlanUnlock feature="ai" />}
+                    {autoPaginate && <UnlockStatus feature="paginate" cache={plan.cache} />}
                 </div>
             )}
 
             {/* Active Profile Snapshot Card */}
-            <div className="av-card">
+            <div className="av-card" data-tour="active-profile">
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div className="av-label">Active Profile</div>
+                    <div className="av-label">{t('autofill.activeProfile.title')}</div>
                     <span className="av-pill av-pill--active">
                         {profileType}
                     </span>
@@ -90,26 +105,29 @@ export function AutofillTab({
                     {currentProfile.profileName}
                 </div>
                 <div style={{ fontSize: 11, color: 'var(--av-text-muted)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span>{enabledFieldsCount} fields &bull; {enabledFilesCount} docs ready</span>
+                    <span>{t('autofill.activeProfile.summary', {
+                        fields: t('autofill.activeProfile.fieldCount', { count: enabledFieldsCount }),
+                        docs: t('autofill.activeProfile.docCount', { count: enabledFilesCount })
+                    })}</span>
                     <span style={{ color: currentProfile.enabled ? 'var(--av-success)' : 'var(--av-error)', fontWeight: 700, fontSize: 10 }}>
-                        {currentProfile.enabled ? 'READY' : 'DISABLED'}
+                        {currentProfile.enabled ? t('autofill.activeProfile.ready') : t('autofill.activeProfile.disabled')}
                     </span>
                 </div>
             </div>
 
             {/* Shortcuts Helper */}
-            <div className="av-card av-shortcuts">
-                <div className="av-shortcuts__title">Keyboard Shortcuts</div>
+            <div className="av-card av-shortcuts" data-tour="shortcuts">
+                <div className="av-shortcuts__title">{t('autofill.shortcuts.title')}</div>
                 <div className="av-shortcuts__item">
-                    <span className="av-shortcuts__desc">Toggle Side Panel</span>
+                    <span className="av-shortcuts__desc">{t('autofill.shortcuts.toggleSidePanel')}</span>
                     <span className="av-shortcuts__key">Alt+Q / Option+Q</span>
                 </div>
                 <div className="av-shortcuts__item">
-                    <span className="av-shortcuts__desc">AI / Keyword Form Fill</span>
+                    <span className="av-shortcuts__desc">{t('autofill.shortcuts.formFill')}</span>
                     <span className="av-shortcuts__key">Alt+Shift+L / Option+Shift+L</span>
                 </div>
                 <div className="av-shortcuts__item">
-                    <span className="av-shortcuts__desc">Multi-Link Batch Fill</span>
+                    <span className="av-shortcuts__desc">{t('autofill.shortcuts.batchFill')}</span>
                     <span className="av-shortcuts__key">Alt+Shift+B / Option+Shift+B</span>
                 </div>
             </div>

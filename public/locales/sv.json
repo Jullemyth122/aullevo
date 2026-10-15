@@ -1,0 +1,706 @@
+{
+  "autofill": {
+    "detection": {
+      "title": "Formulärdetektering",
+      "sub": "Fält på aktiv flik",
+      "highlightTitle": "Granska och markera fält på sidan",
+      "clear": "Rensa",
+      "highlight": "Markera",
+      "rescanTitle": "Skanna om sidan",
+      "rescan": "Skanna om"
+    },
+    "fill": {
+      "injecting": "Fyller i...",
+      "disabled": "{type} inaktiverad",
+      "withAi": "Fyll i formulär med AI ({type})",
+      "standard": "Fyll i formulär ({type})",
+      "autoPaginate": "Automatisk sidbläddring på: fyller i varje sida och skickar sedan"
+    },
+    "activeProfile": {
+      "title": "Aktiv profil",
+      "summary": "{fields} • {docs} redo",
+      "fieldCount": {
+        "one": "{count} fält",
+        "other": "{count} fält"
+      },
+      "docCount": {
+        "one": "{count} dokument",
+        "other": "{count} dokument"
+      },
+      "ready": "REDO",
+      "disabled": "INAKTIVERAD"
+    },
+    "shortcuts": {
+      "title": "Kortkommandon",
+      "toggleSidePanel": "Visa/dölj sidopanel",
+      "formFill": "Formulärifyllning med AI / nyckelord",
+      "batchFill": "Massifyllning via flera länkar"
+    }
+  },
+  "content": {
+    "openSidebar": "Öppna Aullevos sidopanel",
+    "filled": "IFYLLT",
+    "file": "Fil: {name}",
+    "files": {
+      "one": "{count} fil bifogad",
+      "other": "{count} filer bifogade"
+    },
+    "matched": "Matchat: {name}",
+    "ranked": "Rangordnat: {value}",
+    "ai": "[AI] {text}",
+    "aiGenerated": "[AI] Genererat",
+    "fixed": "Korrigerat: {value}"
+  },
+  "header": {
+    "versionLine": "v{version} • Autofyll",
+    "lightTheme": "Ljust tema",
+    "darkTheme": "Mörkt tema",
+    "jsonConfig": "JSON-konfiguration",
+    "openFullPage": "Öppna helsida",
+    "closeSidePanel": "Stäng sidopanel",
+    "footer": {
+      "engine": "Aullevos autofyllmotor",
+      "ready": "Redo"
+    }
+  },
+  "json": {
+    "title": "JSON-konfiguration",
+    "badge": {
+      "fields": {
+        "one": "✓ {count} fält",
+        "other": "✓ {count} fält"
+      },
+      "invalid": "Ogiltig JSON"
+    },
+    "actions": {
+      "format": "Formatera / snygga till JSON",
+      "fullscreen": "Helskärm",
+      "exitFullscreen": "Avsluta helskärm",
+      "close": "Stäng",
+      "download": "Ladda ned",
+      "copy": "Kopiera JSON",
+      "copied": "Kopierat",
+      "upload": "Ladda upp fil",
+      "import": "Importera"
+    },
+    "quota": {
+      "downloadPro": "Nedladdning (export) är en Pro-funktion."
+    },
+    "errors": {
+      "noFields": "Inga giltiga fält hittades i angiven JSON.",
+      "invalidFormat": "Ogiltigt JSON-format: {error}"
+    }
+  },
+  "language": {
+    "title": "Språk",
+    "button": "Språk: {name}",
+    "search": "Sök språk",
+    "auto": "Automatiskt: {name}",
+    "autoHint": "Följer webbläsarens språk",
+    "backToEnglish": "Tillbaka till engelska",
+    "changed": "Språket har ändrats till {name}.",
+    "switchBack": "Byt tillbaka till {name}",
+    "keep": "Behåll",
+    "noResults": "Inga språk hittades",
+    "settingsHint": "Ändrar alla vyer i Aullevo, inklusive den guidade turen."
+  },
+  "manifest": {
+    "appName": "Aullevo - AI-autofyll för formulär och jobbansökningar",
+    "appDescription": "AI-ifyllning för jobbansökningar, enkäter och alla webbformulär. Sparade profiler, CV-uppladdning och smart autofyll.",
+    "actionTitle": "Öppna Aullevos sidopanel",
+    "commandTogglePanel": "Visa/dölj Aullevos sidopanel",
+    "commandFill": "Starta autofyll med AI eller nyckelord på sidan",
+    "commandBatchFill": "Starta massautofyll via flera länkar"
+  },
+  "multilink": {
+    "batch": {
+      "title": "Kö för massautofyll",
+      "activeCount": "{enabled} av {total} aktiva",
+      "description": "Öppna och fyll i formulär automatiskt i flera flikar med din aktiva <b>{type}</b>-profil.",
+      "running": "Massautofyll pågår...",
+      "start": {
+        "one": "Fyll i {count} formulär",
+        "other": "Fyll i {count} formulär"
+      }
+    },
+    "add": {
+      "title": "Lägg till formulär-/jobblänk"
+    },
+    "saved": {
+      "title": "Sparade länkar ({count})",
+      "clearAll": "Rensa alla",
+      "empty": "Inga länkar ännu. Klistra in en formulär-URL ovan för att börja.",
+      "open": "Öppna länk",
+      "remove": "Ta bort länk"
+    }
+  },
+  "nav": {
+    "autofill": "Autofyll",
+    "profiles": "Profiler ({count})",
+    "multiLink": "Multilänk",
+    "settings": "Inställningar"
+  },
+  "profiles": {
+    "types": {
+      "job": "Jobb",
+      "medical": "Medicinsk",
+      "government": "Myndighet",
+      "survey": "Enkät",
+      "academic": "Akademisk",
+      "financial": "Ekonomi",
+      "custom": "Anpassad"
+    },
+    "badges": {
+      "on": "PÅ",
+      "off": "AV",
+      "disabled": "INAKTIVERAD",
+      "sensitive": "KÄNSLIG",
+      "aiSafe": "AI-SÄKER"
+    },
+    "save": {
+      "button": "Spara {type}-profil",
+      "saved": "Sparat ✓"
+    },
+    "dropdown": {
+      "newProfilePlaceholder": "Namn på ny profil...",
+      "add": "Lägg till"
+    },
+    "config": {
+      "title": "Profilinställningar",
+      "on": "PROFIL PÅ",
+      "off": "PROFIL AV",
+      "activeTooltip": "{type}-profilen är aktiv",
+      "disabledTooltip": "{type}-profilen är inaktiverad",
+      "namePlaceholder": "Profilnamn"
+    },
+    "identity": {
+      "title": "Identitet och kontakt",
+      "firstName": "Förnamn",
+      "lastName": "Efternamn",
+      "email": "E-postadress",
+      "phone": "Telefonnummer",
+      "address": "Bostadsadress"
+    },
+    "attributes": {
+      "title": "{type}-attribut",
+      "customHint": "Lägg till egna fält nedan eller importera via JSON.",
+      "job": {
+        "headline": "Rubrik / titel",
+        "linkedin": "LinkedIn",
+        "github": "GitHub",
+        "portfolio": "Portfolio",
+        "skills": "Färdigheter",
+        "education": "Utbildning / examen",
+        "certifications": "Certifieringar"
+      },
+      "medical": {
+        "bloodType": "Blodgrupp",
+        "allergies": "Allergier",
+        "emergencyContact": "Nödkontakt",
+        "insuranceProvider": "Försäkringsbolag"
+      },
+      "government": {
+        "nationalId": "Personnummer / ID-nummer",
+        "citizenship": "Medborgarskap",
+        "passport": "Passnummer",
+        "driversLicense": "Körkort"
+      },
+      "survey": {
+        "ageRange": "Åldersgrupp",
+        "income": "Inkomst",
+        "education": "Utbildning",
+        "employment": "Sysselsättning"
+      },
+      "academic": {
+        "institution": "Lärosäte",
+        "major": "Huvudämne / studieområde",
+        "gpa": "Meritvärde (GPA)",
+        "gradYear": "Examensår",
+        "testScores": "Provresultat"
+      },
+      "financial": {
+        "billingAddress": "Faktureringsadress",
+        "payment": "Betalning",
+        "cardholder": "Kortinnehavare"
+      }
+    },
+    "field": {
+      "sensitiveTooltip": "Känslig: värdet döljs för AI (Zero-Knowledge)",
+      "aiSafeTooltip": "AI-säker: värdet delas med AI för smarta svarsval"
+    },
+    "context": {
+      "buttonTitle": "AI-kontext för {label}",
+      "title": "AI-kontext: {label}",
+      "placeholder": "Ledtråd för AI (t.ex. ”Juridiskt förnamn i passet”)",
+      "hint": "AI använder den här ledtråden för att identifiera otydliga formulärfält på webbplatser."
+    },
+    "custom": {
+      "title": "Egna fält",
+      "labelPlaceholder": "Fältetikett",
+      "valuePlaceholder": "Fältvärde",
+      "sensitiveTooltip": "Känslig: värdet döljs för AI",
+      "aiSafeTooltip": "AI-säker: värdet delas med AI",
+      "enabledTooltip": "Fältet är aktiverat",
+      "disabledTooltip": "Fältet är inaktiverat",
+      "delete": "Ta bort fält",
+      "pagination": {
+        "one": "Sida {page} av {total} ({count} post)",
+        "other": "Sida {page} av {total} ({count} poster)"
+      },
+      "newLabelPlaceholder": "Etikett",
+      "newValuePlaceholder": "Värde",
+      "add": "Lägg till eget fält"
+    },
+    "documents": {
+      "title": "Bifogade dokument",
+      "labelPlaceholder": "Dokumentetikett",
+      "labelTooltip": "Klicka för att redigera dokumentetiketten",
+      "remove": "Ta bort fil",
+      "pagination": "Sida {page} av {total}",
+      "categories": {
+        "resume": "CV",
+        "coverLetter": "Personligt brev",
+        "identity": "Identitetshandling",
+        "academic": "Studieintyg",
+        "portfolio": "Portfolio",
+        "other": "Annat dokument"
+      },
+      "upload": {
+        "resume": "Ladda upp CV",
+        "coverLetter": "Ladda upp personligt brev",
+        "identity": "Ladda upp ID-handling",
+        "academic": "Ladda upp studieintyg",
+        "portfolio": "Ladda upp portfolio",
+        "other": "Ladda upp dokument"
+      },
+      "size": {
+        "bytes": "{size} B",
+        "kilobytes": "{size} kB",
+        "megabytes": "{size} MB"
+      }
+    }
+  },
+  "settings": {
+    "account": {
+      "title": "Konto",
+      "proUntil": "Pro till {date}",
+      "proLifetime": "Pro · Livstid",
+      "disconnect": "Koppla från konto",
+      "waiting": "Väntar på inloggning…",
+      "connect": "Anslut med Aullevo Web",
+      "renew": "Pro har gått ut · Förnya",
+      "upgrade": "Uppgradera till Pro"
+    },
+    "theme": {
+      "title": "Tema",
+      "dark": "Mörkt tema",
+      "description": "Växla mellan mörkt skiffer och ljust tema"
+    },
+    "mode": {
+      "title": "Autofyllningsläge",
+      "aiActive": "AI-smartifyllning (aktiv)",
+      "standard": "Standardifyllning (utan AI)",
+      "aiDescription": "Använder AI för att tolka frågor och matcha komplexa fält",
+      "standardDescription": "Matchar profilattribut direkt utan AI-anrop",
+      "toggle": "Slå på/av AI-ifyllning"
+    },
+    "ai": {
+      "title": "AI-motor",
+      "unlimited": "Obegränsad åtkomst",
+      "keyRequired": "API-nyckel krävs",
+      "freeUsage": "Free: {used}/{limit} denna vecka",
+      "privacy": "<b>Integritet:</b> Fält markerade som KÄNSLIG skickas aldrig till AI, bara deras etiketter. Värden i AI-SÄKER-fält och formulärets frågor skickas till {provider}.",
+      "provider": "AI-leverantör",
+      "customProvider": "Anpassad (OpenAI-kompatibel)",
+      "baseUrl": "Server-URL",
+      "customHint": "Fungerar med alla servrar som stöder OpenAI:s chatt-API, till exempel OpenRouter, Groq, Mistral, Ollama eller LM Studio. Lokala servrar behöver ingen nyckel.",
+      "model": "AI-modell",
+      "modelOption": "{name} ({description})",
+      "models": {
+        "fastest": "Snabbast och billigast",
+        "balanced": "Balanserat resonemang",
+        "capable": "Snabb och kapabel",
+        "smartest": "Högsta intelligens",
+        "legacy": "Äldre, snabb"
+      },
+      "otherModel": "Annan modell (skriv dess ID)",
+      "modelIdPlaceholder": "Exakt modell-ID, t.ex. {example}",
+      "apiKey": "{provider} API-nyckel",
+      "getKey": "Hämta API-nyckel",
+      "keyPlaceholder": "Klistra in din {provider} API-nyckel",
+      "hideKey": "Dölj nyckel",
+      "showKey": "Visa nyckel",
+      "addKeyHint": "Lägg till din {provider} API-nyckel för att använda AI-smartifyllning.",
+      "proHint": "Pro: obegränsade AI-ifyllningar. Nyckeln stannar i den här webbläsaren.",
+      "freeHint": "Free-plan: {limit} AI-ifyllningar per vecka. Uppgradera till Pro för obegränsat."
+    },
+    "paginate": {
+      "title": "Automatisk sidbläddring",
+      "toggleTitle": "Fyll i formulär med flera sidor",
+      "description": "Fyller i varje sida, klickar på Nästa / Fortsätt och trycker på Skicka på slutet. Rättar svar som formuläret avvisar och pausar när det inte går.",
+      "toggle": "Slå på/av automatisk sidbläddring",
+      "proFeature": "Pro-funktion",
+      "upgrade": "Uppgradera till Pro för att använda automatisk sidbläddring"
+    },
+    "floating": {
+      "title": "Flytande ikon på webbsidor",
+      "toggleTitle": "Visa flytande knapp",
+      "description": "Visa Aullevos snabbflik dockad vid kanten av webbsidor",
+      "toggle": "Slå på/av flytande knapp på webbsidor"
+    },
+    "typing": {
+      "title": "Mänsklig skrivhastighet",
+      "instant": "Direkt ({ms} ms)",
+      "natural": "Naturlig ({ms} ms)",
+      "slow": "Långsam ({ms} ms)",
+      "custom": "Anpassad ({ms} ms)",
+      "naturalFree": "Naturlig ({ms} ms) · Free-plan",
+      "description": "Skriver ett tecken i taget i mänsklig takt, för webbplatser som förväntar sig riktiga tangenttryckningar.",
+      "proFeature": "Pro-funktion",
+      "customDelay": "Anpassad fördröjning:",
+      "customProFeature": "Anpassad fördröjning är en Pro-funktion",
+      "unitMs": "ms"
+    },
+    "tour": {
+      "title": "Guidad tur",
+      "toggleTitle": "Visa genomgången igen",
+      "description": "Går igenom alla flikar igen, steg för steg",
+      "replay": "Visa igen"
+    },
+    "security": {
+      "title": "Lokalt krypterad"
+    },
+    "memories": {
+      "title": "AI-minnen",
+      "count": "({enabled}/{total} på)",
+      "descriptionAiOn": "Fakta om dig som AI kan använda för att svara på öppna frågor (t.ex. ”Arbetssätt: endast distans”). Aktiverade minnen skickas till {provider} och lagras okrypterade i den här webbläsaren, så lägg inte till lösenord eller ID-nummer.",
+      "descriptionAiOff": "Fakta om dig som AI kan använda för att svara på öppna frågor (t.ex. ”Arbetssätt: endast distans”). Används bara när AI-smartifyllning är på. Aktiverade minnen skickas till {provider} och lagras okrypterade i den här webbläsaren, så lägg inte till lösenord eller ID-nummer.",
+      "titlePlaceholder": "Rubrik",
+      "contentPlaceholder": "Vad AI bör veta",
+      "enabledTitle": "Minnet skickas till AI",
+      "disabledTitle": "Minnet används inte",
+      "on": "PÅ",
+      "off": "AV",
+      "delete": "Ta bort minne",
+      "newTitlePlaceholder": "Rubrik (t.ex. Arbetssätt)",
+      "newContentPlaceholder": "Innehåll (t.ex. Föredrar helt distansbaserade roller, öppen för konsultuppdrag)",
+      "add": "Lägg till minne"
+    },
+    "deviceData": {
+      "title": "Data på den här enheten",
+      "total": "{size} totalt",
+      "description": "Varje konto har ett eget krypterat valv här. Konton ser aldrig varandras profiler, dokument, API-nyckel, minnen eller länkar.",
+      "empty": "Ingen sparad data ännu.",
+      "localOwner": "Inte inloggad (lokala profiler)",
+      "anotherAccount": "Ett annat konto",
+      "inUse": "{size} · används nu",
+      "deleteTitle": "Ta bort kontots data från den här enheten",
+      "delete": "Ta bort",
+      "confirmDelete": "Vill du ta bort Aullevo-data för ”{name}” från den här enheten?\n\nDetta tar permanent bort dess krypterade profiler, dokument, API-nyckel, AI-minnen och länkkö. Det går inte att ångra.",
+      "bytes": "{size} B",
+      "kilobytes": "{size} kB",
+      "megabytes": "{size} MB"
+    }
+  },
+  "status": {
+    "plan": {
+      "profileLimit": "Free-planen tillåter {max} aktiva profiler. Stäng AV extra profiler eller uppgradera till Pro.",
+      "activeLimit": "Free-planen tillåter {max} aktiva profiler. Stäng AV en eller uppgradera till Pro.",
+      "createdOff": "Profilen skapades som AV. Free-planen tillåter {max} aktiva profiler. Stäng AV en eller uppgradera till Pro.",
+      "autoPaginatePro": "Automatisk sidbläddring är en Pro-funktion. Uppgradera till Pro för att fylla i formulär med flera sidor.",
+      "jsonImportLimit": "Du har använt alla {limit} gratis JSON-importer för dessa 2 veckor. De återställs den {date}, eller uppgradera till Pro för obegränsade importer.",
+      "documentsSkipped": {
+        "one": "{count} dokument bifogades inte: uppladdning i formulär är en Pro-funktion.",
+        "other": "{count} dokument bifogades inte: uppladdning i formulär är en Pro-funktion."
+      }
+    },
+    "batch": {
+      "starting": {
+        "one": "Startar massifyllning av {count} formulär...",
+        "other": "Startar massifyllning av {count} formulär..."
+      },
+      "progress": "Fyller i {current} av {total}: {host}",
+      "progressNoHost": "Fyller i {current} av {total}...",
+      "complete": {
+        "one": "Massifyllning klar för {count} formulär!",
+        "other": "Massifyllning klar för {count} formulär!"
+      }
+    },
+    "save": {
+      "success": "{type}-profilen har sparats!",
+      "failed": "Det gick inte att spara: {error}",
+      "noProfile": "Ingen profil vald",
+      "unknownError": "Det gick inte att spara"
+    },
+    "profile": {
+      "nameExists": "Det finns redan en profil med det här namnet!",
+      "disabled": "{type} är inaktiverad. Slå PÅ den för att autofylla.",
+      "defaultType": "PROFIL",
+      "imported": {
+        "one": "{count} fält har importerats till {type}!",
+        "other": "{count} fält har importerats till {type}!"
+      }
+    },
+    "highlight": {
+      "noActiveTab": "Ingen aktiv flik hittades.",
+      "refreshToConnect": "Uppdatera sidan för att ansluta markeringar.",
+      "on": {
+        "one": "Markerade {count} fält på sidan!",
+        "other": "Markerade {count} fält på sidan!"
+      },
+      "cleared": "Markeringarna har rensats."
+    },
+    "fill": {
+      "injectingAi": "Fyller i fält med AI ({type})...",
+      "injecting": "Fyller i fält ({type})...",
+      "noTab": "Kunde inte nå den aktiva fliken.",
+      "refreshToConnect": "Uppdatera fliken för att ansluta autofyll.",
+      "cannotConnect": "Kunde inte ansluta till sidan. Uppdatera fliken.",
+      "aiPartlySkipped": {
+        "one": "Fyllde i {count} fält (AI delvis överhoppad).",
+        "other": "Fyllde i {count} fält (AI delvis överhoppad)."
+      },
+      "keywordMode": {
+        "one": "Fyllde i {count} fält (nyckelordsläge).",
+        "other": "Fyllde i {count} fält (nyckelordsläge)."
+      },
+      "withAi": {
+        "one": "Formuläret ifyllt med AI ({count} fält matchat).",
+        "other": "Formuläret ifyllt med AI ({count} fält matchade)."
+      },
+      "withoutAi": {
+        "one": "Formuläret ifyllt utan AI ({count} fält matchat).",
+        "other": "Formuläret ifyllt utan AI ({count} fält matchade)."
+      },
+      "error": "Fel vid ifyllning: {error}",
+      "injected": {
+        "one": "Fyllde i {count} fält på sidan.",
+        "other": "Fyllde i {count} fält på sidan."
+      }
+    },
+    "pagination": {
+      "progress": "Automatisk sidbläddring: fyller i sida {page}...",
+      "lostConnection": "Automatisk sidbläddring stoppad: anslutningen till tillägget bröts.",
+      "filled": {
+        "one": "Fyllde i {filled} fält på {count} sida.",
+        "other": "Fyllde i {filled} fält på {count} sidor."
+      },
+      "corrected": {
+        "one": "Rättade {count} svar som formuläret avvisade.",
+        "other": "Rättade {count} svar som formuläret avvisade."
+      },
+      "field": "”{name}”",
+      "fieldAndMore": {
+        "one": "”{name}” (+{count} till)",
+        "other": "”{name}” (+{count} till)"
+      },
+      "aField": "ett fält",
+      "nextButton": "Nästa",
+      "submitted": "Skickat!",
+      "noNext": "Ingen Nästa/Fortsätt-knapp hittades.",
+      "stillEmpty": "{field} är fortfarande tomt.",
+      "check": "Kontrollera {field}.",
+      "blocked": "Pausad på sida {page}: {field} är obligatoriskt och tomt. Fyll i det och kör sedan igen.",
+      "nextDisabled": "Pausad på sida {page}: knappen ”{button}” är inaktiverad. Kontrollera sidan och kör sedan igen.",
+      "validationError": "Pausad på sida {page}: formuläret rapporterade ”{error}”.",
+      "validationErrorUnknown": "Pausad på sida {page}: formuläret rapporterade ett fel.",
+      "correctionTried": "(automatisk rättning provades)",
+      "stuck": "Pausad på sida {page}: klickade på ”{button}” men formuläret gick inte vidare.",
+      "maxPages": "Stoppad vid säkerhetsgränsen på {max} sidor.",
+      "noForm": "Inget formulär hittades på den här sidan (eller så kan Aullevo inte köras här).",
+      "stopped": "Automatisk sidbläddring stoppad: {error}",
+      "unknownError": "okänt fel"
+    }
+  },
+  "tour": {
+    "card": {
+      "progress": "{section} · {current} av {total}",
+      "skip": "Hoppa över turen",
+      "dontShowAgain": "Visa inte igen",
+      "back": "Tillbaka",
+      "next": "Nästa",
+      "done": "Klar"
+    },
+    "shortcuts": {
+      "allActive": "Alla 3 kortkommandon är aktiva i den här webbläsaren.",
+      "notSet": "Inte inställda i den här webbläsaren: {list}. Ställ in dem själv i Chromes inställningar för kortkommandon.",
+      "openSettings": "Öppna Chromes inställningar för kortkommandon",
+      "toggleSidePanel": "Visa/dölj sidopanel",
+      "fallbackName": "Kortkommando"
+    },
+    "sections": {
+      "autofill": "Autofyll",
+      "header": "Knappar överst",
+      "profiles": "Profiler",
+      "multilink": "Multilänk",
+      "settings": "Inställningar"
+    },
+    "autofill": {
+      "detection": {
+        "title": "Formulärdetektering",
+        "body": "Aullevo räknar de ifyllbara fälten på sidan i din aktuella flik. Öppna ett formulär så uppdateras siffran."
+      },
+      "highlight": {
+        "title": "Markera fält",
+        "body": "Ramar in varje fält som Aullevo hittade på sidan, så att du ser vad som kommer att fyllas i innan du fyller i. Klicka igen för att ta bort ramarna."
+      },
+      "rescan": {
+        "title": "Skanna om",
+        "body": "Vissa formulär lägger till fält efter att sidan har laddats, till exempel formulär i flera steg eller popup-fönster. Skanna om räknar fälten på nytt."
+      },
+      "fill": {
+        "title": "Fyll i formuläret",
+        "body": "Fyller i sidan med din aktiva profil. Med AI-ifyllning på (i Inställningar) matchas frågor mot dina svar även när de är formulerade annorlunda. När den är av matchas fält med nyckelord."
+      },
+      "activeProfile": {
+        "title": "Aktiv profil",
+        "body": "Profilen som används för ifyllning, med antal aktiverade fält och dokument. Byt profil eller redigera dina svar på fliken <b>Profiler</b>."
+      },
+      "shortcuts": {
+        "title": "Kortkommandon",
+        "body": "Chrome ställer in de här tangenterna när Aullevo installeras, men hoppar över dem som Chrome eller ett annat tillägg redan använder. Du kan ändra dem när som helst."
+      }
+    },
+    "header": {
+      "voice": {
+        "title": "Röstläge",
+        "body": "Prata med Aullevo i stället för att klicka. Den här knappen växlar panelen till röstassistenten: säg \"fill this page\", \"fill the email\" eller \"fill the first question\" så svarar den högt. Klicka igen för att komma tillbaka till den här vyn.",
+        "note": "Pro-funktion. Kräver en egen API-nyckel från ElevenLabs, som du lägger till under Voice settings. Röstkommandon fungerar på engelska och tagalog."
+      },
+      "language": {
+        "title": "Språk",
+        "body": "Välj språk för hela Aullevo. Engelska står alltid överst i listan, så du kan alltid byta tillbaka."
+      },
+      "theme": {
+        "title": "Ljust eller mörkt tema",
+        "body": "Växlar panelen mellan ljust och mörkt läge."
+      },
+      "json": {
+        "title": "Snabbinställning med JSON",
+        "intro": "Din profil som JSON. Det snabbaste sättet att ställa in en profil:",
+        "step1": "Kopiera JSON härifrån.",
+        "step2": "Ge den till Gemini, Claude eller ChatGPT tillsammans med ditt CV eller något annat dokument.",
+        "step3": "Be AI:n fylla i värdena och behålla samma struktur.",
+        "step4": "Klistra in resultatet här och klicka på <b>Importera</b>."
+      },
+      "fullPage": {
+        "title": "Öppna helsida",
+        "body": "Öppnar Aullevo i en webbläsarflik med mer utrymme för att redigera profiler. Ifyllningen sker fortfarande från den här sidopanelen."
+      },
+      "close": {
+        "title": "Stäng panelen",
+        "body": "Stänger sidopanelen. Öppna den igen med <b>Alt+Q</b> (<b>Option+Q</b> på Mac) eller genom att klicka på Aullevo-ikonen i verktygsfältet."
+      }
+    },
+    "profiles": {
+      "switcher": {
+        "title": "Byt profil",
+        "body1": "Varje profil (Jobb, Akademisk, Ekonomi eller en egen) har sin egen uppsättning svar. Välj den du vill redigera och fylla i med.",
+        "body2": "Öppna listan för att se vilka profiler som är PÅ eller AV och för att skapa en ny längst ned.",
+        "note": "Free-plan: upp till 2 profiler kan vara PÅ samtidigt."
+      },
+      "config": {
+        "title": "Namn och på/av-knapp",
+        "body": "Byt namn på profilen här. <b>PROFIL PÅ</b> slår på eller av hela profilen. När den är av används den inte för ifyllning."
+      },
+      "identity": {
+        "title": "Identitet och kontakt",
+        "body": "Ditt namn, e-post, telefon och adress. Klicka på en avsnittsrubrik för att fälla ihop eller expandera den. Varje fält har tre små kontroller, som visas härnäst."
+      },
+      "fieldContext": {
+        "title": "AI-kontexttips",
+        "body": "Knappen ✨ lägger till ett tips som talar om för AI vad fältet betyder, till exempel ”Juridiskt förnamn i passet”. Det hjälper när en fråga i formuläret är otydligt formulerad. En prick betyder att ett tips är angivet."
+      },
+      "fieldPrivacy": {
+        "title": "AI-säker eller Känslig",
+        "safe": "<b>AI-säker</b>: värdet delas med AI så att den kan välja rätt svar i listrutor och flervalsfrågor.",
+        "sensitive": "<b>Känslig</b>: AI ser bara fältets namn och tips, aldrig värdet. Aullevo skriver ändå in värdet på din enhet.",
+        "toggle": "Klicka för att växla."
+      },
+      "fieldToggle": {
+        "title": "Slå på eller av ett fält",
+        "body": "Slå AV ett fält för att hoppa över det vid ifyllning, utan att radera det du har skrivit."
+      },
+      "documents": {
+        "title": "Bifoga dokument",
+        "body": "Välj dokumenttyp och ladda sedan upp ditt CV, personliga brev, ID-handling med mera. När ett formulär har en fråga med filuppladdning bifogar Aullevo dina dokument som är PÅ.",
+        "note": "Att bifoga dokument i formulär är en Pro-funktion."
+      },
+      "attributes": {
+        "title": "Profilspecifika fält",
+        "body": "Fält som hör till den här typen av profil. En Jobb-profil har rubrik, LinkedIn, färdigheter och utbildning. Akademisk, Medicinsk och de andra har sina egna."
+      },
+      "customFields": {
+        "title": "Lägg till egna fält",
+        "body": "För allt som standardfälten inte täcker, till exempel ”Förväntad lön” eller ”Varför vill du ha det här jobbet?”. Skriv en etikett och ett värde och klicka sedan på <b>+</b>. Det fungerar bra att använda frågans formulering som etikett."
+      },
+      "save": {
+        "title": "Spara",
+        "body": "Ändringar sparas automatiskt medan du skriver. Den här knappen sparar direkt, vilket är praktiskt precis innan du stänger panelen."
+      }
+    },
+    "multilink": {
+      "addLink": {
+        "title": "Lägg till en formulärlänk",
+        "body": "Klistra in hela länken till ett formulär eller en jobbansökan (som börjar med https://) och klicka på <b>+</b>. Lägg till så många du vill."
+      },
+      "savedLinks": {
+        "title": "Din länkkö",
+        "body": "Varje länk du lägger till visas här. Markera en länk för att ta med den i nästa omgång, eller avmarkera den för att hoppa över den. Pilikonen öppnar länken och papperskorgsikonen tar bort den."
+      },
+      "batchRun": {
+        "title": "Fyll i alla på en gång",
+        "body1": "Öppnar varje markerad länk i en bakgrundsflik, en i taget, och fyller i den med din aktiva profil. Förloppet visas överst i panelen.",
+        "note": "Kortkommando: Alt+Shift+B (Option+Shift+B på Mac)."
+      }
+    },
+    "settings": {
+      "account": {
+        "title": "Ditt konto",
+        "body": "Anslut ditt Aullevo Web-konto så att din plan (Free eller Pro) gäller här. Dina profiler förblir krypterade på den här enheten och laddas inte upp."
+      },
+      "aiMode": {
+        "title": "AI-smartifyllning eller Standardifyllning",
+        "standard": "<b>Standardifyllning</b> matchar fält efter namn, utan AI.",
+        "smart": "<b>AI-smartifyllning</b> förstår frågor som är formulerade annorlunda och väljer svar i listrutor och flervalsfrågor."
+      },
+      "aiEngine": {
+        "title": "AI-leverantör, modell och API-nyckel"
+      },
+      "memories": {
+        "title": "AI-minnen",
+        "body": "Korta fakta som AI kan använda för öppna frågor, till exempel ”Arbetssätt: endast distans”. De skickas till den AI-leverantör du har valt och krypteras inte, så lägg aldrig till lösenord eller ID-nummer."
+      },
+      "autoPaginate": {},
+      "floatingIcon": {
+        "title": "Flytande knapp",
+        "body": "En liten Aullevo-flik vid kanten av webbsidor för snabb åtkomst. Stäng av den om den är i vägen."
+      },
+      "typingSpeed": {
+        "title": "Skrivhastighet",
+        "body": "Hur snabbt Aullevo skriver i fält. <b>Naturlig</b> ser mer ut som en människa som skriver, och <b>Direkt</b> är snabbast. Långsam och anpassad hastighet ingår i Pro."
+      },
+      "replayTour": {
+        "title": "Visa guiden igen",
+        "body": "Glömt något? Klicka på <b>Visa igen</b> för att gå igenom hela guiden en gång till."
+      },
+      "deviceData": {
+        "title": "Data på den här enheten",
+        "body": "Varje konto har ett eget krypterat valv i den här webbläsaren. Ta bort data för konton du inte längre använder."
+      }
+    }
+  },
+  "vault": {
+    "loading": "Läser in…",
+    "account": {
+      "signedInAs": "Inloggad som <b>{account}</b>",
+      "notSignedIn": "Inte inloggad: lokala profiler på den här enheten",
+      "fallbackName": "ditt konto"
+    },
+    "errors": {
+      "createFailed": "Det gick inte att skapa valvet. Försök igen.",
+      "wrongPassphrase": "Fel lösenfras.",
+      "wrongClaimPassphrase": "Fel lösenfras för de profilerna."
+    }
+  }
+}

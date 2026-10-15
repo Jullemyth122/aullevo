@@ -1,0 +1,706 @@
+{
+  "autofill": {
+    "detection": {
+      "title": "Lomakkeen tunnistus",
+      "sub": "Kentät aktiivisessa välilehdessä",
+      "highlightTitle": "Tarkista ja korosta sivun kentät",
+      "clear": "Tyhjennä",
+      "highlight": "Korosta",
+      "rescanTitle": "Skannaa sivu uudelleen",
+      "rescan": "Skannaa"
+    },
+    "fill": {
+      "injecting": "Täytetään…",
+      "disabled": "{type} pois käytöstä",
+      "withAi": "Täytä lomake AI:lla ({type})",
+      "standard": "Täytä lomake ({type})",
+      "autoPaginate": "Automaattinen sivutus päällä: täyttää jokaisen sivun ja lähettää lopuksi"
+    },
+    "activeProfile": {
+      "title": "Aktiivinen profiili",
+      "summary": "{fields} • {docs} valmiina",
+      "fieldCount": {
+        "one": "{count} kenttä",
+        "other": "{count} kenttää"
+      },
+      "docCount": {
+        "one": "{count} asiakirja",
+        "other": "{count} asiakirjaa"
+      },
+      "ready": "VALMIS",
+      "disabled": "POIS KÄYTÖSTÄ"
+    },
+    "shortcuts": {
+      "title": "Pikanäppäimet",
+      "toggleSidePanel": "Sivupaneeli auki/kiinni",
+      "formFill": "Lomakkeen täyttö AI:lla / avainsanoilla",
+      "batchFill": "Monilinkkien erätäyttö"
+    }
+  },
+  "content": {
+    "openSidebar": "Avaa Aullevon sivupaneeli",
+    "filled": "TÄYTETTY",
+    "file": "Tiedosto: {name}",
+    "files": {
+      "one": "{count} tiedosto liitetty",
+      "other": "{count} tiedostoa liitetty"
+    },
+    "matched": "Yhdistetty: {name}",
+    "ranked": "Paras osuma: {value}",
+    "ai": "[AI] {text}",
+    "aiGenerated": "[AI] Luotu",
+    "fixed": "Korjattu: {value}"
+  },
+  "header": {
+    "versionLine": "v{version} • Automaattitäyttö",
+    "lightTheme": "Vaalea teema",
+    "darkTheme": "Tumma teema",
+    "jsonConfig": "JSON-määritys",
+    "openFullPage": "Avaa koko sivulla",
+    "closeSidePanel": "Sulje sivupaneeli",
+    "footer": {
+      "engine": "Aullevon täyttömoottori",
+      "ready": "Valmis"
+    }
+  },
+  "json": {
+    "title": "JSON-määritys",
+    "badge": {
+      "fields": {
+        "one": "✓ {count} kenttä",
+        "other": "✓ {count} kenttää"
+      },
+      "invalid": "Virheellinen JSON"
+    },
+    "actions": {
+      "format": "Muotoile JSON",
+      "fullscreen": "Koko näyttö",
+      "exitFullscreen": "Poistu koko näytöstä",
+      "close": "Sulje",
+      "download": "Lataa",
+      "copy": "Kopioi JSON",
+      "copied": "Kopioitu",
+      "upload": "Avaa tiedosto",
+      "import": "Tuo"
+    },
+    "quota": {
+      "downloadPro": "Lataaminen (vienti) on Pro-ominaisuus."
+    },
+    "errors": {
+      "noFields": "JSONista ei löytynyt kelvollisia kenttiä.",
+      "invalidFormat": "Virheellinen JSON-muoto: {error}"
+    }
+  },
+  "language": {
+    "title": "Kieli",
+    "button": "Kieli: {name}",
+    "search": "Hae kieliä",
+    "auto": "Automaattinen: {name}",
+    "autoHint": "Seuraa selaimesi kieltä",
+    "backToEnglish": "Takaisin englantiin",
+    "changed": "Kieli vaihdettu: {name}.",
+    "switchBack": "Vaihda takaisin: {name}",
+    "keep": "Pidä",
+    "noResults": "Kieliä ei löytynyt",
+    "settingsHint": "Vaihtaa kielen kaikissa Aullevon näkymissä, myös esittelykierroksella."
+  },
+  "manifest": {
+    "appName": "Aullevo - AI-lomaketäyttö ja työhakemusten automaattinen täyttö",
+    "appDescription": "AI-lomaketäyttö työhakemuksiin, kyselyihin ja kaikkiin verkkolomakkeisiin. Tallennetut profiilit, CV:n lataus ja älykäs täyttö.",
+    "actionTitle": "Avaa Aullevon sivupaneeli",
+    "commandTogglePanel": "Avaa/sulje Aullevon sivupaneeli",
+    "commandFill": "Täytä sivun lomake AI:lla tai avainsanoilla",
+    "commandBatchFill": "Täytä lomakkeet erässä monilinkeistä"
+  },
+  "multilink": {
+    "batch": {
+      "title": "Erätäyttöjono",
+      "activeCount": "{enabled}/{total} aktiivisena",
+      "description": "Avaa ja täytä lomakkeita automaattisesti useissa välilehdissä aktiivisella <b>{type}</b>-profiililla.",
+      "running": "Erätäyttö käynnissä...",
+      "start": {
+        "one": "Täytä {count} lomake erässä",
+        "other": "Täytä {count} lomaketta erässä"
+      }
+    },
+    "add": {
+      "title": "Lisää lomake- tai työpaikkalinkki"
+    },
+    "saved": {
+      "title": "Tallennetut linkit ({count})",
+      "clearAll": "Tyhjennä kaikki",
+      "empty": "Linkkejä ei ole vielä lisätty. Aloita liittämällä lomakkeen URL yllä olevaan kenttään.",
+      "open": "Avaa linkki",
+      "remove": "Poista linkki"
+    }
+  },
+  "nav": {
+    "autofill": "Täyttö",
+    "profiles": "Profiilit ({count})",
+    "multiLink": "Monilinkki",
+    "settings": "Asetukset"
+  },
+  "profiles": {
+    "types": {
+      "job": "Työ",
+      "medical": "Terveys",
+      "government": "Viranomainen",
+      "survey": "Kysely",
+      "academic": "Opinnot",
+      "financial": "Talous",
+      "custom": "Oma"
+    },
+    "badges": {
+      "on": "PÄÄLLÄ",
+      "off": "POIS",
+      "disabled": "POIS KÄYTÖSTÄ",
+      "sensitive": "ARKALUONTEINEN",
+      "aiSafe": "AI-TURVALLINEN"
+    },
+    "save": {
+      "button": "Tallenna profiili {type}",
+      "saved": "Tallennettu ✓"
+    },
+    "dropdown": {
+      "newProfilePlaceholder": "Uuden profiilin nimi...",
+      "add": "Lisää"
+    },
+    "config": {
+      "title": "Profiilin asetukset",
+      "on": "PROFIILI PÄÄLLÄ",
+      "off": "PROFIILI POIS",
+      "activeTooltip": "Profiili {type} on aktiivinen",
+      "disabledTooltip": "Profiili {type} on poistettu käytöstä",
+      "namePlaceholder": "Profiilin nimi"
+    },
+    "identity": {
+      "title": "Henkilö- ja yhteystiedot",
+      "firstName": "Etunimi",
+      "lastName": "Sukunimi",
+      "email": "Sähköpostiosoite",
+      "phone": "Puhelinnumero",
+      "address": "Kotiosoite"
+    },
+    "attributes": {
+      "title": "Tiedot: {type}",
+      "customHint": "Lisää omia kenttiä alle tai tuo ne JSONina.",
+      "job": {
+        "headline": "Otsikko / Tehtävänimike",
+        "linkedin": "LinkedIn",
+        "github": "GitHub",
+        "portfolio": "Portfolio",
+        "skills": "Taidot",
+        "education": "Koulutus / Tutkinto",
+        "certifications": "Sertifikaatit"
+      },
+      "medical": {
+        "bloodType": "Veriryhmä",
+        "allergies": "Allergiat",
+        "emergencyContact": "Hätäyhteyshenkilö",
+        "insuranceProvider": "Vakuutusyhtiö"
+      },
+      "government": {
+        "nationalId": "Henkilötunnus / SSN",
+        "citizenship": "Kansalaisuus",
+        "passport": "Passin numero",
+        "driversLicense": "Ajokortti"
+      },
+      "survey": {
+        "ageRange": "Ikäryhmä",
+        "income": "Tulot",
+        "education": "Koulutus",
+        "employment": "Työtilanne"
+      },
+      "academic": {
+        "institution": "Oppilaitos",
+        "major": "Pääaine / Opintoala",
+        "gpa": "Keskiarvo (GPA)",
+        "gradYear": "Valmistumisvuosi",
+        "testScores": "Koetulokset"
+      },
+      "financial": {
+        "billingAddress": "Laskutusosoite",
+        "payment": "Maksu",
+        "cardholder": "Kortinhaltija"
+      }
+    },
+    "field": {
+      "sensitiveTooltip": "Arkaluonteinen: arvo piilotetaan AI:lta (Zero-Knowledge)",
+      "aiSafeTooltip": "AI-turvallinen: arvo jaetaan AI:lle vastausvaihtoehtojen älykästä valintaa varten"
+    },
+    "context": {
+      "buttonTitle": "AI-konteksti: {label}",
+      "title": "AI-konteksti: {label}",
+      "placeholder": "Vihje AI:lle (esim. ”Virallinen etunimi passissa”)",
+      "hint": "AI käyttää tätä vihjettä epäselvien lomakekenttien tunnistamiseen."
+    },
+    "custom": {
+      "title": "Omat kentät",
+      "labelPlaceholder": "Kentän nimi",
+      "valuePlaceholder": "Kentän arvo",
+      "sensitiveTooltip": "Arkaluonteinen: arvo piilotetaan AI:lta",
+      "aiSafeTooltip": "AI-turvallinen: arvo jaetaan AI:lle",
+      "enabledTooltip": "Kenttä käytössä",
+      "disabledTooltip": "Kenttä pois käytöstä",
+      "delete": "Poista kenttä",
+      "pagination": {
+        "one": "Sivu {page}/{total} ({count} kohde)",
+        "other": "Sivu {page}/{total} ({count} kohdetta)"
+      },
+      "newLabelPlaceholder": "Nimi",
+      "newValuePlaceholder": "Arvo",
+      "add": "Lisää oma kenttä"
+    },
+    "documents": {
+      "title": "Liitetyt asiakirjat",
+      "labelPlaceholder": "Asiakirjan nimi",
+      "labelTooltip": "Muokkaa asiakirjan nimeä napsauttamalla",
+      "remove": "Poista tiedosto",
+      "pagination": "Sivu {page}/{total}",
+      "categories": {
+        "resume": "CV / Ansioluettelo",
+        "coverLetter": "Saatekirje",
+        "identity": "Henkilöllisyystodistus",
+        "academic": "Opintosuoritusote",
+        "portfolio": "Portfolio",
+        "other": "Muu asiakirja"
+      },
+      "upload": {
+        "resume": "Lataa CV",
+        "coverLetter": "Lataa saatekirje",
+        "identity": "Lataa henkilöllisyystodistus",
+        "academic": "Lataa opintosuoritusote",
+        "portfolio": "Lataa portfolio",
+        "other": "Lataa asiakirja"
+      },
+      "size": {
+        "bytes": "{size} t",
+        "kilobytes": "{size} kt",
+        "megabytes": "{size} Mt"
+      }
+    }
+  },
+  "settings": {
+    "account": {
+      "title": "Tili",
+      "proUntil": "Pro {date} asti",
+      "proLifetime": "Pro · Elinikäinen",
+      "disconnect": "Katkaise tilin yhteys",
+      "waiting": "Odotetaan kirjautumista…",
+      "connect": "Yhdistä Aullevo Webiin",
+      "renew": "Pro päättynyt · Uusi",
+      "upgrade": "Päivitä Pro-versioon"
+    },
+    "theme": {
+      "title": "Teeman ulkoasu",
+      "dark": "Tumma teema",
+      "description": "Vaihda tumman (Slate) ja vaalean teeman välillä"
+    },
+    "mode": {
+      "title": "Täyttötila",
+      "aiActive": "Älykäs AI-täyttö (käytössä)",
+      "standard": "Perustäyttö (ei AI:ta)",
+      "aiDescription": "Tulkitsee kysymykset ja yhdistää monimutkaiset kentät AI:n päättelyn avulla",
+      "standardDescription": "Profiilin tiedot yhdistetään suoraan ilman AI-kutsuja",
+      "toggle": "Vaihda AI-täyttötila"
+    },
+    "ai": {
+      "title": "AI-moottori",
+      "unlimited": "Rajaton käyttö",
+      "keyRequired": "API-avain tarvitaan",
+      "freeUsage": "Free: {used}/{limit} tällä viikolla",
+      "privacy": "<b>Tietosuoja:</b> ARKALUONTEINEN-merkittyjen kenttien arvoja ei koskaan lähetetä AI:lle, vain niiden nimet. AI-TURVALLINEN-kenttien arvot ja lomakkeen kysymykset lähetetään palveluun {provider}.",
+      "provider": "AI-palvelu",
+      "customProvider": "Mukautettu (OpenAI-yhteensopiva)",
+      "baseUrl": "Palvelimen URL",
+      "customHint": "Toimii minkä tahansa OpenAI:n chat-API:a tukevan palvelimen kanssa, kuten OpenRouter, Groq, Mistral, Ollama tai LM Studio. Paikalliset palvelimet eivät tarvitse avainta.",
+      "model": "AI-malli",
+      "modelOption": "{name} ({description})",
+      "models": {
+        "fastest": "Nopein ja erittäin edullinen",
+        "balanced": "Tasapainoinen päättely",
+        "capable": "Nopea ja kyvykäs",
+        "smartest": "Paras älykkyys",
+        "legacy": "Vanha nopea"
+      },
+      "otherModel": "Muu malli (kirjoita sen tunnus)",
+      "modelIdPlaceholder": "Mallin tarkka tunnus, esim. {example}",
+      "apiKey": "{provider} API -avain",
+      "getKey": "Hae API-avain",
+      "keyPlaceholder": "Liitä {provider} API -avaimesi",
+      "hideKey": "Piilota avain",
+      "showKey": "Näytä avain",
+      "addKeyHint": "Lisää palvelun {provider} API-avain, niin voit käyttää älykästä AI-täyttöä.",
+      "proHint": "Pro: rajattomasti AI-täyttöjä. Avaimesi pysyy tässä selaimessa.",
+      "freeHint": "Free-paketti: {limit} AI-täyttöä viikossa. Päivitä Pro-versioon, niin saat rajattomasti."
+    },
+    "paginate": {
+      "title": "Automaattinen sivutus",
+      "toggleTitle": "Täytä monisivuiset lomakkeet",
+      "description": "Täyttää jokaisen sivun, napsauttaa Seuraava / Jatka ja painaa lopuksi Lähetä. Korjaa vastaukset, jotka lomake hylkää, ja pysähtyy, jos ei pysty siihen.",
+      "toggle": "Automaattinen sivutus päälle/pois",
+      "proFeature": "Pro-ominaisuus",
+      "upgrade": "Päivitä Pro-versioon, niin voit käyttää automaattista sivutusta"
+    },
+    "floating": {
+      "title": "Kelluva kuvake verkkosivuilla",
+      "toggleTitle": "Näytä kelluva painike",
+      "description": "Näyttää Aullevon pikakäyttövälilehden verkkosivujen reunassa",
+      "toggle": "Kelluva painike päälle/pois"
+    },
+    "typing": {
+      "title": "Ihmismäinen kirjoitusnopeus",
+      "instant": "Välitön ({ms} ms)",
+      "natural": "Luonnollinen ({ms} ms)",
+      "slow": "Hidas ({ms} ms)",
+      "custom": "Oma ({ms} ms)",
+      "naturalFree": "Luonnollinen ({ms} ms) · Free-paketti",
+      "description": "Kirjoittaa merkki kerrallaan ihmisen tahtiin sivustoille, jotka odottavat oikeita näppäinpainalluksia.",
+      "proFeature": "Pro-ominaisuus",
+      "customDelay": "Oma viive:",
+      "customProFeature": "Oma viive on Pro-ominaisuus",
+      "unitMs": "ms"
+    },
+    "tour": {
+      "title": "Esittelykierros",
+      "toggleTitle": "Näytä esittely uudelleen",
+      "description": "Käy jokaisen välilehden läpi uudelleen vaihe vaiheelta",
+      "replay": "Toista"
+    },
+    "security": {
+      "title": "Salattu paikallisesti"
+    },
+    "memories": {
+      "title": "AI-muistit",
+      "count": "({enabled}/{total} päällä)",
+      "descriptionAiOn": "Tietoja sinusta, joita AI voi käyttää avoimiin kysymyksiin vastaamiseen (esim. ”Työtapa: vain etätyö”). Päällä olevat muistit lähetetään palveluun {provider} ja tallennetaan salaamattomina tähän selaimeen, joten älä lisää salasanoja tai henkilötunnuksia.",
+      "descriptionAiOff": "Tietoja sinusta, joita AI voi käyttää avoimiin kysymyksiin vastaamiseen (esim. ”Työtapa: vain etätyö”). Käytetään vain, kun älykäs AI-täyttö on päällä. Päällä olevat muistit lähetetään palveluun {provider} ja tallennetaan salaamattomina tähän selaimeen, joten älä lisää salasanoja tai henkilötunnuksia.",
+      "titlePlaceholder": "Otsikko",
+      "contentPlaceholder": "Mitä AI:n pitäisi tietää",
+      "enabledTitle": "Muisti lähetetään AI:lle",
+      "disabledTitle": "Muistia ei käytetä",
+      "on": "PÄÄLLÄ",
+      "off": "POIS",
+      "delete": "Poista muisti",
+      "newTitlePlaceholder": "Otsikko (esim. Työtapa)",
+      "newContentPlaceholder": "Sisältö (esim. Haluaa täysin etätyötä, myös toimeksiannot käyvät)",
+      "add": "Lisää muisti"
+    },
+    "deviceData": {
+      "title": "Tämän laitteen tiedot",
+      "total": "{size} yhteensä",
+      "description": "Jokaisella tilillä on täällä oma salattu holvi. Tilit eivät koskaan näe toistensa profiileja, asiakirjoja, API-avainta, muisteja tai linkkejä.",
+      "empty": "Ei vielä tallennettuja tietoja.",
+      "localOwner": "Ei kirjautunut (paikalliset profiilit)",
+      "anotherAccount": "Toinen tili",
+      "inUse": "{size} · käytössä nyt",
+      "deleteTitle": "Poista tämän tilin tiedot tästä laitteesta",
+      "delete": "Poista",
+      "confirmDelete": "Poistetaanko tilin ”{name}” Aullevo-tiedot tästä laitteesta?\n\nTämä poistaa pysyvästi sen salatut profiilit, asiakirjat, API-avaimen, AI-muistit ja linkkijonon. Toimintoa ei voi kumota.",
+      "bytes": "{size} t",
+      "kilobytes": "{size} kt",
+      "megabytes": "{size} Mt"
+    }
+  },
+  "status": {
+    "plan": {
+      "profileLimit": "Free-paketissa voi olla {max} aktiivista profiilia. Aseta ylimääräiset profiilit tilaan POIS tai päivitä Pro-versioon.",
+      "activeLimit": "Free-paketissa voi olla {max} aktiivista profiilia. Aseta yksi tilaan POIS tai päivitä Pro-versioon.",
+      "createdOff": "Profiili luotiin tilassa POIS. Free-paketissa voi olla {max} aktiivista profiilia. Aseta yksi tilaan POIS tai päivitä Pro-versioon.",
+      "autoPaginatePro": "Automaattinen sivutus on Pro-ominaisuus. Päivitä Pro-versioon, niin voit täyttää monisivuisia lomakkeita.",
+      "jsonImportLimit": "Olet käyttänyt näiden 2 viikon kaikki {limit} ilmaista JSON-tuontia. Kiintiö uusiutuu {date}, tai päivitä Pro-versioon, niin saat rajattomasti tuonteja.",
+      "documentsSkipped": {
+        "one": "{count} asiakirja jäi liittämättä: lataus lomakkeisiin on Pro-ominaisuus.",
+        "other": "{count} asiakirjaa jäi liittämättä: lataus lomakkeisiin on Pro-ominaisuus."
+      }
+    },
+    "batch": {
+      "starting": {
+        "one": "Aloitetaan erätäyttö: {count} lomake...",
+        "other": "Aloitetaan erätäyttö: {count} lomaketta..."
+      },
+      "progress": "Täytetään {current}/{total}: {host}",
+      "progressNoHost": "Täytetään {current}/{total}...",
+      "complete": {
+        "one": "Erätäyttö valmis: {count} lomake!",
+        "other": "Erätäyttö valmis: {count} lomaketta!"
+      }
+    },
+    "save": {
+      "success": "Profiili {type} tallennettu!",
+      "failed": "Tallennus epäonnistui: {error}",
+      "noProfile": "Profiilia ei ole valittu",
+      "unknownError": "Tallennus epäonnistui"
+    },
+    "profile": {
+      "nameExists": "Tämänniminen profiili on jo olemassa!",
+      "disabled": "{type} on poistettu käytöstä. Aseta se tilaan PÄÄLLÄ, niin voit täyttää automaattisesti.",
+      "defaultType": "PROFIILI",
+      "imported": {
+        "one": "Tuotiin {count} kenttä profiiliin {type}!",
+        "other": "Tuotiin {count} kenttää profiiliin {type}!"
+      }
+    },
+    "highlight": {
+      "noActiveTab": "Aktiivista välilehteä ei löytynyt.",
+      "refreshToConnect": "Päivitä sivu, jotta korostus toimii.",
+      "on": {
+        "one": "Korostettiin {count} kenttä sivulla!",
+        "other": "Korostettiin {count} kenttää sivulla!"
+      },
+      "cleared": "Korostukset poistettu."
+    },
+    "fill": {
+      "injectingAi": "Täytetään kenttiä AI:lla ({type})...",
+      "injecting": "Täytetään kenttiä ({type})...",
+      "noTab": "Aktiiviseen välilehteen ei saatu yhteyttä.",
+      "refreshToConnect": "Päivitä välilehti, jotta automaattinen täyttö toimii.",
+      "cannotConnect": "Sivuun ei saatu yhteyttä. Päivitä välilehti.",
+      "aiPartlySkipped": {
+        "one": "Täytettiin {count} kenttä (AI ohitettiin osittain).",
+        "other": "Täytettiin {count} kenttää (AI ohitettiin osittain)."
+      },
+      "keywordMode": {
+        "one": "Täytettiin {count} kenttä (avainsanatila).",
+        "other": "Täytettiin {count} kenttää (avainsanatila)."
+      },
+      "withAi": {
+        "one": "Lomake täytetty AI:lla ({count} kenttä yhdistetty).",
+        "other": "Lomake täytetty AI:lla ({count} kenttää yhdistetty)."
+      },
+      "withoutAi": {
+        "one": "Lomake täytetty ilman AI:ta ({count} kenttä yhdistetty).",
+        "other": "Lomake täytetty ilman AI:ta ({count} kenttää yhdistetty)."
+      },
+      "error": "Täyttövirhe: {error}",
+      "injected": {
+        "one": "Sivulle täytettiin {count} kenttä.",
+        "other": "Sivulle täytettiin {count} kenttää."
+      }
+    },
+    "pagination": {
+      "progress": "Automaattinen sivutus: täytetään sivua {page}...",
+      "lostConnection": "Automaattinen sivutus pysähtyi: yhteys laajennukseen katkesi.",
+      "filled": {
+        "one": "Täytettiin {filled} kenttää {count} sivulla.",
+        "other": "Täytettiin {filled} kenttää {count} sivulla."
+      },
+      "corrected": {
+        "one": "Korjattiin {count} vastaus, jonka lomake hylkäsi.",
+        "other": "Korjattiin {count} vastausta, jotka lomake hylkäsi."
+      },
+      "field": "”{name}”",
+      "fieldAndMore": {
+        "one": "”{name}” (+{count} muu)",
+        "other": "”{name}” (+{count} muuta)"
+      },
+      "aField": "yksi kenttä",
+      "nextButton": "Seuraava",
+      "submitted": "Lähetetty!",
+      "noNext": "Seuraava- tai Jatka-painiketta ei löytynyt.",
+      "stillEmpty": "Yhä tyhjä: {field}.",
+      "check": "Tarkista: {field}.",
+      "blocked": "Keskeytetty sivulla {page}. Pakollinen mutta tyhjä: {field}. Täytä se ja suorita uudelleen.",
+      "nextDisabled": "Keskeytetty sivulla {page}: painike ”{button}” ei ole käytettävissä. Tarkista sivu ja suorita uudelleen.",
+      "validationError": "Keskeytetty sivulla {page}: lomake ilmoitti ”{error}”.",
+      "validationErrorUnknown": "Keskeytetty sivulla {page}: lomake ilmoitti virheestä.",
+      "correctionTried": "(automaattista korjausta yritettiin)",
+      "stuck": "Keskeytetty sivulla {page}: ”{button}” napsautettiin, mutta lomake ei edennyt.",
+      "maxPages": "Pysäytetty {max} sivun turvarajaan.",
+      "noForm": "Sivulta ei löytynyt lomaketta (tai Aullevo ei voi toimia täällä).",
+      "stopped": "Automaattinen sivutus pysähtyi: {error}",
+      "unknownError": "tuntematon virhe"
+    }
+  },
+  "tour": {
+    "card": {
+      "progress": "{section} · {current}/{total}",
+      "skip": "Ohita esittely",
+      "dontShowAgain": "Älä näytä uudelleen",
+      "back": "Takaisin",
+      "next": "Seuraava",
+      "done": "Valmis"
+    },
+    "shortcuts": {
+      "allActive": "Kaikki 3 pikanäppäintä ovat käytössä tässä selaimessa.",
+      "notSet": "Ei asetettu tässä selaimessa: {list}. Aseta ne itse Chromen pikanäppäinasetuksissa.",
+      "openSettings": "Avaa Chromen pikanäppäinasetukset",
+      "toggleSidePanel": "Sivupaneeli auki/kiinni",
+      "fallbackName": "Pikanäppäin"
+    },
+    "sections": {
+      "autofill": "Täyttö",
+      "header": "Yläpainikkeet",
+      "profiles": "Profiilit",
+      "multilink": "Monilinkki",
+      "settings": "Asetukset"
+    },
+    "autofill": {
+      "detection": {
+        "title": "Lomakkeen tunnistus",
+        "body": "Aullevo laskee nykyisen välilehden sivulla olevat täytettävät kentät. Avaa lomake, niin luku päivittyy."
+      },
+      "highlight": {
+        "title": "Korosta kentät",
+        "body": "Rajaa jokaisen kentän, jonka Aullevo löysi sivulta, joten näet etukäteen, mitä täytetään. Poista rajaukset napsauttamalla uudelleen."
+      },
+      "rescan": {
+        "title": "Skannaa",
+        "body": "Jotkin lomakkeet lisäävät kenttiä sivun latautumisen jälkeen, kuten monivaiheiset lomakkeet tai ponnahdusikkunat. Skannaa laskee kentät uudelleen."
+      },
+      "fill": {
+        "title": "Täytä lomake",
+        "body": "Täyttää sivun aktiivisella profiililla. Kun AI-täyttö on päällä (Asetuksissa), kysymykset yhdistetään vastauksiisi, vaikka ne olisi muotoiltu eri tavalla. Kun se on pois, kentät yhdistetään avainsanoilla."
+      },
+      "activeProfile": {
+        "title": "Aktiivinen profiili",
+        "body": "Täyttöön käytettävä profiili ja tieto siitä, montako kenttää ja asiakirjaa on päällä. Vaihda profiilia tai muokkaa vastauksiasi <b>Profiilit</b>-välilehdellä."
+      },
+      "shortcuts": {
+        "title": "Pikanäppäimet",
+        "body": "Chrome asettaa nämä näppäimet, kun Aullevo asennetaan, mutta ohittaa ne, joita Chrome tai jokin muu laajennus jo käyttää. Voit vaihtaa niitä milloin tahansa."
+      }
+    },
+    "header": {
+      "voice": {
+        "title": "Äänitila",
+        "body": "Puhu Aullevolle klikkaamisen sijaan. Tämä painike vaihtaa paneelin ääniavustajaan: sano \"fill this page\", \"fill the email\" tai \"fill the first question\", niin se vastaa ääneen. Palaa tähän näkymään klikkaamalla uudelleen.",
+        "note": "Pro-ominaisuus. Vaatii oman ElevenLabs-API-avaimen, jonka lisäät kohdassa Voice settings. Äänikomennot toimivat englanniksi ja tagalogiksi."
+      },
+      "language": {
+        "title": "Kieli",
+        "body": "Valitse koko Aullevon kieli. Englanti on aina listan kärjessä, joten voit vaihtaa takaisin milloin tahansa."
+      },
+      "theme": {
+        "title": "Vaalea tai tumma teema",
+        "body": "Vaihtaa paneelin vaalean ja tumman tilan välillä."
+      },
+      "json": {
+        "title": "Nopea määritys JSONilla",
+        "intro": "Profiilisi JSON-muodossa. Nopein tapa määrittää profiili:",
+        "step1": "Kopioi JSON täältä.",
+        "step2": "Anna se Geminille, Claudelle tai ChatGPT:lle yhdessä CV:si tai muun asiakirjan kanssa.",
+        "step3": "Pyydä AI:ta täyttämään arvot ja säilyttämään sama rakenne.",
+        "step4": "Liitä tulos takaisin tänne ja napsauta <b>Tuo</b>."
+      },
+      "fullPage": {
+        "title": "Avaa koko sivulla",
+        "body": "Avaa Aullevon selaimen välilehdelle, jossa on enemmän tilaa profiilien muokkaamiseen. Täyttö tehdään edelleen tästä sivupaneelista."
+      },
+      "close": {
+        "title": "Sulje paneeli",
+        "body": "Sulkee sivupaneelin. Avaa se uudelleen näppäimillä <b>Alt+Q</b> (Macissa <b>Option+Q</b>) tai napsauttamalla Aullevon kuvaketta työkalupalkissa."
+      }
+    },
+    "profiles": {
+      "switcher": {
+        "title": "Vaihda profiilia",
+        "body1": "Jokaisella profiililla (Työ, Opinnot, Talous tai oma) on omat vastauksensa. Valitse se, jota haluat muokata ja jolla haluat täyttää.",
+        "body2": "Avaa lista nähdäksesi, mitkä profiilit ovat PÄÄLLÄ tai POIS, ja luo uusi listan alareunasta.",
+        "note": "Free-paketti: enintään 2 profiilia voi olla päällä kerrallaan."
+      },
+      "config": {
+        "title": "Nimi ja päälle/pois-kytkin",
+        "body": "Nimeä profiili uudelleen tässä. <b>PROFIILI PÄÄLLÄ</b> kytkee koko profiilin päälle tai pois. Kun se on pois, sitä ei käytetä täyttöön."
+      },
+      "identity": {
+        "title": "Henkilö- ja yhteystiedot",
+        "body": "Nimesi, sähköpostisi, puhelinnumerosi ja osoitteesi. Voit tiivistää tai laajentaa osion napsauttamalla sen otsikkoa. Jokaisessa kentässä on kolme pientä säädintä, jotka esitellään seuraavaksi."
+      },
+      "fieldContext": {
+        "title": "AI-kontekstivihje",
+        "body": "✨-painike lisää vihjeen, joka kertoo AI:lle, mitä kenttä tarkoittaa, esimerkiksi ”Virallinen etunimi passissa”. Siitä on apua, kun lomakkeen kysymys on muotoiltu epäselvästi. Piste tarkoittaa, että vihje on asetettu."
+      },
+      "fieldPrivacy": {
+        "title": "AI-turvallinen vai arkaluonteinen",
+        "safe": "<b>AI-turvallinen</b>: arvo jaetaan AI:lle, jotta se voi valita oikean vastauksen pudotusvalikoista ja monivalintakysymyksistä.",
+        "sensitive": "<b>Arkaluonteinen</b>: AI näkee vain kentän nimen ja vihjeen, ei koskaan arvoa. Aullevo kirjoittaa arvon silti kenttään laitteellasi.",
+        "toggle": "Vaihda napsauttamalla."
+      },
+      "fieldToggle": {
+        "title": "Kytke kenttä päälle tai pois",
+        "body": "Aseta kenttä tilaan POIS, niin se ohitetaan täytössä poistamatta kirjoittamaasi."
+      },
+      "documents": {
+        "title": "Liitä asiakirjoja",
+        "body": "Valitse asiakirjan tyyppi ja lataa CV, saatekirje, henkilöllisyystodistus ja muita. Kun lomakkeessa on tiedoston latauskysymys, Aullevo liittää ne asiakirjasi, jotka ovat PÄÄLLÄ.",
+        "note": "Asiakirjojen liittäminen lomakkeisiin on Pro-ominaisuus."
+      },
+      "attributes": {
+        "title": "Profiilikohtaiset kentät",
+        "body": "Tämän profiilityypin omat kentät. Työ-profiilissa on otsikko, LinkedIn, taidot ja koulutus. Opinnot-, Terveys- ja muilla profiileilla on omansa."
+      },
+      "customFields": {
+        "title": "Lisää omia kenttiä",
+        "body": "Kaikkeen, mitä vakiokentät eivät kata, kuten ”Palkkatoive” tai ”Miksi haluat tämän työn?”. Kirjoita nimi ja arvo ja napsauta <b>+</b>. Kysymyksen sanamuoto toimii hyvin nimenä."
+      },
+      "save": {
+        "title": "Tallentaminen",
+        "body": "Muutokset tallentuvat automaattisesti kirjoittaessasi. Tämä painike tallentaa heti, mikä on kätevää juuri ennen paneelin sulkemista."
+      }
+    },
+    "multilink": {
+      "addLink": {
+        "title": "Lisää lomakelinkki",
+        "body": "Liitä lomakkeen tai työhakemuksen koko linkki (alkaa https://) ja napsauta <b>+</b>. Lisää niin monta kuin haluat."
+      },
+      "savedLinks": {
+        "title": "Linkkijonosi",
+        "body": "Jokainen lisäämäsi linkki näkyy täällä. Valitse linkki, niin se otetaan mukaan seuraavaan erään, tai poista valinta, niin se ohitetaan. Nuolikuvake avaa linkin ja roskakorikuvake poistaa sen."
+      },
+      "batchRun": {
+        "title": "Täytä kaikki kerralla",
+        "body1": "Avaa jokaisen valitun linkin taustavälilehdelle yksi kerrallaan ja täyttää sen aktiivisella profiililla. Edistyminen näkyy paneelin yläosassa.",
+        "note": "Pikanäppäin: Alt+Shift+B (Macissa Option+Shift+B)."
+      }
+    },
+    "settings": {
+      "account": {
+        "title": "Tilisi",
+        "body": "Yhdistä Aullevo Web -tilisi, jotta pakettisi (Free tai Pro) on voimassa myös täällä. Profiilisi pysyvät salattuina tällä laitteella, eikä niitä ladata palvelimelle."
+      },
+      "aiMode": {
+        "title": "Älykäs AI-täyttö vai perustäyttö",
+        "standard": "<b>Perustäyttö</b> yhdistää kentät nimen perusteella ilman AI:ta.",
+        "smart": "<b>Älykäs AI-täyttö</b> ymmärtää eri tavoin muotoillut kysymykset ja valitsee vastaukset pudotusvalikoista ja monivalintakysymyksistä."
+      },
+      "aiEngine": {
+        "title": "AI-palvelu, malli ja API-avain"
+      },
+      "memories": {
+        "title": "AI-muistit",
+        "body": "Lyhyitä tietoja, joita AI voi käyttää avoimiin kysymyksiin, kuten ”Työtapa: vain etätyö”. Ne lähetetään valitsemallesi AI-palvelulle eikä niitä salata, joten älä koskaan lisää salasanoja tai henkilötunnuksia."
+      },
+      "autoPaginate": {},
+      "floatingIcon": {
+        "title": "Kelluva painike",
+        "body": "Pieni Aullevo-välilehti verkkosivujen reunassa nopeaa käyttöä varten. Poista se käytöstä, jos se on tiellä."
+      },
+      "typingSpeed": {
+        "title": "Kirjoitusnopeus",
+        "body": "Kuinka nopeasti Aullevo kirjoittaa kenttiin. <b>Luonnollinen</b> muistuttaa enemmän ihmisen kirjoittamista, ja <b>Välitön</b> on nopein. Hidas ja oma nopeus ovat Pro-ominaisuuksia."
+      },
+      "replayTour": {
+        "title": "Toista tämä opas",
+        "body": "Unohtuiko jotain? Napsauta <b>Toista</b>, niin käyt koko oppaan läpi uudelleen."
+      },
+      "deviceData": {
+        "title": "Tämän laitteen tiedot",
+        "body": "Jokaisella tilillä on oma salattu holvi tässä selaimessa. Poista niiden tilien tiedot, joita et enää käytä."
+      }
+    }
+  },
+  "vault": {
+    "loading": "Ladataan…",
+    "account": {
+      "signedInAs": "Kirjautunut: <b>{account}</b>",
+      "notSignedIn": "Ei kirjautunut: paikalliset profiilit tällä laitteella",
+      "fallbackName": "tilisi"
+    },
+    "errors": {
+      "createFailed": "Holvin luominen epäonnistui. Yritä uudelleen.",
+      "wrongPassphrase": "Väärä tunnuslause.",
+      "wrongClaimPassphrase": "Väärä tunnuslause näille profiileille."
+    }
+  }
+}

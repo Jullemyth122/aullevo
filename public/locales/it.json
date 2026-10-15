@@ -1,0 +1,725 @@
+{
+  "autofill": {
+    "detection": {
+      "title": "Rilevamento moduli",
+      "sub": "Campi nella scheda attiva",
+      "highlightTitle": "Ispeziona ed evidenzia i campi della pagina",
+      "clear": "Cancella",
+      "highlight": "Evidenzia",
+      "rescanTitle": "Analizza di nuovo la pagina",
+      "rescan": "Rianalizza"
+    },
+    "fill": {
+      "injecting": "Inserimento...",
+      "disabled": "{type} disattivato",
+      "withAi": "Compila modulo con IA ({type})",
+      "standard": "Compila modulo ({type})",
+      "autoPaginate": "Paginazione automatica attiva: compila ogni pagina, poi invia"
+    },
+    "activeProfile": {
+      "title": "Profilo attivo",
+      "summary": "{fields} • {docs} pronti",
+      "fieldCount": {
+        "one": "{count} campo",
+        "many": "{count} di campi",
+        "other": "{count} campi"
+      },
+      "docCount": {
+        "one": "{count} doc.",
+        "many": "{count} di doc.",
+        "other": "{count} doc."
+      },
+      "ready": "PRONTO",
+      "disabled": "DISATTIVATO"
+    },
+    "shortcuts": {
+      "title": "Scorciatoie da tastiera",
+      "toggleSidePanel": "Mostra/nascondi pannello laterale",
+      "formFill": "Compilazione modulo con IA / parole chiave",
+      "batchFill": "Compilazione in blocco multi-link"
+    }
+  },
+  "content": {
+    "openSidebar": "Apri il pannello laterale di Aullevo",
+    "filled": "COMPILATO",
+    "file": "File: {name}",
+    "files": {
+      "one": "{count} file allegato",
+      "many": "{count} di file allegati",
+      "other": "{count} file allegati"
+    },
+    "matched": "Corrispondenza: {name}",
+    "ranked": "Ordinato: {value}",
+    "ai": "[IA] {text}",
+    "aiGenerated": "[IA] Generato",
+    "fixed": "Corretto: {value}"
+  },
+  "header": {
+    "versionLine": "v{version} • Compilazione automatica",
+    "lightTheme": "Tema chiaro",
+    "darkTheme": "Tema scuro",
+    "jsonConfig": "Configurazione JSON",
+    "openFullPage": "Apri a pagina intera",
+    "closeSidePanel": "Chiudi pannello laterale",
+    "footer": {
+      "engine": "Motore di compilazione automatica Aullevo",
+      "ready": "Pronto"
+    }
+  },
+  "json": {
+    "title": "Configurazione JSON",
+    "badge": {
+      "fields": {
+        "one": "✓ {count} campo",
+        "many": "✓ {count} di campi",
+        "other": "✓ {count} campi"
+      },
+      "invalid": "JSON non valido"
+    },
+    "actions": {
+      "format": "Formatta / abbellisci JSON",
+      "fullscreen": "Schermo intero",
+      "exitFullscreen": "Esci da schermo intero",
+      "close": "Chiudi",
+      "download": "Scarica",
+      "copy": "Copia JSON",
+      "copied": "Copiato",
+      "upload": "Carica file",
+      "import": "Importa"
+    },
+    "quota": {
+      "downloadPro": "Scaricare (esportare) è una funzione Pro."
+    },
+    "errors": {
+      "noFields": "Nessun campo valido trovato nel JSON fornito.",
+      "invalidFormat": "Formato JSON non valido: {error}"
+    }
+  },
+  "language": {
+    "title": "Lingua",
+    "button": "Lingua: {name}",
+    "search": "Cerca lingue",
+    "auto": "Automatica: {name}",
+    "autoHint": "Segue la lingua del browser",
+    "backToEnglish": "Torna all'inglese",
+    "changed": "Lingua cambiata in {name}.",
+    "switchBack": "Torna a {name}",
+    "keep": "Mantieni",
+    "noResults": "Nessuna lingua trovata",
+    "settingsHint": "Cambia tutte le schermate di Aullevo, compreso il tour guidato."
+  },
+  "manifest": {
+    "appName": "Aullevo - Compilazione moduli con IA e candidature di lavoro",
+    "appDescription": "Compila con l'IA candidature di lavoro, sondaggi e qualsiasi modulo. Profili salvati, caricamento CV e compilazione intelligente.",
+    "actionTitle": "Apri il pannello laterale di Aullevo",
+    "commandTogglePanel": "Mostra/nascondi il pannello laterale di Aullevo",
+    "commandFill": "Compila il modulo della pagina con IA o parole chiave",
+    "commandBatchFill": "Compila in blocco i moduli di più link"
+  },
+  "multilink": {
+    "batch": {
+      "title": "Coda di compilazione in blocco",
+      "activeCount": "{enabled} di {total} attivi",
+      "description": "Apri e compila automaticamente moduli in più schede usando il tuo profilo <b>{type}</b> attivo.",
+      "running": "Compilazione in blocco in corso...",
+      "start": {
+        "one": "Compila {count} modulo in blocco",
+        "many": "Compila {count} di moduli in blocco",
+        "other": "Compila {count} moduli in blocco"
+      }
+    },
+    "add": {
+      "title": "Aggiungi link a modulo / offerta di lavoro"
+    },
+    "saved": {
+      "title": "Link salvati ({count})",
+      "clearAll": "Cancella tutto",
+      "empty": "Nessun link aggiunto. Incolla sopra l'URL di un modulo per iniziare.",
+      "open": "Apri link",
+      "remove": "Rimuovi link"
+    }
+  },
+  "nav": {
+    "autofill": "Compilazione",
+    "profiles": "Profili ({count})",
+    "multiLink": "Multi-link",
+    "settings": "Impostazioni"
+  },
+  "profiles": {
+    "types": {
+      "job": "Lavoro",
+      "medical": "Medico",
+      "government": "Governo",
+      "survey": "Sondaggio",
+      "academic": "Accademico",
+      "financial": "Finanziario",
+      "custom": "Personalizzato"
+    },
+    "badges": {
+      "on": "ATTIVO",
+      "off": "INATTIVO",
+      "disabled": "DISATTIVATO",
+      "sensitive": "SENSIBILE",
+      "aiSafe": "SICURO PER L'IA"
+    },
+    "save": {
+      "button": "Salva profilo {type}",
+      "saved": "Salvato ✓"
+    },
+    "dropdown": {
+      "newProfilePlaceholder": "Nome del nuovo profilo...",
+      "add": "Aggiungi"
+    },
+    "config": {
+      "title": "Configurazione profilo",
+      "on": "PROFILO ATTIVO",
+      "off": "PROFILO INATTIVO",
+      "activeTooltip": "Il profilo {type} è attivo",
+      "disabledTooltip": "Il profilo {type} è disattivato",
+      "namePlaceholder": "Nome profilo"
+    },
+    "identity": {
+      "title": "Identità e contatti",
+      "firstName": "Nome",
+      "lastName": "Cognome",
+      "email": "Indirizzo email",
+      "phone": "Numero di telefono",
+      "address": "Indirizzo di residenza"
+    },
+    "attributes": {
+      "title": "Attributi {type}",
+      "customHint": "Aggiungi i tuoi campi qui sotto o importali tramite JSON.",
+      "job": {
+        "headline": "Titolo / Ruolo",
+        "linkedin": "LinkedIn",
+        "github": "GitHub",
+        "portfolio": "Portfolio",
+        "skills": "Competenze",
+        "education": "Istruzione / Titolo di studio",
+        "certifications": "Certificazioni"
+      },
+      "medical": {
+        "bloodType": "Gruppo sanguigno",
+        "allergies": "Allergie",
+        "emergencyContact": "Contatto di emergenza",
+        "insuranceProvider": "Compagnia assicurativa"
+      },
+      "government": {
+        "nationalId": "Documento d'identità / Codice fiscale",
+        "citizenship": "Cittadinanza",
+        "passport": "N. passaporto",
+        "driversLicense": "Patente di guida"
+      },
+      "survey": {
+        "ageRange": "Fascia d'età",
+        "income": "Reddito",
+        "education": "Istruzione",
+        "employment": "Occupazione"
+      },
+      "academic": {
+        "institution": "Istituto",
+        "major": "Corso / Ambito di studio",
+        "gpa": "Media voti (GPA)",
+        "gradYear": "Anno di laurea",
+        "testScores": "Punteggi dei test"
+      },
+      "financial": {
+        "billingAddress": "Indirizzo di fatturazione",
+        "payment": "Pagamento",
+        "cardholder": "Titolare della carta"
+      }
+    },
+    "field": {
+      "sensitiveTooltip": "Sensibile: il valore è nascosto all'IA (zero-knowledge)",
+      "aiSafeTooltip": "Sicuro per l'IA: il valore è condiviso con l'IA per una scelta intelligente delle opzioni"
+    },
+    "context": {
+      "buttonTitle": "Contesto IA per {label}",
+      "title": "Contesto IA: {label}",
+      "placeholder": "Indizio di contesto per l'IA (es. 'Nome legale sul passaporto')",
+      "hint": "L'IA usa questo suggerimento per identificare i campi ambigui nei moduli dei siti web."
+    },
+    "custom": {
+      "title": "Campi personalizzati",
+      "labelPlaceholder": "Etichetta del campo",
+      "valuePlaceholder": "Valore del campo",
+      "sensitiveTooltip": "Sensibile: il valore è nascosto all'IA",
+      "aiSafeTooltip": "Sicuro per l'IA: il valore è condiviso con l'IA",
+      "enabledTooltip": "Campo attivato",
+      "disabledTooltip": "Campo disattivato",
+      "delete": "Elimina campo",
+      "pagination": {
+        "one": "Pagina {page} di {total} ({count} elemento)",
+        "many": "Pagina {page} di {total} ({count} di elementi)",
+        "other": "Pagina {page} di {total} ({count} elementi)"
+      },
+      "newLabelPlaceholder": "Etichetta",
+      "newValuePlaceholder": "Valore",
+      "add": "Aggiungi campo personalizzato"
+    },
+    "documents": {
+      "title": "Documenti allegati",
+      "labelPlaceholder": "Etichetta del documento",
+      "labelTooltip": "Fai clic per modificare l'etichetta del documento",
+      "remove": "Rimuovi file",
+      "pagination": "Pagina {page} di {total}",
+      "categories": {
+        "resume": "Curriculum / CV",
+        "coverLetter": "Lettera di presentazione",
+        "identity": "Documento d'identità",
+        "academic": "Carriera accademica",
+        "portfolio": "Portfolio",
+        "other": "Altro documento"
+      },
+      "upload": {
+        "resume": "Carica curriculum",
+        "coverLetter": "Carica lettera di presentazione",
+        "identity": "Carica documento d'identità",
+        "academic": "Carica carriera accademica",
+        "portfolio": "Carica portfolio",
+        "other": "Carica documento"
+      },
+      "size": {
+        "bytes": "{size} B",
+        "kilobytes": "{size} KB",
+        "megabytes": "{size} MB"
+      }
+    }
+  },
+  "settings": {
+    "account": {
+      "title": "Account",
+      "proUntil": "Pro fino al {date}",
+      "proLifetime": "Pro · A vita",
+      "disconnect": "Disconnetti account",
+      "waiting": "In attesa dell'accesso…",
+      "connect": "Connetti con Aullevo Web",
+      "renew": "Pro scaduto · Rinnova",
+      "upgrade": "Passa a Pro"
+    },
+    "theme": {
+      "title": "Aspetto del tema",
+      "dark": "Tema scuro",
+      "description": "Passa dal tema Ardesia scuro al tema chiaro e viceversa"
+    },
+    "mode": {
+      "title": "Modalità del motore di compilazione",
+      "aiActive": "Compilazione intelligente con IA (attiva)",
+      "standard": "Compilazione standard (senza IA)",
+      "aiDescription": "Usa il ragionamento dell'IA per interpretare le domande e abbinare i campi complessi",
+      "standardDescription": "Abbinamento diretto con gli attributi del profilo, senza chiamate all'IA",
+      "toggle": "Attiva/disattiva la modalità di compilazione con IA"
+    },
+    "ai": {
+      "title": "Motore IA",
+      "unlimited": "Accesso illimitato",
+      "keyRequired": "Chiave API necessaria",
+      "freeUsage": "Free: {used}/{limit} questa settimana",
+      "privacy": "<b>Privacy:</b> i campi contrassegnati come SENSIBILE non vengono mai inviati all'IA, solo le loro etichette. I valori dei campi SICURO PER L'IA e le domande del modulo vengono inviati a {provider}.",
+      "provider": "Fornitore di IA",
+      "customProvider": "Personalizzato (compatibile con OpenAI)",
+      "baseUrl": "URL del server",
+      "customHint": "Funziona con qualsiasi server che supporti l'API di chat di OpenAI, come OpenRouter, Groq, Mistral, Ollama o LM Studio. I server locali non richiedono una chiave.",
+      "model": "Modello IA",
+      "modelOption": "{name} ({description})",
+      "models": {
+        "fastest": "Il più veloce ed economicissimo",
+        "balanced": "Ragionamento bilanciato",
+        "capable": "Veloce e capace",
+        "smartest": "Massima intelligenza",
+        "legacy": "Veloce (versione precedente)"
+      },
+      "otherModel": "Altro modello (digita il suo ID)",
+      "modelIdPlaceholder": "ID esatto del modello, ad es. {example}",
+      "apiKey": "Chiave API {provider}",
+      "getKey": "Ottieni chiave API",
+      "keyPlaceholder": "Incolla la tua chiave API {provider}",
+      "hideKey": "Nascondi chiave",
+      "showKey": "Mostra chiave",
+      "addKeyHint": "Aggiungi la tua chiave API di {provider} per usare la compilazione intelligente con IA.",
+      "proHint": "Pro: compilazioni con IA illimitate. La tua chiave resta in questo browser.",
+      "freeHint": "Piano Free: {limit} compilazioni con IA a settimana. Passa a Pro per averle illimitate."
+    },
+    "paginate": {
+      "title": "Paginazione automatica",
+      "toggleTitle": "Compila moduli su più pagine",
+      "description": "Compila ogni pagina, fa clic su Avanti / Continua e alla fine preme Invia. Corregge le risposte che il modulo rifiuta; si mette in pausa quando non ci riesce.",
+      "toggle": "Attiva/disattiva la paginazione automatica",
+      "proFeature": "Funzione Pro",
+      "upgrade": "Passa a Pro per usare la paginazione automatica"
+    },
+    "floating": {
+      "title": "Icona mobile sulle pagine web",
+      "toggleTitle": "Mostra pulsante mobile",
+      "description": "Mostra la linguetta di accesso rapido di Aullevo agganciata ai bordi delle pagine web",
+      "toggle": "Attiva/disattiva il pulsante mobile sulle pagine web"
+    },
+    "typing": {
+      "title": "Velocità di digitazione umana",
+      "instant": "Istantanea ({ms}ms)",
+      "natural": "Naturale ({ms}ms)",
+      "slow": "Lenta ({ms}ms)",
+      "custom": "Personalizzata ({ms}ms)",
+      "naturalFree": "Naturale ({ms}ms) · Piano Free",
+      "description": "Digita un carattere alla volta a ritmo umano, per i siti che si aspettano tasti premuti davvero.",
+      "proFeature": "Funzione Pro",
+      "customDelay": "Ritardo personalizzato:",
+      "customProFeature": "Il ritardo personalizzato è una funzione Pro",
+      "unitMs": "ms"
+    },
+    "tour": {
+      "title": "Tour guidato",
+      "toggleTitle": "Mostra di nuovo la guida",
+      "description": "Ripercorre ogni scheda, passo dopo passo",
+      "replay": "Ripeti"
+    },
+    "security": {
+      "title": "Crittografato in locale"
+    },
+    "memories": {
+      "title": "Memorie IA",
+      "count": "({enabled}/{total} attive)",
+      "descriptionAiOn": "Informazioni su di te che l'IA può usare per rispondere a domande aperte (es. \"Modalità di lavoro: solo da remoto\"). Le memorie attive vengono inviate a {provider} e salvate non crittografate in questo browser, quindi non aggiungere password o numeri di documenti.",
+      "descriptionAiOff": "Informazioni su di te che l'IA può usare per rispondere a domande aperte (es. \"Modalità di lavoro: solo da remoto\"). Usate solo quando la compilazione intelligente con IA è attiva. Le memorie attive vengono inviate a {provider} e salvate non crittografate in questo browser, quindi non aggiungere password o numeri di documenti.",
+      "titlePlaceholder": "Titolo",
+      "contentPlaceholder": "Cosa deve sapere l'IA",
+      "enabledTitle": "La memoria viene inviata all'IA",
+      "disabledTitle": "La memoria non viene usata",
+      "on": "ATTIVA",
+      "off": "INATTIVA",
+      "delete": "Elimina memoria",
+      "newTitlePlaceholder": "Titolo (es. Modalità di lavoro)",
+      "newContentPlaceholder": "Contenuto (es. Preferisce ruoli completamente da remoto, aperto a contratti)",
+      "add": "Aggiungi memoria"
+    },
+    "deviceData": {
+      "title": "Dati su questo dispositivo",
+      "total": "{size} in totale",
+      "description": "Ogni account ha qui la propria cassaforte crittografata. Gli account non vedono mai profili, documenti, chiave API, memorie o link degli altri.",
+      "empty": "Nessun dato salvato.",
+      "localOwner": "Accesso non effettuato (profili locali)",
+      "anotherAccount": "Un altro account",
+      "inUse": "{size} · in uso ora",
+      "deleteTitle": "Elimina i dati di questo account da questo dispositivo",
+      "delete": "Elimina",
+      "confirmDelete": "Eliminare i dati di Aullevo di \"{name}\" da questo dispositivo?\n\nVerranno rimossi definitivamente i profili crittografati, i documenti, la chiave API, le memorie IA e la coda di link. L'operazione non può essere annullata.",
+      "bytes": "{size} B",
+      "kilobytes": "{size} KB",
+      "megabytes": "{size} MB"
+    }
+  },
+  "status": {
+    "plan": {
+      "profileLimit": "Il piano Free consente {max} profili attivi. Disattiva i profili in più o passa a Pro.",
+      "activeLimit": "Il piano Free consente {max} profili attivi. Disattivane uno o passa a Pro.",
+      "createdOff": "Profilo creato come INATTIVO. Il piano Free consente {max} profili attivi. Disattivane uno o passa a Pro.",
+      "autoPaginatePro": "La paginazione automatica è una funzione Pro. Passa a Pro per compilare moduli su più pagine.",
+      "jsonImportLimit": "Hai usato tutte le {limit} importazioni JSON gratuite di queste 2 settimane. Si rinnovano il {date}, oppure passa a Pro per importazioni illimitate.",
+      "documentsSkipped": {
+        "one": "{count} documento non allegato: il caricamento nei moduli è una funzione Pro.",
+        "many": "{count} di documenti non allegati: il caricamento nei moduli è una funzione Pro.",
+        "other": "{count} documenti non allegati: il caricamento nei moduli è una funzione Pro."
+      }
+    },
+    "batch": {
+      "starting": {
+        "one": "Avvio della compilazione in blocco di {count} modulo...",
+        "many": "Avvio della compilazione in blocco di {count} di moduli...",
+        "other": "Avvio della compilazione in blocco di {count} moduli..."
+      },
+      "progress": "Compilazione {current} di {total}: {host}",
+      "progressNoHost": "Compilazione {current} di {total}...",
+      "complete": {
+        "one": "Compilazione in blocco completata su {count} modulo!",
+        "many": "Compilazione in blocco completata su {count} di moduli!",
+        "other": "Compilazione in blocco completata su {count} moduli!"
+      }
+    },
+    "save": {
+      "success": "Profilo {type} salvato correttamente!",
+      "failed": "Salvataggio non riuscito: {error}",
+      "noProfile": "Nessun profilo selezionato",
+      "unknownError": "Salvataggio non riuscito"
+    },
+    "profile": {
+      "nameExists": "Esiste già un profilo con questo nome!",
+      "disabled": "{type} è disattivato. Attivalo per usare la compilazione automatica.",
+      "defaultType": "PROFILO",
+      "imported": {
+        "one": "{count} campo importato correttamente in {type}!",
+        "many": "{count} di campi importati correttamente in {type}!",
+        "other": "{count} campi importati correttamente in {type}!"
+      }
+    },
+    "highlight": {
+      "noActiveTab": "Nessuna scheda attiva trovata.",
+      "refreshToConnect": "Aggiorna la pagina per collegare l'evidenziazione.",
+      "on": {
+        "one": "{count} campo evidenziato nella pagina!",
+        "many": "{count} di campi evidenziati nella pagina!",
+        "other": "{count} campi evidenziati nella pagina!"
+      },
+      "cleared": "Evidenziazioni rimosse."
+    },
+    "fill": {
+      "injectingAi": "Inserimento dei campi con IA ({type})...",
+      "injecting": "Inserimento dei campi ({type})...",
+      "noTab": "Impossibile raggiungere la scheda attiva.",
+      "refreshToConnect": "Aggiorna la scheda per collegare la compilazione automatica.",
+      "cannotConnect": "Impossibile connettersi alla pagina. Aggiorna la scheda.",
+      "aiPartlySkipped": {
+        "one": "{count} campo compilato (IA in parte saltata).",
+        "many": "{count} di campi compilati (IA in parte saltata).",
+        "other": "{count} campi compilati (IA in parte saltata)."
+      },
+      "keywordMode": {
+        "one": "{count} campo compilato (modalità parole chiave).",
+        "many": "{count} di campi compilati (modalità parole chiave).",
+        "other": "{count} campi compilati (modalità parole chiave)."
+      },
+      "withAi": {
+        "one": "Modulo compilato con IA ({count} campo abbinato).",
+        "many": "Modulo compilato con IA ({count} di campi abbinati).",
+        "other": "Modulo compilato con IA ({count} campi abbinati)."
+      },
+      "withoutAi": {
+        "one": "Modulo compilato senza IA ({count} campo abbinato).",
+        "many": "Modulo compilato senza IA ({count} di campi abbinati).",
+        "other": "Modulo compilato senza IA ({count} campi abbinati)."
+      },
+      "error": "Errore di compilazione: {error}",
+      "injected": {
+        "one": "{count} campo inserito nella pagina.",
+        "many": "{count} di campi inseriti nella pagina.",
+        "other": "{count} campi inseriti nella pagina."
+      }
+    },
+    "pagination": {
+      "progress": "Paginazione automatica: compilazione della pagina {page}...",
+      "lostConnection": "Paginazione automatica interrotta: connessione con l'estensione persa.",
+      "filled": {
+        "one": "{filled} campi compilati in {count} pagina.",
+        "many": "{filled} campi compilati in {count} di pagine.",
+        "other": "{filled} campi compilati in {count} pagine."
+      },
+      "corrected": {
+        "one": "Corretta {count} risposta rifiutata dal modulo.",
+        "many": "Corrette {count} di risposte rifiutate dal modulo.",
+        "other": "Corrette {count} risposte rifiutate dal modulo."
+      },
+      "field": "\"{name}\"",
+      "fieldAndMore": {
+        "one": "\"{name}\" (+{count} altro)",
+        "many": "\"{name}\" (+{count} di altri)",
+        "other": "\"{name}\" (+{count} altri)"
+      },
+      "aField": "un campo",
+      "nextButton": "Avanti",
+      "submitted": "Inviato!",
+      "noNext": "Nessun pulsante Avanti / Continua trovato.",
+      "stillEmpty": "{field} è ancora vuoto.",
+      "check": "Controlla {field}.",
+      "blocked": "In pausa a pagina {page}: {field} è obbligatorio e vuoto. Compilalo, poi riavvia.",
+      "nextDisabled": "In pausa a pagina {page}: il pulsante \"{button}\" è disattivato. Controlla la pagina, poi riavvia.",
+      "validationError": "In pausa a pagina {page}: il modulo ha segnalato \"{error}\".",
+      "validationErrorUnknown": "In pausa a pagina {page}: il modulo ha segnalato un errore.",
+      "correctionTried": "(è stata tentata una correzione automatica)",
+      "stuck": "In pausa a pagina {page}: è stato fatto clic su \"{button}\", ma il modulo non è andato avanti.",
+      "maxPages": "Interrotto al limite di sicurezza di {max} pagine.",
+      "noForm": "Nessun modulo trovato in questa pagina (oppure Aullevo non può essere eseguito qui).",
+      "stopped": "Paginazione automatica interrotta: {error}",
+      "unknownError": "errore sconosciuto"
+    }
+  },
+  "tour": {
+    "card": {
+      "progress": "{section} · {current} di {total}",
+      "skip": "Salta il tour",
+      "dontShowAgain": "Non mostrare più",
+      "back": "Indietro",
+      "next": "Avanti",
+      "done": "Fine"
+    },
+    "shortcuts": {
+      "allActive": "Tutte e 3 le scorciatoie sono attive in questo browser.",
+      "notSet": "Non impostate in questo browser: {list}. Impostale tu nelle impostazioni delle scorciatoie di Chrome.",
+      "openSettings": "Apri le impostazioni delle scorciatoie di Chrome",
+      "toggleSidePanel": "Mostra/nascondi pannello laterale",
+      "fallbackName": "Scorciatoia"
+    },
+    "sections": {
+      "autofill": "Compilazione",
+      "header": "Pulsanti in alto",
+      "profiles": "Profili",
+      "multilink": "Multi-link",
+      "settings": "Impostazioni"
+    },
+    "autofill": {
+      "detection": {
+        "title": "Rilevamento moduli",
+        "body": "Aullevo conta i campi compilabili della pagina nella scheda corrente. Apri un modulo e questo numero si aggiorna."
+      },
+      "highlight": {
+        "title": "Evidenzia i campi",
+        "body": "Contorna ogni campo che Aullevo ha trovato nella pagina, così vedi cosa verrà compilato prima di farlo. Fai di nuovo clic per rimuovere i contorni."
+      },
+      "rescan": {
+        "title": "Rianalizza",
+        "body": "Alcuni moduli aggiungono campi dopo il caricamento della pagina, come i moduli in più passaggi o i pop-up. Rianalizza conta di nuovo i campi."
+      },
+      "fill": {
+        "title": "Compila il modulo",
+        "body": "Compila la pagina con il tuo profilo attivo. Con la compilazione con IA attiva (in Impostazioni), le domande vengono abbinate alle tue risposte anche se sono formulate in modo diverso. Se è disattivata, i campi vengono abbinati per parola chiave."
+      },
+      "activeProfile": {
+        "title": "Profilo attivo",
+        "body": "Il profilo usato per la compilazione, con quanti campi e documenti sono attivi. Cambia profilo o modifica le tue risposte nella scheda <b>Profili</b>."
+      },
+      "shortcuts": {
+        "title": "Scorciatoie da tastiera",
+        "body": "Chrome imposta questi tasti quando installi Aullevo, ma salta quelli già usati da Chrome o da un'altra estensione. Puoi cambiarli quando vuoi."
+      }
+    },
+    "header": {
+      "voice": {
+        "title": "Modalità vocale",
+        "body": "Parla con Aullevo invece di cliccare. Questo pulsante passa il pannello all'assistente vocale: di' \"fill this page\", \"fill the email\" o \"fill the first question\" e ti risponderà ad alta voce. Fai di nuovo clic per tornare a questa vista.",
+        "note": "Funzione Pro. Richiede la tua chiave API ElevenLabs, da aggiungere in Voice settings. I comandi vocali funzionano in inglese e tagalog."
+      },
+      "language": {
+        "title": "Lingua",
+        "body": "Scegli la lingua di tutto Aullevo. L'inglese è sempre in cima all'elenco, così puoi tornarci quando vuoi."
+      },
+      "theme": {
+        "title": "Tema chiaro o scuro",
+        "body": "Passa il pannello dalla modalità chiara a quella scura e viceversa."
+      },
+      "json": {
+        "title": "Configurazione rapida JSON",
+        "intro": "Il tuo profilo in JSON. Il modo più veloce per configurare un profilo:",
+        "step1": "Copia il JSON da qui.",
+        "step2": "Dallo a Gemini, Claude o ChatGPT insieme al tuo curriculum o a qualsiasi altro documento.",
+        "step3": "Chiedi all'IA di compilare i valori mantenendo la stessa struttura.",
+        "step4": "Incolla qui il risultato e fai clic su <b>Importa</b>."
+      },
+      "fullPage": {
+        "title": "Apri a pagina intera",
+        "body": "Apre Aullevo in una scheda del browser, con più spazio per modificare i profili. La compilazione avviene sempre da questo pannello laterale."
+      },
+      "close": {
+        "title": "Chiudi il pannello",
+        "body": "Chiude il pannello laterale. Riaprilo con <b>Alt+Q</b> (<b>Option+Q</b> su Mac) o facendo clic sull'icona di Aullevo nella barra degli strumenti."
+      }
+    },
+    "profiles": {
+      "switcher": {
+        "title": "Cambia profilo",
+        "body1": "Ogni profilo (Lavoro, Accademico, Finanziario o uno tuo) ha il proprio insieme di risposte. Scegli quello che vuoi modificare e usare per compilare.",
+        "body2": "Apri l'elenco per vedere lo stato di ogni profilo (ATTIVO o INATTIVO) e per crearne uno nuovo in fondo.",
+        "note": "Piano Free: possono essere attivi fino a 2 profili alla volta."
+      },
+      "config": {
+        "title": "Nome e interruttore",
+        "body": "Rinomina il profilo qui. <b>PROFILO ATTIVO</b> attiva o disattiva l'intero profilo. Quando è disattivato, non viene usato per compilare."
+      },
+      "identity": {
+        "title": "Identità e contatti",
+        "body": "Nome, email, telefono e indirizzo. Fai clic sull'intestazione di una sezione per comprimerla o espanderla. Ogni campo ha tre piccoli controlli, mostrati di seguito."
+      },
+      "fieldContext": {
+        "title": "Suggerimento di contesto per l'IA",
+        "body": "Il pulsante ✨ aggiunge un suggerimento che spiega all'IA cosa significa questo campo, ad esempio \"Nome legale sul passaporto\". È utile quando la domanda di un modulo è poco chiara. Un punto indica che è impostato un suggerimento."
+      },
+      "fieldPrivacy": {
+        "title": "Sicuro per l'IA o Sensibile",
+        "safe": "<b>Sicuro per l'IA</b>: il valore è condiviso con l'IA, così può scegliere la risposta giusta nei menu a discesa e nelle domande a scelta multipla.",
+        "sensitive": "<b>Sensibile</b>: l'IA vede solo il nome e il suggerimento del campo, mai il valore. Aullevo inserisce comunque il valore sul tuo dispositivo.",
+        "toggle": "Fai clic per cambiare."
+      },
+      "fieldToggle": {
+        "title": "Attiva o disattiva un campo",
+        "body": "Imposta un campo su INATTIVO per saltarlo durante la compilazione, senza cancellare ciò che hai scritto."
+      },
+      "documents": {
+        "title": "Allega documenti",
+        "body": "Scegli il tipo di documento, poi carica curriculum, lettera di presentazione, documento d'identità e altro. Quando un modulo chiede di caricare un file, Aullevo allega i tuoi documenti ATTIVI.",
+        "note": "Allegare documenti ai moduli è una funzione Pro."
+      },
+      "attributes": {
+        "title": "Campi specifici del profilo",
+        "body": "Campi propri di questo tipo di profilo. Un profilo Lavoro ha titolo, LinkedIn, competenze e istruzione. Accademico, Medico e gli altri hanno i loro."
+      },
+      "customFields": {
+        "title": "Aggiungi i tuoi campi",
+        "body": "Per tutto ciò che i campi standard non coprono, come \"Retribuzione desiderata\" o \"Perché vuoi questo lavoro?\". Scrivi un'etichetta e un valore, poi fai clic su <b>+</b>. Usare il testo della domanda come etichetta funziona bene."
+      },
+      "save": {
+        "title": "Salvataggio",
+        "body": "Le modifiche vengono salvate automaticamente mentre scrivi. Questo pulsante salva subito, utile appena prima di chiudere il pannello."
+      }
+    },
+    "multilink": {
+      "addLink": {
+        "title": "Aggiungi un link a un modulo",
+        "body": "Incolla il link completo di un modulo o di una candidatura (che inizia con https://) e fai clic su <b>+</b>. Aggiungine quanti vuoi."
+      },
+      "savedLinks": {
+        "title": "La tua coda di link",
+        "body": "Ogni link che aggiungi compare qui. Seleziona un link per includerlo nel prossimo blocco o deselezionalo per saltarlo. L'icona a freccia apre il link e l'icona del cestino lo rimuove."
+      },
+      "batchRun": {
+        "title": "Compilali tutti insieme",
+        "body1": "Apre ogni link selezionato in una scheda in background, uno dopo l'altro, e lo compila con il tuo profilo attivo. L'avanzamento viene mostrato in cima al pannello.",
+        "note": "Scorciatoia: Alt+Shift+B (Option+Shift+B su Mac)."
+      }
+    },
+    "settings": {
+      "account": {
+        "title": "Il tuo account",
+        "body": "Connetti il tuo account Aullevo Web per applicare qui il tuo piano (Free o Pro). I tuoi profili restano crittografati su questo dispositivo e non vengono caricati."
+      },
+      "aiMode": {
+        "title": "Compilazione intelligente con IA o Compilazione standard",
+        "standard": "La <b>Compilazione standard</b> abbina i campi per nome, senza IA.",
+        "smart": "La <b>Compilazione intelligente con IA</b> capisce le domande formulate in modo diverso e sceglie le risposte nei menu a discesa e nelle domande a scelta multipla."
+      },
+      "aiEngine": {
+        "title": "Fornitore di IA, modello e chiave API"
+      },
+      "memories": {
+        "title": "Memorie IA",
+        "body": "Brevi informazioni che l'IA può usare per le domande aperte, come \"Modalità di lavoro: solo da remoto\". Vengono inviate al fornitore di IA scelto e non sono crittografate, quindi non aggiungere mai password o numeri di documenti."
+      },
+      "autoPaginate": {},
+      "floatingIcon": {
+        "title": "Pulsante mobile",
+        "body": "Una piccola linguetta di Aullevo sul bordo delle pagine web per l'accesso rapido. Disattivala se ti dà fastidio."
+      },
+      "typingSpeed": {
+        "title": "Velocità di digitazione",
+        "body": "Quanto velocemente Aullevo scrive nei campi. <b>Naturale</b> somiglia di più a una persona che digita, mentre <b>Istantanea</b> è la più veloce. Le velocità lenta e personalizzata sono Pro."
+      },
+      "replayTour": {
+        "title": "Ripeti questa guida",
+        "body": "Hai dimenticato qualcosa? Fai clic su <b>Ripeti</b> per ripercorrere tutta la guida."
+      },
+      "deviceData": {
+        "title": "Dati su questo dispositivo",
+        "body": "Ogni account ha la propria cassaforte crittografata in questo browser. Elimina i dati degli account che non usi più."
+      }
+    }
+  },
+  "vault": {
+    "loading": "Caricamento…",
+    "account": {
+      "signedInAs": "Accesso effettuato come <b>{account}</b>",
+      "notSignedIn": "Accesso non effettuato: profili locali su questo dispositivo",
+      "fallbackName": "il tuo account"
+    },
+    "errors": {
+      "createFailed": "Impossibile creare la cassaforte. Riprova.",
+      "wrongPassphrase": "Passphrase errata.",
+      "wrongClaimPassphrase": "Passphrase errata per quei profili."
+    }
+  }
+}

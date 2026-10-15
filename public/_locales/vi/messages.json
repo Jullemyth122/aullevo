@@ -1,0 +1,20 @@
+{
+  "appName": {
+    "message": "Aullevo - Tự động điền biểu mẫu & đơn ứng tuyển bằng AI"
+  },
+  "appDescription": {
+    "message": "Điền biểu mẫu bằng AI cho đơn ứng tuyển, khảo sát và mọi biểu mẫu web. Lưu hồ sơ, tải CV lên và tự động điền thông minh."
+  },
+  "actionTitle": {
+    "message": "Mở bảng bên Aullevo"
+  },
+  "commandTogglePanel": {
+    "message": "Bật/tắt bảng bên Aullevo"
+  },
+  "commandFill": {
+    "message": "Tự động điền biểu mẫu trên trang bằng AI hoặc từ khóa"
+  },
+  "commandBatchFill": {
+    "message": "Tự động điền hàng loạt biểu mẫu từ nhiều liên kết"
+  }
+}

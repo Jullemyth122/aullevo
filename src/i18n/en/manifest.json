@@ -1,0 +1,8 @@
+{
+    "appName": "Aullevo - AI Form Autofill & Job Application Filler",
+    "appDescription": "AI form filler for job applications, surveys, and any web form. Saved profiles, resume upload, and smart autofill.",
+    "actionTitle": "Open Aullevo Side Panel",
+    "commandTogglePanel": "Toggle Aullevo Side Panel",
+    "commandFill": "Trigger AI or Keyword Form Autofill on Page",
+    "commandBatchFill": "Trigger Multi-Link Batch Form Autofill"
+}

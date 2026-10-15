@@ -1,0 +1,20 @@
+{
+  "appName": {
+    "message": "Aullevo - AI 表单自动填写与求职申请填写助手"
+  },
+  "appDescription": {
+    "message": "适用于求职申请、问卷调查及各类网页表单的 AI 填写工具。支持保存档案、上传简历和智能自动填写。"
+  },
+  "actionTitle": {
+    "message": "打开 Aullevo 侧边栏"
+  },
+  "commandTogglePanel": {
+    "message": "打开/关闭 Aullevo 侧边栏"
+  },
+  "commandFill": {
+    "message": "在页面上执行 AI 或关键词表单自动填写"
+  },
+  "commandBatchFill": {
+    "message": "执行多链接批量表单自动填写"
+  }
+}

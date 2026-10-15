@@ -1,0 +1,20 @@
+{
+  "appName": {
+    "message": "Aullevo - AI Autofill para sa Form at Job Application"
+  },
+  "appDescription": {
+    "message": "AI form filler para sa job application, survey, at kahit anong web form. May saved profile, resume upload, at smart autofill."
+  },
+  "actionTitle": {
+    "message": "Buksan ang Side Panel ng Aullevo"
+  },
+  "commandTogglePanel": {
+    "message": "Buksan/Isara ang Side Panel ng Aullevo"
+  },
+  "commandFill": {
+    "message": "Patakbuhin ang AI o Keyword Autofill sa Page"
+  },
+  "commandBatchFill": {
+    "message": "Patakbuhin ang Batch Autofill ng Multi-link"
+  }
+}

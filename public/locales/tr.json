@@ -1,0 +1,706 @@
+{
+  "autofill": {
+    "detection": {
+      "title": "Form Algılama",
+      "sub": "Etkin sekmedeki alanlar",
+      "highlightTitle": "Sayfadaki alanları incele ve vurgula",
+      "clear": "Temizle",
+      "highlight": "Vurgula",
+      "rescanTitle": "Sayfayı yeniden tara",
+      "rescan": "Yeniden Tara"
+    },
+    "fill": {
+      "injecting": "Dolduruluyor...",
+      "disabled": "{type} Devre Dışı",
+      "withAi": "Formu YZ ile Doldur ({type})",
+      "standard": "Formu Doldur ({type})",
+      "autoPaginate": "Otomatik Sayfalama açık: tüm sayfaları doldurur, ardından gönderir"
+    },
+    "activeProfile": {
+      "title": "Etkin Profil",
+      "summary": "{fields} • {docs} hazır",
+      "fieldCount": {
+        "one": "{count} alan",
+        "other": "{count} alan"
+      },
+      "docCount": {
+        "one": "{count} belge",
+        "other": "{count} belge"
+      },
+      "ready": "HAZIR",
+      "disabled": "DEVRE DIŞI"
+    },
+    "shortcuts": {
+      "title": "Klavye Kısayolları",
+      "toggleSidePanel": "Yan Paneli Aç/Kapat",
+      "formFill": "YZ / Anahtar Kelimeyle Form Doldurma",
+      "batchFill": "Çoklu Bağlantı Toplu Doldurma"
+    }
+  },
+  "content": {
+    "openSidebar": "Aullevo yan panelini aç",
+    "filled": "DOLDURULDU",
+    "file": "Dosya: {name}",
+    "files": {
+      "one": "{count} dosya eklendi",
+      "other": "{count} dosya eklendi"
+    },
+    "matched": "Eşleşen: {name}",
+    "ranked": "Sıralanan: {value}",
+    "ai": "[YZ] {text}",
+    "aiGenerated": "[YZ] Oluşturuldu",
+    "fixed": "Düzeltildi: {value}"
+  },
+  "header": {
+    "versionLine": "v{version} • Otomatik Doldurma",
+    "lightTheme": "Açık tema",
+    "darkTheme": "Koyu tema",
+    "jsonConfig": "JSON Yapılandırması",
+    "openFullPage": "Tam sayfada aç",
+    "closeSidePanel": "Yan paneli kapat",
+    "footer": {
+      "engine": "Aullevo Otomatik Doldurma Motoru",
+      "ready": "Hazır"
+    }
+  },
+  "json": {
+    "title": "JSON Yapılandırması",
+    "badge": {
+      "fields": {
+        "one": "✓ {count} alan",
+        "other": "✓ {count} alan"
+      },
+      "invalid": "Geçersiz JSON"
+    },
+    "actions": {
+      "format": "JSON'u Biçimlendir",
+      "fullscreen": "Tam Ekran",
+      "exitFullscreen": "Tam Ekrandan Çık",
+      "close": "Kapat",
+      "download": "İndir",
+      "copy": "JSON'u Kopyala",
+      "copied": "Kopyalandı",
+      "upload": "Dosya Yükle",
+      "import": "İçe Aktar"
+    },
+    "quota": {
+      "downloadPro": "İndirme (dışa aktarma) bir Pro özelliğidir."
+    },
+    "errors": {
+      "noFields": "Verilen JSON'da geçerli alan bulunamadı.",
+      "invalidFormat": "Geçersiz JSON biçimi: {error}"
+    }
+  },
+  "language": {
+    "title": "Dil",
+    "button": "Dil: {name}",
+    "search": "Dil ara",
+    "auto": "Otomatik: {name}",
+    "autoHint": "Tarayıcınızın dilini kullanır",
+    "backToEnglish": "İngilizceye dön",
+    "changed": "Dil değiştirildi: {name}.",
+    "switchBack": "Geri dön: {name}",
+    "keep": "Koru",
+    "noResults": "Dil bulunamadı",
+    "settingsHint": "Rehberli tur dahil Aullevo'nun tüm ekranlarını değiştirir."
+  },
+  "manifest": {
+    "appName": "Aullevo - Yapay Zeka ile Form ve İş Başvurusu Doldurma",
+    "appDescription": "İş başvuruları, anketler ve her web formu için yapay zeka destekli doldurma. Kayıtlı profiller, özgeçmiş yükleme, akıllı doldurma.",
+    "actionTitle": "Aullevo Yan Panelini Aç",
+    "commandTogglePanel": "Aullevo Yan Panelini Aç/Kapat",
+    "commandFill": "Sayfada YZ veya Anahtar Kelimeyle Form Doldurmayı Başlat",
+    "commandBatchFill": "Çoklu Bağlantı Toplu Form Doldurmayı Başlat"
+  },
+  "multilink": {
+    "batch": {
+      "title": "Toplu Doldurma Kuyruğu",
+      "activeCount": "{enabled}/{total} etkin",
+      "description": "Etkin <b>{type}</b> profilinizle birden çok sekmede formları otomatik olarak açıp doldurun.",
+      "running": "Toplu doldurma sürüyor...",
+      "start": {
+        "one": "{count} Formu Toplu Doldur",
+        "other": "{count} Formu Toplu Doldur"
+      }
+    },
+    "add": {
+      "title": "Form / İş İlanı Bağlantısı Ekle"
+    },
+    "saved": {
+      "title": "Kayıtlı Bağlantılar ({count})",
+      "clearAll": "Tümünü Temizle",
+      "empty": "Henüz bağlantı eklenmedi. Başlamak için yukarıya bir form URL'si yapıştırın.",
+      "open": "Bağlantıyı aç",
+      "remove": "Bağlantıyı kaldır"
+    }
+  },
+  "nav": {
+    "autofill": "Otomatik Doldur",
+    "profiles": "Profiller ({count})",
+    "multiLink": "Çoklu Bağlantı",
+    "settings": "Ayarlar"
+  },
+  "profiles": {
+    "types": {
+      "job": "İş",
+      "medical": "Sağlık",
+      "government": "Kamu",
+      "survey": "Anket",
+      "academic": "Akademik",
+      "financial": "Finans",
+      "custom": "Özel"
+    },
+    "badges": {
+      "on": "AÇIK",
+      "off": "KAPALI",
+      "disabled": "DEVRE DIŞI",
+      "sensitive": "HASSAS",
+      "aiSafe": "YZ İÇİN GÜVENLİ"
+    },
+    "save": {
+      "button": "{type} Profilini Kaydet",
+      "saved": "Kaydedildi ✓"
+    },
+    "dropdown": {
+      "newProfilePlaceholder": "Yeni profil adı...",
+      "add": "Ekle"
+    },
+    "config": {
+      "title": "Profil Yapılandırması",
+      "on": "PROFİL AÇIK",
+      "off": "PROFİL KAPALI",
+      "activeTooltip": "{type} profili etkin",
+      "disabledTooltip": "{type} profili devre dışı",
+      "namePlaceholder": "Profil Adı"
+    },
+    "identity": {
+      "title": "Kimlik ve İletişim",
+      "firstName": "Ad",
+      "lastName": "Soyad",
+      "email": "E-posta Adresi",
+      "phone": "Telefon Numarası",
+      "address": "İkamet Adresi"
+    },
+    "attributes": {
+      "title": "{type} Özellikleri",
+      "customHint": "Aşağıya kendi alanlarınızı ekleyin veya JSON ile içe aktarın.",
+      "job": {
+        "headline": "Başlık / Unvan",
+        "linkedin": "LinkedIn",
+        "github": "GitHub",
+        "portfolio": "Portfolyo",
+        "skills": "Beceriler",
+        "education": "Eğitim / Derece",
+        "certifications": "Sertifikalar"
+      },
+      "medical": {
+        "bloodType": "Kan Grubu",
+        "allergies": "Alerjiler",
+        "emergencyContact": "Acil Durum Kişisi",
+        "insuranceProvider": "Sigorta Şirketi"
+      },
+      "government": {
+        "nationalId": "Kimlik No / SSN",
+        "citizenship": "Vatandaşlık",
+        "passport": "Pasaport No",
+        "driversLicense": "Sürücü Belgesi"
+      },
+      "survey": {
+        "ageRange": "Yaş Aralığı",
+        "income": "Gelir",
+        "education": "Eğitim",
+        "employment": "İstihdam Durumu"
+      },
+      "academic": {
+        "institution": "Kurum",
+        "major": "Bölüm / Alan",
+        "gpa": "Not Ortalaması (GPA)",
+        "gradYear": "Mezuniyet Yılı",
+        "testScores": "Sınav Puanları"
+      },
+      "financial": {
+        "billingAddress": "Fatura Adresi",
+        "payment": "Ödeme",
+        "cardholder": "Kart Sahibi"
+      }
+    },
+    "field": {
+      "sensitiveTooltip": "Hassas: Değer yapay zekadan gizlenir (Sıfır Bilgi)",
+      "aiSafeTooltip": "YZ için güvenli: Akıllı seçenek seçimi için değer yapay zekayla paylaşılır"
+    },
+    "context": {
+      "buttonTitle": "{label} için YZ Bağlamı",
+      "title": "YZ Bağlamı: {label}",
+      "placeholder": "Yapay zeka için bağlam ipucu (ör. 'Pasaporttaki resmî ad')",
+      "hint": "Yapay zeka, belirsiz web sitesi form alanlarını tanımak için bu ipucunu kullanır."
+    },
+    "custom": {
+      "title": "Özel Alanlar",
+      "labelPlaceholder": "Alan Etiketi",
+      "valuePlaceholder": "Alan Değeri",
+      "sensitiveTooltip": "Hassas: Değer yapay zekadan gizlenir",
+      "aiSafeTooltip": "YZ için güvenli: Değer yapay zekayla paylaşılır",
+      "enabledTooltip": "Alan etkin",
+      "disabledTooltip": "Alan devre dışı",
+      "delete": "Alanı sil",
+      "pagination": {
+        "one": "Sayfa {page}/{total} ({count} öğe)",
+        "other": "Sayfa {page}/{total} ({count} öğe)"
+      },
+      "newLabelPlaceholder": "Etiket",
+      "newValuePlaceholder": "Değer",
+      "add": "Özel alan ekle"
+    },
+    "documents": {
+      "title": "Ekli Belgeler",
+      "labelPlaceholder": "Belge Etiketi",
+      "labelTooltip": "Belge etiketini düzenlemek için tıklayın",
+      "remove": "Dosyayı kaldır",
+      "pagination": "Sayfa {page}/{total}",
+      "categories": {
+        "resume": "Özgeçmiş / CV",
+        "coverLetter": "Ön Yazı",
+        "identity": "Kimlik Belgesi",
+        "academic": "Akademik Belge",
+        "portfolio": "Portfolyo",
+        "other": "Diğer Belge"
+      },
+      "upload": {
+        "resume": "Özgeçmiş Yükle",
+        "coverLetter": "Ön Yazı Yükle",
+        "identity": "Kimlik Yükle",
+        "academic": "Akademik Belge Yükle",
+        "portfolio": "Portfolyo Yükle",
+        "other": "Belge Yükle"
+      },
+      "size": {
+        "bytes": "{size} B",
+        "kilobytes": "{size} KB",
+        "megabytes": "{size} MB"
+      }
+    }
+  },
+  "settings": {
+    "account": {
+      "title": "Hesap",
+      "proUntil": "Pro, {date} tarihine kadar",
+      "proLifetime": "Pro · Ömür Boyu",
+      "disconnect": "Hesap bağlantısını kes",
+      "waiting": "Oturum açılması bekleniyor…",
+      "connect": "Aullevo Web ile bağlan",
+      "renew": "Pro süresi doldu · Yenile",
+      "upgrade": "Pro'ya Yükselt"
+    },
+    "theme": {
+      "title": "Tema Görünümü",
+      "dark": "Koyu Tema",
+      "description": "Koyu Arduvaz ve Açık tema arasında geçiş yapın"
+    },
+    "mode": {
+      "title": "Otomatik Doldurma Motoru Modu",
+      "aiActive": "YZ Akıllı Doldurma (Etkin)",
+      "standard": "Standart Doldurma (YZ Yok)",
+      "aiDescription": "Soruları yorumlamak ve karmaşık alanları eşleştirmek için yapay zeka akıl yürütmesini kullanır",
+      "standardDescription": "Yapay zeka çağrısı olmadan doğrudan profil özelliği eşleştirme",
+      "toggle": "YZ Doldurma Modunu Aç/Kapat"
+    },
+    "ai": {
+      "title": "YZ Motoru",
+      "unlimited": "Sınırsız Erişim",
+      "keyRequired": "API Anahtarı Gerekli",
+      "freeUsage": "Free: bu hafta {used}/{limit}",
+      "privacy": "<b>Gizlilik:</b> HASSAS olarak işaretlenen alanlar yapay zekaya asla gönderilmez, yalnızca etiketleri gönderilir. YZ İÇİN GÜVENLİ alanların değerleri ve formun soruları {provider} hizmetine gönderilir.",
+      "provider": "YZ Sağlayıcısı",
+      "customProvider": "Özel (OpenAI uyumlu)",
+      "baseUrl": "Sunucu URL'si",
+      "customHint": "OpenAI sohbet API'sini destekleyen her sunucuyla çalışır; ör. OpenRouter, Groq, Mistral, Ollama veya LM Studio. Yerel sunucular anahtar gerektirmez.",
+      "model": "YZ Modeli",
+      "modelOption": "{name} ({description})",
+      "models": {
+        "fastest": "En Hızlı ve Çok Ucuz",
+        "balanced": "Dengeli Akıl Yürütme",
+        "capable": "Hızlı ve Yetenekli",
+        "smartest": "En Yüksek Zekâ",
+        "legacy": "Eski Hızlı Model"
+      },
+      "otherModel": "Başka model (kimliğini yazın)",
+      "modelIdPlaceholder": "Tam model kimliği, ör. {example}",
+      "apiKey": "{provider} API Anahtarı",
+      "getKey": "API anahtarı al",
+      "keyPlaceholder": "{provider} API anahtarınızı yapıştırın",
+      "hideKey": "Anahtarı gizle",
+      "showKey": "Anahtarı göster",
+      "addKeyHint": "YZ Akıllı Doldurma'yı kullanmak için {provider} API anahtarınızı ekleyin.",
+      "proHint": "Pro: sınırsız YZ doldurma. Anahtarınız bu tarayıcıda kalır.",
+      "freeHint": "Free plan: haftada {limit} YZ doldurma. Sınırsız kullanım için Pro'ya yükseltin."
+    },
+    "paginate": {
+      "title": "Otomatik Sayfalama",
+      "toggleTitle": "Çok Sayfalı Formları Doldur",
+      "description": "Her sayfayı doldurur, İleri / Devam'a tıklar ve sonunda Gönder'e basar. Formun reddettiği yanıtları düzeltir; düzeltemediğinde duraklar.",
+      "toggle": "Otomatik Sayfalamayı Aç/Kapat",
+      "proFeature": "Pro özelliği",
+      "upgrade": "Otomatik Sayfalama'yı kullanmak için Pro'ya yükseltin"
+    },
+    "floating": {
+      "title": "Web Sayfası Kayan Simgesi",
+      "toggleTitle": "Kayan Düğmeyi Göster",
+      "description": "Web sayfalarının kenarına yerleşen hızlı erişim Aullevo sekmesini göster",
+      "toggle": "Web Sayfası Kayan Düğmesini Aç/Kapat"
+    },
+    "typing": {
+      "title": "İnsan Gibi Yazma Hızı",
+      "instant": "Anında ({ms} ms)",
+      "natural": "Doğal ({ms} ms)",
+      "slow": "Yavaş ({ms} ms)",
+      "custom": "Özel ({ms} ms)",
+      "naturalFree": "Doğal ({ms} ms) · Free plan",
+      "description": "Gerçek tuş vuruşları bekleyen siteler için karakterleri insan hızında tek tek yazar.",
+      "proFeature": "Pro özelliği",
+      "customDelay": "Özel Gecikme:",
+      "customProFeature": "Özel gecikme bir Pro özelliğidir",
+      "unitMs": "ms"
+    },
+    "tour": {
+      "title": "Rehberli Tur",
+      "toggleTitle": "Tanıtımı yeniden göster",
+      "description": "Tüm sekmeleri adım adım yeniden gösterir",
+      "replay": "Tekrar Oynat"
+    },
+    "security": {
+      "title": "Yerel Olarak Şifrelendi"
+    },
+    "memories": {
+      "title": "YZ Anıları",
+      "count": "({enabled}/{total} açık)",
+      "descriptionAiOn": "Yapay zekanın açık uçlu soruları yanıtlarken kullanabileceği bilgiler (ör. \"Çalışma şekli: yalnızca uzaktan\"). Etkin anılar {provider} hizmetine gönderilir ve bu tarayıcıda şifrelenmeden saklanır; bu yüzden parola veya kimlik numarası eklemeyin.",
+      "descriptionAiOff": "Yapay zekanın açık uçlu soruları yanıtlarken kullanabileceği bilgiler (ör. \"Çalışma şekli: yalnızca uzaktan\"). Yalnızca YZ Akıllı Doldurma açıkken kullanılır. Etkin anılar {provider} hizmetine gönderilir ve bu tarayıcıda şifrelenmeden saklanır; bu yüzden parola veya kimlik numarası eklemeyin.",
+      "titlePlaceholder": "Başlık",
+      "contentPlaceholder": "Yapay zekanın bilmesi gerekenler",
+      "enabledTitle": "Anı yapay zekaya gönderilir",
+      "disabledTitle": "Anı kullanılmıyor",
+      "on": "AÇIK",
+      "off": "KAPALI",
+      "delete": "Anıyı sil",
+      "newTitlePlaceholder": "Başlık (ör. Çalışma şekli)",
+      "newContentPlaceholder": "İçerik (ör. Tamamen uzaktan rolleri tercih ediyor, sözleşmeli işlere açık)",
+      "add": "Anı ekle"
+    },
+    "deviceData": {
+      "title": "Bu Cihazdaki Veriler",
+      "total": "Toplam {size}",
+      "description": "Her hesabın burada kendi şifreli kasası vardır. Hesaplar birbirinin profillerini, belgelerini, API anahtarını, anılarını veya bağlantılarını asla göremez.",
+      "empty": "Henüz kayıtlı veri yok.",
+      "localOwner": "Oturum açılmadı (yerel profiller)",
+      "anotherAccount": "Başka bir hesap",
+      "inUse": "{size} · şu anda kullanımda",
+      "deleteTitle": "Bu hesabın verilerini bu cihazdan sil",
+      "delete": "Sil",
+      "confirmDelete": "\"{name}\" için Aullevo verileri bu cihazdan silinsin mi?\n\nBu işlem şifreli profilleri, belgeleri, API anahtarını, YZ anılarını ve bağlantı kuyruğunu kalıcı olarak kaldırır. Geri alınamaz.",
+      "bytes": "{size} B",
+      "kilobytes": "{size} KB",
+      "megabytes": "{size} MB"
+    }
+  },
+  "status": {
+    "plan": {
+      "profileLimit": "Free plan en fazla {max} etkin profile izin verir. Fazla profilleri KAPALI yapın veya Pro'ya yükseltin.",
+      "activeLimit": "Free plan en fazla {max} etkin profile izin verir. Birini KAPALI yapın veya Pro'ya yükseltin.",
+      "createdOff": "Profil KAPALI olarak oluşturuldu. Free plan en fazla {max} etkin profile izin verir. Birini KAPALI yapın veya Pro'ya yükseltin.",
+      "autoPaginatePro": "Otomatik Sayfalama bir Pro özelliğidir. Çok sayfalı formları doldurmak için Pro'ya yükseltin.",
+      "jsonImportLimit": "Bu 2 haftalık {limit} ücretsiz JSON içe aktarma hakkınızın tamamını kullandınız. Haklarınız {date} tarihinde yenilenir; dilerseniz sınırsız içe aktarma için Pro'ya yükseltin.",
+      "documentsSkipped": {
+        "one": "{count} belge eklenmedi: formlara yükleme bir Pro özelliğidir.",
+        "other": "{count} belge eklenmedi: formlara yükleme bir Pro özelliğidir."
+      }
+    },
+    "batch": {
+      "starting": {
+        "one": "{count} form için toplu doldurma başlatılıyor...",
+        "other": "{count} form için toplu doldurma başlatılıyor..."
+      },
+      "progress": "Dolduruluyor {current}/{total}: {host}",
+      "progressNoHost": "Dolduruluyor {current}/{total}...",
+      "complete": {
+        "one": "{count} formda toplu doldurma tamamlandı!",
+        "other": "{count} formda toplu doldurma tamamlandı!"
+      }
+    },
+    "save": {
+      "success": "{type} profili başarıyla kaydedildi!",
+      "failed": "Kaydetme başarısız: {error}",
+      "noProfile": "Profil seçilmedi",
+      "unknownError": "Kaydetme başarısız"
+    },
+    "profile": {
+      "nameExists": "Bu adla bir profil zaten var!",
+      "disabled": "{type} devre dışı. Otomatik doldurmak için AÇIK yapın.",
+      "defaultType": "PROFİL",
+      "imported": {
+        "one": "{type} profiline {count} alan başarıyla içe aktarıldı!",
+        "other": "{type} profiline {count} alan başarıyla içe aktarıldı!"
+      }
+    },
+    "highlight": {
+      "noActiveTab": "Etkin sekme bulunamadı.",
+      "refreshToConnect": "Vurgulamayı bağlamak için sayfayı yenileyin.",
+      "on": {
+        "one": "Sayfada {count} alan vurgulandı!",
+        "other": "Sayfada {count} alan vurgulandı!"
+      },
+      "cleared": "Vurgular temizlendi."
+    },
+    "fill": {
+      "injectingAi": "Alanlar YZ ile dolduruluyor ({type})...",
+      "injecting": "Alanlar dolduruluyor ({type})...",
+      "noTab": "Etkin sekmeye ulaşılamadı.",
+      "refreshToConnect": "Otomatik doldurmayı bağlamak için sekmeyi yenileyin.",
+      "cannotConnect": "Sayfaya bağlanılamadı. Sekmeyi yenileyin.",
+      "aiPartlySkipped": {
+        "one": "{count} alan dolduruldu (YZ kısmen atlandı).",
+        "other": "{count} alan dolduruldu (YZ kısmen atlandı)."
+      },
+      "keywordMode": {
+        "one": "{count} alan dolduruldu (anahtar kelime modu).",
+        "other": "{count} alan dolduruldu (anahtar kelime modu)."
+      },
+      "withAi": {
+        "one": "Form YZ ile dolduruldu ({count} alan eşleşti).",
+        "other": "Form YZ ile dolduruldu ({count} alan eşleşti)."
+      },
+      "withoutAi": {
+        "one": "Form YZ olmadan dolduruldu ({count} alan eşleşti).",
+        "other": "Form YZ olmadan dolduruldu ({count} alan eşleşti)."
+      },
+      "error": "Doldurma hatası: {error}",
+      "injected": {
+        "one": "Sayfaya {count} alan eklendi.",
+        "other": "Sayfaya {count} alan eklendi."
+      }
+    },
+    "pagination": {
+      "progress": "Otomatik Sayfalama: {page}. sayfa dolduruluyor...",
+      "lostConnection": "Otomatik Sayfalama durdu: uzantıyla bağlantı kesildi.",
+      "filled": {
+        "one": "{count} sayfada {filled} alan dolduruldu.",
+        "other": "{count} sayfada {filled} alan dolduruldu."
+      },
+      "corrected": {
+        "one": "Formun reddettiği {count} yanıt düzeltildi.",
+        "other": "Formun reddettiği {count} yanıt düzeltildi."
+      },
+      "field": "\"{name}\" alanı",
+      "fieldAndMore": {
+        "one": "\"{name}\" alanı (+{count} tane daha)",
+        "other": "\"{name}\" alanı (+{count} tane daha)"
+      },
+      "aField": "bir alan",
+      "nextButton": "İleri",
+      "submitted": "Gönderildi!",
+      "noNext": "İleri / Devam düğmesi bulunamadı.",
+      "stillEmpty": "Hâlâ boş: {field}.",
+      "check": "Kontrol edin: {field}.",
+      "blocked": "{page}. sayfada duraklatıldı: {field} zorunlu ve boş. Doldurun, ardından yeniden çalıştırın.",
+      "nextDisabled": "{page}. sayfada duraklatıldı: \"{button}\" düğmesi devre dışı. Sayfayı kontrol edin, ardından yeniden çalıştırın.",
+      "validationError": "{page}. sayfada duraklatıldı: form \"{error}\" bildirdi.",
+      "validationErrorUnknown": "{page}. sayfada duraklatıldı: form bir hata bildirdi.",
+      "correctionTried": "(otomatik düzeltme denendi)",
+      "stuck": "{page}. sayfada duraklatıldı: \"{button}\" düğmesine tıklandı ama form ilerlemedi.",
+      "maxPages": "{max} sayfalık güvenlik sınırında durduruldu.",
+      "noForm": "Bu sayfada form bulunamadı (veya Aullevo burada çalışamıyor).",
+      "stopped": "Otomatik Sayfalama durdu: {error}",
+      "unknownError": "bilinmeyen hata"
+    }
+  },
+  "tour": {
+    "card": {
+      "progress": "{section} · {current}/{total}",
+      "skip": "Turu atla",
+      "dontShowAgain": "Bir daha gösterme",
+      "back": "Geri",
+      "next": "İleri",
+      "done": "Bitti"
+    },
+    "shortcuts": {
+      "allActive": "3 kısayolun tümü bu tarayıcıda etkin.",
+      "notSet": "Bu tarayıcıda ayarlanmamış: {list}. Bunları Chrome'un kısayol ayarlarından kendiniz ayarlayın.",
+      "openSettings": "Chrome kısayol ayarlarını aç",
+      "toggleSidePanel": "Yan Paneli Aç/Kapat",
+      "fallbackName": "Kısayol"
+    },
+    "sections": {
+      "autofill": "Otomatik Doldur",
+      "header": "Üst düğmeler",
+      "profiles": "Profiller",
+      "multilink": "Çoklu Bağlantı",
+      "settings": "Ayarlar"
+    },
+    "autofill": {
+      "detection": {
+        "title": "Form algılama",
+        "body": "Aullevo, geçerli sekmenizdeki sayfada doldurulabilir alanları sayar. Bir form açtığınızda bu sayı güncellenir."
+      },
+      "highlight": {
+        "title": "Alanları vurgulama",
+        "body": "Aullevo'nun sayfada bulduğu her alanın çevresini çizer; böylece doldurmadan önce neyin doldurulacağını görürsünüz. Çizgileri kaldırmak için yeniden tıklayın."
+      },
+      "rescan": {
+        "title": "Yeniden Tara",
+        "body": "Çok adımlı formlar veya açılır pencereler gibi bazı formlar, sayfa yüklendikten sonra alan ekler. Yeniden Tara, alanları tekrar sayar."
+      },
+      "fill": {
+        "title": "Formu doldurma",
+        "body": "Sayfayı etkin profilinizle doldurur. YZ doldurma açıkken (Ayarlar'da), sorular farklı ifade edilse bile yanıtlarınızla eşleştirilir. Kapalıyken alanlar anahtar kelimeyle eşleştirilir."
+      },
+      "activeProfile": {
+        "title": "Etkin profil",
+        "body": "Doldurmak için kullanılan profil ve kaç alanın ve belgenin açık olduğu. Profil değiştirmek veya yanıtlarınızı düzenlemek için <b>Profiller</b> sekmesine gidin."
+      },
+      "shortcuts": {
+        "title": "Klavye kısayolları",
+        "body": "Chrome bu tuşları Aullevo yüklendiğinde ayarlar, ancak Chrome'un veya başka bir uzantının zaten kullandıklarını atlar. Bunları istediğiniz zaman değiştirebilirsiniz."
+      }
+    },
+    "header": {
+      "voice": {
+        "title": "Sesli mod",
+        "body": "Tıklamak yerine Aullevo ile konuşun. Bu düğme paneli sesli asistana geçirir: \"fill this page\", \"fill the email\" veya \"fill the first question\" deyin, sesli yanıt versin. Bu görünüme dönmek için tekrar tıklayın.",
+        "note": "Pro özelliği. Voice settings bölümünden ekleyeceğiniz kendi ElevenLabs API anahtarınız gerekir. Sesli komutlar İngilizce ve Tagalogca çalışır."
+      },
+      "language": {
+        "title": "Dil",
+        "body": "Aullevo'nun tamamı için dili seçin. İngilizce her zaman listenin en üstündedir, böylece istediğiniz zaman geri dönebilirsiniz."
+      },
+      "theme": {
+        "title": "Açık veya koyu tema",
+        "body": "Paneli açık ve koyu mod arasında değiştirir."
+      },
+      "json": {
+        "title": "JSON ile hızlı kurulum",
+        "intro": "JSON biçiminde profiliniz. Bir profili kurmanın en hızlı yolu:",
+        "step1": "JSON'u buradan kopyalayın.",
+        "step2": "Özgeçmişiniz veya başka bir belgeyle birlikte Gemini, Claude ya da ChatGPT'ye verin.",
+        "step3": "Yapay zekadan değerleri doldurmasını ve yapıyı aynı tutmasını isteyin.",
+        "step4": "Sonucu buraya geri yapıştırın ve <b>İçe Aktar</b>'a tıklayın."
+      },
+      "fullPage": {
+        "title": "Tam sayfada aç",
+        "body": "Aullevo'yu profilleri düzenlemek için daha fazla alan sunan bir tarayıcı sekmesinde açar. Doldurma yine bu yan panelden yapılır."
+      },
+      "close": {
+        "title": "Paneli kapatma",
+        "body": "Yan paneli kapatır. <b>Alt+Q</b> (Mac'te <b>Option+Q</b>) ile veya araç çubuğundaki Aullevo simgesine tıklayarak yeniden açın."
+      }
+    },
+    "profiles": {
+      "switcher": {
+        "title": "Profil değiştirme",
+        "body1": "Her profil (İş, Akademik, Finans veya kendi profiliniz) kendi yanıt setini tutar. Düzenlemek ve doldurmak için kullanmak istediğinizi seçin.",
+        "body2": "Hangi profillerin AÇIK veya KAPALI olduğunu görmek ve en alttan yeni bir profil oluşturmak için listeyi açın.",
+        "note": "Free plan: aynı anda en fazla 2 profil AÇIK olabilir."
+      },
+      "config": {
+        "title": "Ad ve açma/kapama düğmesi",
+        "body": "Profili burada yeniden adlandırın. <b>PROFİL AÇIK</b> tüm profili açar veya kapatır. Kapalıyken doldurma için kullanılmaz."
+      },
+      "identity": {
+        "title": "Kimlik ve iletişim",
+        "body": "Adınız, e-postanız, telefonunuz ve adresiniz. Daraltmak veya genişletmek için herhangi bir bölüm başlığına tıklayın. Her alanda, sırada gösterilecek üç küçük kontrol bulunur."
+      },
+      "fieldContext": {
+        "title": "YZ bağlam ipucu",
+        "body": "✨ düğmesi, yapay zekaya bu alanın ne anlama geldiğini söyleyen bir ipucu ekler; ör. \"Pasaporttaki resmî ad\". Bir formun sorusu belirsiz ifade edildiğinde işe yarar. Nokta, ipucu ayarlandığını gösterir."
+      },
+      "fieldPrivacy": {
+        "title": "YZ için güvenli veya Hassas",
+        "safe": "<b>YZ için güvenli</b>: değer yapay zekayla paylaşılır; böylece açılır menülerde ve çoktan seçmeli sorularda doğru yanıtı seçebilir.",
+        "sensitive": "<b>Hassas</b>: yapay zeka yalnızca alanın adını ve ipucunu görür, değeri asla görmez. Aullevo değeri yine de cihazınızda yazar.",
+        "toggle": "Değiştirmek için tıklayın."
+      },
+      "fieldToggle": {
+        "title": "Alanı açma veya kapatma",
+        "body": "Yazdıklarınızı silmeden, doldururken atlamak için bir alanı KAPALI yapın."
+      },
+      "documents": {
+        "title": "Belge ekleme",
+        "body": "Belge türünü seçin, ardından özgeçmişinizi, ön yazınızı, kimliğinizi ve diğer belgelerinizi yükleyin. Bir formda dosya yükleme sorusu olduğunda Aullevo, AÇIK olan belgelerinizi ekler.",
+        "note": "Formlara belge eklemek bir Pro özelliğidir."
+      },
+      "attributes": {
+        "title": "Profile özel alanlar",
+        "body": "Bu profil türüne ait alanlar. İş profilinde başlık, LinkedIn, beceriler ve eğitim bulunur. Akademik, Sağlık ve diğerlerinin kendi alanları vardır."
+      },
+      "customFields": {
+        "title": "Kendi alanlarınızı ekleyin",
+        "body": "Standart alanların kapsamadığı her şey için; ör. \"Beklenen maaş\" veya \"Bu işi neden istiyorsunuz?\". Bir etiket ve değer yazın, ardından <b>+</b> düğmesine tıklayın. Etiket olarak sorunun ifadesini kullanmak iyi sonuç verir."
+      },
+      "save": {
+        "title": "Kaydetme",
+        "body": "Değişiklikler siz yazarken otomatik olarak kaydedilir. Bu düğme hemen kaydeder; paneli kapatmadan hemen önce işe yarar."
+      }
+    },
+    "multilink": {
+      "addLink": {
+        "title": "Form bağlantısı ekleme",
+        "body": "Bir formun veya iş başvurusunun tam bağlantısını (https:// ile başlayan) yapıştırın ve <b>+</b> düğmesine tıklayın. İstediğiniz kadar ekleyin."
+      },
+      "savedLinks": {
+        "title": "Bağlantı kuyruğunuz",
+        "body": "Eklediğiniz her bağlantı burada görünür. Bir sonraki topluya dahil etmek için bağlantıyı işaretleyin veya atlamak için işareti kaldırın. Ok simgesi bağlantıyı açar, çöp kutusu simgesi kaldırır."
+      },
+      "batchRun": {
+        "title": "Hepsini tek seferde doldurun",
+        "body1": "İşaretli her bağlantıyı sırayla arka plan sekmesinde açar ve etkin profilinizle doldurur. İlerleme panelin üst kısmında gösterilir.",
+        "note": "Kısayol: Alt+Shift+B (Mac'te Option+Shift+B)."
+      }
+    },
+    "settings": {
+      "account": {
+        "title": "Hesabınız",
+        "body": "Planınızın (Free veya Pro) burada geçerli olması için Aullevo Web hesabınızı bağlayın. Profilleriniz bu cihazda şifreli kalır ve yüklenmez."
+      },
+      "aiMode": {
+        "title": "YZ Akıllı Doldurma veya Standart Doldurma",
+        "standard": "<b>Standart Doldurma</b>, alanları yapay zeka olmadan adlarına göre eşleştirir.",
+        "smart": "<b>YZ Akıllı Doldurma</b>, farklı ifade edilen soruları anlar ve açılır menülerde ve çoktan seçmeli sorularda yanıtları seçer."
+      },
+      "aiEngine": {
+        "title": "YZ sağlayıcısı, model ve API anahtarı"
+      },
+      "memories": {
+        "title": "YZ anıları",
+        "body": "Yapay zekanın açık uçlu sorularda kullanabileceği kısa bilgiler; ör. \"Çalışma şekli: yalnızca uzaktan\". Seçtiğiniz yapay zekâ sağlayıcısına gönderilir ve şifrelenmez; bu yüzden asla parola veya kimlik numarası eklemeyin."
+      },
+      "autoPaginate": {},
+      "floatingIcon": {
+        "title": "Kayan düğme",
+        "body": "Hızlı erişim için web sayfalarının kenarında küçük bir Aullevo sekmesi. Engel oluyorsa kapatın."
+      },
+      "typingSpeed": {
+        "title": "Yazma hızı",
+        "body": "Aullevo'nun alanlara ne kadar hızlı yazdığı. <b>Doğal</b> daha çok bir insanın yazmasına benzer, <b>Anında</b> ise en hızlısıdır. Yavaş ve özel hızlar Pro'dadır."
+      },
+      "replayTour": {
+        "title": "Bu rehberi yeniden oynat",
+        "body": "Bir şey mi unuttunuz? Bu rehberin tamamını yeniden izlemek için <b>Tekrar Oynat</b>'a tıklayın."
+      },
+      "deviceData": {
+        "title": "Bu cihazdaki veriler",
+        "body": "Her hesabın bu tarayıcıda kendi şifreli kasası vardır. Artık kullanmadığınız hesapların verilerini silin."
+      }
+    }
+  },
+  "vault": {
+    "loading": "Yükleniyor…",
+    "account": {
+      "signedInAs": "<b>{account}</b> olarak oturum açıldı",
+      "notSignedIn": "Oturum açılmadı: bu cihazdaki yerel profiller",
+      "fallbackName": "hesabınız"
+    },
+    "errors": {
+      "createFailed": "Kasa oluşturulamadı. Lütfen tekrar deneyin.",
+      "wrongPassphrase": "Yanlış parola.",
+      "wrongClaimPassphrase": "Bu profiller için yanlış parola."
+    }
+  }
+}

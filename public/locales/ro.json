@@ -1,0 +1,725 @@
+{
+  "autofill": {
+    "detection": {
+      "title": "Detectare formular",
+      "sub": "Câmpuri în fila activă",
+      "highlightTitle": "Inspectează și evidențiază câmpurile din pagină",
+      "clear": "Șterge",
+      "highlight": "Evidențiază",
+      "rescanTitle": "Rescanează pagina",
+      "rescan": "Rescanează"
+    },
+    "fill": {
+      "injecting": "Se completează…",
+      "disabled": "{type} dezactivat",
+      "withAi": "Completează formularul cu AI ({type})",
+      "standard": "Completează formularul ({type})",
+      "autoPaginate": "Paginare automată activă: completează fiecare pagină, apoi trimite"
+    },
+    "activeProfile": {
+      "title": "Profil activ",
+      "summary": "{fields} • {docs} pregătite",
+      "fieldCount": {
+        "one": "{count} câmp",
+        "few": "{count} câmpuri",
+        "other": "{count} de câmpuri"
+      },
+      "docCount": {
+        "one": "{count} document",
+        "few": "{count} documente",
+        "other": "{count} de documente"
+      },
+      "ready": "PREGĂTIT",
+      "disabled": "DEZACTIVAT"
+    },
+    "shortcuts": {
+      "title": "Comenzi rapide de la tastatură",
+      "toggleSidePanel": "Afișează/ascunde panoul lateral",
+      "formFill": "Completare cu AI / după cuvinte cheie",
+      "batchFill": "Completare în lot Multi-link"
+    }
+  },
+  "content": {
+    "openSidebar": "Deschide panoul lateral Aullevo",
+    "filled": "COMPLETAT",
+    "file": "Fișier: {name}",
+    "files": {
+      "one": "{count} fișier atașat",
+      "few": "{count} fișiere atașate",
+      "other": "{count} de fișiere atașate"
+    },
+    "matched": "Potrivit: {name}",
+    "ranked": "Ales: {value}",
+    "ai": "[AI] {text}",
+    "aiGenerated": "[AI] Generat",
+    "fixed": "Corectat: {value}"
+  },
+  "header": {
+    "versionLine": "v{version} • Completare automată",
+    "lightTheme": "Temă luminoasă",
+    "darkTheme": "Temă întunecată",
+    "jsonConfig": "Configurare JSON",
+    "openFullPage": "Deschide pe toată pagina",
+    "closeSidePanel": "Închide panoul lateral",
+    "footer": {
+      "engine": "Motorul de completare Aullevo",
+      "ready": "Pregătit"
+    }
+  },
+  "json": {
+    "title": "Configurare JSON",
+    "badge": {
+      "fields": {
+        "one": "✓ {count} câmp",
+        "few": "✓ {count} câmpuri",
+        "other": "✓ {count} de câmpuri"
+      },
+      "invalid": "JSON nevalid"
+    },
+    "actions": {
+      "format": "Formatează JSON",
+      "fullscreen": "Ecran complet",
+      "exitFullscreen": "Ieși din ecran complet",
+      "close": "Închide",
+      "download": "Descarcă",
+      "copy": "Copiază JSON",
+      "copied": "Copiat",
+      "upload": "Încarcă fișier",
+      "import": "Importă"
+    },
+    "quota": {
+      "downloadPro": "Descărcarea (exportul) este o funcție Pro."
+    },
+    "errors": {
+      "noFields": "Nu s-au găsit câmpuri valide în JSON-ul furnizat.",
+      "invalidFormat": "Format JSON nevalid: {error}"
+    }
+  },
+  "language": {
+    "title": "Limbă",
+    "button": "Limbă: {name}",
+    "search": "Caută limbi",
+    "auto": "Automat: {name}",
+    "autoHint": "Urmează limba browserului",
+    "backToEnglish": "Înapoi la engleză",
+    "changed": "Limba a fost schimbată în {name}.",
+    "switchBack": "Revino la {name}",
+    "keep": "Păstrează",
+    "noResults": "Nu s-au găsit limbi",
+    "settingsHint": "Schimbă toate ecranele Aullevo, inclusiv turul ghidat."
+  },
+  "manifest": {
+    "appName": "Aullevo - Completare formulare și aplicații la joburi cu AI",
+    "appDescription": "Completare cu AI pentru aplicații la joburi, sondaje și orice formular web. Profiluri salvate, încărcare CV, completare inteligentă.",
+    "actionTitle": "Deschide panoul lateral Aullevo",
+    "commandTogglePanel": "Afișează/ascunde panoul lateral Aullevo",
+    "commandFill": "Completează formularul din pagină cu AI sau cuvinte cheie",
+    "commandBatchFill": "Pornește completarea în lot Multi-link"
+  },
+  "multilink": {
+    "batch": {
+      "title": "Coadă de completare în lot",
+      "activeCount": "{enabled} din {total} active",
+      "description": "Deschide și completează automat formulare în mai multe file folosind profilul tău <b>{type}</b> activ.",
+      "running": "Completare în lot în curs…",
+      "start": {
+        "one": "Completează {count} formular în lot",
+        "few": "Completează {count} formulare în lot",
+        "other": "Completează {count} de formulare în lot"
+      }
+    },
+    "add": {
+      "title": "Adaugă link de formular / job"
+    },
+    "saved": {
+      "title": "Linkuri salvate ({count})",
+      "clearAll": "Șterge tot",
+      "empty": "Niciun link adăugat încă. Lipește mai sus URL-ul unui formular ca să începi.",
+      "open": "Deschide linkul",
+      "remove": "Elimină linkul"
+    }
+  },
+  "nav": {
+    "autofill": "Completare",
+    "profiles": "Profiluri ({count})",
+    "multiLink": "Multi-link",
+    "settings": "Setări"
+  },
+  "profiles": {
+    "types": {
+      "job": "Job",
+      "medical": "Medical",
+      "government": "Administrativ",
+      "survey": "Sondaj",
+      "academic": "Academic",
+      "financial": "Financiar",
+      "custom": "Personalizat"
+    },
+    "badges": {
+      "on": "ACTIV",
+      "off": "INACTIV",
+      "disabled": "DEZACTIVAT",
+      "sensitive": "SENSIBIL",
+      "aiSafe": "OK PENTRU AI"
+    },
+    "save": {
+      "button": "Salvează profilul {type}",
+      "saved": "Salvat ✓"
+    },
+    "dropdown": {
+      "newProfilePlaceholder": "Numele noului profil…",
+      "add": "Adaugă"
+    },
+    "config": {
+      "title": "Configurare profil",
+      "on": "PROFIL ACTIV",
+      "off": "PROFIL INACTIV",
+      "activeTooltip": "Profilul {type} este activ",
+      "disabledTooltip": "Profilul {type} este dezactivat",
+      "namePlaceholder": "Numele profilului"
+    },
+    "identity": {
+      "title": "Identitate și contact",
+      "firstName": "Prenume",
+      "lastName": "Nume",
+      "email": "Adresă de e-mail",
+      "phone": "Număr de telefon",
+      "address": "Adresă de domiciliu"
+    },
+    "attributes": {
+      "title": "Atribute {type}",
+      "customHint": "Adaugă mai jos propriile câmpuri sau importă-le prin JSON.",
+      "job": {
+        "headline": "Titlu profesional / Funcție",
+        "linkedin": "LinkedIn",
+        "github": "GitHub",
+        "portfolio": "Portofoliu",
+        "skills": "Competențe",
+        "education": "Studii / Diplomă",
+        "certifications": "Certificări"
+      },
+      "medical": {
+        "bloodType": "Grupă sanguină",
+        "allergies": "Alergii",
+        "emergencyContact": "Contact de urgență",
+        "insuranceProvider": "Asigurator"
+      },
+      "government": {
+        "nationalId": "CNP / Nr. de identificare",
+        "citizenship": "Cetățenie",
+        "passport": "Nr. pașaport",
+        "driversLicense": "Permis de conducere"
+      },
+      "survey": {
+        "ageRange": "Grupă de vârstă",
+        "income": "Venit",
+        "education": "Nivel de studii",
+        "employment": "Situație profesională"
+      },
+      "academic": {
+        "institution": "Instituție",
+        "major": "Specializare / Domeniu de studiu",
+        "gpa": "Medie generală (GPA)",
+        "gradYear": "An absolvire",
+        "testScores": "Rezultate la teste"
+      },
+      "financial": {
+        "billingAddress": "Adresă de facturare",
+        "payment": "Plată",
+        "cardholder": "Titular card"
+      }
+    },
+    "field": {
+      "sensitiveTooltip": "Sensibil: valoarea este ascunsă de AI (zero-knowledge)",
+      "aiSafeTooltip": "OK pentru AI: valoarea este partajată cu AI pentru alegeri inteligente"
+    },
+    "context": {
+      "buttonTitle": "Context AI pentru {label}",
+      "title": "Context AI: {label}",
+      "placeholder": "Indiciu pentru AI (ex. „Prenumele legal din pașaport”)",
+      "hint": "AI-ul folosește acest indiciu pentru a identifica câmpurile ambigue din formularele web."
+    },
+    "custom": {
+      "title": "Câmpuri personalizate",
+      "labelPlaceholder": "Eticheta câmpului",
+      "valuePlaceholder": "Valoarea câmpului",
+      "sensitiveTooltip": "Sensibil: valoarea este ascunsă de AI",
+      "aiSafeTooltip": "OK pentru AI: valoarea este partajată cu AI",
+      "enabledTooltip": "Câmp activat",
+      "disabledTooltip": "Câmp dezactivat",
+      "delete": "Șterge câmpul",
+      "pagination": {
+        "one": "Pagina {page} din {total} ({count} element)",
+        "few": "Pagina {page} din {total} ({count} elemente)",
+        "other": "Pagina {page} din {total} ({count} de elemente)"
+      },
+      "newLabelPlaceholder": "Etichetă",
+      "newValuePlaceholder": "Valoare",
+      "add": "Adaugă câmp personalizat"
+    },
+    "documents": {
+      "title": "Documente atașate",
+      "labelPlaceholder": "Eticheta documentului",
+      "labelTooltip": "Fă clic pentru a edita eticheta documentului",
+      "remove": "Elimină fișierul",
+      "pagination": "Pagina {page} din {total}",
+      "categories": {
+        "resume": "CV",
+        "coverLetter": "Scrisoare de intenție",
+        "identity": "Act de identitate",
+        "academic": "Situație școlară",
+        "portfolio": "Portofoliu",
+        "other": "Alt document"
+      },
+      "upload": {
+        "resume": "Încarcă CV",
+        "coverLetter": "Încarcă scrisoarea de intenție",
+        "identity": "Încarcă actul de identitate",
+        "academic": "Încarcă situația școlară",
+        "portfolio": "Încarcă portofoliul",
+        "other": "Încarcă document"
+      },
+      "size": {
+        "bytes": "{size} B",
+        "kilobytes": "{size} KB",
+        "megabytes": "{size} MB"
+      }
+    }
+  },
+  "settings": {
+    "account": {
+      "title": "Cont",
+      "proUntil": "Pro până la {date}",
+      "proLifetime": "Pro · Pe viață",
+      "disconnect": "Deconectează contul",
+      "waiting": "Se așteaptă conectarea…",
+      "connect": "Conectează-te cu Aullevo Web",
+      "renew": "Pro expirat · Reînnoiește",
+      "upgrade": "Treci la Pro"
+    },
+    "theme": {
+      "title": "Aspect",
+      "dark": "Temă întunecată",
+      "description": "Comută între tema Ardezie întunecată și tema luminoasă"
+    },
+    "mode": {
+      "title": "Modul motorului de completare",
+      "aiActive": "Completare inteligentă cu AI (activă)",
+      "standard": "Completare standard (fără AI)",
+      "aiDescription": "Folosește raționamentul AI pentru a interpreta întrebările și a potrivi câmpurile complexe",
+      "standardDescription": "Potrivire directă a atributelor din profil, fără apeluri AI",
+      "toggle": "Comută modul de completare cu AI"
+    },
+    "ai": {
+      "title": "Motorul AI",
+      "unlimited": "Acces nelimitat",
+      "keyRequired": "Cheie API necesară",
+      "freeUsage": "Free: {used}/{limit} săptămâna aceasta",
+      "privacy": "<b>Confidențialitate:</b> câmpurile marcate SENSIBIL nu sunt trimise niciodată către AI, doar etichetele lor. Valorile câmpurilor OK PENTRU AI și întrebările formularului sunt trimise către {provider}.",
+      "provider": "Furnizor AI",
+      "customProvider": "Personalizat (compatibil OpenAI)",
+      "baseUrl": "URL server",
+      "customHint": "Funcționează cu orice server care acceptă API-ul de chat OpenAI, cum ar fi OpenRouter, Groq, Mistral, Ollama sau LM Studio. Serverele locale nu au nevoie de cheie.",
+      "model": "Model AI",
+      "modelOption": "{name} ({description})",
+      "models": {
+        "fastest": "Cel mai rapid și foarte ieftin",
+        "balanced": "Raționament echilibrat",
+        "capable": "Rapid și capabil",
+        "smartest": "Inteligență maximă",
+        "legacy": "Model rapid mai vechi"
+      },
+      "otherModel": "Alt model (scrie ID-ul)",
+      "modelIdPlaceholder": "ID-ul exact al modelului, de ex. {example}",
+      "apiKey": "Cheie API {provider}",
+      "getKey": "Obține cheie API",
+      "keyPlaceholder": "Lipește cheia API {provider}",
+      "hideKey": "Ascunde cheia",
+      "showKey": "Afișează cheia",
+      "addKeyHint": "Adaugă cheia API {provider} pentru a folosi Completarea inteligentă cu AI.",
+      "proHint": "Pro: completări AI nelimitate. Cheia rămâne în acest browser.",
+      "freeHint": "Planul Free: {limit} completări AI pe săptămână. Treci la Pro pentru acces nelimitat."
+    },
+    "paginate": {
+      "title": "Paginare automată",
+      "toggleTitle": "Completează formulare cu mai multe pagini",
+      "description": "Completează fiecare pagină, apasă Următorul / Continuă și, la final, Trimite. Corectează răspunsurile respinse de formular; se oprește când nu reușește.",
+      "toggle": "Comută Paginarea automată",
+      "proFeature": "Funcție Pro",
+      "upgrade": "Treci la Pro pentru a folosi Paginarea automată"
+    },
+    "floating": {
+      "title": "Pictogramă plutitoare pe pagini",
+      "toggleTitle": "Afișează butonul plutitor",
+      "description": "Afișează fila de acces rapid Aullevo, fixată pe marginea paginilor web",
+      "toggle": "Comută butonul plutitor"
+    },
+    "typing": {
+      "title": "Viteză de tastare umană",
+      "instant": "Instantaneu ({ms} ms)",
+      "natural": "Natural ({ms} ms)",
+      "slow": "Lent ({ms} ms)",
+      "custom": "Personalizat ({ms} ms)",
+      "naturalFree": "Natural ({ms} ms) · Planul Free",
+      "description": "Tastează câte un caracter, în ritm uman, pentru site-urile care așteaptă apăsări reale de taste.",
+      "proFeature": "Funcție Pro",
+      "customDelay": "Întârziere personalizată:",
+      "customProFeature": "Întârzierea personalizată este o funcție Pro",
+      "unitMs": "ms"
+    },
+    "tour": {
+      "title": "Tur ghidat",
+      "toggleTitle": "Arată din nou prezentarea",
+      "description": "Parcurge din nou fiecare filă, pas cu pas",
+      "replay": "Reia"
+    },
+    "security": {
+      "title": "Criptat local"
+    },
+    "memories": {
+      "title": "Memorii AI",
+      "count": "({enabled}/{total} active)",
+      "descriptionAiOn": "Informații despre tine pe care AI-ul le poate folosi pentru întrebări deschise (ex. „Stil de lucru: doar remote”). Memoriile activate sunt trimise către {provider} și stocate necriptat în acest browser, așa că nu adăuga parole sau numere de identificare.",
+      "descriptionAiOff": "Informații despre tine pe care AI-ul le poate folosi pentru întrebări deschise (ex. „Stil de lucru: doar remote”). Folosite doar când Completarea inteligentă cu AI este activă. Memoriile activate sunt trimise către {provider} și stocate necriptat în acest browser, așa că nu adăuga parole sau numere de identificare.",
+      "titlePlaceholder": "Titlu",
+      "contentPlaceholder": "Ce ar trebui să știe AI-ul",
+      "enabledTitle": "Memoria este trimisă către AI",
+      "disabledTitle": "Memoria nu este folosită",
+      "on": "ACTIV",
+      "off": "INACTIV",
+      "delete": "Șterge memoria",
+      "newTitlePlaceholder": "Titlu (ex. Stil de lucru)",
+      "newContentPlaceholder": "Conținut (ex. Prefer joburi complet remote, deschis la contracte)",
+      "add": "Adaugă memorie"
+    },
+    "deviceData": {
+      "title": "Date pe acest dispozitiv",
+      "total": "{size} în total",
+      "description": "Fiecare cont are aici propriul seif criptat. Conturile nu văd niciodată profilurile, documentele, cheia API, memoriile sau linkurile celorlalte.",
+      "empty": "Nicio dată salvată încă.",
+      "localOwner": "Neconectat (profiluri locale)",
+      "anotherAccount": "Alt cont",
+      "inUse": "{size} · în uz acum",
+      "deleteTitle": "Șterge datele acestui cont de pe acest dispozitiv",
+      "delete": "Șterge",
+      "confirmDelete": "Ștergi datele Aullevo pentru „{name}” de pe acest dispozitiv?\n\nAcest lucru elimină definitiv profilurile criptate, documentele, cheia API, memoriile AI și coada de linkuri. Acțiunea nu poate fi anulată.",
+      "bytes": "{size} B",
+      "kilobytes": "{size} KB",
+      "megabytes": "{size} MB"
+    }
+  },
+  "status": {
+    "plan": {
+      "profileLimit": "Planul Free permite {max} profiluri active. Setează profilurile în plus pe INACTIV sau treci la Pro.",
+      "activeLimit": "Planul Free permite {max} profiluri active. Setează unul pe INACTIV sau treci la Pro.",
+      "createdOff": "Profil creat ca INACTIV. Planul Free permite {max} profiluri active. Setează unul pe INACTIV sau treci la Pro.",
+      "autoPaginatePro": "Paginarea automată este o funcție Pro. Treci la Pro pentru a completa formulare cu mai multe pagini.",
+      "jsonImportLimit": "Ai epuizat limita de importuri JSON gratuite pentru aceste 2 săptămâni ({limit}). Se resetează pe {date}, sau treci la Pro pentru importuri nelimitate.",
+      "documentsSkipped": {
+        "one": "{count} document neatașat: încărcarea în formulare este o funcție Pro.",
+        "few": "{count} documente neatașate: încărcarea în formulare este o funcție Pro.",
+        "other": "{count} de documente neatașate: încărcarea în formulare este o funcție Pro."
+      }
+    },
+    "batch": {
+      "starting": {
+        "one": "Se pornește completarea în lot pentru {count} formular…",
+        "few": "Se pornește completarea în lot pentru {count} formulare…",
+        "other": "Se pornește completarea în lot pentru {count} de formulare…"
+      },
+      "progress": "Se completează {current} din {total}: {host}",
+      "progressNoHost": "Se completează {current} din {total}…",
+      "complete": {
+        "one": "Completarea în lot s-a încheiat pentru {count} formular!",
+        "few": "Completarea în lot s-a încheiat pentru {count} formulare!",
+        "other": "Completarea în lot s-a încheiat pentru {count} de formulare!"
+      }
+    },
+    "save": {
+      "success": "Profilul {type} a fost salvat!",
+      "failed": "Salvarea a eșuat: {error}",
+      "noProfile": "Niciun profil selectat",
+      "unknownError": "Salvarea a eșuat"
+    },
+    "profile": {
+      "nameExists": "Există deja un profil cu acest nume!",
+      "disabled": "{type} este dezactivat. Setează-l pe ACTIV pentru completare automată.",
+      "defaultType": "PROFIL",
+      "imported": {
+        "one": "{count} câmp importat în {type}!",
+        "few": "{count} câmpuri importate în {type}!",
+        "other": "{count} de câmpuri importate în {type}!"
+      }
+    },
+    "highlight": {
+      "noActiveTab": "Nu s-a găsit nicio filă activă.",
+      "refreshToConnect": "Reîncarcă pagina pentru a conecta evidențierea.",
+      "on": {
+        "one": "{count} câmp evidențiat în pagină!",
+        "few": "{count} câmpuri evidențiate în pagină!",
+        "other": "{count} de câmpuri evidențiate în pagină!"
+      },
+      "cleared": "Evidențierile au fost șterse."
+    },
+    "fill": {
+      "injectingAi": "Se completează câmpurile cu AI ({type})…",
+      "injecting": "Se completează câmpurile ({type})…",
+      "noTab": "Fila activă nu a putut fi accesată.",
+      "refreshToConnect": "Reîncarcă fila pentru a conecta completarea automată.",
+      "cannotConnect": "Nu s-a putut conecta la pagină. Reîncarcă fila.",
+      "aiPartlySkipped": {
+        "one": "{count} câmp completat (AI omis parțial).",
+        "few": "{count} câmpuri completate (AI omis parțial).",
+        "other": "{count} de câmpuri completate (AI omis parțial)."
+      },
+      "keywordMode": {
+        "one": "{count} câmp completat (mod cuvinte cheie).",
+        "few": "{count} câmpuri completate (mod cuvinte cheie).",
+        "other": "{count} de câmpuri completate (mod cuvinte cheie)."
+      },
+      "withAi": {
+        "one": "Formular completat cu AI ({count} câmp potrivit).",
+        "few": "Formular completat cu AI ({count} câmpuri potrivite).",
+        "other": "Formular completat cu AI ({count} de câmpuri potrivite)."
+      },
+      "withoutAi": {
+        "one": "Formular completat fără AI ({count} câmp potrivit).",
+        "few": "Formular completat fără AI ({count} câmpuri potrivite).",
+        "other": "Formular completat fără AI ({count} de câmpuri potrivite)."
+      },
+      "error": "Eroare la completare: {error}",
+      "injected": {
+        "one": "{count} câmp inserat în pagină.",
+        "few": "{count} câmpuri inserate în pagină.",
+        "other": "{count} de câmpuri inserate în pagină."
+      }
+    },
+    "pagination": {
+      "progress": "Paginare automată: se completează pagina {page}…",
+      "lostConnection": "Paginarea automată s-a oprit: conexiunea cu extensia s-a pierdut.",
+      "filled": {
+        "one": "Câmpuri completate: {filled}, pe {count} pagină.",
+        "few": "Câmpuri completate: {filled}, pe {count} pagini.",
+        "other": "Câmpuri completate: {filled}, pe {count} de pagini."
+      },
+      "corrected": {
+        "one": "A fost corectat {count} răspuns respins de formular.",
+        "few": "Au fost corectate {count} răspunsuri respinse de formular.",
+        "other": "Au fost corectate {count} de răspunsuri respinse de formular."
+      },
+      "field": "„{name}”",
+      "fieldAndMore": {
+        "one": "„{name}” (+încă {count})",
+        "few": "„{name}” (+încă {count})",
+        "other": "„{name}” (+încă {count})"
+      },
+      "aField": "un câmp",
+      "nextButton": "Următorul",
+      "submitted": "Trimis!",
+      "noNext": "Nu s-a găsit niciun buton Următorul / Continuă.",
+      "stillEmpty": "{field} este încă gol.",
+      "check": "Verifică {field}.",
+      "blocked": "Întrerupt la pagina {page}: {field} este obligatoriu și gol. Completează-l, apoi rulează din nou.",
+      "nextDisabled": "Întrerupt la pagina {page}: butonul „{button}” este dezactivat. Verifică pagina, apoi rulează din nou.",
+      "validationError": "Întrerupt la pagina {page}: formularul a raportat „{error}”.",
+      "validationErrorUnknown": "Întrerupt la pagina {page}: formularul a raportat o eroare.",
+      "correctionTried": "(s-a încercat corectarea automată)",
+      "stuck": "Întrerupt la pagina {page}: s-a apăsat „{button}”, dar formularul nu a avansat.",
+      "maxPages": "Oprit: s-a atins limita de siguranță de pagini ({max}).",
+      "noForm": "Nu s-a găsit niciun formular în această pagină (sau Aullevo nu poate rula aici).",
+      "stopped": "Paginarea automată s-a oprit: {error}",
+      "unknownError": "eroare necunoscută"
+    }
+  },
+  "tour": {
+    "card": {
+      "progress": "{section} · {current} din {total}",
+      "skip": "Sari peste tur",
+      "dontShowAgain": "Nu mai afișa",
+      "back": "Înapoi",
+      "next": "Înainte",
+      "done": "Gata"
+    },
+    "shortcuts": {
+      "allActive": "Toate cele 3 comenzi rapide sunt active în acest browser.",
+      "notSet": "Nesetate în acest browser: {list}. Setează-le singur în setările de comenzi rapide din Chrome.",
+      "openSettings": "Deschide setările de comenzi rapide din Chrome",
+      "toggleSidePanel": "Afișează/ascunde panoul lateral",
+      "fallbackName": "Comandă rapidă"
+    },
+    "sections": {
+      "autofill": "Completare",
+      "header": "Butoanele de sus",
+      "profiles": "Profiluri",
+      "multilink": "Multi-link",
+      "settings": "Setări"
+    },
+    "autofill": {
+      "detection": {
+        "title": "Detectare formular",
+        "body": "Aullevo numără câmpurile care pot fi completate în pagina din fila curentă. Deschide un formular și numărul se actualizează."
+      },
+      "highlight": {
+        "title": "Evidențiază câmpurile",
+        "body": "Conturează fiecare câmp găsit de Aullevo în pagină, ca să vezi ce va fi completat înainte de completare. Apasă din nou pentru a șterge contururile."
+      },
+      "rescan": {
+        "title": "Rescanează",
+        "body": "Unele formulare adaugă câmpuri după încărcarea paginii, de exemplu formularele în mai mulți pași sau ferestrele pop-up. Rescanează numără din nou câmpurile."
+      },
+      "fill": {
+        "title": "Completează formularul",
+        "body": "Completează pagina cu profilul activ. Cu completarea cu AI activă (în Setări), întrebările sunt potrivite cu răspunsurile tale chiar dacă sunt formulate diferit. Fără ea, câmpurile sunt potrivite după cuvinte cheie."
+      },
+      "activeProfile": {
+        "title": "Profil activ",
+        "body": "Profilul folosit pentru completare și câte câmpuri și documente sunt activate. Schimbă profilul sau editează răspunsurile în fila <b>Profiluri</b>."
+      },
+      "shortcuts": {
+        "title": "Comenzi rapide de la tastatură",
+        "body": "Chrome setează aceste taste la instalarea Aullevo, dar le omite pe cele folosite deja de Chrome sau de altă extensie. Le poți schimba oricând."
+      }
+    },
+    "header": {
+      "voice": {
+        "title": "Mod vocal",
+        "body": "Vorbește cu Aullevo în loc să dai clic. Acest buton comută panoul pe asistentul vocal: spune \"fill this page\", \"fill the email\" sau \"fill the first question\", iar el îți răspunde cu voce tare. Dă clic din nou ca să revii la această vizualizare.",
+        "note": "Funcție Pro. Necesită propria ta cheie API ElevenLabs, pe care o adaugi în Voice settings. Comenzile vocale funcționează în engleză și tagalog."
+      },
+      "language": {
+        "title": "Limbă",
+        "body": "Alege limba pentru tot Aullevo. Engleza este mereu în capul listei, ca să poți reveni oricând."
+      },
+      "theme": {
+        "title": "Temă luminoasă sau întunecată",
+        "body": "Comută panoul între modul luminos și cel întunecat."
+      },
+      "json": {
+        "title": "Configurare rapidă cu JSON",
+        "intro": "Profilul tău ca JSON. Cel mai rapid mod de a configura un profil:",
+        "step1": "Copiază JSON-ul de aici.",
+        "step2": "Dă-l lui Gemini, Claude sau ChatGPT împreună cu CV-ul tău sau orice alt document.",
+        "step3": "Cere AI-ului să completeze valorile și să păstreze aceeași structură.",
+        "step4": "Lipește rezultatul aici și apasă <b>Importă</b>."
+      },
+      "fullPage": {
+        "title": "Deschide pe toată pagina",
+        "body": "Deschide Aullevo într-o filă de browser, cu mai mult spațiu pentru editarea profilurilor. Completarea se face în continuare din acest panou lateral."
+      },
+      "close": {
+        "title": "Închide panoul",
+        "body": "Închide panoul lateral. Redeschide-l cu <b>Alt+Q</b> (<b>Option+Q</b> pe Mac) sau apăsând pictograma Aullevo din bara de instrumente."
+      }
+    },
+    "profiles": {
+      "switcher": {
+        "title": "Schimbă profilul",
+        "body1": "Fiecare profil (Job, Academic, Financiar sau unul propriu) are propriul set de răspunsuri. Alege-l pe cel pe care vrei să-l editezi și să-l folosești la completare.",
+        "body2": "Deschide lista ca să vezi ce profiluri sunt ACTIV sau INACTIV și ca să creezi unul nou, în partea de jos.",
+        "note": "Planul Free: cel mult 2 profiluri pot fi pe ACTIV în același timp."
+      },
+      "config": {
+        "title": "Nume și comutator",
+        "body": "Redenumește profilul aici. <b>PROFIL ACTIV</b> activează sau dezactivează întregul profil. Când e dezactivat, nu este folosit la completare."
+      },
+      "identity": {
+        "title": "Identitate și contact",
+        "body": "Numele, e-mailul, telefonul și adresa ta. Apasă pe antetul unei secțiuni ca s-o restrângi sau s-o extinzi. Fiecare câmp are trei butoane mici, prezentate în continuare."
+      },
+      "fieldContext": {
+        "title": "Indiciu de context AI",
+        "body": "Butonul ✨ adaugă un indiciu care îi spune AI-ului ce înseamnă câmpul, de exemplu „Prenumele legal din pașaport”. Ajută când întrebarea unui formular e formulată neclar. Un punct arată că indiciul este setat."
+      },
+      "fieldPrivacy": {
+        "title": "OK pentru AI sau Sensibil",
+        "safe": "<b>OK pentru AI</b>: valoarea este partajată cu AI-ul, ca să poată alege răspunsul corect în liste derulante și întrebări cu variante multiple.",
+        "sensitive": "<b>Sensibil</b>: AI-ul vede doar numele și indiciul câmpului, niciodată valoarea. Aullevo introduce totuși valoarea pe dispozitivul tău.",
+        "toggle": "Apasă pe el pentru a comuta."
+      },
+      "fieldToggle": {
+        "title": "Activează sau dezactivează un câmp",
+        "body": "Setează un câmp pe INACTIV ca să fie omis la completare, fără să ștergi ce ai scris."
+      },
+      "documents": {
+        "title": "Atașează documente",
+        "body": "Alege tipul documentului, apoi încarcă CV-ul, scrisoarea de intenție, actul de identitate și altele. Când un formular cere încărcarea unui fișier, Aullevo atașează documentele tale setate pe ACTIV.",
+        "note": "Atașarea documentelor în formulare este o funcție Pro."
+      },
+      "attributes": {
+        "title": "Câmpuri specifice profilului",
+        "body": "Câmpuri care țin de acest tip de profil. Un profil Job are titlu profesional, LinkedIn, competențe și studii. Academic, Medical și celelalte au propriile câmpuri."
+      },
+      "customFields": {
+        "title": "Adaugă propriile câmpuri",
+        "body": "Pentru tot ce nu acoperă câmpurile standard, de exemplu „Salariul dorit” sau „De ce vrei acest job?”. Scrie o etichetă și o valoare, apoi apasă <b>+</b>. Funcționează bine să folosești formularea întrebării ca etichetă."
+      },
+      "save": {
+        "title": "Salvare",
+        "body": "Modificările se salvează automat pe măsură ce scrii. Acest buton salvează imediat, util chiar înainte să închizi panoul."
+      }
+    },
+    "multilink": {
+      "addLink": {
+        "title": "Adaugă un link de formular",
+        "body": "Lipește linkul complet către un formular sau o aplicație la un job (care începe cu https://) și apasă <b>+</b>. Adaugă câte vrei."
+      },
+      "savedLinks": {
+        "title": "Coada ta de linkuri",
+        "body": "Fiecare link adăugat apare aici. Bifează un link ca să-l incluzi în următorul lot sau debifează-l ca să-l omiți. Pictograma săgeată deschide linkul, iar pictograma coș de gunoi îl elimină."
+      },
+      "batchRun": {
+        "title": "Completează-le pe toate deodată",
+        "body1": "Deschide fiecare link bifat într-o filă de fundal, unul după altul, și îl completează cu profilul activ. Progresul apare în partea de sus a panoului.",
+        "note": "Comandă rapidă: Alt+Shift+B (Option+Shift+B pe Mac)."
+      }
+    },
+    "settings": {
+      "account": {
+        "title": "Contul tău",
+        "body": "Conectează contul Aullevo Web ca planul tău (Free sau Pro) să se aplice aici. Profilurile rămân criptate pe acest dispozitiv și nu sunt încărcate online."
+      },
+      "aiMode": {
+        "title": "Completare inteligentă cu AI sau Completare standard",
+        "standard": "<b>Completare standard</b> potrivește câmpurile după nume, fără AI.",
+        "smart": "<b>Completare inteligentă cu AI</b> înțelege întrebările formulate diferit și alege răspunsuri în liste derulante și întrebări cu variante multiple."
+      },
+      "aiEngine": {
+        "title": "Furnizor AI, model și cheie API"
+      },
+      "memories": {
+        "title": "Memorii AI",
+        "body": "Informații scurte pe care AI-ul le poate folosi pentru întrebări deschise, de exemplu „Stil de lucru: doar remote”. Sunt trimise către furnizorul AI ales și nu sunt criptate, așa că nu adăuga niciodată parole sau numere de identificare."
+      },
+      "autoPaginate": {},
+      "floatingIcon": {
+        "title": "Buton plutitor",
+        "body": "O filă Aullevo mică pe marginea paginilor web, pentru acces rapid. Dezactiveaz-o dacă te încurcă."
+      },
+      "typingSpeed": {
+        "title": "Viteză de tastare",
+        "body": "Cât de repede tastează Aullevo în câmpuri. <b>Natural</b> seamănă mai mult cu o persoană care tastează, iar <b>Instantaneu</b> este cel mai rapid. Vitezele lentă și personalizată sunt Pro."
+      },
+      "replayTour": {
+        "title": "Reia acest ghid",
+        "body": "Ai uitat ceva? Apasă <b>Reia</b> ca să parcurgi din nou tot ghidul."
+      },
+      "deviceData": {
+        "title": "Date pe acest dispozitiv",
+        "body": "Fiecare cont are propriul seif criptat în acest browser. Șterge datele conturilor pe care nu le mai folosești."
+      }
+    }
+  },
+  "vault": {
+    "loading": "Se încarcă…",
+    "account": {
+      "signedInAs": "Conectat ca <b>{account}</b>",
+      "notSignedIn": "Neconectat: profiluri locale pe acest dispozitiv",
+      "fallbackName": "contul tău"
+    },
+    "errors": {
+      "createFailed": "Seiful nu a putut fi creat. Încearcă din nou.",
+      "wrongPassphrase": "Frază de acces greșită.",
+      "wrongClaimPassphrase": "Frază de acces greșită pentru acele profiluri."
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+    "versionLine": "v{version} • Autofill",
+    "lightTheme": "Light theme",
+    "darkTheme": "Dark theme",
+    "jsonConfig": "JSON Configuration",
+    "openFullPage": "Open full page",
+    "closeSidePanel": "Close side panel",
+    "footer": {
+        "engine": "Aullevo Autofill Engine",
+        "ready": "Ready"
+    }
+}

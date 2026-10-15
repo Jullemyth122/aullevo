@@ -1,4 +1,6 @@
-import { Sun, Moon, X, Code2, Maximize2 } from 'lucide-react';
+import { Sun, Moon, X, Code2, Maximize2, AudioLines } from 'lucide-react';
+import { LanguageMenu } from '../language/LanguageMenu';
+import { useT } from '../../i18n';
 
 interface HeaderProps {
     isDark: boolean;
@@ -6,6 +8,9 @@ interface HeaderProps {
     onClose?: () => void;          // side panel only
     onOpenFullPage?: () => void;   // side panel only
     onOpenJsonModal: () => void;
+    voiceMode?: boolean;              // side panel only: Classic (tabs) or Voice (agent orb)
+    onToggleVoiceMode?: () => void;
+    voiceLocked?: boolean;            // Free plan: Voice mode can be opened and seen, not used
 }
 
 export function Header({
@@ -13,8 +18,12 @@ export function Header({
     onToggleTheme,
     onClose,
     onOpenFullPage,
-    onOpenJsonModal
+    onOpenJsonModal,
+    voiceMode,
+    onToggleVoiceMode,
+    voiceLocked
 }: HeaderProps) {
+    const { t } = useT();
     return (
         <header className="av-panel__header">
             <div className="av-panel__brand">
@@ -29,21 +38,37 @@ export function Header({
                 </div>
                 <div>
                     <div className="av-panel__brand-name">Aullevo</div>
-                    <div className="av-panel__brand-sub">v{chrome.runtime.getManifest().version} • Autofill</div>
+                    <div className="av-panel__brand-sub">{t('header.versionLine', { version: chrome.runtime.getManifest().version })}</div>
                 </div>
             </div>
             <div className="av-panel__actions">
+                {onToggleVoiceMode && (
+                    // Voice mode speaks English / Tagalog only for now, so its labels aren't translated yet
+                    <button
+                        className={`av-panel__icon-btn ${voiceMode ? 'av-panel__icon-btn--active' : ''}`}
+                        onClick={onToggleVoiceMode}
+                        aria-pressed={voiceMode}
+                        data-tour="voice-mode"
+                        title={voiceMode ? 'Voice mode on · switch to the classic view' : voiceLocked ? 'Voice mode: talk to Aullevo (Pro)' : 'Voice mode: talk to Aullevo'}
+                    >
+                        <AudioLines size={15} />
+                        {voiceLocked && <span className="av-panel__pro-tag">PRO</span>}
+                    </button>
+                )}
+                <LanguageMenu />
                 <button
                     className="av-panel__icon-btn"
                     onClick={onToggleTheme}
-                    title={isDark ? 'Light theme' : 'Dark theme'}
+                    data-tour="theme"
+                    title={isDark ? t('header.lightTheme') : t('header.darkTheme')}
                 >
                     {isDark ? <Sun size={15} /> : <Moon size={15} />}
                 </button>
                 <button
                     className="av-panel__icon-btn"
                     onClick={onOpenJsonModal}
-                    title="JSON Configuration"
+                    data-tour="json"
+                    title={t('header.jsonConfig')}
                 >
                     <Code2 size={15} />
                 </button>
@@ -51,7 +76,8 @@ export function Header({
                     <button
                         className="av-panel__icon-btn"
                         onClick={onOpenFullPage}
-                        title="Open full page"
+                        data-tour="full-page"
+                        title={t('header.openFullPage')}
                     >
                         <Maximize2 size={15} />
                     </button>
@@ -60,7 +86,8 @@ export function Header({
                     <button
                         className="av-panel__icon-btn"
                         onClick={onClose}
-                        title="Close side panel"
+                        data-tour="close"
+                        title={t('header.closeSidePanel')}
                     >
                         <X size={15} />
                     </button>

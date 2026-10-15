@@ -214,6 +214,29 @@ body {
       color: var(--av-text);
       background: var(--av-surface-hover);
     }
+
+    // Voice mode button on the Free plan
+    position: relative;
+    .av-panel__pro-tag {
+      position: absolute;
+      top: -3px;
+      right: -6px;
+      padding: 0 3px;
+      border-radius: 4px;
+      background: var(--av-yellow);
+      color: var(--av-text-on-yellow);
+      font-size: 7px;
+      font-weight: 800;
+      line-height: 11px;
+      letter-spacing: 0.3px;
+      pointer-events: none;
+    }
+
+    // Voice mode on
+    &--active {
+      color: var(--av-violet);
+      background: var(--av-violet-light);
+    }
   }
 
   &__tabs {
@@ -239,6 +262,17 @@ body {
     align-items: center;
     justify-content: center;
     gap: 4px;
+    // Long translations (Arabic, Ukrainian, Greek...) wrap to two lines instead of overflowing
+    min-width: 0;
+    padding-inline: 2px;
+    line-height: 1.2;
+    text-align: center;
+    hyphens: auto;
+    overflow-wrap: break-word;
+
+    svg {
+      flex-shrink: 0;
+    }
 
     &--active {
       border-bottom-color: var(--av-violet);
@@ -476,7 +510,7 @@ body {
   &__dot {
     position: absolute;
     top: 2px;
-    right: 2px;
+    inset-inline-end: 2px;
     width: 4px;
     height: 4px;
     border-radius: 50%;
@@ -488,7 +522,7 @@ body {
 .av-context-popover {
   position: absolute;
   top: calc(100% + 5px);
-  left: 0;
+  inset-inline-start: 0;
   z-index: 150;
   width: 210px;
   background: var(--av-surface);
@@ -504,8 +538,8 @@ body {
   animation: avDropdownFadeIn 0.14s ease-out;
 
   &--right {
-    left: auto;
-    right: 0;
+    inset-inline-start: auto;
+    inset-inline-end: 0;
   }
 
   &__header {
@@ -1112,16 +1146,16 @@ body {
   &__thumb {
     position: absolute;
     top: 2px;
-    left: 2px;
+    inset-inline-start: 2px;
     width: 16px;
     height: 16px;
     background: #fff;
     border-radius: 50%;
-    transition: left 0.2s;
+    transition: inset-inline-start 0.2s;
   }
 
   &--active &__thumb {
-    left: 18px;
+    inset-inline-start: 18px;
   }
 }
 
@@ -1224,5 +1258,419 @@ input[type="number"] {
     padding: 20px 16px 40px;
     gap: 12px;
     overflow-y: visible;
+  }
+}
+
+/* ── Guided Tour (spotlight walkthrough) ── */
+.av-tour {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  font-family: var(--av-font);
+
+  // Blurred, dimmed layer with a hole cut out over the current element (clip-path set inline)
+  &__scrim {
+    position: absolute;
+    inset: 0;
+    background: rgba(2, 6, 23, 0.55);
+    backdrop-filter: blur(3px);
+    transition: clip-path 0.3s ease;
+  }
+
+  &__ring {
+    position: absolute;
+    border-radius: 10px;
+    border: 2px solid var(--av-violet-mid);
+    pointer-events: none;
+    transition: left 0.3s ease, top 0.3s ease, width 0.3s ease, height 0.3s ease;
+    animation: av-tour-pulse 1.6s ease-in-out infinite;
+  }
+
+  &__card {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    background: var(--av-surface);
+    color: var(--av-text);
+    border: 1px solid var(--av-border);
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+    animation: av-tour-in 0.22s ease;
+
+    &--above {
+      animation-name: av-tour-in-above;
+    }
+
+    // Element too tall to fit the card beside it: card floats at the bottom of the screen
+    &--pinned {
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
+    }
+  }
+
+  // Caret pointing at the highlighted element
+  &__arrow {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: var(--av-surface);
+    border: 1px solid var(--av-border);
+    transform: translateX(-50%) rotate(45deg);
+  }
+
+  &__card--below &__arrow {
+    top: -7px;
+    border-right: none;
+    border-bottom: none;
+  }
+
+  &__card--above &__arrow {
+    bottom: -7px;
+    border-left: none;
+    border-top: none;
+  }
+
+  &__content {
+    padding: 14px 14px 4px;
+    overflow-y: auto;
+  }
+
+  // Whole-guide progress
+  &__progress {
+    height: 3px;
+    border-radius: 2px;
+    background: var(--av-surface-hover);
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+
+  &__progress-fill {
+    height: 100%;
+    background: var(--av-violet-mid);
+    transition: width 0.3s ease;
+  }
+
+  &__step {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--av-violet-mid);
+    margin-bottom: 4px;
+  }
+
+  &__title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  &__body {
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--av-text-mid);
+
+    p + p,
+    p + ol,
+    ol + p,
+    p + button {
+      margin-top: 6px;
+    }
+
+    ol {
+      padding-inline-start: 18px;
+    }
+
+    li + li {
+      margin-top: 2px;
+    }
+  }
+
+  &__note {
+    font-size: 11px;
+    color: var(--av-text-muted);
+
+    &--ok {
+      color: var(--av-success);
+    }
+
+    &--warn {
+      color: var(--av-warning);
+    }
+  }
+
+  &__link {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--av-violet-mid);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 14px 12px;
+  }
+
+  &__skips {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+
+  &__skip {
+    padding: 0;
+    text-align: start;
+    background: none;
+    border: none;
+    font: inherit;
+    font-size: 11px;
+    color: var(--av-text-muted);
+    cursor: pointer;
+
+    &:hover {
+      color: var(--av-text);
+    }
+  }
+
+  &__nav {
+    display: flex;
+    gap: 6px;
+  }
+
+  &__btn {
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--av-border);
+    background: var(--av-surface-alt);
+    color: var(--av-text);
+    cursor: pointer;
+
+    &:hover {
+      background: var(--av-surface-hover);
+    }
+
+    &--primary {
+      background: var(--av-violet);
+      border-color: var(--av-violet);
+      color: var(--av-text-on-dark);
+
+      &:hover {
+        background: var(--av-violet-dark);
+      }
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--av-violet-mid);
+      outline-offset: 2px;
+    }
+  }
+}
+
+@keyframes av-tour-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(96, 165, 250, 0.55);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(96, 165, 250, 0);
+  }
+}
+
+@keyframes av-tour-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes av-tour-in-above {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .av-tour__scrim,
+  .av-tour__ring,
+  .av-tour__card {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* ── Language menu (header globe) ── */
+.av-lang {
+  position: relative;
+
+  &__trigger {
+    gap: 3px;
+  }
+
+  &__code {
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  &__menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    inset-inline-end: 0;
+    z-index: 1000;
+    width: 240px;
+    max-width: calc(100vw - 24px);
+    background: var(--av-surface);
+    border: 1px solid var(--av-border);
+    border-radius: 10px;
+    box-shadow: 0 12px 32px var(--av-shadow-panel);
+    padding: 8px;
+  }
+
+  &__search {
+    margin-bottom: 6px;
+    font-size: 12px;
+  }
+
+  &__list {
+    max-height: 320px;
+    overflow-y: auto;
+  }
+
+  &__item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 6px 8px;
+    border: none;
+    border-radius: 6px;
+    background: none;
+    color: var(--av-text);
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+
+    &:hover {
+      background: var(--av-surface-hover);
+    }
+
+    &--active {
+      background: var(--av-violet-light);
+      color: var(--av-violet);
+    }
+
+    &--pinned .av-lang__native {
+      font-weight: 700;
+    }
+  }
+
+  &__names {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  &__native {
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  &__english {
+    font-size: 10px;
+    color: var(--av-text-muted);
+  }
+
+  &__divider {
+    height: 1px;
+    background: var(--av-border);
+    margin: 4px 0;
+  }
+
+  &__empty {
+    font-size: 11px;
+    color: var(--av-text-muted);
+    padding: 8px;
+  }
+}
+
+/* ── "Language changed" bar, with the way back ── */
+.av-lang-bar {
+  position: fixed;
+  inset-inline: 12px;
+  bottom: 40px;
+  z-index: 100001;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--av-surface);
+  color: var(--av-text);
+  border: 1px solid var(--av-violet-mid);
+  border-radius: 10px;
+  box-shadow: 0 12px 32px var(--av-shadow-panel);
+  font-family: var(--av-font);
+  font-size: 12px;
+  animation: av-tour-in 0.2s ease;
+
+  &__english {
+    font-size: 10.5px;
+    color: var(--av-text-muted);
+  }
+
+  &__actions {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  &__undo,
+  &__keep {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font: inherit;
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 7px;
+    cursor: pointer;
+  }
+
+  &__undo {
+    background: var(--av-violet);
+    border: 1px solid var(--av-violet);
+    color: var(--av-text-on-dark);
+
+    .av-lang-bar__english {
+      color: inherit;
+      opacity: 0.8;
+    }
+  }
+
+  &__keep {
+    background: var(--av-surface-alt);
+    border: 1px solid var(--av-border);
+    color: var(--av-text);
   }
 }

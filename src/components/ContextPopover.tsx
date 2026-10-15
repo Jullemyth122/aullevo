@@ -1,5 +1,6 @@
 import { Sparkles, X } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import { useT } from "../i18n";
 
 interface ContextPopoverProps {
     label: string;
@@ -17,6 +18,7 @@ export const ContextPopover = ({
     alignRight = false,
     disabled = false
 }: ContextPopoverProps) => {
+    const { t } = useT();
     const [isOpen, setIsOpen] = useState(false);
     const popoverRef = useRef<HTMLDivElement>(null);
     // Close when clicking outside
@@ -32,13 +34,13 @@ export const ContextPopover = ({
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [isOpen]);
     return (
-        <div className="av-context-wrap" ref={popoverRef}>
+        <div className="av-context-wrap" ref={popoverRef} data-tour="field-context">
             {/* The Trigger Icon Button */}
             <button
                 type="button"
                 className={`av-context-btn ${context ? 'av-context-btn--has-value' : ''} ${isOpen ? 'av-context-btn--active' : ''} ${disabled ? 'disabled' : ''}`}
                 onClick={() => setIsOpen((prev) => !prev)}
-                title={`AI Context for ${label}`}
+                title={t('profiles.context.buttonTitle', { label })}
                 disabled={disabled}
             >
                 <Sparkles size={10} />
@@ -50,7 +52,7 @@ export const ContextPopover = ({
                     <div className="av-context-popover__header">
                         <div className="av-context-popover__title">
                             <Sparkles size={11} />
-                            <span>AI Context: {label}</span>
+                            <span>{t('profiles.context.title', { label })}</span>
                         </div>
                         <button
                             type="button"
@@ -63,13 +65,13 @@ export const ContextPopover = ({
                     <textarea
                         className="av-context-popover__textarea"
                         rows={2}
-                        placeholder="Context clue for AI (e.g. 'Legal first name on passport')"
+                        placeholder={t('profiles.context.placeholder')}
                         value={context}
                         onChange={(e) => onChange(e.target.value)}
                         autoFocus
                     />
                     <span className="av-context-popover__hint">
-                        AI uses this prompt to identify ambiguous website form fields.
+                        {t('profiles.context.hint')}
                     </span>
                 </div>
             )}

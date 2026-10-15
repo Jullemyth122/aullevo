@@ -1,0 +1,135 @@
+// Free plan: "Watch a short ad to unlock" card, and its unlocked state
+.card {
+    display: grid;
+    gap: 6px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--av-yellow-mid, rgba(245, 158, 11, 0.32));
+    background: var(--av-yellow-light, rgba(245, 158, 11, 0.12));
+    color: var(--av-text);
+    font-size: 11.5px;
+}
+
+.top {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 700;
+    font-size: 12px;
+}
+
+.icon {
+    color: var(--av-yellow, #f59e0b);
+    flex: none;
+}
+
+.text {
+    margin: 0;
+    color: var(--av-text-mid);
+    line-height: 1.45;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.watch {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 0;
+    border-radius: 8px;
+    padding: 7px 12px;
+    font: inherit;
+    font-weight: 700;
+    font-size: 11.5px;
+    color: #0f172a;
+    cursor: pointer;
+    background: linear-gradient(90deg, #f59e0b, #fbbf24);
+
+    &:hover:not(:disabled) {
+        filter: brightness(1.05);
+    }
+
+    // Today's free allowance isn't used yet
+    &:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--av-violet, #3b82f6);
+        outline-offset: 2px;
+    }
+}
+
+.pro {
+    font-size: 10.5px;
+    color: var(--av-text-muted);
+}
+
+.note {
+    margin: 0;
+    font-size: 10.5px;
+    color: var(--av-text-muted);
+}
+
+// Running unlock
+.active {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(52, 211, 153, 0.4);
+    background: var(--av-success-bg, rgba(16, 185, 129, 0.15));
+    color: var(--av-success, #34d399);
+    font-size: 11px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.activeLabel {
+    color: var(--av-text);
+    font-weight: 700;
+    margin-right: auto;
+}
+
+// Settings: one row per unlock
+.row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    border-top: 1px solid var(--av-border-soft);
+
+    &:first-of-type {
+        border-top: 0;
+    }
+}
+
+.rowText {
+    display: grid;
+    gap: 1px;
+    min-width: 0;
+
+    b {
+        font-size: 12px;
+    }
+
+    span {
+        font-size: 10.5px;
+        color: var(--av-text-muted);
+    }
+
+    em {
+        font-style: normal;
+        font-size: 10.5px;
+        color: var(--av-success, #34d399);
+        font-variant-numeric: tabular-nums;
+    }
+}

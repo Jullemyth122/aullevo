@@ -1,0 +1,30 @@
+{
+    "title": "JSON Configuration",
+    "badge": {
+        "fields": {
+            "one": "✓ {count} field",
+            "other": "✓ {count} fields"
+        },
+        "invalid": "Invalid JSON"
+    },
+    "actions": {
+        "format": "Format / Beautify JSON",
+        "fullscreen": "Fullscreen",
+        "exitFullscreen": "Exit Fullscreen",
+        "close": "Close",
+        "download": "Download",
+        "copy": "Copy JSON",
+        "copied": "Copied",
+        "upload": "Upload File",
+        "import": "Import"
+    },
+    "quota": {
+        "leftToday": "Free plan: {left} of {limit} JSON imports left today. They reset at midnight.",
+        "reachedToday": "You've used today's {limit} free JSON imports. They reset at midnight; a short ad gives 10 more, or upgrade to Pro for unlimited imports.",
+        "downloadPro": "Download (export) is a Pro feature."
+    },
+    "errors": {
+        "noFields": "No valid fields found in the provided JSON.",
+        "invalidFormat": "Invalid JSON format: {error}"
+    }
+}

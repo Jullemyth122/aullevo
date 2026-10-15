@@ -1,0 +1,38 @@
+{
+    "detection": {
+        "title": "Form Detection",
+        "sub": "Fields on active tab",
+        "highlightTitle": "Inspect and highlight fields on page",
+        "clear": "Clear",
+        "highlight": "Highlight",
+        "rescanTitle": "Rescan page",
+        "rescan": "Rescan"
+    },
+    "fill": {
+        "injecting": "Injecting...",
+        "disabled": "{type} Disabled",
+        "withAi": "Fill Form with AI ({type})",
+        "standard": "Fill Form ({type})",
+        "autoPaginate": "Auto-pagination on: fills every page, then submits"
+    },
+    "activeProfile": {
+        "title": "Active Profile",
+        "summary": "{fields} • {docs} ready",
+        "fieldCount": {
+            "one": "{count} field",
+            "other": "{count} fields"
+        },
+        "docCount": {
+            "one": "{count} doc",
+            "other": "{count} docs"
+        },
+        "ready": "READY",
+        "disabled": "DISABLED"
+    },
+    "shortcuts": {
+        "title": "Keyboard Shortcuts",
+        "toggleSidePanel": "Toggle Side Panel",
+        "formFill": "AI / Keyword Form Fill",
+        "batchFill": "Multi-Link Batch Fill"
+    }
+}

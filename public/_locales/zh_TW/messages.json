@@ -1,0 +1,20 @@
+{
+  "appName": {
+    "message": "Aullevo - AI 表單自動填寫與求職申請填寫小幫手"
+  },
+  "appDescription": {
+    "message": "適用於求職申請、問卷調查及各種網頁表單的 AI 填寫工具。支援儲存設定檔、上傳履歷與智慧自動填寫。"
+  },
+  "actionTitle": {
+    "message": "開啟 Aullevo 側邊面板"
+  },
+  "commandTogglePanel": {
+    "message": "開啟/關閉 Aullevo 側邊面板"
+  },
+  "commandFill": {
+    "message": "在頁面上執行 AI 或關鍵字表單自動填寫"
+  },
+  "commandBatchFill": {
+    "message": "執行多連結批次表單自動填寫"
+  }
+}

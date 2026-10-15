@@ -1,0 +1,20 @@
+{
+  "appName": {
+    "message": "Aullevo - AI-lomaketäyttö ja työhakemusten automaattinen täyttö"
+  },
+  "appDescription": {
+    "message": "AI-lomaketäyttö työhakemuksiin, kyselyihin ja kaikkiin verkkolomakkeisiin. Tallennetut profiilit, CV:n lataus ja älykäs täyttö."
+  },
+  "actionTitle": {
+    "message": "Avaa Aullevon sivupaneeli"
+  },
+  "commandTogglePanel": {
+    "message": "Avaa/sulje Aullevon sivupaneeli"
+  },
+  "commandFill": {
+    "message": "Täytä sivun lomake AI:lla tai avainsanoilla"
+  },
+  "commandBatchFill": {
+    "message": "Täytä lomakkeet erässä monilinkeistä"
+  }
+}

@@ -1,4 +1,5 @@
 import { Zap, Users, Settings, Link2 } from 'lucide-react';
+import { useT } from '../../i18n';
 
 export type ActiveTab = 'fill' | 'profiles' | 'multilink' | 'settings';
 
@@ -15,6 +16,7 @@ export function NavTabs({
     profileCount,
     tabs = ['fill', 'profiles', 'multilink', 'settings']
 }: NavTabsProps) {
+    const { t } = useT();
     return (
         <nav className="av-panel__tabs">
             {tabs.includes('fill') && (
@@ -23,7 +25,7 @@ export function NavTabs({
                 onClick={() => onSelectTab('fill')}
             >
                 <Zap size={13} />
-                <span>Autofill</span>
+                <span>{t('nav.autofill')}</span>
             </button>
             )}
             <button
@@ -31,7 +33,7 @@ export function NavTabs({
                 onClick={() => onSelectTab('profiles')}
             >
                 <Users size={13} />
-                <span>Profiles ({profileCount})</span>
+                <span>{t('nav.profiles', { count: profileCount })}</span>
             </button>
 
             <button
@@ -39,7 +41,7 @@ export function NavTabs({
                 onClick={() => onSelectTab('multilink')}
             >
                 <Link2 size={13} />
-                <span>Multi-link</span>
+                <span>{t('nav.multiLink')}</span>
             </button>
 
             <button
@@ -47,7 +49,7 @@ export function NavTabs({
                 onClick={() => onSelectTab('settings')}
             >
                 <Settings size={13} />
-                <span>Settings</span>
+                <span>{t('nav.settings')}</span>
             </button>
         </nav>
     );

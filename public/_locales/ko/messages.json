@@ -1,0 +1,20 @@
+{
+  "appName": {
+    "message": "Aullevo - AI 양식 자동 입력 및 입사 지원서 작성 도우미"
+  },
+  "appDescription": {
+    "message": "입사 지원서, 설문조사 등 모든 웹 양식을 채워 주는 AI 도구. 프로필 저장, 이력서 업로드, 스마트 자동 입력을 지원합니다."
+  },
+  "actionTitle": {
+    "message": "Aullevo 사이드 패널 열기"
+  },
+  "commandTogglePanel": {
+    "message": "Aullevo 사이드 패널 열기/닫기"
+  },
+  "commandFill": {
+    "message": "페이지에서 AI 또는 키워드 양식 자동 입력 실행"
+  },
+  "commandBatchFill": {
+    "message": "멀티 링크 일괄 양식 자동 입력 실행"
+  }
+}

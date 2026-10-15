@@ -1,0 +1,20 @@
+{
+  "appName": {
+    "message": "Aullevo - AI űrlapkitöltő és álláspályázat-kitöltő"
+  },
+  "appDescription": {
+    "message": "AI űrlapkitöltő álláspályázatokhoz, kérdőívekhez és bármilyen webes űrlaphoz. Mentett profilok, önéletrajz és okos kitöltés."
+  },
+  "actionTitle": {
+    "message": "Az Aullevo oldalpanel megnyitása"
+  },
+  "commandTogglePanel": {
+    "message": "Az Aullevo oldalpanel be- és kikapcsolása"
+  },
+  "commandFill": {
+    "message": "AI-alapú vagy kulcsszavas űrlapkitöltés indítása az oldalon"
+  },
+  "commandBatchFill": {
+    "message": "Csoportos űrlapkitöltés indítása több linkből"
+  }
+}

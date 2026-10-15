@@ -1,0 +1,706 @@
+{
+  "autofill": {
+    "detection": {
+      "title": "Formulierdetectie",
+      "sub": "Velden op actief tabblad",
+      "highlightTitle": "Velden op de pagina inspecteren en markeren",
+      "clear": "Wissen",
+      "highlight": "Markeren",
+      "rescanTitle": "Pagina opnieuw scannen",
+      "rescan": "Opnieuw scannen"
+    },
+    "fill": {
+      "injecting": "Bezig met invullen…",
+      "disabled": "{type} uitgeschakeld",
+      "withAi": "Formulier invullen met AI ({type})",
+      "standard": "Formulier invullen ({type})",
+      "autoPaginate": "Auto-paginering aan: vult elke pagina in en verstuurt daarna"
+    },
+    "activeProfile": {
+      "title": "Actief profiel",
+      "summary": "{fields} • {docs} klaar",
+      "fieldCount": {
+        "one": "{count} veld",
+        "other": "{count} velden"
+      },
+      "docCount": {
+        "one": "{count} document",
+        "other": "{count} documenten"
+      },
+      "ready": "KLAAR",
+      "disabled": "UITGESCHAKELD"
+    },
+    "shortcuts": {
+      "title": "Sneltoetsen",
+      "toggleSidePanel": "Zijpaneel tonen/verbergen",
+      "formFill": "Formulier invullen met AI / trefwoorden",
+      "batchFill": "Multi-link batch invullen"
+    }
+  },
+  "content": {
+    "openSidebar": "Aullevo-zijpaneel openen",
+    "filled": "INGEVULD",
+    "file": "Bestand: {name}",
+    "files": {
+      "one": "{count} bestand bijgevoegd",
+      "other": "{count} bestanden bijgevoegd"
+    },
+    "matched": "Gekoppeld: {name}",
+    "ranked": "Gekozen: {value}",
+    "ai": "[AI] {text}",
+    "aiGenerated": "[AI] Gegenereerd",
+    "fixed": "Gecorrigeerd: {value}"
+  },
+  "header": {
+    "versionLine": "v{version} • Autofill",
+    "lightTheme": "Licht thema",
+    "darkTheme": "Donker thema",
+    "jsonConfig": "JSON-configuratie",
+    "openFullPage": "Volledige pagina openen",
+    "closeSidePanel": "Zijpaneel sluiten",
+    "footer": {
+      "engine": "Aullevo-invulengine",
+      "ready": "Klaar"
+    }
+  },
+  "json": {
+    "title": "JSON-configuratie",
+    "badge": {
+      "fields": {
+        "one": "✓ {count} veld",
+        "other": "✓ {count} velden"
+      },
+      "invalid": "Ongeldige JSON"
+    },
+    "actions": {
+      "format": "JSON opmaken",
+      "fullscreen": "Volledig scherm",
+      "exitFullscreen": "Volledig scherm sluiten",
+      "close": "Sluiten",
+      "download": "Downloaden",
+      "copy": "JSON kopiëren",
+      "copied": "Gekopieerd",
+      "upload": "Bestand uploaden",
+      "import": "Importeren"
+    },
+    "quota": {
+      "downloadPro": "Downloaden (exporteren) is een Pro-functie."
+    },
+    "errors": {
+      "noFields": "Geen geldige velden gevonden in de opgegeven JSON.",
+      "invalidFormat": "Ongeldige JSON-indeling: {error}"
+    }
+  },
+  "language": {
+    "title": "Taal",
+    "button": "Taal: {name}",
+    "search": "Talen zoeken",
+    "auto": "Automatisch: {name}",
+    "autoHint": "Volgt de taal van je browser",
+    "backToEnglish": "Terug naar Engels",
+    "changed": "Taal gewijzigd naar {name}.",
+    "switchBack": "Terug naar {name}",
+    "keep": "Behouden",
+    "noResults": "Geen talen gevonden",
+    "settingsHint": "Wijzigt elk scherm van Aullevo, inclusief de rondleiding."
+  },
+  "manifest": {
+    "appName": "Aullevo - Formulieren en sollicitaties automatisch invullen met AI",
+    "appDescription": "AI-invulhulp voor sollicitaties, enquêtes en elk webformulier. Opgeslagen profielen, cv uploaden en slim automatisch invullen.",
+    "actionTitle": "Aullevo-zijpaneel openen",
+    "commandTogglePanel": "Aullevo-zijpaneel tonen/verbergen",
+    "commandFill": "Formulier op pagina invullen met AI of trefwoorden",
+    "commandBatchFill": "Multi-link batch invullen starten"
+  },
+  "multilink": {
+    "batch": {
+      "title": "Wachtrij voor batch invullen",
+      "activeCount": "{enabled} van {total} actief",
+      "description": "Open en vul automatisch formulieren in meerdere tabbladen in met je actieve <b>{type}</b>-profiel.",
+      "running": "Batch invullen bezig…",
+      "start": {
+        "one": "{count} formulier in batch invullen",
+        "other": "{count} formulieren in batch invullen"
+      }
+    },
+    "add": {
+      "title": "Formulier-/vacaturelink toevoegen"
+    },
+    "saved": {
+      "title": "Opgeslagen links ({count})",
+      "clearAll": "Alles wissen",
+      "empty": "Nog geen links toegevoegd. Plak hierboven een formulier-URL om te beginnen.",
+      "open": "Link openen",
+      "remove": "Link verwijderen"
+    }
+  },
+  "nav": {
+    "autofill": "Invullen",
+    "profiles": "Profielen ({count})",
+    "multiLink": "Multi-link",
+    "settings": "Instellingen"
+  },
+  "profiles": {
+    "types": {
+      "job": "Werk",
+      "medical": "Medisch",
+      "government": "Overheid",
+      "survey": "Enquête",
+      "academic": "Studie",
+      "financial": "Financieel",
+      "custom": "Aangepast"
+    },
+    "badges": {
+      "on": "AAN",
+      "off": "UIT",
+      "disabled": "UITGESCHAKELD",
+      "sensitive": "GEVOELIG",
+      "aiSafe": "AI-VEILIG"
+    },
+    "save": {
+      "button": "{type}-profiel opslaan",
+      "saved": "Opgeslagen ✓"
+    },
+    "dropdown": {
+      "newProfilePlaceholder": "Naam nieuw profiel…",
+      "add": "Toevoegen"
+    },
+    "config": {
+      "title": "Profielconfiguratie",
+      "on": "PROFIEL AAN",
+      "off": "PROFIEL UIT",
+      "activeTooltip": "{type}-profiel is actief",
+      "disabledTooltip": "{type}-profiel is uitgeschakeld",
+      "namePlaceholder": "Profielnaam"
+    },
+    "identity": {
+      "title": "Identiteit & contact",
+      "firstName": "Voornaam",
+      "lastName": "Achternaam",
+      "email": "E-mailadres",
+      "phone": "Telefoonnummer",
+      "address": "Woonadres"
+    },
+    "attributes": {
+      "title": "{type}-gegevens",
+      "customHint": "Voeg hieronder je eigen velden toe of importeer ze via JSON.",
+      "job": {
+        "headline": "Kopregel / functietitel",
+        "linkedin": "LinkedIn",
+        "github": "GitHub",
+        "portfolio": "Portfolio",
+        "skills": "Vaardigheden",
+        "education": "Opleiding / diploma",
+        "certifications": "Certificeringen"
+      },
+      "medical": {
+        "bloodType": "Bloedgroep",
+        "allergies": "Allergieën",
+        "emergencyContact": "Contactpersoon bij nood",
+        "insuranceProvider": "Zorgverzekeraar"
+      },
+      "government": {
+        "nationalId": "Identiteitsnummer / BSN",
+        "citizenship": "Nationaliteit",
+        "passport": "Paspoortnummer",
+        "driversLicense": "Rijbewijs"
+      },
+      "survey": {
+        "ageRange": "Leeftijdsgroep",
+        "income": "Inkomen",
+        "education": "Opleidingsniveau",
+        "employment": "Werksituatie"
+      },
+      "academic": {
+        "institution": "Onderwijsinstelling",
+        "major": "Hoofdvak / studierichting",
+        "gpa": "Gemiddeld cijfer (GPA)",
+        "gradYear": "Afstudeerjaar",
+        "testScores": "Testscores"
+      },
+      "financial": {
+        "billingAddress": "Factuuradres",
+        "payment": "Betaling",
+        "cardholder": "Kaarthouder"
+      }
+    },
+    "field": {
+      "sensitiveTooltip": "Gevoelig: waarde is verborgen voor AI (zero-knowledge)",
+      "aiSafeTooltip": "AI-veilig: waarde wordt met AI gedeeld voor slimme keuzes"
+    },
+    "context": {
+      "buttonTitle": "AI-context voor {label}",
+      "title": "AI-context: {label}",
+      "placeholder": "Contexthint voor AI (bijv. 'Officiële voornaam in paspoort')",
+      "hint": "AI gebruikt deze prompt om onduidelijke formuliervelden op websites te herkennen."
+    },
+    "custom": {
+      "title": "Aangepaste velden",
+      "labelPlaceholder": "Veldlabel",
+      "valuePlaceholder": "Veldwaarde",
+      "sensitiveTooltip": "Gevoelig: waarde is verborgen voor AI",
+      "aiSafeTooltip": "AI-veilig: waarde wordt met AI gedeeld",
+      "enabledTooltip": "Veld ingeschakeld",
+      "disabledTooltip": "Veld uitgeschakeld",
+      "delete": "Veld verwijderen",
+      "pagination": {
+        "one": "Pagina {page} van {total} ({count} item)",
+        "other": "Pagina {page} van {total} ({count} items)"
+      },
+      "newLabelPlaceholder": "Label",
+      "newValuePlaceholder": "Waarde",
+      "add": "Aangepast veld toevoegen"
+    },
+    "documents": {
+      "title": "Bijgevoegde documenten",
+      "labelPlaceholder": "Documentlabel",
+      "labelTooltip": "Klik om het documentlabel te bewerken",
+      "remove": "Bestand verwijderen",
+      "pagination": "Pagina {page} van {total}",
+      "categories": {
+        "resume": "Cv",
+        "coverLetter": "Motivatiebrief",
+        "identity": "Identiteitsbewijs",
+        "academic": "Cijferlijst",
+        "portfolio": "Portfolio",
+        "other": "Overig document"
+      },
+      "upload": {
+        "resume": "Cv uploaden",
+        "coverLetter": "Motivatiebrief uploaden",
+        "identity": "ID uploaden",
+        "academic": "Cijferlijst uploaden",
+        "portfolio": "Portfolio uploaden",
+        "other": "Document uploaden"
+      },
+      "size": {
+        "bytes": "{size} B",
+        "kilobytes": "{size} kB",
+        "megabytes": "{size} MB"
+      }
+    }
+  },
+  "settings": {
+    "account": {
+      "title": "Account",
+      "proUntil": "Pro tot {date}",
+      "proLifetime": "Pro · Levenslang",
+      "disconnect": "Account ontkoppelen",
+      "waiting": "Wachten op aanmelding…",
+      "connect": "Verbinden met Aullevo Web",
+      "renew": "Pro verlopen · Verlengen",
+      "upgrade": "Upgraden naar Pro"
+    },
+    "theme": {
+      "title": "Weergave",
+      "dark": "Donker thema",
+      "description": "Wissel tussen donker leisteen- en licht thema"
+    },
+    "mode": {
+      "title": "Invulmodus",
+      "aiActive": "Slim invullen met AI (actief)",
+      "standard": "Standaard invullen (zonder AI)",
+      "aiDescription": "Gebruikt AI om vragen te begrijpen en complexe velden te koppelen",
+      "standardDescription": "Koppelt profielgegevens direct, zonder AI-aanroepen",
+      "toggle": "AI-invulmodus aan/uit"
+    },
+    "ai": {
+      "title": "AI-engine",
+      "unlimited": "Onbeperkte toegang",
+      "keyRequired": "API-sleutel vereist",
+      "freeUsage": "Free: {used}/{limit} deze week",
+      "privacy": "<b>Privacy:</b> velden gemarkeerd als GEVOELIG worden nooit naar AI gestuurd, alleen hun labels. Waarden van AI-VEILIG-velden en de vragen van het formulier worden naar {provider} gestuurd.",
+      "provider": "AI-aanbieder",
+      "customProvider": "Aangepast (OpenAI-compatibel)",
+      "baseUrl": "Server-URL",
+      "customHint": "Werkt met elke server die de chat-API van OpenAI ondersteunt, zoals OpenRouter, Groq, Mistral, Ollama of LM Studio. Lokale servers hebben geen sleutel nodig.",
+      "model": "AI-model",
+      "modelOption": "{name} ({description})",
+      "models": {
+        "fastest": "Snelst & zeer goedkoop",
+        "balanced": "Gebalanceerd redeneren",
+        "capable": "Snel & capabel",
+        "smartest": "Hoogste intelligentie",
+        "legacy": "Ouder snel model"
+      },
+      "otherModel": "Ander model (typ de ID)",
+      "modelIdPlaceholder": "Exacte model-ID, bijv. {example}",
+      "apiKey": "{provider} API-sleutel",
+      "getKey": "API-sleutel ophalen",
+      "keyPlaceholder": "Plak je {provider} API-sleutel",
+      "hideKey": "Sleutel verbergen",
+      "showKey": "Sleutel tonen",
+      "addKeyHint": "Voeg je {provider} API-sleutel toe om Slim invullen met AI te gebruiken.",
+      "proHint": "Pro: onbeperkt invullen met AI. Je sleutel blijft in deze browser.",
+      "freeHint": "Free-abonnement: {limit} AI-invullingen per week. Upgrade naar Pro voor onbeperkt gebruik."
+    },
+    "paginate": {
+      "title": "Auto-paginering",
+      "toggleTitle": "Formulieren met meerdere pagina's invullen",
+      "description": "Vult elke pagina in, klikt op Volgende / Doorgaan en drukt aan het eind op Verzenden. Corrigeert antwoorden die het formulier afwijst; pauzeert als dat niet lukt.",
+      "toggle": "Auto-paginering aan/uit",
+      "proFeature": "Pro-functie",
+      "upgrade": "Upgrade naar Pro om Auto-paginering te gebruiken"
+    },
+    "floating": {
+      "title": "Zwevend pictogram op webpagina's",
+      "toggleTitle": "Zwevende knop tonen",
+      "description": "Toon het Aullevo-snelmenu aan de rand van webpagina's",
+      "toggle": "Zwevende knop aan/uit"
+    },
+    "typing": {
+      "title": "Menselijke typesnelheid",
+      "instant": "Direct ({ms} ms)",
+      "natural": "Natuurlijk ({ms} ms)",
+      "slow": "Langzaam ({ms} ms)",
+      "custom": "Aangepast ({ms} ms)",
+      "naturalFree": "Natuurlijk ({ms} ms) · Free-abonnement",
+      "description": "Typt teken voor teken in een menselijk tempo, voor sites die echte toetsaanslagen verwachten.",
+      "proFeature": "Pro-functie",
+      "customDelay": "Aangepaste vertraging:",
+      "customProFeature": "Aangepaste vertraging is een Pro-functie",
+      "unitMs": "ms"
+    },
+    "tour": {
+      "title": "Rondleiding",
+      "toggleTitle": "De uitleg opnieuw tonen",
+      "description": "Loopt alle tabbladen opnieuw stap voor stap door",
+      "replay": "Opnieuw"
+    },
+    "security": {
+      "title": "Lokaal versleuteld"
+    },
+    "memories": {
+      "title": "AI-herinneringen",
+      "count": "({enabled}/{total} aan)",
+      "descriptionAiOn": "Feiten over jou die de AI kan gebruiken om open vragen te beantwoorden (bijv. \"Werkstijl: alleen remote\"). Ingeschakelde herinneringen worden naar {provider} gestuurd en onversleuteld in deze browser opgeslagen, dus voeg geen wachtwoorden of ID-nummers toe.",
+      "descriptionAiOff": "Feiten over jou die de AI kan gebruiken om open vragen te beantwoorden (bijv. \"Werkstijl: alleen remote\"). Alleen gebruikt als Slim invullen met AI aan staat. Ingeschakelde herinneringen worden naar {provider} gestuurd en onversleuteld in deze browser opgeslagen, dus voeg geen wachtwoorden of ID-nummers toe.",
+      "titlePlaceholder": "Titel",
+      "contentPlaceholder": "Wat de AI moet weten",
+      "enabledTitle": "Herinnering wordt naar de AI gestuurd",
+      "disabledTitle": "Herinnering wordt niet gebruikt",
+      "on": "AAN",
+      "off": "UIT",
+      "delete": "Herinnering verwijderen",
+      "newTitlePlaceholder": "Titel (bijv. Werkstijl)",
+      "newContentPlaceholder": "Inhoud (bijv. Voorkeur voor volledig remote functies, open voor freelance)",
+      "add": "Herinnering toevoegen"
+    },
+    "deviceData": {
+      "title": "Gegevens op dit apparaat",
+      "total": "{size} totaal",
+      "description": "Elk account heeft hier zijn eigen versleutelde kluis. Accounts zien nooit elkaars profielen, documenten, API-sleutel, herinneringen of links.",
+      "empty": "Nog geen opgeslagen gegevens.",
+      "localOwner": "Niet aangemeld (lokale profielen)",
+      "anotherAccount": "Ander account",
+      "inUse": "{size} · nu in gebruik",
+      "deleteTitle": "Gegevens van dit account van dit apparaat verwijderen",
+      "delete": "Verwijderen",
+      "confirmDelete": "Aullevo-gegevens van \"{name}\" van dit apparaat verwijderen?\n\nHiermee worden de versleutelde profielen, documenten, API-sleutel, AI-herinneringen en linkwachtrij definitief verwijderd. Dit kan niet ongedaan worden gemaakt.",
+      "bytes": "{size} B",
+      "kilobytes": "{size} kB",
+      "megabytes": "{size} MB"
+    }
+  },
+  "status": {
+    "plan": {
+      "profileLimit": "Het Free-abonnement staat {max} actieve profielen toe. Zet extra profielen op UIT of upgrade naar Pro.",
+      "activeLimit": "Het Free-abonnement staat {max} actieve profielen toe. Zet er een op UIT of upgrade naar Pro.",
+      "createdOff": "Profiel aangemaakt als UIT. Het Free-abonnement staat {max} actieve profielen toe. Zet er een op UIT of upgrade naar Pro.",
+      "autoPaginatePro": "Auto-paginering is een Pro-functie. Upgrade naar Pro om formulieren met meerdere pagina's in te vullen.",
+      "jsonImportLimit": "Je hebt alle {limit} gratis JSON-imports van deze 2 weken gebruikt. Ze worden op {date} gereset, of upgrade naar Pro voor onbeperkt importeren.",
+      "documentsSkipped": {
+        "one": "{count} document niet bijgevoegd: uploaden in formulieren is een Pro-functie.",
+        "other": "{count} documenten niet bijgevoegd: uploaden in formulieren is een Pro-functie."
+      }
+    },
+    "batch": {
+      "starting": {
+        "one": "Batch invullen starten voor {count} formulier…",
+        "other": "Batch invullen starten voor {count} formulieren…"
+      },
+      "progress": "{current} van {total} invullen: {host}",
+      "progressNoHost": "{current} van {total} invullen…",
+      "complete": {
+        "one": "Batch invullen voltooid voor {count} formulier!",
+        "other": "Batch invullen voltooid voor {count} formulieren!"
+      }
+    },
+    "save": {
+      "success": "{type}-profiel opgeslagen!",
+      "failed": "Opslaan mislukt: {error}",
+      "noProfile": "Geen profiel geselecteerd",
+      "unknownError": "Opslaan mislukt"
+    },
+    "profile": {
+      "nameExists": "Er bestaat al een profiel met deze naam!",
+      "disabled": "{type} is uitgeschakeld. Zet het op AAN om automatisch in te vullen.",
+      "defaultType": "PROFIEL",
+      "imported": {
+        "one": "{count} veld geïmporteerd in {type}!",
+        "other": "{count} velden geïmporteerd in {type}!"
+      }
+    },
+    "highlight": {
+      "noActiveTab": "Geen actief tabblad gevonden.",
+      "refreshToConnect": "Vernieuw de pagina om markeringen te koppelen.",
+      "on": {
+        "one": "{count} veld op de pagina gemarkeerd!",
+        "other": "{count} velden op de pagina gemarkeerd!"
+      },
+      "cleared": "Markeringen gewist."
+    },
+    "fill": {
+      "injectingAi": "Velden invullen met AI ({type})…",
+      "injecting": "Velden invullen ({type})…",
+      "noTab": "Kan het actieve tabblad niet bereiken.",
+      "refreshToConnect": "Vernieuw het tabblad om automatisch invullen te koppelen.",
+      "cannotConnect": "Kan geen verbinding maken met de pagina. Vernieuw het tabblad.",
+      "aiPartlySkipped": {
+        "one": "{count} veld ingevuld (AI deels overgeslagen).",
+        "other": "{count} velden ingevuld (AI deels overgeslagen)."
+      },
+      "keywordMode": {
+        "one": "{count} veld ingevuld (trefwoordmodus).",
+        "other": "{count} velden ingevuld (trefwoordmodus)."
+      },
+      "withAi": {
+        "one": "Formulier ingevuld met AI ({count} veld gekoppeld).",
+        "other": "Formulier ingevuld met AI ({count} velden gekoppeld)."
+      },
+      "withoutAi": {
+        "one": "Formulier ingevuld zonder AI ({count} veld gekoppeld).",
+        "other": "Formulier ingevuld zonder AI ({count} velden gekoppeld)."
+      },
+      "error": "Fout bij invullen: {error}",
+      "injected": {
+        "one": "{count} veld op de pagina ingevuld.",
+        "other": "{count} velden op de pagina ingevuld."
+      }
+    },
+    "pagination": {
+      "progress": "Auto-paginering: pagina {page} invullen…",
+      "lostConnection": "Auto-paginering gestopt: verbinding met de extensie verbroken.",
+      "filled": {
+        "one": "{filled} velden ingevuld op {count} pagina.",
+        "other": "{filled} velden ingevuld op {count} pagina's."
+      },
+      "corrected": {
+        "one": "{count} door het formulier afgewezen antwoord gecorrigeerd.",
+        "other": "{count} door het formulier afgewezen antwoorden gecorrigeerd."
+      },
+      "field": "\"{name}\"",
+      "fieldAndMore": {
+        "one": "\"{name}\" (+{count} andere)",
+        "other": "\"{name}\" (+{count} andere)"
+      },
+      "aField": "een veld",
+      "nextButton": "Volgende",
+      "submitted": "Verzonden!",
+      "noNext": "Geen knop Volgende / Doorgaan gevonden.",
+      "stillEmpty": "{field} is nog leeg.",
+      "check": "Controleer {field}.",
+      "blocked": "Gepauzeerd op pagina {page}: {field} is verplicht en leeg. Vul het in en start opnieuw.",
+      "nextDisabled": "Gepauzeerd op pagina {page}: de knop \"{button}\" is uitgeschakeld. Controleer de pagina en start opnieuw.",
+      "validationError": "Gepauzeerd op pagina {page}: het formulier meldde \"{error}\".",
+      "validationErrorUnknown": "Gepauzeerd op pagina {page}: het formulier meldde een fout.",
+      "correctionTried": "(automatische correctie is geprobeerd)",
+      "stuck": "Gepauzeerd op pagina {page}: op \"{button}\" geklikt, maar het formulier ging niet verder.",
+      "maxPages": "Gestopt bij de veiligheidslimiet van {max} pagina's.",
+      "noForm": "Geen formulier gevonden op deze pagina (of Aullevo kan hier niet werken).",
+      "stopped": "Auto-paginering gestopt: {error}",
+      "unknownError": "onbekende fout"
+    }
+  },
+  "tour": {
+    "card": {
+      "progress": "{section} · {current} van {total}",
+      "skip": "Rondleiding overslaan",
+      "dontShowAgain": "Niet meer tonen",
+      "back": "Terug",
+      "next": "Volgende",
+      "done": "Klaar"
+    },
+    "shortcuts": {
+      "allActive": "Alle 3 sneltoetsen zijn actief in deze browser.",
+      "notSet": "Niet ingesteld in deze browser: {list}. Stel ze zelf in via de sneltoetsinstellingen van Chrome.",
+      "openSettings": "Sneltoetsinstellingen van Chrome openen",
+      "toggleSidePanel": "Zijpaneel tonen/verbergen",
+      "fallbackName": "Sneltoets"
+    },
+    "sections": {
+      "autofill": "Invullen",
+      "header": "Knoppen bovenaan",
+      "profiles": "Profielen",
+      "multilink": "Multi-link",
+      "settings": "Instellingen"
+    },
+    "autofill": {
+      "detection": {
+        "title": "Formulierdetectie",
+        "body": "Aullevo telt de invulbare velden op de pagina in je huidige tabblad. Open een formulier en dit getal wordt bijgewerkt."
+      },
+      "highlight": {
+        "title": "Velden markeren",
+        "body": "Omlijnt elk veld dat Aullevo op de pagina heeft gevonden, zodat je ziet wat er wordt ingevuld voordat je invult. Klik nogmaals om de omlijning te wissen."
+      },
+      "rescan": {
+        "title": "Opnieuw scannen",
+        "body": "Sommige formulieren voegen velden toe nadat de pagina is geladen, zoals formulieren met meerdere stappen of pop-ups. Opnieuw scannen telt de velden opnieuw."
+      },
+      "fill": {
+        "title": "Formulier invullen",
+        "body": "Vult de pagina in met je actieve profiel. Met invullen met AI aan (in Instellingen) worden vragen aan je antwoorden gekoppeld, ook als ze anders geformuleerd zijn. Staat het uit, dan worden velden op trefwoord gekoppeld."
+      },
+      "activeProfile": {
+        "title": "Actief profiel",
+        "body": "Het profiel dat wordt gebruikt om in te vullen, met hoeveel velden en documenten aan staan. Wissel van profiel of bewerk je antwoorden op het tabblad <b>Profielen</b>."
+      },
+      "shortcuts": {
+        "title": "Sneltoetsen",
+        "body": "Chrome stelt deze toetsen in wanneer Aullevo wordt geïnstalleerd, maar slaat toetsen over die Chrome of een andere extensie al gebruikt. Je kunt ze altijd wijzigen."
+      }
+    },
+    "header": {
+      "voice": {
+        "title": "Spraakmodus",
+        "body": "Praat met Aullevo in plaats van te klikken. Deze knop zet het paneel om naar de spraakassistent: zeg \"fill this page\", \"fill the email\" of \"fill the first question\" en hij antwoordt hardop. Klik nog eens om terug te gaan naar deze weergave.",
+        "note": "Pro-functie. Je hebt een eigen ElevenLabs API-sleutel nodig, die je toevoegt bij Voice settings. Spraakopdrachten werken in het Engels en Tagalog."
+      },
+      "language": {
+        "title": "Taal",
+        "body": "Kies de taal voor heel Aullevo. Engels staat altijd bovenaan de lijst, zodat je altijd terug kunt."
+      },
+      "theme": {
+        "title": "Licht of donker thema",
+        "body": "Wisselt het paneel tussen lichte en donkere modus."
+      },
+      "json": {
+        "title": "Snel instellen met JSON",
+        "intro": "Je profiel als JSON. De snelste manier om een profiel in te stellen:",
+        "step1": "Kopieer de JSON hier.",
+        "step2": "Geef hem aan Gemini, Claude of ChatGPT, samen met je cv of een ander document.",
+        "step3": "Vraag de AI om de waarden in te vullen en dezelfde structuur te behouden.",
+        "step4": "Plak het resultaat hier terug en klik op <b>Importeren</b>."
+      },
+      "fullPage": {
+        "title": "Volledige pagina openen",
+        "body": "Opent Aullevo in een browsertabblad met meer ruimte om profielen te bewerken. Invullen gebeurt nog steeds vanuit dit zijpaneel."
+      },
+      "close": {
+        "title": "Paneel sluiten",
+        "body": "Sluit het zijpaneel. Open het opnieuw met <b>Alt+Q</b> (<b>Option+Q</b> op Mac) of door op het Aullevo-pictogram in de werkbalk te klikken."
+      }
+    },
+    "profiles": {
+      "switcher": {
+        "title": "Wisselen van profiel",
+        "body1": "Elk profiel (Werk, Studie, Financieel of je eigen) heeft zijn eigen antwoorden. Kies het profiel dat je wilt bewerken en waarmee je wilt invullen.",
+        "body2": "Open de lijst om te zien welke profielen AAN of UIT staan, en om onderaan een nieuw profiel te maken.",
+        "note": "Free-abonnement: maximaal 2 profielen tegelijk AAN."
+      },
+      "config": {
+        "title": "Naam en aan/uit-schakelaar",
+        "body": "Wijzig hier de naam van het profiel. <b>PROFIEL AAN</b> zet het hele profiel aan of uit. Staat het uit, dan wordt het niet gebruikt om in te vullen."
+      },
+      "identity": {
+        "title": "Identiteit & contact",
+        "body": "Je naam, e-mail, telefoon en adres. Klik op een sectiekop om die in of uit te klappen. Elk veld heeft drie kleine knoppen, die je hierna ziet."
+      },
+      "fieldContext": {
+        "title": "AI-contexthint",
+        "body": "De ✨-knop voegt een hint toe die de AI vertelt wat dit veld betekent, zoals \"Officiële voornaam in paspoort\". Handig als een vraag in een formulier onduidelijk is geformuleerd. Een stip betekent dat er een hint is ingesteld."
+      },
+      "fieldPrivacy": {
+        "title": "AI-veilig of Gevoelig",
+        "safe": "<b>AI-veilig</b>: de waarde wordt met de AI gedeeld, zodat die het juiste antwoord kan kiezen in keuzelijsten en meerkeuzevragen.",
+        "sensitive": "<b>Gevoelig</b>: de AI ziet alleen de naam en hint van het veld, nooit de waarde. Aullevo typt de waarde nog steeds in op je apparaat.",
+        "toggle": "Klik erop om te wisselen."
+      },
+      "fieldToggle": {
+        "title": "Een veld aan- of uitzetten",
+        "body": "Zet een veld op UIT om het bij het invullen over te slaan, zonder te verwijderen wat je hebt getypt."
+      },
+      "documents": {
+        "title": "Documenten bijvoegen",
+        "body": "Kies het documenttype en upload dan je cv, motivatiebrief, ID en meer. Als een formulier om een bestand vraagt, voegt Aullevo je documenten bij die AAN staan.",
+        "note": "Documenten bijvoegen aan formulieren is een Pro-functie."
+      },
+      "attributes": {
+        "title": "Profielspecifieke velden",
+        "body": "Velden die bij dit soort profiel horen. Een Werk-profiel heeft kopregel, LinkedIn, vaardigheden en opleiding. Studie, Medisch en de andere hebben hun eigen velden."
+      },
+      "customFields": {
+        "title": "Eigen velden toevoegen",
+        "body": "Voor alles wat de standaardvelden niet dekken, zoals \"Gewenst salaris\" of \"Waarom wil je deze baan?\". Typ een label en een waarde en klik op <b>+</b>. De formulering van de vraag als label gebruiken werkt goed."
+      },
+      "save": {
+        "title": "Opslaan",
+        "body": "Wijzigingen worden automatisch opgeslagen terwijl je typt. Deze knop slaat direct op, handig vlak voordat je het paneel sluit."
+      }
+    },
+    "multilink": {
+      "addLink": {
+        "title": "Een formulierlink toevoegen",
+        "body": "Plak de volledige link naar een formulier of sollicitatie (beginnend met https://) en klik op <b>+</b>. Voeg er zoveel toe als je wilt."
+      },
+      "savedLinks": {
+        "title": "Je linkwachtrij",
+        "body": "Elke link die je toevoegt, verschijnt hier. Vink een link aan om hem in de volgende batch op te nemen, of vink hem uit om hem over te slaan. Het pijlpictogram opent de link en het prullenbakpictogram verwijdert hem."
+      },
+      "batchRun": {
+        "title": "Alles in één keer invullen",
+        "body1": "Opent elke aangevinkte link na elkaar in een achtergrondtabblad en vult die in met je actieve profiel. De voortgang zie je bovenaan het paneel.",
+        "note": "Sneltoets: Alt+Shift+B (Option+Shift+B op Mac)."
+      }
+    },
+    "settings": {
+      "account": {
+        "title": "Je account",
+        "body": "Koppel je Aullevo Web-account zodat je abonnement (Free of Pro) hier geldt. Je profielen blijven versleuteld op dit apparaat en worden niet geüpload."
+      },
+      "aiMode": {
+        "title": "Slim invullen met AI of Standaard invullen",
+        "standard": "<b>Standaard invullen</b> koppelt velden op naam, zonder AI.",
+        "smart": "<b>Slim invullen met AI</b> begrijpt vragen die anders geformuleerd zijn en kiest antwoorden in keuzelijsten en meerkeuzevragen."
+      },
+      "aiEngine": {
+        "title": "AI-aanbieder, model en API-sleutel"
+      },
+      "memories": {
+        "title": "AI-herinneringen",
+        "body": "Korte feiten die de AI kan gebruiken voor open vragen, zoals \"Werkstijl: alleen remote\". Ze worden naar de AI-aanbieder die je hebt gekozen gestuurd en niet versleuteld, dus voeg nooit wachtwoorden of ID-nummers toe."
+      },
+      "autoPaginate": {},
+      "floatingIcon": {
+        "title": "Zwevende knop",
+        "body": "Een klein Aullevo-tabje aan de rand van webpagina's voor snelle toegang. Zet het uit als het in de weg zit."
+      },
+      "typingSpeed": {
+        "title": "Typesnelheid",
+        "body": "Hoe snel Aullevo in velden typt. <b>Natuurlijk</b> lijkt meer op een typend persoon en <b>Direct</b> is het snelst. Langzame en aangepaste snelheden zijn Pro."
+      },
+      "replayTour": {
+        "title": "Deze uitleg opnieuw bekijken",
+        "body": "Iets vergeten? Klik op <b>Opnieuw</b> om deze hele uitleg nog eens te doorlopen."
+      },
+      "deviceData": {
+        "title": "Gegevens op dit apparaat",
+        "body": "Elk account heeft zijn eigen versleutelde kluis in deze browser. Verwijder de gegevens van accounts die je niet meer gebruikt."
+      }
+    }
+  },
+  "vault": {
+    "loading": "Laden…",
+    "account": {
+      "signedInAs": "Aangemeld als <b>{account}</b>",
+      "notSignedIn": "Niet aangemeld: lokale profielen op dit apparaat",
+      "fallbackName": "je account"
+    },
+    "errors": {
+      "createFailed": "Kan de kluis niet maken. Probeer het opnieuw.",
+      "wrongPassphrase": "Onjuiste wachtwoordzin.",
+      "wrongClaimPassphrase": "Onjuiste wachtwoordzin voor die profielen."
+    }
+  }
+}

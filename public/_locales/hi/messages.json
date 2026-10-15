@@ -1,0 +1,20 @@
+{
+  "appName": {
+    "message": "Aullevo - AI फ़ॉर्म ऑटोफ़िल और जॉब एप्लिकेशन फ़िलर"
+  },
+  "appDescription": {
+    "message": "जॉब एप्लिकेशन, सर्वे और किसी भी वेब फ़ॉर्म के लिए AI फ़ॉर्म फ़िलर। सेव की गई प्रोफ़ाइल, रिज़्यूमे अपलोड और स्मार्ट ऑटोफ़िल।"
+  },
+  "actionTitle": {
+    "message": "Aullevo साइड पैनल खोलें"
+  },
+  "commandTogglePanel": {
+    "message": "Aullevo साइड पैनल खोलें/बंद करें"
+  },
+  "commandFill": {
+    "message": "पेज पर AI या कीवर्ड से फ़ॉर्म ऑटोफ़िल करें"
+  },
+  "commandBatchFill": {
+    "message": "मल्टी-लिंक बैच फ़ॉर्म ऑटोफ़िल शुरू करें"
+  }
+}

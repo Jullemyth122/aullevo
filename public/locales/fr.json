@@ -1,0 +1,725 @@
+{
+  "autofill": {
+    "detection": {
+      "title": "Détection de formulaire",
+      "sub": "Champs de l'onglet actif",
+      "highlightTitle": "Inspecter et surligner les champs de la page",
+      "clear": "Effacer",
+      "highlight": "Surligner",
+      "rescanTitle": "Réanalyser la page",
+      "rescan": "Réanalyser"
+    },
+    "fill": {
+      "injecting": "Injection…",
+      "disabled": "{type} désactivé",
+      "withAi": "Remplir le formulaire avec l'IA ({type})",
+      "standard": "Remplir le formulaire ({type})",
+      "autoPaginate": "Pagination auto activée : remplit chaque page, puis envoie le formulaire"
+    },
+    "activeProfile": {
+      "title": "Profil actif",
+      "summary": "{fields} • {docs} prêts",
+      "fieldCount": {
+        "one": "{count} champ",
+        "many": "{count} champs",
+        "other": "{count} champs"
+      },
+      "docCount": {
+        "one": "{count} doc",
+        "many": "{count} docs",
+        "other": "{count} docs"
+      },
+      "ready": "PRÊT",
+      "disabled": "DÉSACTIVÉ"
+    },
+    "shortcuts": {
+      "title": "Raccourcis clavier",
+      "toggleSidePanel": "Afficher/masquer le panneau latéral",
+      "formFill": "Remplissage IA / par mots-clés",
+      "batchFill": "Remplissage groupé multi-liens"
+    }
+  },
+  "content": {
+    "openSidebar": "Ouvrir le panneau latéral Aullevo",
+    "filled": "REMPLI",
+    "file": "Fichier : {name}",
+    "files": {
+      "one": "{count} fichier joint",
+      "many": "{count} fichiers joints",
+      "other": "{count} fichiers joints"
+    },
+    "matched": "Correspondance : {name}",
+    "ranked": "Classé : {value}",
+    "ai": "[IA] {text}",
+    "aiGenerated": "[IA] Généré",
+    "fixed": "Corrigé : {value}"
+  },
+  "header": {
+    "versionLine": "v{version} • Remplissage auto",
+    "lightTheme": "Thème clair",
+    "darkTheme": "Thème sombre",
+    "jsonConfig": "Configuration JSON",
+    "openFullPage": "Ouvrir en pleine page",
+    "closeSidePanel": "Fermer le panneau latéral",
+    "footer": {
+      "engine": "Moteur de remplissage Aullevo",
+      "ready": "Prêt"
+    }
+  },
+  "json": {
+    "title": "Configuration JSON",
+    "badge": {
+      "fields": {
+        "one": "✓ {count} champ",
+        "many": "✓ {count} champs",
+        "other": "✓ {count} champs"
+      },
+      "invalid": "JSON non valide"
+    },
+    "actions": {
+      "format": "Formater / embellir le JSON",
+      "fullscreen": "Plein écran",
+      "exitFullscreen": "Quitter le plein écran",
+      "close": "Fermer",
+      "download": "Télécharger",
+      "copy": "Copier le JSON",
+      "copied": "Copié",
+      "upload": "Choisir un fichier",
+      "import": "Importer"
+    },
+    "quota": {
+      "downloadPro": "Le téléchargement (export) est une fonction Pro."
+    },
+    "errors": {
+      "noFields": "Aucun champ valide trouvé dans le JSON fourni.",
+      "invalidFormat": "Format JSON non valide : {error}"
+    }
+  },
+  "language": {
+    "title": "Langue",
+    "button": "Langue : {name}",
+    "search": "Rechercher une langue",
+    "auto": "Automatique : {name}",
+    "autoHint": "Suit la langue de votre navigateur",
+    "backToEnglish": "Revenir à l'anglais",
+    "changed": "Langue changée : {name}.",
+    "switchBack": "Revenir à {name}",
+    "keep": "Conserver",
+    "noResults": "Aucune langue trouvée",
+    "settingsHint": "Modifie tous les écrans d'Aullevo, y compris la visite guidée."
+  },
+  "manifest": {
+    "appName": "Aullevo - Remplissage IA de formulaires et candidatures",
+    "appDescription": "Remplissage par IA des candidatures, sondages et formulaires web. Profils enregistrés, import de CV et saisie auto intelligente.",
+    "actionTitle": "Ouvrir le panneau latéral Aullevo",
+    "commandTogglePanel": "Afficher/masquer le panneau latéral Aullevo",
+    "commandFill": "Lancer le remplissage IA ou par mots-clés sur la page",
+    "commandBatchFill": "Lancer le remplissage groupé multi-liens"
+  },
+  "multilink": {
+    "batch": {
+      "title": "File de remplissage groupé",
+      "activeCount": "{enabled} sur {total} actifs",
+      "description": "Ouvrez et remplissez automatiquement des formulaires dans plusieurs onglets avec votre profil <b>{type}</b> actif.",
+      "running": "Remplissage groupé en cours…",
+      "start": {
+        "one": "Remplir {count} formulaire en lot",
+        "many": "Remplir {count} formulaires en lot",
+        "other": "Remplir {count} formulaires en lot"
+      }
+    },
+    "add": {
+      "title": "Ajouter un lien de formulaire / d'offre"
+    },
+    "saved": {
+      "title": "Liens enregistrés ({count})",
+      "clearAll": "Tout effacer",
+      "empty": "Aucun lien pour l'instant. Collez l'URL d'un formulaire ci-dessus pour commencer.",
+      "open": "Ouvrir le lien",
+      "remove": "Supprimer le lien"
+    }
+  },
+  "nav": {
+    "autofill": "Remplissage",
+    "profiles": "Profils ({count})",
+    "multiLink": "Multi-liens",
+    "settings": "Paramètres"
+  },
+  "profiles": {
+    "types": {
+      "job": "Emploi",
+      "medical": "Médical",
+      "government": "Administratif",
+      "survey": "Sondage",
+      "academic": "Académique",
+      "financial": "Financier",
+      "custom": "Personnalisé"
+    },
+    "badges": {
+      "on": "ACTIF",
+      "off": "INACTIF",
+      "disabled": "DÉSACTIVÉ",
+      "sensitive": "SENSIBLE",
+      "aiSafe": "IA AUTORISÉE"
+    },
+    "save": {
+      "button": "Enregistrer le profil {type}",
+      "saved": "Enregistré ✓"
+    },
+    "dropdown": {
+      "newProfilePlaceholder": "Nom du nouveau profil…",
+      "add": "Ajouter"
+    },
+    "config": {
+      "title": "Configuration du profil",
+      "on": "PROFIL ACTIF",
+      "off": "PROFIL INACTIF",
+      "activeTooltip": "Le profil {type} est actif",
+      "disabledTooltip": "Le profil {type} est désactivé",
+      "namePlaceholder": "Nom du profil"
+    },
+    "identity": {
+      "title": "Identité et contact",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "email": "Adresse e-mail",
+      "phone": "Numéro de téléphone",
+      "address": "Adresse de résidence"
+    },
+    "attributes": {
+      "title": "Attributs {type}",
+      "customHint": "Ajoutez vos propres champs ci-dessous ou importez-les via JSON.",
+      "job": {
+        "headline": "Titre / Poste",
+        "linkedin": "LinkedIn",
+        "github": "GitHub",
+        "portfolio": "Portfolio",
+        "skills": "Compétences",
+        "education": "Formation / Diplôme",
+        "certifications": "Certifications"
+      },
+      "medical": {
+        "bloodType": "Groupe sanguin",
+        "allergies": "Allergies",
+        "emergencyContact": "Contact d'urgence",
+        "insuranceProvider": "Assureur"
+      },
+      "government": {
+        "nationalId": "N° d'identité / Sécurité sociale",
+        "citizenship": "Nationalité",
+        "passport": "N° de passeport",
+        "driversLicense": "Permis de conduire"
+      },
+      "survey": {
+        "ageRange": "Tranche d'âge",
+        "income": "Revenus",
+        "education": "Niveau d'études",
+        "employment": "Situation professionnelle"
+      },
+      "academic": {
+        "institution": "Établissement",
+        "major": "Spécialité / Domaine d'études",
+        "gpa": "Moyenne (GPA)",
+        "gradYear": "Année de diplôme",
+        "testScores": "Résultats aux tests"
+      },
+      "financial": {
+        "billingAddress": "Adresse de facturation",
+        "payment": "Paiement",
+        "cardholder": "Titulaire de la carte"
+      }
+    },
+    "field": {
+      "sensitiveTooltip": "Sensible : la valeur est cachée à l'IA (zero-knowledge)",
+      "aiSafeTooltip": "IA autorisée : la valeur est partagée avec l'IA pour choisir la bonne option"
+    },
+    "context": {
+      "buttonTitle": "Contexte IA pour {label}",
+      "title": "Contexte IA : {label}",
+      "placeholder": "Indice pour l'IA (ex. « Prénom légal sur le passeport »)",
+      "hint": "L'IA utilise cette indication pour identifier les champs ambigus des formulaires web."
+    },
+    "custom": {
+      "title": "Champs personnalisés",
+      "labelPlaceholder": "Libellé du champ",
+      "valuePlaceholder": "Valeur du champ",
+      "sensitiveTooltip": "Sensible : la valeur est cachée à l'IA",
+      "aiSafeTooltip": "IA autorisée : la valeur est partagée avec l'IA",
+      "enabledTooltip": "Champ activé",
+      "disabledTooltip": "Champ désactivé",
+      "delete": "Supprimer le champ",
+      "pagination": {
+        "one": "Page {page} sur {total} ({count} élément)",
+        "many": "Page {page} sur {total} ({count} éléments)",
+        "other": "Page {page} sur {total} ({count} éléments)"
+      },
+      "newLabelPlaceholder": "Libellé",
+      "newValuePlaceholder": "Valeur",
+      "add": "Ajouter un champ personnalisé"
+    },
+    "documents": {
+      "title": "Documents joints",
+      "labelPlaceholder": "Libellé du document",
+      "labelTooltip": "Cliquez pour modifier le libellé du document",
+      "remove": "Supprimer le fichier",
+      "pagination": "Page {page} sur {total}",
+      "categories": {
+        "resume": "CV",
+        "coverLetter": "Lettre de motivation",
+        "identity": "Pièce d'identité",
+        "academic": "Relevé de notes",
+        "portfolio": "Portfolio",
+        "other": "Autre document"
+      },
+      "upload": {
+        "resume": "Ajouter un CV",
+        "coverLetter": "Ajouter une lettre de motivation",
+        "identity": "Ajouter une pièce d'identité",
+        "academic": "Ajouter un relevé de notes",
+        "portfolio": "Ajouter un portfolio",
+        "other": "Ajouter un document"
+      },
+      "size": {
+        "bytes": "{size} o",
+        "kilobytes": "{size} Ko",
+        "megabytes": "{size} Mo"
+      }
+    }
+  },
+  "settings": {
+    "account": {
+      "title": "Compte",
+      "proUntil": "Pro jusqu'au {date}",
+      "proLifetime": "Pro · À vie",
+      "disconnect": "Déconnecter le compte",
+      "waiting": "En attente de connexion…",
+      "connect": "Se connecter avec Aullevo Web",
+      "renew": "Pro expiré · Renouveler",
+      "upgrade": "Passer à Pro"
+    },
+    "theme": {
+      "title": "Apparence",
+      "dark": "Thème sombre",
+      "description": "Basculer entre le thème Ardoise sombre et le thème clair"
+    },
+    "mode": {
+      "title": "Mode du moteur de remplissage",
+      "aiActive": "Remplissage IA intelligent (actif)",
+      "standard": "Remplissage standard (sans IA)",
+      "aiDescription": "Utilise le raisonnement de l'IA pour interpréter les questions et associer les champs complexes",
+      "standardDescription": "Association directe des attributs du profil, sans appel à l'IA",
+      "toggle": "Activer/désactiver le remplissage IA"
+    },
+    "ai": {
+      "title": "Moteur IA",
+      "unlimited": "Accès illimité",
+      "keyRequired": "Clé API requise",
+      "freeUsage": "Free : {used}/{limit} cette semaine",
+      "privacy": "<b>Confidentialité :</b> les champs marqués SENSIBLE ne sont jamais envoyés à l'IA, seuls leurs libellés le sont. Les valeurs des champs IA AUTORISÉE et les questions du formulaire sont envoyées à {provider}.",
+      "provider": "Fournisseur d'IA",
+      "customProvider": "Personnalisé (compatible OpenAI)",
+      "baseUrl": "URL du serveur",
+      "customHint": "Fonctionne avec tout serveur compatible avec l'API de chat d'OpenAI, comme OpenRouter, Groq, Mistral, Ollama ou LM Studio. Les serveurs locaux n'ont pas besoin de clé.",
+      "model": "Modèle d'IA",
+      "modelOption": "{name} ({description})",
+      "models": {
+        "fastest": "Le plus rapide, ultra économique",
+        "balanced": "Raisonnement équilibré",
+        "capable": "Rapide et performant",
+        "smartest": "Intelligence maximale",
+        "legacy": "Ancien modèle rapide"
+      },
+      "otherModel": "Autre modèle (saisissez son ID)",
+      "modelIdPlaceholder": "ID exact du modèle, p. ex. {example}",
+      "apiKey": "Clé API {provider}",
+      "getKey": "Obtenir une clé API",
+      "keyPlaceholder": "Collez votre clé API {provider}",
+      "hideKey": "Masquer la clé",
+      "showKey": "Afficher la clé",
+      "addKeyHint": "Ajoutez votre clé API {provider} pour utiliser le Remplissage IA intelligent.",
+      "proHint": "Pro : remplissages IA illimités. Votre clé reste dans ce navigateur.",
+      "freeHint": "Plan Free : {limit} remplissages IA par semaine. Passez à Pro pour un accès illimité."
+    },
+    "paginate": {
+      "title": "Pagination auto",
+      "toggleTitle": "Remplir les formulaires multipages",
+      "description": "Remplit chaque page, clique sur Suivant / Continuer et appuie sur Envoyer à la fin. Corrige les réponses refusées par le formulaire ; se met en pause en cas d'échec.",
+      "toggle": "Activer/désactiver la Pagination auto",
+      "proFeature": "Fonction Pro",
+      "upgrade": "Passez à Pro pour utiliser la Pagination auto"
+    },
+    "floating": {
+      "title": "Icône flottante sur les pages",
+      "toggleTitle": "Afficher le bouton flottant",
+      "description": "Affiche l'onglet d'accès rapide Aullevo ancré au bord des pages web",
+      "toggle": "Activer/désactiver le bouton flottant"
+    },
+    "typing": {
+      "title": "Vitesse de frappe humaine",
+      "instant": "Instantanée ({ms} ms)",
+      "natural": "Naturelle ({ms} ms)",
+      "slow": "Lente ({ms} ms)",
+      "custom": "Personnalisée ({ms} ms)",
+      "naturalFree": "Naturelle ({ms} ms) · Plan Free",
+      "description": "Tape un caractère à la fois à un rythme humain, pour les sites qui attendent de vraies frappes au clavier.",
+      "proFeature": "Fonction Pro",
+      "customDelay": "Délai personnalisé :",
+      "customProFeature": "Le délai personnalisé est une fonction Pro",
+      "unitMs": "ms"
+    },
+    "tour": {
+      "title": "Visite guidée",
+      "toggleTitle": "Revoir la présentation",
+      "description": "Reparcourt chaque onglet, étape par étape",
+      "replay": "Revoir"
+    },
+    "security": {
+      "title": "Chiffré localement"
+    },
+    "memories": {
+      "title": "Mémoires IA",
+      "count": "({enabled}/{total} actives)",
+      "descriptionAiOn": "Des informations sur vous que l'IA peut utiliser pour répondre aux questions ouvertes (ex. « Mode de travail : télétravail uniquement »). Les mémoires activées sont envoyées à {provider} et stockées non chiffrées dans ce navigateur : n'ajoutez donc ni mots de passe ni numéros d'identité.",
+      "descriptionAiOff": "Des informations sur vous que l'IA peut utiliser pour répondre aux questions ouvertes (ex. « Mode de travail : télétravail uniquement »). Utilisées uniquement quand le Remplissage IA intelligent est activé. Les mémoires activées sont envoyées à {provider} et stockées non chiffrées dans ce navigateur : n'ajoutez donc ni mots de passe ni numéros d'identité.",
+      "titlePlaceholder": "Titre",
+      "contentPlaceholder": "Ce que l'IA doit savoir",
+      "enabledTitle": "La mémoire est envoyée à l'IA",
+      "disabledTitle": "La mémoire n'est pas utilisée",
+      "on": "ACTIF",
+      "off": "INACTIF",
+      "delete": "Supprimer la mémoire",
+      "newTitlePlaceholder": "Titre (ex. Mode de travail)",
+      "newContentPlaceholder": "Contenu (ex. Préfère le télétravail complet, ouvert aux missions freelance)",
+      "add": "Ajouter une mémoire"
+    },
+    "deviceData": {
+      "title": "Données sur cet appareil",
+      "total": "{size} au total",
+      "description": "Chaque compte dispose ici de son propre coffre chiffré. Les comptes ne voient jamais les profils, documents, clé API, mémoires ou liens des autres.",
+      "empty": "Aucune donnée enregistrée.",
+      "localOwner": "Non connecté (profils locaux)",
+      "anotherAccount": "Un autre compte",
+      "inUse": "{size} · en cours d'utilisation",
+      "deleteTitle": "Supprimer les données de ce compte de cet appareil",
+      "delete": "Supprimer",
+      "confirmDelete": "Supprimer les données Aullevo de « {name} » de cet appareil ?\n\nCela supprime définitivement ses profils chiffrés, documents, clé API, mémoires IA et file de liens. Cette action est irréversible.",
+      "bytes": "{size} o",
+      "kilobytes": "{size} Ko",
+      "megabytes": "{size} Mo"
+    }
+  },
+  "status": {
+    "plan": {
+      "profileLimit": "Le plan Free autorise {max} profils actifs. Mettez les profils en trop sur INACTIF ou passez à Pro.",
+      "activeLimit": "Le plan Free autorise {max} profils actifs. Mettez-en un sur INACTIF ou passez à Pro.",
+      "createdOff": "Profil créé sur INACTIF. Le plan Free autorise {max} profils actifs. Mettez-en un sur INACTIF ou passez à Pro.",
+      "autoPaginatePro": "La Pagination auto est une fonction Pro. Passez à Pro pour remplir les formulaires multipages.",
+      "jsonImportLimit": "Vous avez utilisé vos {limit} imports JSON gratuits de ces 2 semaines. Ils se réinitialisent le {date}, ou passez à Pro pour des imports illimités.",
+      "documentsSkipped": {
+        "one": "{count} document non joint : l'ajout de fichiers dans les formulaires est une fonction Pro.",
+        "many": "{count} documents non joints : l'ajout de fichiers dans les formulaires est une fonction Pro.",
+        "other": "{count} documents non joints : l'ajout de fichiers dans les formulaires est une fonction Pro."
+      }
+    },
+    "batch": {
+      "starting": {
+        "one": "Démarrage du remplissage groupé pour {count} formulaire…",
+        "many": "Démarrage du remplissage groupé pour {count} formulaires…",
+        "other": "Démarrage du remplissage groupé pour {count} formulaires…"
+      },
+      "progress": "Remplissage {current} sur {total} : {host}",
+      "progressNoHost": "Remplissage {current} sur {total}…",
+      "complete": {
+        "one": "Remplissage groupé terminé pour {count} formulaire !",
+        "many": "Remplissage groupé terminé pour {count} formulaires !",
+        "other": "Remplissage groupé terminé pour {count} formulaires !"
+      }
+    },
+    "save": {
+      "success": "Profil {type} enregistré !",
+      "failed": "Échec de l'enregistrement : {error}",
+      "noProfile": "Aucun profil sélectionné",
+      "unknownError": "Échec de l'enregistrement"
+    },
+    "profile": {
+      "nameExists": "Un profil portant ce nom existe déjà !",
+      "disabled": "{type} est désactivé. Mettez-le sur ACTIF pour le remplissage auto.",
+      "defaultType": "PROFIL",
+      "imported": {
+        "one": "{count} champ importé dans {type} !",
+        "many": "{count} champs importés dans {type} !",
+        "other": "{count} champs importés dans {type} !"
+      }
+    },
+    "highlight": {
+      "noActiveTab": "Aucun onglet actif trouvé.",
+      "refreshToConnect": "Actualisez la page pour activer le surlignage.",
+      "on": {
+        "one": "{count} champ surligné sur la page !",
+        "many": "{count} champs surlignés sur la page !",
+        "other": "{count} champs surlignés sur la page !"
+      },
+      "cleared": "Surlignage effacé."
+    },
+    "fill": {
+      "injectingAi": "Injection des champs avec l'IA ({type})…",
+      "injecting": "Injection des champs ({type})…",
+      "noTab": "Impossible d'accéder à l'onglet actif.",
+      "refreshToConnect": "Actualisez l'onglet pour activer le remplissage auto.",
+      "cannotConnect": "Impossible de se connecter à la page. Actualisez l'onglet.",
+      "aiPartlySkipped": {
+        "one": "{count} champ rempli (IA en partie ignorée).",
+        "many": "{count} champs remplis (IA en partie ignorée).",
+        "other": "{count} champs remplis (IA en partie ignorée)."
+      },
+      "keywordMode": {
+        "one": "{count} champ rempli (mode mots-clés).",
+        "many": "{count} champs remplis (mode mots-clés).",
+        "other": "{count} champs remplis (mode mots-clés)."
+      },
+      "withAi": {
+        "one": "Formulaire rempli avec l'IA ({count} champ associé).",
+        "many": "Formulaire rempli avec l'IA ({count} champs associés).",
+        "other": "Formulaire rempli avec l'IA ({count} champs associés)."
+      },
+      "withoutAi": {
+        "one": "Formulaire rempli sans IA ({count} champ associé).",
+        "many": "Formulaire rempli sans IA ({count} champs associés).",
+        "other": "Formulaire rempli sans IA ({count} champs associés)."
+      },
+      "error": "Erreur de remplissage : {error}",
+      "injected": {
+        "one": "{count} champ injecté dans la page.",
+        "many": "{count} champs injectés dans la page.",
+        "other": "{count} champs injectés dans la page."
+      }
+    },
+    "pagination": {
+      "progress": "Pagination auto : remplissage de la page {page}…",
+      "lostConnection": "Pagination auto arrêtée : connexion à l'extension perdue.",
+      "filled": {
+        "one": "{filled} champs remplis sur {count} page.",
+        "many": "{filled} champs remplis sur {count} pages.",
+        "other": "{filled} champs remplis sur {count} pages."
+      },
+      "corrected": {
+        "one": "{count} réponse refusée par le formulaire a été corrigée.",
+        "many": "{count} réponses refusées par le formulaire ont été corrigées.",
+        "other": "{count} réponses refusées par le formulaire ont été corrigées."
+      },
+      "field": "« {name} »",
+      "fieldAndMore": {
+        "one": "« {name} » (+{count} autre)",
+        "many": "« {name} » (+{count} autres)",
+        "other": "« {name} » (+{count} autres)"
+      },
+      "aField": "un champ",
+      "nextButton": "Suivant",
+      "submitted": "Envoyé !",
+      "noNext": "Aucun bouton Suivant / Continuer trouvé.",
+      "stillEmpty": "{field} est toujours vide.",
+      "check": "Vérifiez {field}.",
+      "blocked": "En pause à la page {page} : {field} est obligatoire et vide. Remplissez-le, puis relancez.",
+      "nextDisabled": "En pause à la page {page} : le bouton « {button} » est désactivé. Vérifiez la page, puis relancez.",
+      "validationError": "En pause à la page {page} : le formulaire a signalé « {error} ».",
+      "validationErrorUnknown": "En pause à la page {page} : le formulaire a signalé une erreur.",
+      "correctionTried": "(une correction automatique a été tentée)",
+      "stuck": "En pause à la page {page} : clic sur « {button} », mais le formulaire n'a pas avancé.",
+      "maxPages": "Arrêt à la limite de sécurité de {max} pages.",
+      "noForm": "Aucun formulaire trouvé sur cette page (ou Aullevo ne peut pas s'exécuter ici).",
+      "stopped": "Pagination auto arrêtée : {error}",
+      "unknownError": "erreur inconnue"
+    }
+  },
+  "tour": {
+    "card": {
+      "progress": "{section} · {current} sur {total}",
+      "skip": "Passer la visite",
+      "dontShowAgain": "Ne plus afficher",
+      "back": "Retour",
+      "next": "Suivant",
+      "done": "Terminé"
+    },
+    "shortcuts": {
+      "allActive": "Les 3 raccourcis sont actifs dans ce navigateur.",
+      "notSet": "Non définis dans ce navigateur : {list}. Définissez-les vous-même dans les paramètres de raccourcis de Chrome.",
+      "openSettings": "Ouvrir les paramètres de raccourcis de Chrome",
+      "toggleSidePanel": "Afficher/masquer le panneau latéral",
+      "fallbackName": "Raccourci"
+    },
+    "sections": {
+      "autofill": "Remplissage",
+      "header": "Boutons du haut",
+      "profiles": "Profils",
+      "multilink": "Multi-liens",
+      "settings": "Paramètres"
+    },
+    "autofill": {
+      "detection": {
+        "title": "Détection de formulaire",
+        "body": "Aullevo compte les champs remplissables de la page dans votre onglet actuel. Ouvrez un formulaire et ce nombre se met à jour."
+      },
+      "highlight": {
+        "title": "Surligner les champs",
+        "body": "Entoure chaque champ trouvé par Aullevo sur la page, pour voir ce qui sera rempli avant de lancer le remplissage. Cliquez à nouveau pour effacer les contours."
+      },
+      "rescan": {
+        "title": "Réanalyser",
+        "body": "Certains formulaires ajoutent des champs après le chargement de la page, comme les formulaires en plusieurs étapes ou les pop-ups. Réanalyser recompte les champs."
+      },
+      "fill": {
+        "title": "Remplir le formulaire",
+        "body": "Remplit la page avec votre profil actif. Avec le remplissage IA activé (dans Paramètres), les questions sont associées à vos réponses même si elles sont formulées autrement. Sinon, les champs sont associés par mots-clés."
+      },
+      "activeProfile": {
+        "title": "Profil actif",
+        "body": "Le profil utilisé pour le remplissage, avec le nombre de champs et de documents activés. Changez de profil ou modifiez vos réponses dans l'onglet <b>Profils</b>."
+      },
+      "shortcuts": {
+        "title": "Raccourcis clavier",
+        "body": "Chrome définit ces touches à l'installation d'Aullevo, mais ignore celles déjà utilisées par Chrome ou une autre extension. Vous pouvez les modifier à tout moment."
+      }
+    },
+    "header": {
+      "voice": {
+        "title": "Mode vocal",
+        "body": "Parlez à Aullevo au lieu de cliquer. Ce bouton fait passer le panneau à l'assistant vocal : dites \"fill this page\", \"fill the email\" ou \"fill the first question\", et il vous répond à voix haute. Cliquez à nouveau pour revenir à cette vue.",
+        "note": "Fonctionnalité Pro. Nécessite votre propre clé API ElevenLabs, à ajouter dans Voice settings. Les commandes vocales fonctionnent en anglais et en tagalog."
+      },
+      "language": {
+        "title": "Langue",
+        "body": "Choisissez la langue de tout Aullevo. L'anglais reste toujours en haut de la liste, pour pouvoir y revenir à tout moment."
+      },
+      "theme": {
+        "title": "Thème clair ou sombre",
+        "body": "Bascule le panneau entre le mode clair et le mode sombre."
+      },
+      "json": {
+        "title": "Configuration rapide en JSON",
+        "intro": "Votre profil au format JSON. Le moyen le plus rapide de configurer un profil :",
+        "step1": "Copiez le JSON depuis ici.",
+        "step2": "Donnez-le à Gemini, Claude ou ChatGPT avec votre CV ou tout autre document.",
+        "step3": "Demandez à l'IA de remplir les valeurs en gardant la même structure.",
+        "step4": "Collez le résultat ici et cliquez sur <b>Importer</b>."
+      },
+      "fullPage": {
+        "title": "Ouvrir en pleine page",
+        "body": "Ouvre Aullevo dans un onglet du navigateur, avec plus d'espace pour modifier les profils. Le remplissage se fait toujours depuis ce panneau latéral."
+      },
+      "close": {
+        "title": "Fermer le panneau",
+        "body": "Ferme le panneau latéral. Rouvrez-le avec <b>Alt+Q</b> (<b>Option+Q</b> sur Mac) ou en cliquant sur l'icône Aullevo dans la barre d'outils."
+      }
+    },
+    "profiles": {
+      "switcher": {
+        "title": "Changer de profil",
+        "body1": "Chaque profil (Emploi, Académique, Financier ou le vôtre) a ses propres réponses. Choisissez celui à modifier et à utiliser pour le remplissage.",
+        "body2": "Ouvrez la liste pour voir quels profils sont sur ACTIF ou INACTIF, et pour en créer un nouveau en bas.",
+        "note": "Plan Free : jusqu'à 2 profils sur ACTIF en même temps."
+      },
+      "config": {
+        "title": "Nom et interrupteur",
+        "body": "Renommez le profil ici. <b>PROFIL ACTIF</b> active ou désactive tout le profil. Désactivé, il n'est pas utilisé pour le remplissage."
+      },
+      "identity": {
+        "title": "Identité et contact",
+        "body": "Vos nom, e-mail, téléphone et adresse. Cliquez sur l'en-tête d'une section pour la réduire ou la développer. Chaque champ a trois petites commandes, présentées ensuite."
+      },
+      "fieldContext": {
+        "title": "Indice de contexte IA",
+        "body": "Le bouton ✨ ajoute un indice qui explique à l'IA le sens du champ, comme « Prénom légal sur le passeport ». Utile quand la question d'un formulaire est mal formulée. Un point indique qu'un indice est défini."
+      },
+      "fieldPrivacy": {
+        "title": "IA autorisée ou Sensible",
+        "safe": "<b>IA autorisée</b> : la valeur est partagée avec l'IA pour qu'elle choisisse la bonne réponse dans les listes déroulantes et les questions à choix multiples.",
+        "sensitive": "<b>Sensible</b> : l'IA ne voit que le nom et l'indice du champ, jamais la valeur. Aullevo saisit quand même la valeur sur votre appareil.",
+        "toggle": "Cliquez dessus pour basculer."
+      },
+      "fieldToggle": {
+        "title": "Activer ou désactiver un champ",
+        "body": "Mettez un champ sur INACTIF pour l'ignorer lors du remplissage, sans effacer ce que vous avez saisi."
+      },
+      "documents": {
+        "title": "Joindre des documents",
+        "body": "Choisissez le type de document, puis ajoutez votre CV, lettre de motivation, pièce d'identité, etc. Quand un formulaire demande un fichier, Aullevo joint vos documents sur ACTIF.",
+        "note": "Joindre des documents aux formulaires est une fonction Pro."
+      },
+      "attributes": {
+        "title": "Champs propres au profil",
+        "body": "Les champs liés à ce type de profil. Un profil Emploi contient titre, LinkedIn, compétences et formation. Académique, Médical et les autres ont les leurs."
+      },
+      "customFields": {
+        "title": "Ajouter vos propres champs",
+        "body": "Pour tout ce que les champs standard ne couvrent pas, comme « Salaire souhaité » ou « Pourquoi voulez-vous ce poste ? ». Saisissez un libellé et une valeur, puis cliquez sur <b>+</b>. Reprendre la formulation de la question comme libellé fonctionne bien."
+      },
+      "save": {
+        "title": "Enregistrement",
+        "body": "Les modifications sont enregistrées automatiquement pendant la saisie. Ce bouton enregistre immédiatement, pratique juste avant de fermer le panneau."
+      }
+    },
+    "multilink": {
+      "addLink": {
+        "title": "Ajouter un lien de formulaire",
+        "body": "Collez le lien complet d'un formulaire ou d'une candidature (commençant par https://) et cliquez sur <b>+</b>. Ajoutez-en autant que vous voulez."
+      },
+      "savedLinks": {
+        "title": "Votre file de liens",
+        "body": "Chaque lien ajouté apparaît ici. Cochez un lien pour l'inclure dans le prochain lot, ou décochez-le pour l'ignorer. L'icône flèche ouvre le lien et l'icône corbeille le supprime."
+      },
+      "batchRun": {
+        "title": "Tout remplir d'un coup",
+        "body1": "Ouvre chaque lien coché dans un onglet en arrière-plan, l'un après l'autre, et le remplit avec votre profil actif. La progression s'affiche en haut du panneau.",
+        "note": "Raccourci : Alt+Shift+B (Option+Shift+B sur Mac)."
+      }
+    },
+    "settings": {
+      "account": {
+        "title": "Votre compte",
+        "body": "Connectez votre compte Aullevo Web pour que votre plan (Free ou Pro) s'applique ici. Vos profils restent chiffrés sur cet appareil et ne sont pas envoyés en ligne."
+      },
+      "aiMode": {
+        "title": "Remplissage IA intelligent ou Remplissage standard",
+        "standard": "<b>Remplissage standard</b> associe les champs par leur nom, sans IA.",
+        "smart": "<b>Remplissage IA intelligent</b> comprend les questions formulées différemment et choisit les réponses dans les listes déroulantes et les questions à choix multiples."
+      },
+      "aiEngine": {
+        "title": "Fournisseur d'IA, modèle et clé API"
+      },
+      "memories": {
+        "title": "Mémoires IA",
+        "body": "De courtes informations que l'IA peut utiliser pour les questions ouvertes, comme « Mode de travail : télétravail uniquement ». Elles sont envoyées au fournisseur d'IA choisi sans chiffrement : n'ajoutez jamais de mots de passe ni de numéros d'identité."
+      },
+      "autoPaginate": {},
+      "floatingIcon": {
+        "title": "Bouton flottant",
+        "body": "Un petit onglet Aullevo au bord des pages web pour un accès rapide. Désactivez-le s'il vous gêne."
+      },
+      "typingSpeed": {
+        "title": "Vitesse de frappe",
+        "body": "La vitesse à laquelle Aullevo tape dans les champs. <b>Naturelle</b> ressemble davantage à une vraie personne qui tape, et <b>Instantanée</b> est la plus rapide. Les vitesses lente et personnalisée sont Pro."
+      },
+      "replayTour": {
+        "title": "Revoir ce guide",
+        "body": "Vous avez oublié quelque chose ? Cliquez sur <b>Revoir</b> pour reparcourir tout ce guide."
+      },
+      "deviceData": {
+        "title": "Données sur cet appareil",
+        "body": "Chaque compte a son propre coffre chiffré dans ce navigateur. Supprimez les données des comptes que vous n'utilisez plus."
+      }
+    }
+  },
+  "vault": {
+    "loading": "Chargement…",
+    "account": {
+      "signedInAs": "Connecté en tant que <b>{account}</b>",
+      "notSignedIn": "Non connecté : profils locaux sur cet appareil",
+      "fallbackName": "votre compte"
+    },
+    "errors": {
+      "createFailed": "Impossible de créer le coffre. Veuillez réessayer.",
+      "wrongPassphrase": "Phrase secrète incorrecte.",
+      "wrongClaimPassphrase": "Phrase secrète incorrecte pour ces profils."
+    }
+  }
+}

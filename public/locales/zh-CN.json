@@ -1,0 +1,687 @@
+{
+  "autofill": {
+    "detection": {
+      "title": "表单检测",
+      "sub": "当前标签页中的字段",
+      "highlightTitle": "检查并高亮页面上的字段",
+      "clear": "清除",
+      "highlight": "高亮",
+      "rescanTitle": "重新扫描页面",
+      "rescan": "重新扫描"
+    },
+    "fill": {
+      "injecting": "正在填写...",
+      "disabled": "{type}已停用",
+      "withAi": "用 AI 填写表单（{type}）",
+      "standard": "填写表单（{type}）",
+      "autoPaginate": "自动翻页已开启：填写完所有页面后提交"
+    },
+    "activeProfile": {
+      "title": "当前档案",
+      "summary": "{fields} • {docs}已就绪",
+      "fieldCount": {
+        "other": "{count} 个字段"
+      },
+      "docCount": {
+        "other": "{count} 份文档"
+      },
+      "ready": "就绪",
+      "disabled": "已停用"
+    },
+    "shortcuts": {
+      "title": "键盘快捷键",
+      "toggleSidePanel": "打开/关闭侧边栏",
+      "formFill": "AI / 关键词填写表单",
+      "batchFill": "多链接批量填写"
+    }
+  },
+  "content": {
+    "openSidebar": "打开 Aullevo 侧边栏",
+    "filled": "已填写",
+    "file": "文件：{name}",
+    "files": {
+      "other": "已附加 {count} 个文件"
+    },
+    "matched": "已匹配：{name}",
+    "ranked": "已排序：{value}",
+    "ai": "[AI] {text}",
+    "aiGenerated": "[AI] 已生成",
+    "fixed": "已修正：{value}"
+  },
+  "header": {
+    "versionLine": "v{version} • 自动填写",
+    "lightTheme": "浅色主题",
+    "darkTheme": "深色主题",
+    "jsonConfig": "JSON 配置",
+    "openFullPage": "在完整页面中打开",
+    "closeSidePanel": "关闭侧边栏",
+    "footer": {
+      "engine": "Aullevo 自动填写引擎",
+      "ready": "就绪"
+    }
+  },
+  "json": {
+    "title": "JSON 配置",
+    "badge": {
+      "fields": {
+        "other": "✓ {count} 个字段"
+      },
+      "invalid": "JSON 无效"
+    },
+    "actions": {
+      "format": "格式化 JSON",
+      "fullscreen": "全屏",
+      "exitFullscreen": "退出全屏",
+      "close": "关闭",
+      "download": "下载",
+      "copy": "复制 JSON",
+      "copied": "已复制",
+      "upload": "上传文件",
+      "import": "导入"
+    },
+    "quota": {
+      "downloadPro": "下载（导出）是 Pro 功能。"
+    },
+    "errors": {
+      "noFields": "提供的 JSON 中没有有效字段。",
+      "invalidFormat": "JSON 格式无效：{error}"
+    }
+  },
+  "language": {
+    "title": "语言",
+    "button": "语言：{name}",
+    "search": "搜索语言",
+    "auto": "自动：{name}",
+    "autoHint": "跟随浏览器语言",
+    "backToEnglish": "切换回英语",
+    "changed": "语言已切换为{name}。",
+    "switchBack": "切换回{name}",
+    "keep": "保留",
+    "noResults": "未找到语言",
+    "settingsHint": "更改 Aullevo 所有界面的语言，包括新手引导。"
+  },
+  "manifest": {
+    "appName": "Aullevo - AI 表单自动填写与求职申请填写助手",
+    "appDescription": "适用于求职申请、问卷调查及各类网页表单的 AI 填写工具。支持保存档案、上传简历和智能自动填写。",
+    "actionTitle": "打开 Aullevo 侧边栏",
+    "commandTogglePanel": "打开/关闭 Aullevo 侧边栏",
+    "commandFill": "在页面上执行 AI 或关键词表单自动填写",
+    "commandBatchFill": "执行多链接批量表单自动填写"
+  },
+  "multilink": {
+    "batch": {
+      "title": "批量自动填写队列",
+      "activeCount": "已启用 {enabled}/{total}",
+      "description": "使用当前的<b>{type}</b>档案，自动在多个标签页中打开并填写表单。",
+      "running": "正在批量自动填写...",
+      "start": {
+        "other": "批量填写 {count} 个表单"
+      }
+    },
+    "add": {
+      "title": "添加表单/职位链接"
+    },
+    "saved": {
+      "title": "已保存的链接（{count}）",
+      "clearAll": "全部清除",
+      "empty": "还没有添加链接。在上方粘贴表单网址即可开始。",
+      "open": "打开链接",
+      "remove": "移除链接"
+    }
+  },
+  "nav": {
+    "autofill": "自动填写",
+    "profiles": "档案（{count}）",
+    "multiLink": "多链接",
+    "settings": "设置"
+  },
+  "profiles": {
+    "types": {
+      "job": "求职",
+      "medical": "医疗",
+      "government": "政务",
+      "survey": "问卷",
+      "academic": "学业",
+      "financial": "金融",
+      "custom": "自定义"
+    },
+    "badges": {
+      "on": "开启",
+      "off": "关闭",
+      "disabled": "已停用",
+      "sensitive": "敏感",
+      "aiSafe": "AI 可见"
+    },
+    "save": {
+      "button": "保存{type}档案",
+      "saved": "已保存 ✓"
+    },
+    "dropdown": {
+      "newProfilePlaceholder": "新档案名称...",
+      "add": "添加"
+    },
+    "config": {
+      "title": "档案配置",
+      "on": "档案开启",
+      "off": "档案关闭",
+      "activeTooltip": "{type}档案已启用",
+      "disabledTooltip": "{type}档案已停用",
+      "namePlaceholder": "档案名称"
+    },
+    "identity": {
+      "title": "身份与联系方式",
+      "firstName": "名",
+      "lastName": "姓",
+      "email": "电子邮箱",
+      "phone": "电话号码",
+      "address": "居住地址"
+    },
+    "attributes": {
+      "title": "{type}信息",
+      "customHint": "在下方添加自己的字段，或通过 JSON 导入。",
+      "job": {
+        "headline": "职业头衔/职位",
+        "linkedin": "LinkedIn",
+        "github": "GitHub",
+        "portfolio": "作品集",
+        "skills": "技能",
+        "education": "教育背景/学位",
+        "certifications": "证书"
+      },
+      "medical": {
+        "bloodType": "血型",
+        "allergies": "过敏史",
+        "emergencyContact": "紧急联系人",
+        "insuranceProvider": "保险公司"
+      },
+      "government": {
+        "nationalId": "身份证号/SSN",
+        "citizenship": "国籍",
+        "passport": "护照号码",
+        "driversLicense": "驾驶证"
+      },
+      "survey": {
+        "ageRange": "年龄段",
+        "income": "收入",
+        "education": "学历",
+        "employment": "就业状况"
+      },
+      "academic": {
+        "institution": "学校",
+        "major": "专业/研究方向",
+        "gpa": "GPA",
+        "gradYear": "毕业年份",
+        "testScores": "考试成绩"
+      },
+      "financial": {
+        "billingAddress": "账单地址",
+        "payment": "付款方式",
+        "cardholder": "持卡人"
+      }
+    },
+    "field": {
+      "sensitiveTooltip": "敏感：值对 AI 隐藏（零知识）",
+      "aiSafeTooltip": "AI 可见：值会提供给 AI，用于智能选择选项"
+    },
+    "context": {
+      "buttonTitle": "{label}的 AI 提示",
+      "title": "AI 提示：{label}",
+      "placeholder": "给 AI 的提示（例如“护照上的法定名字”）",
+      "hint": "AI 会根据此提示识别网站上含义不明确的表单字段。"
+    },
+    "custom": {
+      "title": "自定义字段",
+      "labelPlaceholder": "字段标签",
+      "valuePlaceholder": "字段值",
+      "sensitiveTooltip": "敏感：值对 AI 隐藏",
+      "aiSafeTooltip": "AI 可见：值会提供给 AI",
+      "enabledTooltip": "字段已启用",
+      "disabledTooltip": "字段已停用",
+      "delete": "删除字段",
+      "pagination": {
+        "other": "第 {page}/{total} 页（共 {count} 项）"
+      },
+      "newLabelPlaceholder": "标签",
+      "newValuePlaceholder": "值",
+      "add": "添加自定义字段"
+    },
+    "documents": {
+      "title": "附加文档",
+      "labelPlaceholder": "文档标签",
+      "labelTooltip": "点击编辑文档标签",
+      "remove": "移除文件",
+      "pagination": "第 {page}/{total} 页",
+      "categories": {
+        "resume": "简历/CV",
+        "coverLetter": "求职信",
+        "identity": "身份证件",
+        "academic": "成绩单",
+        "portfolio": "作品集",
+        "other": "其他文档"
+      },
+      "upload": {
+        "resume": "上传简历",
+        "coverLetter": "上传求职信",
+        "identity": "上传身份证件",
+        "academic": "上传成绩单",
+        "portfolio": "上传作品集",
+        "other": "上传文档"
+      },
+      "size": {
+        "bytes": "{size} B",
+        "kilobytes": "{size} KB",
+        "megabytes": "{size} MB"
+      }
+    }
+  },
+  "settings": {
+    "account": {
+      "title": "账号",
+      "proUntil": "Pro 有效期至 {date}",
+      "proLifetime": "Pro · 终身",
+      "disconnect": "断开账号连接",
+      "waiting": "正在等待登录…",
+      "connect": "连接 Aullevo Web",
+      "renew": "Pro 已过期 · 续订",
+      "upgrade": "升级到 Pro"
+    },
+    "theme": {
+      "title": "主题外观",
+      "dark": "深色主题",
+      "description": "在深石板色和浅色主题之间切换"
+    },
+    "mode": {
+      "title": "自动填写引擎模式",
+      "aiActive": "AI 智能填写（已启用）",
+      "standard": "标准填写（不使用 AI）",
+      "aiDescription": "利用 AI 推理理解问题并匹配复杂字段",
+      "standardDescription": "不调用 AI，直接匹配档案中的信息",
+      "toggle": "切换 AI 填写模式"
+    },
+    "ai": {
+      "title": "AI 引擎",
+      "unlimited": "无限使用",
+      "keyRequired": "需要 API 密钥",
+      "freeUsage": "Free：本周已用 {used}/{limit}",
+      "privacy": "<b>隐私：</b>标记为“敏感”的字段只会发送标签，值绝不会发送给 AI。“AI 可见”字段的值和表单中的问题会发送给 {provider}。",
+      "provider": "AI 服务商",
+      "customProvider": "自定义（兼容 OpenAI）",
+      "baseUrl": "服务器 URL",
+      "customHint": "适用于任何支持 OpenAI 聊天 API 的服务器，例如 OpenRouter、Groq、Mistral、Ollama 或 LM Studio。本地服务器无需密钥。",
+      "model": "AI 模型",
+      "modelOption": "{name}（{description}）",
+      "models": {
+        "fastest": "最快且超低成本",
+        "balanced": "均衡推理",
+        "capable": "快速且强大",
+        "smartest": "最高智能",
+        "legacy": "旧版快速"
+      },
+      "otherModel": "其他模型（输入其 ID）",
+      "modelIdPlaceholder": "准确的模型 ID，例如 {example}",
+      "apiKey": "{provider} API 密钥",
+      "getKey": "获取 API 密钥",
+      "keyPlaceholder": "粘贴你的 {provider} API 密钥",
+      "hideKey": "隐藏密钥",
+      "showKey": "显示密钥",
+      "addKeyHint": "添加你的 {provider} API 密钥，即可使用 AI 智能填写。",
+      "proHint": "Pro：AI 填写不限次数。密钥仅保存在此浏览器中。",
+      "freeHint": "Free 方案：每周 {limit} 次 AI 填写。升级到 Pro 即可无限使用。"
+    },
+    "paginate": {
+      "title": "自动翻页",
+      "toggleTitle": "填写多页表单",
+      "description": "逐页填写，点击“下一步/继续”，最后点击“提交”。表单拒绝的答案会自动修正，无法修正时暂停。",
+      "toggle": "切换自动翻页",
+      "proFeature": "Pro 功能",
+      "upgrade": "升级到 Pro 以使用自动翻页"
+    },
+    "floating": {
+      "title": "网页悬浮图标",
+      "toggleTitle": "显示悬浮按钮",
+      "description": "在网页边缘显示 Aullevo 快捷入口标签",
+      "toggle": "切换网页悬浮按钮"
+    },
+    "typing": {
+      "title": "模拟真人输入速度",
+      "instant": "即时（{ms}ms）",
+      "natural": "自然（{ms}ms）",
+      "slow": "慢速（{ms}ms）",
+      "custom": "自定义（{ms}ms）",
+      "naturalFree": "自然（{ms}ms）· Free 方案",
+      "description": "按真人速度逐字输入，适用于需要真实键盘输入的网站。",
+      "proFeature": "Pro 功能",
+      "customDelay": "自定义延迟：",
+      "customProFeature": "自定义延迟是 Pro 功能",
+      "unitMs": "ms"
+    },
+    "tour": {
+      "title": "新手引导",
+      "toggleTitle": "再次查看引导",
+      "description": "再次逐步介绍每个标签页",
+      "replay": "重新查看"
+    },
+    "security": {
+      "title": "本地加密"
+    },
+    "memories": {
+      "title": "AI 记忆",
+      "count": "（已开启 {enabled}/{total}）",
+      "descriptionAiOn": "AI 可用于回答开放式问题的个人信息（例如“工作方式：仅远程”）。已开启的记忆会发送给 {provider}，并以未加密形式保存在此浏览器中，因此请勿添加密码或证件号码。",
+      "descriptionAiOff": "AI 可用于回答开放式问题的个人信息（例如“工作方式：仅远程”）。仅在开启 AI 智能填写时使用。已开启的记忆会发送给 {provider}，并以未加密形式保存在此浏览器中，因此请勿添加密码或证件号码。",
+      "titlePlaceholder": "标题",
+      "contentPlaceholder": "希望 AI 了解的内容",
+      "enabledTitle": "此记忆会发送给 AI",
+      "disabledTitle": "此记忆未使用",
+      "on": "开启",
+      "off": "关闭",
+      "delete": "删除记忆",
+      "newTitlePlaceholder": "标题（例如：工作方式）",
+      "newContentPlaceholder": "内容（例如：倾向完全远程的职位，接受合同工）",
+      "add": "添加记忆"
+    },
+    "deviceData": {
+      "title": "此设备上的数据",
+      "total": "共 {size}",
+      "description": "每个账号在此都有独立的加密保险库。账号之间无法查看彼此的档案、文档、API 密钥、记忆或链接。",
+      "empty": "暂无保存的数据。",
+      "localOwner": "未登录（本地档案）",
+      "anotherAccount": "其他账号",
+      "inUse": "{size} · 正在使用",
+      "deleteTitle": "从此设备删除该账号的数据",
+      "delete": "删除",
+      "confirmDelete": "要从此设备删除“{name}”的 Aullevo 数据吗？\n\n这将永久删除其加密档案、文档、API 密钥、AI 记忆和链接队列，且无法撤消。",
+      "bytes": "{size} B",
+      "kilobytes": "{size} KB",
+      "megabytes": "{size} MB"
+    }
+  },
+  "status": {
+    "plan": {
+      "profileLimit": "Free 方案最多可启用 {max} 个档案。请关闭多余的档案，或升级到 Pro。",
+      "activeLimit": "Free 方案最多可启用 {max} 个档案。请关闭其中一个，或升级到 Pro。",
+      "createdOff": "档案已创建，状态为关闭。Free 方案最多可启用 {max} 个档案。请关闭其中一个，或升级到 Pro。",
+      "autoPaginatePro": "自动翻页是 Pro 功能。升级到 Pro 即可填写多页表单。",
+      "jsonImportLimit": "这 2 周的 {limit} 次免费 JSON 导入已用完。次数将在 {date} 重置，或升级到 Pro 即可无限导入。",
+      "documentsSkipped": {
+        "other": "{count} 份文档未附加：上传文件到表单是 Pro 功能。"
+      }
+    },
+    "batch": {
+      "starting": {
+        "other": "正在开始批量填写 {count} 个表单..."
+      },
+      "progress": "正在填写第 {current}/{total} 个：{host}",
+      "progressNoHost": "正在填写第 {current}/{total} 个...",
+      "complete": {
+        "other": "已完成 {count} 个表单的批量填写！"
+      }
+    },
+    "save": {
+      "success": "{type}档案保存成功！",
+      "failed": "保存失败：{error}",
+      "noProfile": "未选择档案",
+      "unknownError": "保存失败"
+    },
+    "profile": {
+      "nameExists": "已存在同名档案！",
+      "disabled": "{type}已停用。请将其开启后再自动填写。",
+      "defaultType": "档案",
+      "imported": {
+        "other": "已成功将 {count} 个字段导入{type}！"
+      }
+    },
+    "highlight": {
+      "noActiveTab": "未找到当前标签页。",
+      "refreshToConnect": "请刷新页面以连接高亮功能。",
+      "on": {
+        "other": "已高亮页面上的 {count} 个字段！"
+      },
+      "cleared": "已清除高亮。"
+    },
+    "fill": {
+      "injectingAi": "正在用 AI 填写字段（{type}）...",
+      "injecting": "正在填写字段（{type}）...",
+      "noTab": "无法访问当前标签页。",
+      "refreshToConnect": "请刷新标签页以连接自动填写。",
+      "cannotConnect": "无法连接到页面。请刷新标签页。",
+      "aiPartlySkipped": {
+        "other": "已填写 {count} 个输入项（AI 部分跳过）。"
+      },
+      "keywordMode": {
+        "other": "已填写 {count} 个输入项（关键词模式）。"
+      },
+      "withAi": {
+        "other": "已用 AI 填写表单（匹配 {count} 个输入项）。"
+      },
+      "withoutAi": {
+        "other": "已在不使用 AI 的情况下填写表单（匹配 {count} 个输入项）。"
+      },
+      "error": "填写出错：{error}",
+      "injected": {
+        "other": "已向页面填入 {count} 个字段。"
+      }
+    },
+    "pagination": {
+      "progress": "自动翻页：正在填写第 {page} 页...",
+      "lostConnection": "自动翻页已停止：与扩展程序的连接已断开。",
+      "filled": {
+        "other": "已在 {count} 页中填写 {filled} 个输入项。"
+      },
+      "corrected": {
+        "other": "已修正 {count} 个被表单拒绝的答案。"
+      },
+      "field": "“{name}”",
+      "fieldAndMore": {
+        "other": "“{name}”（另有 {count} 个）"
+      },
+      "aField": "某个字段",
+      "nextButton": "下一步",
+      "submitted": "已提交！",
+      "noNext": "未找到“下一步/继续”按钮。",
+      "stillEmpty": "{field}仍为空。",
+      "check": "请检查{field}。",
+      "blocked": "已在第 {page} 页暂停：{field}为必填项但为空。请填写后再次运行。",
+      "nextDisabled": "已在第 {page} 页暂停：“{button}”按钮不可用。请检查页面后再次运行。",
+      "validationError": "已在第 {page} 页暂停：表单提示“{error}”。",
+      "validationErrorUnknown": "已在第 {page} 页暂停：表单报告了错误。",
+      "correctionTried": "（已尝试自动修正）",
+      "stuck": "已在第 {page} 页暂停：已点击“{button}”，但表单没有继续。",
+      "maxPages": "已达到 {max} 页的安全上限，已停止。",
+      "noForm": "此页面上未找到表单（或 Aullevo 无法在此运行）。",
+      "stopped": "自动翻页已停止：{error}",
+      "unknownError": "未知错误"
+    }
+  },
+  "tour": {
+    "card": {
+      "progress": "{section} · {current}/{total}",
+      "skip": "跳过引导",
+      "dontShowAgain": "不再显示",
+      "back": "上一步",
+      "next": "下一步",
+      "done": "完成"
+    },
+    "shortcuts": {
+      "allActive": "3 个快捷键均已在此浏览器中生效。",
+      "notSet": "此浏览器中未设置：{list}。请在 Chrome 的快捷键设置中自行设置。",
+      "openSettings": "打开 Chrome 快捷键设置",
+      "toggleSidePanel": "打开/关闭侧边栏",
+      "fallbackName": "快捷键"
+    },
+    "sections": {
+      "autofill": "自动填写",
+      "header": "顶部按钮",
+      "profiles": "档案",
+      "multilink": "多链接",
+      "settings": "设置"
+    },
+    "autofill": {
+      "detection": {
+        "title": "表单检测",
+        "body": "Aullevo 会统计当前标签页中可填写的字段数量。打开表单后，这个数字会随之更新。"
+      },
+      "highlight": {
+        "title": "高亮字段",
+        "body": "为 Aullevo 在页面上找到的每个字段加上轮廓，让你在填写前就能看到哪些内容会被填写。再次点击即可清除轮廓。"
+      },
+      "rescan": {
+        "title": "重新扫描",
+        "body": "有些表单会在页面加载后添加字段，例如分步表单或弹出窗口。点击“重新扫描”会重新统计字段。"
+      },
+      "fill": {
+        "title": "填写表单",
+        "body": "使用当前档案填写页面。开启 AI 填写（在“设置”中）后，即使问题措辞不同，也能匹配到你的答案。关闭时则按关键词匹配字段。"
+      },
+      "activeProfile": {
+        "title": "当前档案",
+        "body": "用于填写的档案，以及已开启的字段和文档数量。可在<b>档案</b>标签页中切换档案或编辑答案。"
+      },
+      "shortcuts": {
+        "title": "键盘快捷键",
+        "body": "安装 Aullevo 时 Chrome 会设置这些按键，但会跳过已被 Chrome 或其他扩展程序占用的按键。你可以随时更改。"
+      }
+    },
+    "header": {
+      "voice": {
+        "title": "语音模式",
+        "body": "用说话代替点击来使用 Aullevo。此按钮会将面板切换为语音助手：说出 \"fill this page\"、\"fill the email\" 或 \"fill the first question\"，它会用语音回答。再次点击即可返回此视图。",
+        "note": "Pro 功能。需要你自己的 ElevenLabs API 密钥，可在 Voice settings 中添加。语音命令支持英语和他加禄语。"
+      },
+      "language": {
+        "title": "语言",
+        "body": "选择 Aullevo 的界面语言。英语始终位于列表顶部，可随时切换回来。"
+      },
+      "theme": {
+        "title": "浅色或深色主题",
+        "body": "在浅色和深色模式之间切换面板。"
+      },
+      "json": {
+        "title": "JSON 快速设置",
+        "intro": "这是你的档案的 JSON 格式。最快的档案设置方法：",
+        "step1": "从这里复制 JSON。",
+        "step2": "将它连同你的简历或其他文档一起交给 Gemini、Claude 或 ChatGPT。",
+        "step3": "让 AI 填写各项值，并保持相同的结构。",
+        "step4": "将结果粘贴回这里，然后点击<b>导入</b>。"
+      },
+      "fullPage": {
+        "title": "在完整页面中打开",
+        "body": "在浏览器标签页中打开 Aullevo，有更大的空间编辑档案。填写仍在此侧边栏中进行。"
+      },
+      "close": {
+        "title": "关闭面板",
+        "body": "关闭侧边栏。按 <b>Alt+Q</b>（Mac 上为 <b>Option+Q</b>）或点击工具栏中的 Aullevo 图标即可重新打开。"
+      }
+    },
+    "profiles": {
+      "switcher": {
+        "title": "切换档案",
+        "body1": "每个档案（求职、学业、金融或你自建的档案）都保存各自的一套答案。选择要编辑和用于填写的档案。",
+        "body2": "打开列表可查看哪些档案为开启或关闭，并可在底部新建档案。",
+        "note": "Free 方案：最多可同时开启 2 个档案。"
+      },
+      "config": {
+        "title": "名称与开关",
+        "body": "在这里重命名档案。<b>档案开启</b>用于开启或关闭整个档案。关闭后不会用于填写。"
+      },
+      "identity": {
+        "title": "身份与联系方式",
+        "body": "你的姓名、邮箱、电话和地址。点击任一分区标题可折叠或展开。每个字段都有三个小控件，接下来会介绍。"
+      },
+      "fieldContext": {
+        "title": "AI 提示",
+        "body": "✨ 按钮可添加提示，告诉 AI 这个字段的含义，例如“护照上的法定名字”。当表单问题措辞不清时很有用。出现圆点表示已设置提示。"
+      },
+      "fieldPrivacy": {
+        "title": "AI 可见或敏感",
+        "safe": "<b>AI 可见</b>：值会提供给 AI，以便在下拉菜单和选择题中选出正确答案。",
+        "sensitive": "<b>敏感</b>：AI 只能看到字段名称和提示，绝不会看到值。Aullevo 仍会在你的设备上填入该值。",
+        "toggle": "点击即可切换。"
+      },
+      "fieldToggle": {
+        "title": "开启或关闭字段",
+        "body": "将字段设为关闭后，填写时会跳过它，但不会删除你输入的内容。"
+      },
+      "documents": {
+        "title": "附加文档",
+        "body": "选择文档类型，然后上传简历、求职信、身份证件等。当表单中有文件上传项时，Aullevo 会附加已开启的文档。",
+        "note": "将文档附加到表单是 Pro 功能。"
+      },
+      "attributes": {
+        "title": "档案专属字段",
+        "body": "属于此类档案的字段。求职档案包含职业头衔、LinkedIn、技能和教育背景，学业、医疗等其他档案也有各自的字段。"
+      },
+      "customFields": {
+        "title": "添加自己的字段",
+        "body": "用于标准字段未涵盖的内容，例如“期望薪资”或“你为什么想要这份工作？”。输入标签和值，然后点击 <b>+</b>。直接用问题原文作为标签效果很好。"
+      },
+      "save": {
+        "title": "保存",
+        "body": "更改会在输入时自动保存。此按钮会立即保存，适合在关闭面板前使用。"
+      }
+    },
+    "multilink": {
+      "addLink": {
+        "title": "添加表单链接",
+        "body": "粘贴表单或职位申请的完整链接（以 https:// 开头），然后点击 <b>+</b>。可以添加任意数量。"
+      },
+      "savedLinks": {
+        "title": "你的链接队列",
+        "body": "添加的所有链接都会显示在这里。勾选链接可将其纳入下一次批量填写，取消勾选则跳过。箭头图标用于打开链接，垃圾桶图标用于移除链接。"
+      },
+      "batchRun": {
+        "title": "一次全部填写",
+        "body1": "在后台标签页中依次打开每个已勾选的链接，并使用当前档案填写。进度显示在面板顶部。",
+        "note": "快捷键：Alt+Shift+B（Mac 上为 Option+Shift+B）。"
+      }
+    },
+    "settings": {
+      "account": {
+        "title": "你的账号",
+        "body": "连接你的 Aullevo Web 账号，让你的方案（Free 或 Pro）在这里生效。你的档案始终加密保存在此设备上，不会上传。"
+      },
+      "aiMode": {
+        "title": "AI 智能填写或标准填写",
+        "standard": "<b>标准填写</b>按名称匹配字段，不使用 AI。",
+        "smart": "<b>AI 智能填写</b>能理解措辞不同的问题，并在下拉菜单和选择题中选出答案。"
+      },
+      "aiEngine": {
+        "title": "AI 服务商、模型和 API 密钥"
+      },
+      "memories": {
+        "title": "AI 记忆",
+        "body": "AI 可用于回答开放式问题的简短信息，例如“工作方式：仅远程”。这些内容会发送给你选择的 AI 服务商 且不加密，因此切勿添加密码或证件号码。"
+      },
+      "autoPaginate": {},
+      "floatingIcon": {
+        "title": "悬浮按钮",
+        "body": "网页边缘的 Aullevo 小标签，方便快速访问。如果碍事，可以将其关闭。"
+      },
+      "typingSpeed": {
+        "title": "输入速度",
+        "body": "Aullevo 向字段中输入的速度。<b>自然</b>更像真人输入，<b>即时</b>速度最快。慢速和自定义速度为 Pro 功能。"
+      },
+      "replayTour": {
+        "title": "重新查看本引导",
+        "body": "忘了什么？点击<b>重新查看</b>即可从头再看一遍本引导。"
+      },
+      "deviceData": {
+        "title": "此设备上的数据",
+        "body": "每个账号在此浏览器中都有独立的加密保险库。请删除不再使用的账号的数据。"
+      }
+    }
+  },
+  "vault": {
+    "loading": "正在加载…",
+    "account": {
+      "signedInAs": "已登录为 <b>{account}</b>",
+      "notSignedIn": "未登录：此设备上的本地档案",
+      "fallbackName": "你的账号"
+    },
+    "errors": {
+      "createFailed": "无法创建保险库，请重试。",
+      "wrongPassphrase": "密码短语错误。",
+      "wrongClaimPassphrase": "这些档案的密码短语错误。"
+    }
+  }
+}

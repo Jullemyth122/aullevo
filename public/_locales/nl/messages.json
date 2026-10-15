@@ -1,0 +1,20 @@
+{
+  "appName": {
+    "message": "Aullevo - Formulieren en sollicitaties automatisch invullen met AI"
+  },
+  "appDescription": {
+    "message": "AI-invulhulp voor sollicitaties, enquêtes en elk webformulier. Opgeslagen profielen, cv uploaden en slim automatisch invullen."
+  },
+  "actionTitle": {
+    "message": "Aullevo-zijpaneel openen"
+  },
+  "commandTogglePanel": {
+    "message": "Aullevo-zijpaneel tonen/verbergen"
+  },
+  "commandFill": {
+    "message": "Formulier op pagina invullen met AI of trefwoorden"
+  },
+  "commandBatchFill": {
+    "message": "Multi-link batch invullen starten"
+  }
+}

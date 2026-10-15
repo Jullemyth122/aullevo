@@ -1,0 +1,20 @@
+{
+  "appName": {
+    "message": "Aullevo - Autorrelleno de formularios con IA y solicitudes de empleo"
+  },
+  "appDescription": {
+    "message": "Rellena con IA solicitudes de empleo, encuestas y cualquier formulario. Perfiles guardados, subida de CV y autorrelleno inteligente."
+  },
+  "actionTitle": {
+    "message": "Abrir el panel lateral de Aullevo"
+  },
+  "commandTogglePanel": {
+    "message": "Mostrar u ocultar el panel lateral de Aullevo"
+  },
+  "commandFill": {
+    "message": "Rellenar el formulario de la página con IA o palabras clave"
+  },
+  "commandBatchFill": {
+    "message": "Rellenar formularios por lotes desde varios enlaces"
+  }
+}

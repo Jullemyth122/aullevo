@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import type { UserData } from '../types';
 import { createDefaultProfiles, getProfileCustomFields } from '../types';
-import { readVault, writeVault, isExternalVaultChange, VAULT_STORAGE_KEY, type VaultData } from '../services/vault';
+import { readVault, writeVault, isExternalVaultChange, getActiveVaultStorageKey, VAULT_STORAGE_KEY, type VaultData } from '../services/vault';
+import { t } from '../i18n';
 
 // Keys saved profiles by profileType and fills in fields added in newer versions
 function migrateLoadedProfiles(savedProfiles: any[]): Record<string, UserData> {
@@ -44,6 +45,7 @@ export function useProfileStorage() {
 
     // 2. Critical Safety Latch: never overwrite storage before mount load finishes
     const isInitialLoaded = useRef<boolean>(false);
+    const [isLoaded, setIsLoaded] = useState<boolean>(false); // same moment, for render (e.g. guided tour)
 
     // 3. Stable timer ref: avoids timer recreation churn on keystrokes
     const saveTimerRef = useRef<number | null>(null);
@@ -98,6 +100,7 @@ export function useProfileStorage() {
             }
 
             isInitialLoaded.current = true;
+            setIsLoaded(true);
         });
     }, []);
 
@@ -105,9 +108,12 @@ export function useProfileStorage() {
     // Live sync: side panel and full options page edit the same vault.
     // When the OTHER page saves, reload its profiles instead of overwriting them.
     // ---------------------------------------------------------
+    const vaultKeyRef = useRef<string>(VAULT_STORAGE_KEY);
     useEffect(() => {
+        // Each account has its own vault key; only this account's saves matter here
+        getActiveVaultStorageKey().then((key) => { vaultKeyRef.current = key; });
         const handleVaultChange = (changes: Record<string, chrome.storage.StorageChange>, area: string) => {
-            if (area !== 'local' || !isExternalVaultChange(changes[VAULT_STORAGE_KEY])) return;
+            if (area !== 'local' || !isExternalVaultChange(changes[vaultKeyRef.current])) return;
             readVault().then((vaultData) => {
                 const saved = vaultData?.userProfiles?.profiles;
                 if (!saved?.length) return;
@@ -150,7 +156,7 @@ export function useProfileStorage() {
     // ---------------------------------------------------------
     const handleSaveProfile = (onSuccess?: () => void, onError?: (err: string) => void) => {
         if (!currentProfile) {
-            if (typeof onError === 'function') onError("No profile selected");
+            if (typeof onError === 'function') onError(t('status.save.noProfile'));
             return;
         }
         persistProfiles()
@@ -159,7 +165,7 @@ export function useProfileStorage() {
                 if (typeof onSuccess === 'function') onSuccess();
             })
             .catch((err) => {
-                if (typeof onError === 'function') onError(err instanceof Error ? err.message : "Save failed");
+                if (typeof onError === 'function') onError(err instanceof Error ? err.message : t('status.save.unknownError'));
             });
     };
 
@@ -186,6 +192,7 @@ export function useProfileStorage() {
         selectedProfileType,
         setSelectedProfileType,
         currentProfile,
+        isLoaded,
         isDark,
         toggleTheme,
         useAiFill,

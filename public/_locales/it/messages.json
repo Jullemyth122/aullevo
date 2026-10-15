@@ -1,0 +1,20 @@
+{
+  "appName": {
+    "message": "Aullevo - Compilazione moduli con IA e candidature di lavoro"
+  },
+  "appDescription": {
+    "message": "Compila con l'IA candidature di lavoro, sondaggi e qualsiasi modulo. Profili salvati, caricamento CV e compilazione intelligente."
+  },
+  "actionTitle": {
+    "message": "Apri il pannello laterale di Aullevo"
+  },
+  "commandTogglePanel": {
+    "message": "Mostra/nascondi il pannello laterale di Aullevo"
+  },
+  "commandFill": {
+    "message": "Compila il modulo della pagina con IA o parole chiave"
+  },
+  "commandBatchFill": {
+    "message": "Compila in blocco i moduli di più link"
+  }
+}

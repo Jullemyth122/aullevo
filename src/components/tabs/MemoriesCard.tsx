@@ -1,32 +1,49 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Brain, Check, X, Trash2, Plus, ChevronDown } from 'lucide-react';
 import type { Memory } from '../../types';
+import { OWNER_SCOPED_KEYS, getScopedKey } from '../../services/owner';
+import { useT } from '../../i18n';
+import { AI_SETTINGS_STORAGE_KEYS, aiRecipientName, readAiSettings } from '../../services/aiService';
 
-// Same key and shape background.ts already reads for RESOLVE_AI_QUESTIONS
-// (enabled memories with content are sent to Gemini as "title: content")
-const MEMORIES_STORAGE_KEY = 'aullevo_memories';
+// Same shape background.ts reads for RESOLVE_AI_QUESTIONS (enabled memories with content are
+// sent to the chosen AI provider as "title: content"). Stored per account: aullevo_memories[@<uid>]
+
+function createMemory(title: string, content: string): Memory {
+    return { id: `mem_${Date.now()}`, title, content, createdAt: new Date().toISOString(), enabled: true };
+}
 
 interface MemoriesCardProps {
     useAiFill: boolean;
 }
 
 export function MemoriesCard({ useAiFill }: MemoriesCardProps) {
+    const { t } = useT();
     const [memories, setMemories] = useState<Memory[]>([]);
     const [isOpen, setIsOpen] = useState(true);
     const [newTitle, setNewTitle] = useState('');
     const [newContent, setNewContent] = useState('');
+    const [aiRecipient, setAiRecipient] = useState(() => aiRecipientName(readAiSettings(undefined)));
+    const storageKeyRef = useRef<string>(OWNER_SCOPED_KEYS.memories);
 
     useEffect(() => {
-        chrome.storage?.local?.get([MEMORIES_STORAGE_KEY], (res) => {
-            if (Array.isArray(res?.[MEMORIES_STORAGE_KEY])) setMemories(res[MEMORIES_STORAGE_KEY] as Memory[]);
+        getScopedKey(OWNER_SCOPED_KEYS.memories).then((key) => {
+            storageKeyRef.current = key;
+            chrome.storage?.local?.get([key], (res) => {
+                if (Array.isArray(res?.[key])) setMemories(res[key] as Memory[]);
+            });
         });
+        // Names who the memories are sent to; follows the provider chosen in the AI card
+        const readRecipient = () => chrome.storage?.local?.get(AI_SETTINGS_STORAGE_KEYS, (res) => setAiRecipient(aiRecipientName(readAiSettings(res))));
+        readRecipient();
 
         // Side panel and options page stay in sync
         const handleChange = (changes: Record<string, chrome.storage.StorageChange>, area: string) => {
-            if (area === 'local' && changes[MEMORIES_STORAGE_KEY]) {
-                const next = changes[MEMORIES_STORAGE_KEY].newValue;
+            const key = storageKeyRef.current;
+            if (area === 'local' && changes[key]) {
+                const next = changes[key].newValue;
                 setMemories(Array.isArray(next) ? (next as Memory[]) : []);
             }
+            if (area === 'local' && AI_SETTINGS_STORAGE_KEYS.some(k => changes[k])) readRecipient();
         };
         chrome.storage?.onChanged?.addListener(handleChange);
         return () => chrome.storage?.onChanged?.removeListener(handleChange);
@@ -34,14 +51,14 @@ export function MemoriesCard({ useAiFill }: MemoriesCardProps) {
 
     const save = (next: Memory[]) => {
         setMemories(next);
-        chrome.storage?.local?.set({ [MEMORIES_STORAGE_KEY]: next });
+        chrome.storage?.local?.set({ [storageKeyRef.current]: next });
     };
 
     const handleAdd = () => {
         const title = newTitle.trim();
         const content = newContent.trim();
         if (!title || !content) return;
-        save([...memories, { id: `mem_${Date.now()}`, title, content, createdAt: new Date().toISOString(), enabled: true }]);
+        save([...memories, createMemory(title, content)]);
         setNewTitle('');
         setNewContent('');
     };
@@ -56,11 +73,12 @@ export function MemoriesCard({ useAiFill }: MemoriesCardProps) {
             <div
                 style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', userSelect: 'none' }}
                 onClick={() => setIsOpen(!isOpen)}
+                data-tour="memories"
             >
                 <div className="av-label" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
                     <Brain size={12} />
-                    <span>AI Memories</span>
-                    <span style={{ fontSize: 10, opacity: 0.7 }}>({enabledCount}/{memories.length} on)</span>
+                    <span>{t('settings.memories.title')}</span>
+                    <span style={{ fontSize: 10, opacity: 0.7 }}>{t('settings.memories.count', { enabled: enabledCount, total: memories.length })}</span>
                 </div>
                 <ChevronDown
                     size={14}
@@ -71,9 +89,9 @@ export function MemoriesCard({ useAiFill }: MemoriesCardProps) {
             {isOpen && (
                 <>
                     <div style={{ fontSize: 10, color: 'var(--av-text-muted)', lineHeight: 1.4, margin: '6px 0 8px' }}>
-                        Facts about you the AI can use to answer open questions (e.g. "Work style: remote only").
-                        {useAiFill ? ' ' : ' Used only when AI Smart Fill is on. '}
-                        Enabled memories are sent to Google Gemini and stored unencrypted in this browser, so don't add passwords or ID numbers.
+                        {useAiFill
+                            ? t('settings.memories.descriptionAiOn', { provider: aiRecipient })
+                            : t('settings.memories.descriptionAiOff', { provider: aiRecipient })}
                     </div>
 
                     {memories.map((memory) => (
@@ -88,7 +106,7 @@ export function MemoriesCard({ useAiFill }: MemoriesCardProps) {
                                     value={memory.title}
                                     onChange={(e) => updateMemory(memory.id, { title: e.target.value })}
                                     disabled={!memory.enabled}
-                                    placeholder="Title"
+                                    placeholder={t('settings.memories.titlePlaceholder')}
                                 />
                                 <textarea
                                     className="av-cf-input-value"
@@ -97,7 +115,7 @@ export function MemoriesCard({ useAiFill }: MemoriesCardProps) {
                                     value={memory.content}
                                     onChange={(e) => updateMemory(memory.id, { content: e.target.value })}
                                     disabled={!memory.enabled}
-                                    placeholder="What the AI should know"
+                                    placeholder={t('settings.memories.contentPlaceholder')}
                                 />
                             </div>
                             <div className="av-cf-card__actions">
@@ -105,16 +123,16 @@ export function MemoriesCard({ useAiFill }: MemoriesCardProps) {
                                     type="button"
                                     className={`av-switch-pill ${memory.enabled ? 'av-switch-pill--on' : 'av-switch-pill--off'}`}
                                     onClick={() => updateMemory(memory.id, { enabled: !memory.enabled })}
-                                    title={memory.enabled ? 'Memory is sent to the AI' : 'Memory is not used'}
+                                    title={memory.enabled ? t('settings.memories.enabledTitle') : t('settings.memories.disabledTitle')}
                                 >
                                     {memory.enabled ? <Check size={9} /> : <X size={9} />}
-                                    <span>{memory.enabled ? 'ON' : 'OFF'}</span>
+                                    <span>{memory.enabled ? t('settings.memories.on') : t('settings.memories.off')}</span>
                                 </button>
                                 <button
                                     type="button"
                                     className="av-cf-card__remove"
                                     onClick={() => save(memories.filter(m => m.id !== memory.id))}
-                                    title="Delete memory"
+                                    title={t('settings.memories.delete')}
                                 >
                                     <Trash2 size={13} />
                                 </button>
@@ -125,7 +143,7 @@ export function MemoriesCard({ useAiFill }: MemoriesCardProps) {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 4 }}>
                         <input
                             className="av-input"
-                            placeholder="Title (e.g. Work style)"
+                            placeholder={t('settings.memories.newTitlePlaceholder')}
                             value={newTitle}
                             onChange={(e) => setNewTitle(e.target.value)}
                         />
@@ -134,7 +152,7 @@ export function MemoriesCard({ useAiFill }: MemoriesCardProps) {
                                 className="av-input"
                                 rows={2}
                                 style={{ resize: 'vertical' }}
-                                placeholder="Content (e.g. Prefers fully remote roles, open to contract)"
+                                placeholder={t('settings.memories.newContentPlaceholder')}
                                 value={newContent}
                                 onChange={(e) => setNewContent(e.target.value)}
                             />
@@ -143,7 +161,7 @@ export function MemoriesCard({ useAiFill }: MemoriesCardProps) {
                                 className="av-pill av-pill--active"
                                 onClick={handleAdd}
                                 disabled={!newTitle.trim() || !newContent.trim()}
-                                title="Add memory"
+                                title={t('settings.memories.add')}
                             >
                                 <Plus size={14} />
                             </button>
