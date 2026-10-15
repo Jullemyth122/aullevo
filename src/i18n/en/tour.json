@@ -1,0 +1,188 @@
+{
+    "card": {
+        "progress": "{section} · {current} of {total}",
+        "skip": "Skip tour",
+        "dontShowAgain": "Don't show again",
+        "back": "Back",
+        "next": "Next",
+        "done": "Done"
+    },
+    "shortcuts": {
+        "allActive": "All 3 shortcuts are active on this browser.",
+        "notSet": "Not set on this browser: {list}. Set them yourself in Chrome's shortcut settings.",
+        "openSettings": "Open Chrome shortcut settings",
+        "toggleSidePanel": "Toggle Side Panel",
+        "fallbackName": "Shortcut"
+    },
+    "sections": {
+        "autofill": "Autofill",
+        "header": "Top buttons",
+        "profiles": "Profiles",
+        "multilink": "Multi-link",
+        "settings": "Settings"
+    },
+    "autofill": {
+        "detection": {
+            "title": "Form detection",
+            "body": "Aullevo counts the fillable fields on the page in your current tab. Open a form and this number updates."
+        },
+        "highlight": {
+            "title": "Highlight fields",
+            "body": "Outlines every field Aullevo found on the page, so you can see what will be filled before you fill it. Click it again to clear the outlines."
+        },
+        "rescan": {
+            "title": "Rescan",
+            "body": "Some forms add fields after the page loads, like multi-step forms or pop-ups. Rescan counts the fields again."
+        },
+        "fill": {
+            "title": "Fill the form",
+            "body": "Fills the page with your active profile. With AI fill on (in Settings), questions are matched to your answers even when they're worded differently. With it off, fields are matched by keyword."
+        },
+        "activeProfile": {
+            "title": "Active profile",
+            "body": "The profile used for filling, with how many fields and documents are turned on. Switch profiles or edit your answers in the <b>Profiles</b> tab."
+        },
+        "shortcuts": {
+            "title": "Keyboard shortcuts",
+            "body": "Chrome sets these keys when Aullevo is installed, but skips any that Chrome or another extension already uses. You can change them anytime."
+        }
+    },
+    "header": {
+        "voice": {
+            "title": "Voice mode",
+            "body": "Talk to Aullevo instead of clicking. This button switches the panel to the voice agent: say \"fill this page\", \"fill the email\", or \"fill the first question\", and it answers out loud. Click it again to come back to this view.",
+            "note": "Pro, or on Free 2 voice sessions per short ad. Needs your own ElevenLabs API key, added in Voice settings. Voice commands work in English and Tagalog."
+        },
+        "language": {
+            "title": "Language",
+            "body": "Choose the language for all of Aullevo. English is always at the top of the list, so you can switch back anytime."
+        },
+        "theme": {
+            "title": "Light or dark theme",
+            "body": "Switches the panel between light and dark mode."
+        },
+        "json": {
+            "title": "JSON quick setup",
+            "intro": "Your profile as JSON. The fastest way to set up a profile:",
+            "step1": "Copy the JSON from here.",
+            "step2": "Give it to Gemini, Claude, or ChatGPT with your resume or any other document.",
+            "step3": "Ask the AI to fill in the values and keep the same structure.",
+            "step4": "Paste the result back here and click <b>Import</b>.",
+            "noteDaily": "Free plan: {limit} imports a day. Pro: unlimited."
+        },
+        "fullPage": {
+            "title": "Open full page",
+            "body": "Opens Aullevo in a browser tab with more room to edit profiles. Filling still happens from this side panel."
+        },
+        "close": {
+            "title": "Close the panel",
+            "body": "Closes the side panel. Reopen it with <b>Alt+Q</b> (<b>Option+Q</b> on Mac) or by clicking the Aullevo icon in the toolbar."
+        }
+    },
+    "profiles": {
+        "switcher": {
+            "title": "Switch profiles",
+            "body1": "Each profile (Job, Academic, Financial, or your own) keeps its own set of answers. Pick the one you want to edit and fill with.",
+            "body2": "Open the list to see which profiles are ON or OFF, and to create a new one at the bottom.",
+            "note": "Free plan: up to 2 profiles can be ON at a time."
+        },
+        "config": {
+            "title": "Name and on/off switch",
+            "body": "Rename the profile here. <b>PROFILE ON</b> turns the whole profile on or off. When it's off, it isn't used for filling."
+        },
+        "identity": {
+            "title": "Identity & contact",
+            "body": "Your name, email, phone, and address. Click any section header to collapse or expand it. Every field has three small controls, shown next."
+        },
+        "fieldContext": {
+            "title": "AI context hint",
+            "body": "The ✨ button adds a hint telling the AI what this field means, like \"Legal first name on passport\". It helps when a form's question is worded unclearly. A dot means a hint is set."
+        },
+        "fieldPrivacy": {
+            "title": "AI Safe or Sensitive",
+            "safe": "<b>AI Safe</b>: the value is shared with the AI so it can choose the right answer in dropdowns and multiple-choice questions.",
+            "sensitive": "<b>Sensitive</b>: the AI only sees the field's name and hint, never the value. Aullevo still types the value in on your device.",
+            "toggle": "Click it to switch."
+        },
+        "fieldToggle": {
+            "title": "Turn a field on or off",
+            "body": "Turn a field OFF to skip it when filling, without deleting what you typed."
+        },
+        "documents": {
+            "title": "Attach documents",
+            "body": "Choose the document type, then upload your resume, cover letter, ID, and more. When a form has a file-upload question, Aullevo attaches your documents that are ON.",
+            "note": "Attaching documents to forms is a Pro feature."
+        },
+        "attributes": {
+            "title": "Profile-specific fields",
+            "body": "Fields that belong to this kind of profile. A Job profile has headline, LinkedIn, skills, and education. Academic, Medical, and the others have their own."
+        },
+        "customFields": {
+            "title": "Add your own fields",
+            "body": "For anything the standard fields don't cover, like \"Expected salary\" or \"Why do you want this job?\". Type a label and a value, then click <b>+</b>. Using the question's wording as the label works well."
+        },
+        "save": {
+            "title": "Saving",
+            "body": "Changes save automatically as you type. This button saves right away, which is handy just before you close the panel."
+        }
+    },
+    "multilink": {
+        "addLink": {
+            "title": "Add a form link",
+            "body": "Paste the full link to a form or job application (starting with https://) and click <b>+</b>. Add as many as you like."
+        },
+        "savedLinks": {
+            "title": "Your link queue",
+            "body": "Every link you add shows up here. Tick a link to include it in the next batch, or untick it to skip it. The arrow icon opens the link and the trash icon removes it."
+        },
+        "batchRun": {
+            "title": "Fill them all at once",
+            "body1": "Opens each ticked link in a background tab, one after another, and fills it with your active profile. Progress shows at the top of the panel.",
+            "note": "Shortcut: Alt+Shift+B (Option+Shift+B on Mac).",
+            "body2Plan": "Forms aren't submitted, so check each tab before you send it. The exception is Auto-Pagination, which submits at the end."
+        }
+    },
+    "settings": {
+        "account": {
+            "title": "Your account",
+            "body": "Connect your Aullevo Web account so your plan (Free or Pro) applies here. Your profiles stay encrypted on this device and aren't uploaded."
+        },
+        "aiMode": {
+            "title": "AI Smart Fill or Standard Fill",
+            "standard": "<b>Standard Fill</b> matches fields by name, with no AI.",
+            "smart": "<b>AI Smart Fill</b> understands questions that are worded differently and picks answers in dropdowns and multiple-choice questions."
+        },
+        "aiEngine": {
+            "title": "AI provider, model and API key",
+            "bodyGuide": "Optional: choose Gemini, ChatGPT, Claude or any OpenAI-compatible server and paste that provider's API key. <b>How do I get a key?</b> walks you through it step by step (Gemini is free). Without a key, Standard Fill still works."
+        },
+        "memories": {
+            "title": "AI memories",
+            "body": "Short facts the AI can use for open-ended questions, like \"Work style: remote only\". They're sent to the AI provider you chose and not encrypted, so never add passwords or ID numbers."
+        },
+        "autoPaginate": {
+            "body": "For forms with several pages: Aullevo fills each page, clicks Next or Continue, and presses Submit on the last page. Free: 2 hours a day (a short ad adds more). Pro: always on.",
+            "titlePlan": "Auto-Pagination"
+        },
+        "floatingIcon": {
+            "title": "Floating button",
+            "body": "A small Aullevo tab on the edge of web pages for quick access. Turn it off if it gets in the way."
+        },
+        "typingSpeed": {
+            "title": "Typing speed",
+            "body": "How fast Aullevo types into fields. <b>Natural</b> looks more like a person typing, and <b>Instant</b> is fastest. Slow and custom speeds are Pro."
+        },
+        "replayTour": {
+            "title": "Replay this guide",
+            "body": "Forgot something? Click <b>Replay</b> to go through this whole guide again."
+        },
+        "deviceData": {
+            "title": "Data on this device",
+            "body": "Each account has its own encrypted vault in this browser. Delete the data of accounts you no longer use."
+        },
+        "device": {
+            "title": "Saved on this device",
+            "body": "Your profiles, documents and API keys are encrypted and stay in this browser. Each account (and the guest) has its own, and they never see each other's. There is no passphrase to remember."
+        }
+    }
+}

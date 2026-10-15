@@ -1,0 +1,220 @@
+// The orb glows additively, so it always sits on its own dark "screen", in light and dark themes alike.
+.stage {
+  --orb-primary: var(--theme-primary);
+  --orb-secondary: var(--theme-secondary);
+  --orb-hot: var(--theme-highlight);
+  --orb-glow: color-mix(in srgb, var(--orb-secondary) 55%, transparent);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  padding: 12px 12px 10px;
+  border: 1px solid color-mix(in srgb, var(--orb-secondary) 24%, #152035);
+  border-radius: var(--radius);
+  overflow: hidden;
+  isolation: isolate;
+  color: #eaf2ff;
+  background:
+    radial-gradient(ellipse at 24% 32%, color-mix(in srgb, var(--orb-primary) 9%, transparent), transparent 55%),
+    radial-gradient(ellipse at 76% 48%, color-mix(in srgb, var(--orb-secondary) 18%, transparent), transparent 60%),
+    #080f1d;
+  box-shadow: inset 0 1px 0 #ffffff08, 0 8px 28px #00000018;
+
+  // Faint dot grid, fading out at the top and bottom.
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.2;
+    background-image: radial-gradient(#7e9abd 0.6px, transparent 0.6px);
+    background-size: 20px 20px;
+    mask-image: linear-gradient(transparent, #000 30%, transparent 90%);
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 18%;
+    right: 18%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--orb-primary), var(--orb-secondary), transparent);
+    pointer-events: none;
+  }
+
+  // The parent still signals runtime errors with its existing tone prop.
+  &[data-tone='ember'] .presence i { background: #ff9b45; box-shadow: 0 0 9px #ff9b4566; }
+
+  button:focus-visible { outline: 2px solid var(--orb-primary); outline-offset: 4px; }
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  align-self: stretch;
+  gap: 10px;
+}
+
+.eyebrow { font: 600 9px/1 var(--mono); letter-spacing: 2px; color: var(--orb-primary); opacity: 0.9; }
+.topRight { display: inline-flex; align-items: center; gap: 8px; }
+.paletteButton {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--orb-secondary) 24%, transparent);
+  border-radius: 8px;
+  background: #ffffff06;
+  color: #b9cbe3;
+  cursor: pointer;
+  &:hover, &[aria-expanded='true'] { color: var(--orb-primary); border-color: color-mix(in srgb, var(--orb-primary) 50%, transparent); }
+}
+
+.presence {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  color: #b9cbe3;
+  white-space: nowrap;
+
+  i { width: 6px; height: 6px; border-radius: 50%; background: #77cdb1; box-shadow: 0 0 9px #77cdb166; }
+  &[data-state='thinking'] i, &[data-state='transcribing'] i { background: var(--orb-secondary); box-shadow: 0 0 9px var(--orb-glow); animation: blink 0.8s ease-in-out infinite alternate; }
+  &[data-state='listening'] i { background: var(--orb-primary); box-shadow: 0 0 9px var(--orb-primary); }
+}
+
+@keyframes blink { to { opacity: 0.35; } }
+
+.orb {
+  position: relative;
+  width: min(100%, 300px);
+  margin: -4px 0 -6px;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  transition: filter 0.25s;
+
+  &:hover:not(:disabled) { filter: brightness(1.16); }
+  &:disabled { cursor: progress; }
+}
+
+// Neon bloom without full-screen post-processing.
+.scene { position: absolute !important; inset: 0; pointer-events: none; filter: drop-shadow(0 0 5px var(--orb-glow)); }
+
+// Shown while three.js loads, or if WebGL is unavailable.
+.backup {
+  position: absolute;
+  inset: 18%;
+  border-radius: 50%;
+  border: 1px solid var(--orb-primary);
+  box-shadow: 0 0 25px var(--orb-glow), inset 0 0 25px var(--orb-glow);
+  background: repeating-radial-gradient(ellipse at center, transparent 0 8px, color-mix(in srgb, var(--orb-secondary) 35%, transparent) 9px, transparent 10px 16px);
+  animation: breathe 7s ease-in-out infinite;
+}
+
+@keyframes breathe { 0%, 100% { transform: scale(0.98); } 50% { transform: scale(1.04); } }
+
+.status {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 32px;
+}
+
+.caption {
+  max-width: 100%;
+  margin: 0;
+  padding: 4px 38px; // clear of the microphone and sound buttons
+  font-size: 12px;
+  color: #b9cbe3;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.sound {
+  position: absolute;
+  right: 0;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--orb-secondary) 28%, transparent);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--orb-secondary) 10%, #080f1d);
+  color: var(--orb-hot);
+  cursor: pointer;
+
+  &:hover { color: #fff; border-color: var(--orb-secondary); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backup, .presence i { animation: none !important; }
+}
+
+// Bottom-left slot, mirroring the sound button: the microphone.
+.extra {
+  position: absolute;
+  left: 0;
+  bottom: 2px;
+  display: flex;
+  flex-direction: column-reverse; // the mic stays in its place; a camera button (Sign mode) sits above it
+  gap: 6px;
+
+  > button {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid color-mix(in srgb, var(--orb-secondary) 28%, transparent);
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--orb-secondary) 10%, #080f1d);
+    color: var(--orb-hot);
+    cursor: pointer;
+
+    &:hover { color: #fff; border-color: var(--orb-secondary); }
+    &[aria-pressed='true'] { color: #080f1d; background: var(--orb-primary); border-color: var(--orb-primary); box-shadow: 0 0 12px color-mix(in srgb, var(--orb-primary) 45%, transparent); }
+    &:disabled { opacity: 0.5; cursor: progress; }
+  }
+}
+
+// Floating swatch strip under the top bar.
+.palette {
+  position: absolute;
+  top: 40px;
+  right: 10px;
+  z-index: 2;
+  padding: 5px 6px;
+  border: 1px solid #ffffff14;
+  border-radius: 99px;
+  background: color-mix(in srgb, #080f1d 82%, transparent);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px #00000055;
+  animation: drop 160ms ease-out;
+}
+@keyframes drop { from { opacity: 0; transform: translateY(-4px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .orb { transition: none; }
+}
+
+// Live conversation: the mic breathes while the session is open.
+.extra > button[data-live] { animation: liveRing 1.6s ease-in-out infinite; }
+// Sign mode: a small red dot says the camera is on, even while its preview is hidden.
+.extra > button[data-camera] { position: relative; }
+.extra > button[data-camera]::after { content: ''; position: absolute; top: 1px; right: 1px; width: 7px; height: 7px; border-radius: 50%; background: #ff4d5e; box-shadow: 0 0 6px #ff4d5e; }
+@keyframes liveRing {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--orb-primary) 55%, transparent); }
+  50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--orb-primary) 0%, transparent); }
+}
+@media (prefers-reduced-motion: reduce) { .extra > button[data-live] { animation: none; } }

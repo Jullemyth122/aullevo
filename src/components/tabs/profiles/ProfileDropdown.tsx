@@ -2,6 +2,9 @@ import { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Sliders, Check, Plus } from 'lucide-react';
 import type { UserData } from '../../../types';
 import { PROFILE_OPTIONS } from '../../../config/profileOptions';
+import { useT } from '../../../i18n';
+import { usePlanRewards } from '../../../hooks/useRewards';
+import { pausedProfileKeys } from '../../../services/tier';
 
 interface ProfileDropdownProps {
     profiles: Record<string, UserData>;
@@ -22,6 +25,9 @@ export function ProfileDropdown({
     onChangeNewProfileName,
     onCreateProfile
 }: ProfileDropdownProps) {
+    const { t } = useT();
+    const plan = usePlanRewards();
+    const paused = pausedProfileKeys(profiles, plan.access.profileLimit);
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -37,10 +43,10 @@ export function ProfileDropdown({
 
     const currentOpt = PROFILE_OPTIONS.find((o) => o.type === selectedProfileType);
     const Icon = currentOpt?.icon || Sliders;
-    const label = currentOpt?.label || currentProfile.profileName || selectedProfileType;
+    const label = currentOpt?.label() || currentProfile.profileName || selectedProfileType;
 
     return (
-        <div className="av-profile-dropdown" ref={dropdownRef}>
+        <div className="av-profile-dropdown" ref={dropdownRef} data-tour="profile-switcher">
             <button
                 type="button"
                 className={`av-profile-dropdown__trigger ${isOpen ? 'av-profile-dropdown__trigger--open' : ''}`}
@@ -50,7 +56,7 @@ export function ProfileDropdown({
                     <Icon size={13} className="av-profile-dropdown__icon" />
                     <span className="av-profile-dropdown__label">{label}</span>
                     {!currentProfile.enabled && (
-                        <span className="av-badge av-badge--off">DISABLED</span>
+                        <span className="av-badge av-badge--off">{t('profiles.badges.disabled')}</span>
                     )}
                 </div>
                 <ChevronDown
@@ -62,6 +68,7 @@ export function ProfileDropdown({
             {isOpen && (
                 <div className="av-profile-dropdown__menu">
                     {/* Loop through all profiles */}
+                    {/* Free plan: profiles ON beyond the limit are paused (kept, back with an ad or Pro) */}
                     {Object.keys(profiles).map((key) => {
                         const targetProf = profiles[key];
                         if (!targetProf) return null;
@@ -69,7 +76,7 @@ export function ProfileDropdown({
                         const isSelected = selectedProfileType === key;
                         const builtInOpt = PROFILE_OPTIONS.find((o) => o.type === key);
                         const ItemIcon = builtInOpt?.icon || Sliders;
-                        const displayLabel = builtInOpt?.label || targetProf.profileName || key;
+                        const displayLabel = builtInOpt?.label() || targetProf.profileName || key;
 
                         return (
                             <button
@@ -86,8 +93,8 @@ export function ProfileDropdown({
                                     <span>{displayLabel}</span>
                                 </div>
                                 <div className="av-profile-dropdown__item-right">
-                                    <span className={`av-badge ${targetProf.enabled ? 'av-badge--on' : 'av-badge--off'}`}>
-                                        {targetProf.enabled ? 'ON' : 'OFF'}
+                                    <span className={`av-badge ${targetProf.enabled && !paused.includes(key) ? 'av-badge--on' : 'av-badge--off'}`}>
+                                        {paused.includes(key) ? t('rewards.paused') : targetProf.enabled ? t('profiles.badges.on') : t('profiles.badges.off')}
                                     </span>
                                     {isSelected && <Check size={11} className="av-profile-dropdown__check" />}
                                 </div>
@@ -99,7 +106,7 @@ export function ProfileDropdown({
                     <div style={{ padding: '8px', borderTop: '1px solid var(--av-border)', display: 'flex', gap: '6px' }}>
                         <input
                             className="av-input"
-                            placeholder="New profile name..."
+                            placeholder={t('profiles.dropdown.newProfilePlaceholder')}
                             value={newProfileName}
                             onChange={(e) => onChangeNewProfileName(e.target.value)}
                             onKeyDown={(e) => {
@@ -116,7 +123,7 @@ export function ProfileDropdown({
                             onClick={onCreateProfile}
                         >
                             <Plus size={12} />
-                            <span>Add</span>
+                            <span>{t('profiles.dropdown.add')}</span>
                         </button>
                     </div>
                 </div>

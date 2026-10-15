@@ -1,6 +1,7 @@
 import { Check, X, Lock, Globe } from 'lucide-react';
 import type { CM } from '../types';
 import { ContextPopover } from './ContextPopover';
+import { useT } from '../i18n';
 
 interface ProfileFieldProps {
     label: string;
@@ -27,6 +28,7 @@ export const ProfileField = ({
     placeholder,
     alignRight = false
 }: ProfileFieldProps) => {
+    const { t } = useT();
     if (!field) return null;
 
     // Use direct onChange if provided, otherwise fallback to generic onUpdate(fieldKey)
@@ -64,20 +66,22 @@ export const ProfileField = ({
                         type="button"
                         className={`av-privacy-pill ${field.isSensitive ? 'av-privacy-pill--sensitive' : 'av-privacy-pill--safe'}`}
                         onClick={() => handleUpdate({ isSensitive: !field.isSensitive })}
+                        data-tour="field-privacy"
                         title={field.isSensitive
-                            ? "Sensitive: Value is hidden from AI (Zero-Knowledge)"
-                            : "AI Safe: Value is shared with AI for smart choice selection"}
+                            ? t('profiles.field.sensitiveTooltip')
+                            : t('profiles.field.aiSafeTooltip')}
                     >
                         {field.isSensitive ? <Lock size={8.5} /> : <Globe size={8.5} />}
-                        <span>{field.isSensitive ? 'SENSITIVE' : 'AI SAFE'}</span>
+                        <span>{field.isSensitive ? t('profiles.badges.sensitive') : t('profiles.badges.aiSafe')}</span>
                     </button>
                     <button
                         type="button"
                         className={`av-switch-pill ${field.enabled ? 'av-switch-pill--on' : 'av-switch-pill--off'}`}
                         onClick={handleToggle}
+                        data-tour="field-toggle"
                     >
                         {field.enabled ? <Check size={9} /> : <X size={9} />}
-                        <span>{field.enabled ? 'ON' : 'OFF'}</span>
+                        <span>{field.enabled ? t('profiles.badges.on') : t('profiles.badges.off')}</span>
                     </button>
                 </div>
             </div>

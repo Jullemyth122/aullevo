@@ -1,11 +1,45 @@
-import { Zap, User, Clock, Sliders, Keyboard, Bot, Lock, EyeOff, Eye, KeyRound, ExternalLink, ShieldCheck, Sparkles, Crown, LogIn, LogOut, ChevronsRight } from 'lucide-react';
-import { GEMINI_MODELS, FREE_TIER_WEEKLY_LIMIT, getEffectiveUsageCount, isHostedAiAvailable } from '../../services/aiService';
-import { readVault, writeVault, lockVault } from '../../services/vault';
+import { Zap, User, Clock, Sliders, Keyboard, Bot, Lock, EyeOff, Eye, KeyRound, ExternalLink, ShieldCheck, Sparkles, Crown, LogIn, LogOut, ChevronsRight, Compass } from 'lucide-react';
+import {
+    AI_PROVIDERS, AI_SETTINGS_STORAGE_KEYS, AI_PROVIDER_STORAGE_KEY, AI_MODELS_STORAGE_KEY, AI_BASE_URL_STORAGE_KEY,
+    aiRecipientName, getAiProvider, getProviderApiKey, hasAiAccess, readAiSettings,
+    type AiModelOption, type AiModelTier, type AiProvider, type AiProviderId, type AiSettings
+} from '../../services/aiService';
+import { readVault, writeVault } from '../../services/vault';
 import { canUseTypingDelay } from '../../services/tier';
+import { freeLeft, usesLeft } from '../../services/rewards';
+import { usePlanRewards } from '../../hooks/useRewards';
+import { PlanUnlock, UnlockList } from '../UnlockCard';
 import type { useAccount } from '../../hooks/useAccount';
 import { AULLEVO_WEB_URL } from '../../services/account';
 import { useEffect, useRef, useState } from 'react';
 import { MemoriesCard } from './MemoriesCard';
+import { DeviceDataCard } from './DeviceDataCard';
+import { KeyGuide } from '../KeyGuide';
+import { useT, setLanguagePreference } from '../../i18n';
+import { LANGUAGES, AUTO_LANGUAGE, DEFAULT_LANGUAGE, getLanguage, getBrowserLanguage } from '../../i18n/languages';
+
+// Model dropdown value that opens the text field for any other model ID
+const OTHER_MODEL = '__other__';
+const MODEL_ID_EXAMPLES: Record<AiProviderId, string> = {
+    gemini: 'gemini-3.5-flash',
+    openai: 'gpt-5.4',
+    anthropic: 'claude-fable-5-1',
+    custom: 'meta-llama/llama-4-maverick'
+};
+
+const fieldLabelStyle = { display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--av-text)', marginBottom: 4 } as const;
+const selectStyle = {
+    width: '100%',
+    padding: '6px 8px',
+    borderRadius: 6,
+    background: 'var(--av-surface-alt, #0f172a)',
+    border: '1px solid var(--av-border)',
+    color: 'var(--av-text)',
+    fontSize: 11,
+    outline: 'none',
+    cursor: 'pointer'
+} as const;
+const textInputStyle = { ...selectStyle, cursor: 'text', boxSizing: 'border-box' } as const;
 
 interface SettingsTabProps {
     isDark: boolean;
@@ -19,6 +53,7 @@ interface SettingsTabProps {
     autoPaginate: boolean;
     onToggleAutoPaginate: () => void;
     accountState: ReturnType<typeof useAccount>;
+    onReplayTour?: () => void;
 }
 
 export function SettingsTab({
@@ -32,68 +67,106 @@ export function SettingsTab({
     onToggleFloatingIcon,
     autoPaginate,
     onToggleAutoPaginate,
-    accountState
+    accountState,
+    onReplayTour
 }: SettingsTabProps) {
     const { account, isPro, isConnecting, connect, disconnect } = accountState;
+    // Free plan: a daily free allowance, then a short ad on aullevo-web unlocks more (rewards.ts)
+    const plan = usePlanRewards();
+    const typingOk = isPro || plan.access.typing;
+    const paginateOk = isPro || plan.access.paginate;
+    const { t, tRich, language, preference } = useT();
+    const browserLanguage = getLanguage(getBrowserLanguage());
 
     // -----------------------------------------------------------------------
-    // AI Configuration State (API key in the encrypted vault, model/usage in chrome.storage.local)
+    // AI Configuration State (one API key per provider in the encrypted vault;
+    // provider, model per provider, server URL and usage in chrome.storage.local)
     // -----------------------------------------------------------------------
-    const [apiKey, setApiKey] = useState('');
-    const [selectedModel, setSelectedModel] = useState<string>('gemini-3.5-flash-lite');
+    const [aiSettings, setAiSettings] = useState<AiSettings>(() => readAiSettings(undefined));
+    const [apiKeys, setApiKeys] = useState<Partial<Record<AiProviderId, string>>>({});
     const [showKey, setShowKey] = useState(false);
-    const [usageCount, setUsageCount] = useState(0);
     const apiKeySaveTimer = useRef<number | null>(null);
     useEffect(() => {
         readVault().then((vault) => {
-            if (typeof vault?.geminiApiKey === 'string') {
-                setApiKey(vault.geminiApiKey);
-            }
+            setApiKeys(Object.fromEntries(AI_PROVIDERS.map(p => [p.id, getProviderApiKey(vault, p.id)])));
         });
         chrome.storage?.local?.get(
-            ['aullevo_gemini_model', 'aullevo_ai_usage_count', 'aullevo_ai_usage_week'],
+            [...AI_SETTINGS_STORAGE_KEYS],
             (res) => {
-                if (typeof res?.aullevo_gemini_model === 'string') {
-                    setSelectedModel(res.aullevo_gemini_model);
-                }
-                setUsageCount(getEffectiveUsageCount(res?.aullevo_ai_usage_count, res?.aullevo_ai_usage_week));
+                setAiSettings(readAiSettings(res));
             }
         );
     }, []);
+    const provider = getAiProvider(aiSettings.provider);
+    const apiKey = apiKeys[provider.id] ?? '';
+    const selectedModel = aiSettings.models[provider.id];
+    // A model typed in by hand (or none yet) shows the "Other model" text field
+    const isOtherModel = !provider.models.some(m => m.id === selectedModel);
+
     const handleApiKeyChange = (val: string) => {
-        setApiKey(val);
+        const next = { ...apiKeys, [provider.id]: val };
+        setApiKeys(next);
         // Debounced: each save re-encrypts the whole vault
         if (apiKeySaveTimer.current) clearTimeout(apiKeySaveTimer.current);
         apiKeySaveTimer.current = window.setTimeout(() => {
-            writeVault({ geminiApiKey: val.trim() }).catch((err) => console.error('[Aullevo:Settings] API key save failed:', err));
+            const trimmed = Object.fromEntries(Object.entries(next).map(([id, key]) => [id, (key ?? '').trim()]));
+            writeVault({ aiApiKeys: trimmed }).catch((err) => console.error('[Aullevo:Settings] API key save failed:', err));
         }, 500);
     };
+    const handleProviderChange = (id: AiProviderId) => {
+        setAiSettings(s => ({ ...s, provider: id }));
+        setShowKey(false);
+        chrome.storage?.local?.set({ [AI_PROVIDER_STORAGE_KEY]: id });
+    };
     const handleModelChange = (modelId: string) => {
-        setSelectedModel(modelId);
-        chrome.storage?.local?.set({ aullevo_gemini_model: modelId });
+        const models = { ...aiSettings.models, [provider.id]: modelId };
+        setAiSettings(s => ({ ...s, models }));
+        chrome.storage?.local?.set({ [AI_MODELS_STORAGE_KEY]: models });
+    };
+    const handleBaseUrlChange = (url: string) => {
+        setAiSettings(s => ({ ...s, baseUrl: url }));
+        chrome.storage?.local?.set({ [AI_BASE_URL_STORAGE_KEY]: url.trim() });
     };
 
     const getSpeedBadge = (ms: number) => {
-        if (ms === 0) return 'Instant (0ms)';
-        if (ms === 25) return 'Natural (25ms)';
-        if (ms === 65) return 'Slow (65ms)';
-        return `Custom (${ms}ms)`;
+        if (ms === 0) return t('settings.typing.instant', { ms: 0 });
+        if (ms === 25) return t('settings.typing.natural', { ms: 25 });
+        if (ms === 65) return t('settings.typing.slow', { ms: 65 });
+        return t('settings.typing.custom', { ms });
     };
 
-    const hasCustomKey = Boolean(apiKey.trim());
-    const hostedAi = isHostedAiAvailable();
-    const isUnlimited = isPro && (hasCustomKey || hostedAi);
+    // Product name stays as-is; only the descriptor in brackets is translated
+    const modelDescriptions: Record<AiModelTier, string> = {
+        fastest: t('settings.ai.models.fastest'),
+        balanced: t('settings.ai.models.balanced'),
+        capable: t('settings.ai.models.capable'),
+        smartest: t('settings.ai.models.smartest'),
+        legacy: t('settings.ai.models.legacy')
+    };
+    const modelLabel = (m: AiModelOption) => t('settings.ai.modelOption', { name: m.name, description: modelDescriptions[m.tier] });
+    // ✓ marks providers that are ready to use, so keys can be added one by one and switched between
+    const providerLabel = (p: AiProvider) => {
+        const label = p.id === 'custom' ? t('settings.ai.customProvider') : p.label;
+        const ready = p.id === 'custom' ? Boolean(aiSettings.baseUrl.trim()) : Boolean(apiKeys[p.id]?.trim());
+        return ready ? `${label} ✓` : label;
+    };
+    // The custom server is named by its URL's host, so its name needs no translation
+    const providerName = provider.id === 'custom' ? 'OpenAI-compatible' : provider.name;
+
+    const hasAccess = hasAiAccess({ provider: provider.id, model: selectedModel, apiKey, baseUrl: aiSettings.baseUrl });
+    const isUnlimited = isPro && hasAccess;
     const aiBadgeText = isUnlimited
-        ? 'Unlimited Access'
-        : (!hasCustomKey && !hostedAi) ? 'API Key Required' : `Free: ${usageCount}/${FREE_TIER_WEEKLY_LIMIT} this week`;
+        ? t('settings.ai.unlimited')
+        : !hasAccess ? t('settings.ai.keyRequired')
+            : plan.access.ai ? t('rewards.settings.aiLeft', { left: usesLeft(plan.cache, 'ai') + freeLeft(plan.cache, 'ai') }) : t('rewards.settings.aiLocked');
 
 
     return (
         <>
             {/* Account & Plan Card (synced with aullevo-web) */}
-            <div className="av-card">
+            <div className="av-card" data-tour="account">
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                    <div className="av-label" style={{ margin: 0 }}>Account</div>
+                    <div className="av-label" style={{ margin: 0 }}>{t('settings.account.title')}</div>
                     <span className={`av-plan-badge ${isPro ? 'av-plan-badge--pro' : ''}`}>
                         {isPro && <Crown size={10} />}
                         {isPro ? 'PRO' : 'FREE'}
@@ -108,19 +181,21 @@ export function SettingsTab({
                         <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{account.displayName || account.email}</div>
                             <div style={{ fontSize: 10, color: 'var(--av-text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                {isPro && account.proExpiresAt
-                                    ? `Pro until ${new Date(account.proExpiresAt).toLocaleDateString()}`
+                                {isPro
+                                    ? account.proExpiresAt
+                                        ? t('settings.account.proUntil', { date: new Date(account.proExpiresAt).toLocaleDateString() })
+                                        : t('settings.account.proLifetime')
                                     : account.email}
                             </div>
                         </div>
-                        <button type="button" className="av-pill av-pill--danger" onClick={disconnect} title="Disconnect account">
+                        <button type="button" className="av-pill av-pill--danger" onClick={disconnect} title={t('settings.account.disconnect')}>
                             <LogOut size={11} />
                         </button>
                     </div>
                 ) : (
                     <button type="button" className="av-save-btn" onClick={connect} style={{ margin: 0 }}>
                         <LogIn size={12} />
-                        <span>{isConnecting ? 'Waiting for sign-in…' : 'Connect with Aullevo Web'}</span>
+                        <span>{isConnecting ? t('settings.account.waiting') : t('settings.account.connect')}</span>
                     </button>
                 )}
 
@@ -132,19 +207,60 @@ export function SettingsTab({
                         style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 8, fontSize: 10.5, fontWeight: 600, color: 'var(--av-yellow)', textDecoration: 'none' }}
                     >
                         <Crown size={11} />
-                        <span>{account?.isPro ? 'Pro expired · Renew' : 'Upgrade to Pro'}</span>
+                        <span>{account?.isPro ? t('settings.account.renew') : t('settings.account.upgrade')}</span>
                     </a>
                 )}
             </div>
 
+            {/* Free plan: everything a short ad can unlock, and what is running */}
+            {!isPro && (
+                <div className="av-card" data-tour="free-unlocks">
+                    <div className="av-label">{t('rewards.settings.title')}</div>
+                    <div style={{ fontSize: 10.5, color: 'var(--av-text-muted)', lineHeight: 1.45, marginBottom: 6 }}>
+                        {t('rewards.settings.intro')}
+                    </div>
+                    <UnlockList cache={plan.cache} signedIn={plan.signedIn} onWatch={plan.openUnlock} onConnect={plan.connect} />
+                    {plan.cache && (
+                        <div style={{ fontSize: 10, color: 'var(--av-text-muted)', marginTop: 6 }}>
+                            {t('rewards.settings.adsToday', { count: plan.cache.adsToday, limit: plan.cache.dailyLimit })}
+                            {!plan.cache.live && <> · {t('rewards.settings.testMode')}</>}
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Language Card ("Language" always also in English, so it can be found in any language) */}
+            <div className="av-card" data-tour="language-settings">
+                <div className="av-label">
+                    {t('language.title')}{language !== DEFAULT_LANGUAGE && <span lang="en"> · Language</span>}
+                </div>
+                <select
+                    className="av-input"
+                    value={preference}
+                    onChange={(e) => setLanguagePreference(e.target.value)}
+                    style={{ fontSize: 12 }}
+                >
+                    <option value={DEFAULT_LANGUAGE}>English</option>
+                    <option value={AUTO_LANGUAGE}>{t('language.auto', { name: browserLanguage?.native ?? 'English' })}</option>
+                    {LANGUAGES.filter(l => l.code !== DEFAULT_LANGUAGE).map(l => (
+                        <option key={l.code} value={l.code}>
+                            {l.native === l.english ? l.native : `${l.native} · ${l.english}`}
+                        </option>
+                    ))}
+                </select>
+                <div style={{ fontSize: 10, color: 'var(--av-text-muted)', marginTop: 6 }}>
+                    {t('language.settingsHint')}
+                </div>
+            </div>
+
             {/* Theme Card */}
             <div className="av-card">
-                <div className="av-label">Theme Appearance</div>
+                <div className="av-label">{t('settings.theme.title')}</div>
                 <div className="av-toggle-row">
                     <div>
-                        <div className="av-toggle-title">Dark Theme</div>
+                        <div className="av-toggle-title">{t('settings.theme.dark')}</div>
                         <div style={{ fontSize: 10, color: 'var(--av-text-muted)' }}>
-                            Toggle between Dark Slate and Light theme
+                            {t('settings.theme.description')}
                         </div>
                     </div>
                     <button
@@ -157,34 +273,34 @@ export function SettingsTab({
             </div>
 
             {/* Autofill Mode Card */}
-            <div className="av-card">
-                <div className="av-label">Autofill Engine Mode</div>
+            <div className="av-card" data-tour="ai-mode">
+                <div className="av-label">{t('settings.mode.title')}</div>
                 <div className="av-toggle-row">
                     <div>
                         <div className="av-toggle-title" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                             {useAiFill ? (
                                 <>
                                     <Bot size={13} color="var(--av-accent, #6366f1)" />
-                                    <span>AI Smart Fill (Active)</span>
+                                    <span>{t('settings.mode.aiActive')}</span>
                                 </>
                             ) : (
                                 <>
                                     <Zap size={13} color="var(--av-text-muted)" />
-                                    <span>Standard Fill (No AI)</span>
+                                    <span>{t('settings.mode.standard')}</span>
                                 </>
                             )}
                         </div>
 
                         <div style={{ fontSize: 10, color: 'var(--av-text-muted)' }}>
                             {useAiFill
-                                ? 'Uses AI reasoning to interpret questions & match complex fields'
-                                : 'Direct profile attribute matching without AI calls'}
+                                ? t('settings.mode.aiDescription')
+                                : t('settings.mode.standardDescription')}
                         </div>
                     </div>
                     <button
                         className={`av-toggle ${useAiFill ? 'av-toggle--active' : ''}`}
                         onClick={onToggleAiFill}
-                        title="Toggle AI Fill Mode"
+                        title={t('settings.mode.toggle')}
                     >
                         <div className="av-toggle__thumb" />
                     </button>
@@ -193,11 +309,11 @@ export function SettingsTab({
 
             {/* AI Smart Fill Configuration Card */}
             {useAiFill && (
-                <div className="av-card" style={{ border: '1px solid rgba(99, 102, 241, 0.25)' }}>
+                <div className="av-card" style={{ border: '1px solid rgba(99, 102, 241, 0.25)' }} data-tour="ai-engine">
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700, fontSize: 12 }}>
                             <Sparkles size={14} color="var(--av-accent, #6366f1)" />
-                            <span>Gemini AI Engine</span>
+                            <span>{t('settings.ai.title')}</span>
                         </div>
                         <span
                             style={{
@@ -229,58 +345,99 @@ export function SettingsTab({
                         }}
                     >
                         <ShieldCheck size={14} color="var(--av-success)" style={{ flexShrink: 0 }} />
-                        <span><strong>Privacy:</strong> Fields marked SENSITIVE are never sent to AI, only their labels. Values of AI SAFE fields and the form's questions are sent to Google Gemini.</span>
+                        <span>{tRich('settings.ai.privacy', { provider: aiRecipientName(aiSettings) })}</span>
                     </div>
-                    {/* Model Selector Dropdown */}
+                    {/* Provider Selector Dropdown */}
                     <div style={{ marginBottom: 12 }}>
-                        <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--av-text)', marginBottom: 4 }}>
-                            AI Model
+                        <label style={fieldLabelStyle}>
+                            {t('settings.ai.provider')}
                         </label>
                         <select
-                            value={selectedModel}
-                            onChange={(e) => handleModelChange(e.target.value)}
-                            style={{
-                                width: '100%',
-                                padding: '6px 8px',
-                                borderRadius: 6,
-                                background: 'var(--av-surface-alt, #0f172a)',
-                                border: '1px solid var(--av-border)',
-                                color: 'var(--av-text)',
-                                fontSize: 11,
-                                outline: 'none',
-                                cursor: 'pointer'
-                            }}
+                            value={provider.id}
+                            onChange={(e) => handleProviderChange(e.target.value as AiProviderId)}
+                            style={selectStyle}
                         >
-                            {GEMINI_MODELS.map((m) => (
-                                <option key={m.id} value={m.id}>
-                                    {m.name}
+                            {AI_PROVIDERS.map((p) => (
+                                <option key={p.id} value={p.id}>
+                                    {providerLabel(p)}
                                 </option>
                             ))}
                         </select>
                     </div>
-                    {/* API Key Input Field */}
+                    {/* Server URL (custom OpenAI-compatible provider only) */}
+                    {provider.id === 'custom' && (
+                        <div style={{ marginBottom: 12 }}>
+                            <label style={fieldLabelStyle}>
+                                {t('settings.ai.baseUrl')}
+                            </label>
+                            <input
+                                type="url"
+                                value={aiSettings.baseUrl}
+                                onChange={(e) => handleBaseUrlChange(e.target.value)}
+                                placeholder="https://openrouter.ai/api/v1"
+                                spellCheck={false}
+                                style={textInputStyle}
+                            />
+                            <div style={{ fontSize: 10, color: 'var(--av-text-muted)', lineHeight: 1.4, marginTop: 4 }}>
+                                {t('settings.ai.customHint')}
+                            </div>
+                        </div>
+                    )}
+                    {/* Model Selector Dropdown (+ any other model by its exact ID) */}
+                    <div style={{ marginBottom: 12 }}>
+                        <label style={fieldLabelStyle}>
+                            {t('settings.ai.model')}
+                        </label>
+                        {provider.models.length > 0 && (
+                            <select
+                                value={isOtherModel ? OTHER_MODEL : selectedModel}
+                                onChange={(e) => handleModelChange(e.target.value === OTHER_MODEL ? '' : e.target.value)}
+                                style={selectStyle}
+                            >
+                                {provider.models.map((m) => (
+                                    <option key={m.id} value={m.id}>
+                                        {modelLabel(m)}
+                                    </option>
+                                ))}
+                                <option value={OTHER_MODEL}>{t('settings.ai.otherModel')}</option>
+                            </select>
+                        )}
+                        {isOtherModel && (
+                            <input
+                                type="text"
+                                value={selectedModel}
+                                onChange={(e) => handleModelChange(e.target.value)}
+                                placeholder={t('settings.ai.modelIdPlaceholder', { example: MODEL_ID_EXAMPLES[provider.id] })}
+                                spellCheck={false}
+                                style={{ ...textInputStyle, marginTop: provider.models.length > 0 ? 6 : 0 }}
+                            />
+                        )}
+                    </div>
+                    {/* API Key Input Field (each provider keeps its own key) */}
                     <div style={{ marginBottom: 8 }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
                             <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--av-text)', display: 'flex', alignItems: 'center', gap: 4 }}>
                                 <KeyRound size={12} color="var(--av-text-muted)" />
-                                <span>Gemini API Key</span>
+                                <span>{t('settings.ai.apiKey', { provider: providerName })}</span>
                             </label>
-                            <a
-                                href="https://aistudio.google.com/app/apikey"
-                                target="_blank"
-                                rel="noreferrer"
-                                style={{
-                                    fontSize: 10,
-                                    color: 'var(--av-accent, #6366f1)',
-                                    textDecoration: 'none',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 2
-                                }}
-                            >
-                                <span>Get free key</span>
-                                <ExternalLink size={9} />
-                            </a>
+                            {provider.keyUrl && (
+                                <a
+                                    href={provider.keyUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    style={{
+                                        fontSize: 10,
+                                        color: 'var(--av-accent, #6366f1)',
+                                        textDecoration: 'none',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 2
+                                    }}
+                                >
+                                    <span>{t('settings.ai.getKey')}</span>
+                                    <ExternalLink size={9} />
+                                </a>
+                            )}
                         </div>
                         <div
                             style={{
@@ -296,7 +453,8 @@ export function SettingsTab({
                                 type={showKey ? 'text' : 'password'}
                                 value={apiKey}
                                 onChange={(e) => handleApiKeyChange(e.target.value)}
-                                placeholder="Paste your Gemini API key (AIzaSy...)"
+                                placeholder={t('settings.ai.keyPlaceholder', { provider: providerName })}
+                                spellCheck={false}
                                 style={{
                                     flex: 1,
                                     background: 'transparent',
@@ -318,19 +476,29 @@ export function SettingsTab({
                                     alignItems: 'center',
                                     padding: '2px'
                                 }}
-                                title={showKey ? 'Hide key' : 'Show key'}
+                                title={showKey ? t('settings.ai.hideKey') : t('settings.ai.showKey')}
                             >
                                 {showKey ? <EyeOff size={13} /> : <Eye size={13} />}
                             </button>
                         </div>
                     </div>
-                    <div style={{ fontSize: 10, color: 'var(--av-text-muted)', lineHeight: 1.4 }}>
-                        {!hasCustomKey && !hostedAi
-                            ? 'Add your free Gemini key from AI Studio to use AI Smart Fill.'
+                    {/* New to API keys: the steps, and a button to the provider's page */}
+                    <KeyGuide
+                        key={provider.id}
+                        toggleLabel={t('settings.ai.guide.toggle')}
+                        defaultOpen={!apiKey.trim() && provider.id !== 'custom'}
+                        note={<>{t(`settings.ai.guide.${provider.id}.note`)} {t('settings.ai.guide.optional')}</>}
+                        steps={(provider.id === 'custom' ? [1, 2, 3] : [1, 2, 3, 4]).map(n => tRich(`settings.ai.guide.${provider.id}.step${n}`))}
+                        link={provider.keyUrl ? { url: provider.keyUrl, label: t(`settings.ai.guide.${provider.id}.open`) } : undefined}
+                    />
+                    <div style={{ fontSize: 10, color: 'var(--av-text-muted)', lineHeight: 1.4, marginTop: 6 }}>
+                        {!hasAccess
+                            ? provider.id === 'custom' || apiKey.trim() ? null : t('settings.ai.addKeyHint', { provider: providerName })
                             : isPro
-                                ? 'Pro: unlimited AI fills. Your key stays in this browser.'
-                                : `Free plan: ${FREE_TIER_WEEKLY_LIMIT} AI fills per week. Upgrade to Pro for unlimited.`}
+                                ? t('settings.ai.proHint')
+                                : null}
                     </div>
+                    {!isPro && hasAccess && <div style={{ marginTop: 8 }}><PlanUnlock feature="ai" /></div>}
                 </div>
             )}
 
@@ -338,60 +506,52 @@ export function SettingsTab({
             <MemoriesCard useAiFill={useAiFill} />
 
             {/* Auto-Pagination Card (Pro) */}
-            <div className="av-card">
+            <div className="av-card" data-tour="auto-paginate">
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                    <div className="av-label" style={{ margin: 0 }}>Auto-Pagination</div>
-                    <span className="av-plan-badge av-plan-badge--pro">
-                        <Crown size={10} />
-                        PRO
-                    </span>
+                    <div className="av-label" style={{ margin: 0 }}>{t('settings.paginate.title')}</div>
+                    {!paginateOk && (
+                        <span className="av-plan-badge av-plan-badge--pro">
+                            <Crown size={10} />
+                            PRO / AD
+                        </span>
+                    )}
                 </div>
                 <div className="av-toggle-row">
                     <div>
                         <div className="av-toggle-title" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <ChevronsRight size={13} color={isPro ? 'var(--av-accent, #6366f1)' : 'var(--av-text-muted)'} />
-                            <span>Fill Multi-Page Forms</span>
+                            <ChevronsRight size={13} color={paginateOk ? 'var(--av-accent, #6366f1)' : 'var(--av-text-muted)'} />
+                            <span>{t('settings.paginate.toggleTitle')}</span>
                         </div>
                         <div style={{ fontSize: 10, color: 'var(--av-text-muted)' }}>
-                            Fills each page, clicks Next / Continue, and presses Submit at the end. Corrects answers the form rejects; pauses when it can't.
+                            {t('settings.paginate.description')}
                         </div>
                     </div>
                     <button
-                        className={`av-toggle ${isPro && autoPaginate ? 'av-toggle--active' : ''}`}
+                        className={`av-toggle ${paginateOk && autoPaginate ? 'av-toggle--active' : ''}`}
                         onClick={onToggleAutoPaginate}
-                        disabled={!isPro}
-                        title={isPro ? 'Toggle Auto-Pagination' : 'Pro feature'}
+                        disabled={!paginateOk}
+                        title={paginateOk ? t('settings.paginate.toggle') : t('rewards.status.paginateLocked')}
                     >
                         <div className="av-toggle__thumb" />
                     </button>
                 </div>
-                {!isPro && (
-                    <a
-                        href={AULLEVO_WEB_URL}
-                        target="_blank"
-                        rel="noreferrer"
-                        style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 8, fontSize: 10.5, fontWeight: 600, color: 'var(--av-yellow)', textDecoration: 'none' }}
-                    >
-                        <Crown size={11} />
-                        <span>Upgrade to Pro to use Auto-Pagination</span>
-                    </a>
-                )}
+                {!isPro && <div style={{ marginTop: 8 }}><PlanUnlock feature="paginate" /></div>}
             </div>
 
             {/* Webpage Floating Trigger Card */}
-            <div className="av-card">
-                <div className="av-label">Webpage Floating Icon</div>
+            <div className="av-card" data-tour="floating-icon">
+                <div className="av-label">{t('settings.floating.title')}</div>
                 <div className="av-toggle-row">
                     <div>
-                        <div className="av-toggle-title">Show Floating Button</div>
+                        <div className="av-toggle-title">{t('settings.floating.toggleTitle')}</div>
                         <div style={{ fontSize: 10, color: 'var(--av-text-muted)' }}>
-                            Display the quick-access Aullevo tab docked on webpage edges
+                            {t('settings.floating.description')}
                         </div>
                     </div>
                     <button
                         className={`av-toggle ${showFloatingIcon ? 'av-toggle--active' : ''}`}
                         onClick={onToggleFloatingIcon}
-                        title="Toggle Webpage Floating Button"
+                        title={t('settings.floating.toggle')}
                     >
                         <div className="av-toggle__thumb" />
                     </button>
@@ -399,12 +559,12 @@ export function SettingsTab({
             </div>
 
             {/* Human Typing Speed Card */}
-            <div className="av-card">
+            <div className="av-card" data-tour="typing-speed">
                 {/* Header Row with Badge */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700, fontSize: 12 }}>
                         <Keyboard size={14} color="var(--av-violet, #6366f1)" />
-                        <span>Human Typing Speed</span>
+                        <span>{t('settings.typing.title')}</span>
                     </div>
                     <span
                         style={{
@@ -417,13 +577,13 @@ export function SettingsTab({
                             border: '1px solid rgba(99, 102, 241, 0.3)'
                         }}
                     >
-                        {canUseTypingDelay(typingDelayMs, isPro) ? getSpeedBadge(typingDelayMs) : 'Natural (25ms) · Free plan'}
+                        {canUseTypingDelay(typingDelayMs, typingOk) ? getSpeedBadge(typingDelayMs) : t('settings.typing.naturalFree', { ms: 25 })}
                     </span>
                 </div>
 
                 {/* Subtitle Description */}
                 <div style={{ fontSize: 11, color: 'var(--av-text-muted)', marginBottom: 12, lineHeight: 1.4 }}>
-                    Simulates realistic keystrokes to bypass anti-bot form detectors on sensitive job portals.
+                    {t('settings.typing.description')}
                 </div>
 
                 {/* 3 Preset Buttons */}
@@ -434,7 +594,7 @@ export function SettingsTab({
                         onClick={() => onChangeTypingDelay(0)}
                     >
                         <Zap size={11} />
-                        <span>Instant (0ms)</span>
+                        <span>{t('settings.typing.instant', { ms: 0 })}</span>
                     </button>
                     <button
                         type="button"
@@ -442,17 +602,17 @@ export function SettingsTab({
                         onClick={() => onChangeTypingDelay(25)}
                     >
                         <User size={11} />
-                        <span>Natural (25ms)</span>
+                        <span>{t('settings.typing.natural', { ms: 25 })}</span>
                     </button>
                     <button
                         type="button"
                         className={`av-speed-preset-btn ${typingDelayMs === 65 ? 'active' : ''}`}
                         onClick={() => onChangeTypingDelay(65)}
-                        disabled={!isPro}
-                        title={isPro ? undefined : 'Pro feature'}
+                        disabled={!typingOk}
+                        title={typingOk ? undefined : t('rewards.status.typingLocked')}
                     >
-                        {isPro ? <Clock size={11} /> : <Crown size={11} />}
-                        <span>Slow (65ms)</span>
+                        {typingOk ? <Clock size={11} /> : <Crown size={11} />}
+                        <span>{t('settings.typing.slow', { ms: 65 })}</span>
                     </button>
                 </div>
 
@@ -468,8 +628,8 @@ export function SettingsTab({
                 >
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 600, color: 'var(--av-text)' }}>
                         <Sliders size={13} color="var(--av-text-muted)" />
-                        <span>Custom Delay:</span>
-                        {!isPro && <Crown size={11} color="#eab308" />}
+                        <span>{t('settings.typing.customDelay')}</span>
+                        {!typingOk && <Crown size={11} color="#eab308" />}
                     </div>
 
                     <div
@@ -489,8 +649,8 @@ export function SettingsTab({
                             max="1000"
                             step="5"
                             value={typingDelayMs}
-                            disabled={!isPro}
-                            title={isPro ? undefined : 'Custom delay is a Pro feature'}
+                            disabled={!typingOk}
+                            title={typingOk ? undefined : t('rewards.status.typingLocked')}
                             onChange={(e) => {
                                 const val = parseInt(e.target.value, 10);
                                 onChangeTypingDelay(isNaN(val) ? 0 : Math.max(0, Math.min(1000, val)));
@@ -506,24 +666,41 @@ export function SettingsTab({
                                 outline: 'none'
                             }}
                         />
-                        <span style={{ fontSize: 11, color: 'var(--av-text-muted)', fontWeight: 600 }}>ms</span>
+                        <span style={{ fontSize: 11, color: 'var(--av-text-muted)', fontWeight: 600 }}>{t('settings.typing.unitMs')}</span>
                     </div>
                 </div>
+                {!isPro && <div style={{ marginTop: 10 }}><PlanUnlock feature="typing" /></div>}
             </div>
 
-            {/* Security Card */}
-            <div className="av-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                <div>
-                    <div className="av-label" style={{ color: 'var(--av-success)', display: 'flex', alignItems: 'center', gap: 4, margin: 0 }}>
-                        <Lock size={11} />
-                        <span>Encrypted Locally</span>
+            {/* Guided Tour Card */}
+            {onReplayTour && (
+                <div className="av-card" data-tour="replay-tour">
+                    <div className="av-label">{t('settings.tour.title')}</div>
+                    <div className="av-toggle-row">
+                        <div>
+                            <div className="av-toggle-title">{t('settings.tour.toggleTitle')}</div>
+                            <div style={{ fontSize: 10, color: 'var(--av-text-muted)' }}>
+                                {t('settings.tour.description')}
+                            </div>
+                        </div>
+                        <button type="button" className="av-pill" onClick={onReplayTour}>
+                            <Compass size={11} />
+                            <span>{t('settings.tour.replay')}</span>
+                        </button>
                     </div>
-                    <div style={{ fontSize: 10, color: 'var(--av-text-muted)', marginTop: 2 }}>AES-256 · stays in this browser</div>
                 </div>
-                <button type="button" className="av-pill" onClick={() => lockVault()}>
+            )}
+
+            {/* Per-account data stored on this device */}
+            <DeviceDataCard />
+
+            {/* Where the data lives: encrypted in this browser, one vault per account and the guest (no passphrase) */}
+            <div className="av-card" data-tour="device">
+                <div className="av-label" style={{ color: 'var(--av-success)', display: 'flex', alignItems: 'center', gap: 4, margin: 0 }}>
                     <Lock size={11} />
-                    <span>Lock</span>
-                </button>
+                    <span>{t('settings.security.title')}</span>
+                </div>
+                <div style={{ fontSize: 10, color: 'var(--av-text-muted)', marginTop: 2, lineHeight: 1.45 }}>{t('settings.security.descriptionDevice')}</div>
             </div>
         </>
     );

@@ -1,0 +1,709 @@
+{
+  "autofill": {
+    "detection": {
+      "title": "Pag-detect ng Form",
+      "sub": "Mga field sa aktibong tab",
+      "highlightTitle": "Suriin at i-highlight ang mga field sa page",
+      "clear": "I-clear",
+      "highlight": "I-highlight",
+      "rescanTitle": "I-rescan ang page",
+      "rescan": "I-rescan"
+    },
+    "fill": {
+      "injecting": "Pinupunan...",
+      "disabled": "Naka-disable ang {type}",
+      "withAi": "Punan ang Form gamit ang AI ({type})",
+      "standard": "Punan ang Form ({type})",
+      "autoPaginate": "Naka-on ang Auto-Pagination: pupunan ang bawat page, saka isa-submit"
+    },
+    "activeProfile": {
+      "title": "Aktibong Profile",
+      "summary": "{fields} • {docs} handa na",
+      "fieldCount": {
+        "one": "{count} field",
+        "other": "{count} field"
+      },
+      "docCount": {
+        "one": "{count} doc",
+        "other": "{count} doc"
+      },
+      "ready": "HANDA",
+      "disabled": "NAKA-DISABLE"
+    },
+    "shortcuts": {
+      "title": "Mga Keyboard Shortcut",
+      "toggleSidePanel": "Buksan/Isara ang Side Panel",
+      "formFill": "Pagpuno ng Form gamit ang AI / Keyword",
+      "batchFill": "Batch Fill ng Multi-link"
+    }
+  },
+  "content": {
+    "openSidebar": "Buksan ang side panel ng Aullevo",
+    "filled": "NAPUNAN",
+    "file": "File: {name}",
+    "files": {
+      "one": "{count} file ang naka-attach",
+      "other": "{count} file ang naka-attach"
+    },
+    "matched": "Tugma: {name}",
+    "ranked": "Niranggo: {value}",
+    "ai": "[AI] {text}",
+    "aiGenerated": "[AI] Ginawa ng AI",
+    "fixed": "Itinama: {value}"
+  },
+  "header": {
+    "versionLine": "v{version} • Autofill",
+    "lightTheme": "Light theme",
+    "darkTheme": "Dark theme",
+    "jsonConfig": "JSON Configuration",
+    "openFullPage": "Buksan sa buong page",
+    "closeSidePanel": "Isara ang side panel",
+    "footer": {
+      "engine": "Aullevo Autofill Engine",
+      "ready": "Handa"
+    }
+  },
+  "json": {
+    "title": "JSON Configuration",
+    "badge": {
+      "fields": {
+        "one": "✓ {count} field",
+        "other": "✓ {count} field"
+      },
+      "invalid": "Invalid na JSON"
+    },
+    "actions": {
+      "format": "I-format / Ayusin ang JSON",
+      "fullscreen": "Fullscreen",
+      "exitFullscreen": "Lumabas sa Fullscreen",
+      "close": "Isara",
+      "download": "I-download",
+      "copy": "Kopyahin ang JSON",
+      "copied": "Nakopya",
+      "upload": "Mag-upload ng File",
+      "import": "I-import"
+    },
+    "quota": {
+      "downloadPro": "Pro feature ang pag-download (export).",
+      "leftToday": "Free plan: {left} sa {limit} JSON import na lang ang natitira ngayong araw. Nare-reset ito pagsapit ng hatinggabi.",
+      "reachedToday": "Nagamit mo na ang {limit} libreng JSON import ngayong araw. Nare-reset ito pagsapit ng hatinggabi; may 10 pa kapag nanood ng maikling ad, o mag-upgrade sa Pro para sa unlimited na import."
+    },
+    "errors": {
+      "noFields": "Walang valid na field sa ibinigay na JSON.",
+      "invalidFormat": "Invalid na format ng JSON: {error}"
+    }
+  },
+  "language": {
+    "title": "Wika",
+    "button": "Wika: {name}",
+    "search": "Maghanap ng wika",
+    "auto": "Awtomatiko: {name}",
+    "autoHint": "Sinusunod ang wika ng iyong browser",
+    "backToEnglish": "Bumalik sa English",
+    "changed": "Pinalitan ang wika sa {name}.",
+    "switchBack": "Bumalik sa {name}",
+    "keep": "Panatilihin",
+    "noResults": "Walang nahanap na wika",
+    "settingsHint": "Pinapalitan ang bawat screen ng Aullevo, kasama ang guided tour."
+  },
+  "manifest": {
+    "appName": "Aullevo - AI Autofill para sa Form at Job Application",
+    "appDescription": "AI form filler para sa job application, survey, at kahit anong web form. May saved profile, resume upload, at smart autofill.",
+    "actionTitle": "Buksan ang Side Panel ng Aullevo",
+    "commandTogglePanel": "Buksan/Isara ang Side Panel ng Aullevo",
+    "commandFill": "Patakbuhin ang AI o Keyword Autofill sa Page",
+    "commandBatchFill": "Patakbuhin ang Batch Autofill ng Multi-link"
+  },
+  "multilink": {
+    "batch": {
+      "title": "Queue ng Batch Autofill",
+      "activeCount": "{enabled} sa {total} ang aktibo",
+      "description": "Awtomatikong buksan at punan ang mga form sa maraming tab gamit ang iyong aktibong <b>{type}</b> profile.",
+      "running": "Kasalukuyang nagba-batch autofill...",
+      "start": {
+        "one": "Punan ang {count} Form nang Sabay-sabay",
+        "other": "Punan ang {count} Form nang Sabay-sabay"
+      }
+    },
+    "add": {
+      "title": "Magdagdag ng Link ng Form / Trabaho"
+    },
+    "saved": {
+      "title": "Mga Naka-save na Link ({count})",
+      "clearAll": "I-clear Lahat",
+      "empty": "Wala pang link. Mag-paste ng URL ng form sa itaas para magsimula.",
+      "open": "Buksan ang link",
+      "remove": "Alisin ang link"
+    }
+  },
+  "nav": {
+    "autofill": "Autofill",
+    "profiles": "Mga Profile ({count})",
+    "multiLink": "Multi-link",
+    "settings": "Settings"
+  },
+  "profiles": {
+    "types": {
+      "job": "Trabaho",
+      "medical": "Medikal",
+      "government": "Gobyerno",
+      "survey": "Survey",
+      "academic": "Akademiko",
+      "financial": "Pinansyal",
+      "custom": "Custom"
+    },
+    "badges": {
+      "on": "ON",
+      "off": "OFF",
+      "disabled": "NAKA-DISABLE",
+      "sensitive": "SENSITIBO",
+      "aiSafe": "LIGTAS SA AI"
+    },
+    "save": {
+      "button": "I-save ang {type} Profile",
+      "saved": "Na-save ✓"
+    },
+    "dropdown": {
+      "newProfilePlaceholder": "Pangalan ng bagong profile...",
+      "add": "Idagdag"
+    },
+    "config": {
+      "title": "Configuration ng Profile",
+      "on": "PROFILE ON",
+      "off": "PROFILE OFF",
+      "activeTooltip": "Aktibo ang {type} profile",
+      "disabledTooltip": "Naka-disable ang {type} profile",
+      "namePlaceholder": "Pangalan ng Profile"
+    },
+    "identity": {
+      "title": "Pagkakakilanlan at Contact",
+      "firstName": "Pangalan",
+      "lastName": "Apelyido",
+      "email": "Email Address",
+      "phone": "Numero ng Telepono",
+      "address": "Tirahan"
+    },
+    "attributes": {
+      "title": "Mga Detalye ng {type}",
+      "customHint": "Magdagdag ng sarili mong field sa ibaba o mag-import gamit ang JSON.",
+      "job": {
+        "headline": "Headline / Titulo",
+        "linkedin": "LinkedIn",
+        "github": "GitHub",
+        "portfolio": "Portfolio",
+        "skills": "Mga Skill",
+        "education": "Edukasyon / Degree",
+        "certifications": "Mga Certification"
+      },
+      "medical": {
+        "bloodType": "Blood Type",
+        "allergies": "Mga Allergy",
+        "emergencyContact": "Emergency Contact",
+        "insuranceProvider": "Insurance Provider"
+      },
+      "government": {
+        "nationalId": "National ID / SSN",
+        "citizenship": "Pagkamamamayan",
+        "passport": "Passport #",
+        "driversLicense": "Driver's License"
+      },
+      "survey": {
+        "ageRange": "Edad",
+        "income": "Kita",
+        "education": "Edukasyon",
+        "employment": "Trabaho"
+      },
+      "academic": {
+        "institution": "Paaralan",
+        "major": "Major / Kurso",
+        "gpa": "GPA",
+        "gradYear": "Taon ng Pagtatapos",
+        "testScores": "Mga Test Score"
+      },
+      "financial": {
+        "billingAddress": "Billing Address",
+        "payment": "Bayad",
+        "cardholder": "Cardholder"
+      }
+    },
+    "field": {
+      "sensitiveTooltip": "Sensitibo: Nakatago sa AI ang value (Zero-Knowledge)",
+      "aiSafeTooltip": "Ligtas sa AI: Ibinabahagi sa AI ang value para sa matalinong pagpili ng sagot"
+    },
+    "context": {
+      "buttonTitle": "AI Context para sa {label}",
+      "title": "AI Context: {label}",
+      "placeholder": "Hint para sa AI (hal. 'Legal na pangalan sa passport')",
+      "hint": "Ginagamit ng AI ang prompt na ito para matukoy ang malalabong field sa mga form ng website."
+    },
+    "custom": {
+      "title": "Mga Custom Field",
+      "labelPlaceholder": "Label ng Field",
+      "valuePlaceholder": "Value ng Field",
+      "sensitiveTooltip": "Sensitibo: Nakatago sa AI ang value",
+      "aiSafeTooltip": "Ligtas sa AI: Ibinabahagi sa AI ang value",
+      "enabledTooltip": "Naka-enable ang field",
+      "disabledTooltip": "Naka-disable ang field",
+      "delete": "Burahin ang field",
+      "pagination": {
+        "one": "Page {page} ng {total} ({count} item)",
+        "other": "Page {page} ng {total} ({count} item)"
+      },
+      "newLabelPlaceholder": "Label",
+      "newValuePlaceholder": "Value",
+      "add": "Magdagdag ng custom field"
+    },
+    "documents": {
+      "title": "Mga Naka-attach na Dokumento",
+      "labelPlaceholder": "Label ng Dokumento",
+      "labelTooltip": "I-click para i-edit ang label ng dokumento",
+      "remove": "Alisin ang file",
+      "pagination": "Page {page} ng {total}",
+      "categories": {
+        "resume": "Resume / CV",
+        "coverLetter": "Cover Letter",
+        "identity": "Pagkakakilanlan / ID",
+        "academic": "Academic Record",
+        "portfolio": "Portfolio",
+        "other": "Ibang Dokumento"
+      },
+      "upload": {
+        "resume": "Mag-upload ng Resume",
+        "coverLetter": "Mag-upload ng Cover Letter",
+        "identity": "Mag-upload ng ID",
+        "academic": "Mag-upload ng Academic Record",
+        "portfolio": "Mag-upload ng Portfolio",
+        "other": "Mag-upload ng Dokumento"
+      },
+      "size": {
+        "bytes": "{size} B",
+        "kilobytes": "{size} KB",
+        "megabytes": "{size} MB"
+      }
+    }
+  },
+  "settings": {
+    "account": {
+      "title": "Account",
+      "proUntil": "Pro hanggang {date}",
+      "proLifetime": "Pro · Lifetime",
+      "disconnect": "I-disconnect ang account",
+      "waiting": "Hinihintay ang pag-sign in…",
+      "connect": "Kumonekta gamit ang Aullevo Web",
+      "renew": "Expired na ang Pro · I-renew",
+      "upgrade": "Mag-upgrade sa Pro"
+    },
+    "theme": {
+      "title": "Itsura ng Theme",
+      "dark": "Dark Theme",
+      "description": "Magpalit sa pagitan ng Dark Slate at Light theme"
+    },
+    "mode": {
+      "title": "Mode ng Autofill Engine",
+      "aiActive": "AI Smart Fill (Aktibo)",
+      "standard": "Standard Fill (Walang AI)",
+      "aiDescription": "Gumagamit ng AI para unawain ang mga tanong at itugma ang mga komplikadong field",
+      "standardDescription": "Direktang pagtutugma ng mga detalye ng profile nang walang AI",
+      "toggle": "I-on/I-off ang AI Fill Mode"
+    },
+    "ai": {
+      "title": "AI Engine",
+      "unlimited": "Unlimited na Access",
+      "keyRequired": "Kailangan ng API Key",
+      "freeUsage": "Free: {used}/{limit} ngayong linggo",
+      "privacy": "<b>Privacy:</b> Hindi kailanman ipinapadala sa AI ang mga field na may markang SENSITIBO, label lang nila. Ipinapadala sa {provider} ang mga value ng LIGTAS SA AI na field at ang mga tanong ng form.",
+      "provider": "AI Provider",
+      "customProvider": "Custom (OpenAI-compatible)",
+      "baseUrl": "Server URL",
+      "customHint": "Gumagana sa kahit anong server na sumusuporta sa chat API ng OpenAI, gaya ng OpenRouter, Groq, Mistral, Ollama o LM Studio. Hindi kailangan ng key ang mga local server.",
+      "model": "AI Model",
+      "modelOption": "{name} ({description})",
+      "models": {
+        "fastest": "Pinakamabilis at Pinakamura",
+        "balanced": "Balanseng Pag-iisip",
+        "capable": "Mabilis at Mahusay",
+        "smartest": "Pinakamatalino",
+        "legacy": "Lumang Mabilis"
+      },
+      "otherModel": "Ibang model (i-type ang ID nito)",
+      "modelIdPlaceholder": "Eksaktong model ID, hal. {example}",
+      "apiKey": "{provider} API Key",
+      "getKey": "Kumuha ng API key",
+      "keyPlaceholder": "I-paste ang iyong {provider} API key",
+      "hideKey": "Itago ang key",
+      "showKey": "Ipakita ang key",
+      "addKeyHint": "Idagdag ang iyong {provider} API key para magamit ang AI Smart Fill.",
+      "proHint": "Pro: unlimited na AI fill. Mananatili ang key mo sa browser na ito.",
+      "freeHint": "Free plan: {limit} AI fill bawat linggo. Mag-upgrade sa Pro para sa unlimited."
+    },
+    "paginate": {
+      "title": "Auto-Pagination",
+      "toggleTitle": "Punan ang Mga Form na Maraming Page",
+      "description": "Pinupunan ang bawat page, kini-click ang Next / Continue, at pinipindot ang Submit sa dulo. Itinatama ang mga sagot na tinanggihan ng form; humihinto kapag hindi kaya.",
+      "toggle": "I-on/I-off ang Auto-Pagination",
+      "proFeature": "Pro feature",
+      "upgrade": "Mag-upgrade sa Pro para magamit ang Auto-Pagination"
+    },
+    "floating": {
+      "title": "Floating Icon sa Webpage",
+      "toggleTitle": "Ipakita ang Floating Button",
+      "description": "Ipakita ang quick-access na tab ng Aullevo sa gilid ng mga webpage",
+      "toggle": "I-on/I-off ang Floating Button sa Webpage"
+    },
+    "typing": {
+      "title": "Bilis ng Pag-type na Parang Tao",
+      "instant": "Instant ({ms}ms)",
+      "natural": "Natural ({ms}ms)",
+      "slow": "Mabagal ({ms}ms)",
+      "custom": "Custom ({ms}ms)",
+      "naturalFree": "Natural ({ms}ms) · Free plan",
+      "description": "Nagta-type nang isa-isang character sa bilis ng tao, para sa mga site na umaasa ng totoong pag-type.",
+      "proFeature": "Pro feature",
+      "customDelay": "Custom na Delay:",
+      "customProFeature": "Pro feature ang custom na delay",
+      "unitMs": "ms"
+    },
+    "tour": {
+      "title": "Guided Tour",
+      "toggleTitle": "Ipakita ulit ang walkthrough",
+      "description": "Isa-isang dadaanan ulit ang bawat tab",
+      "replay": "Ulitin"
+    },
+    "security": {
+      "title": "Naka-encrypt sa Device"
+    },
+    "memories": {
+      "title": "Mga AI Memory",
+      "count": "({enabled}/{total} naka-on)",
+      "descriptionAiOn": "Mga impormasyon tungkol sa iyo na magagamit ng AI para sagutin ang mga open-ended na tanong (hal. \"Work style: remote lang\"). Ipinapadala sa {provider} ang mga naka-enable na memory at naka-save nang hindi naka-encrypt sa browser na ito, kaya huwag maglagay ng password o ID number.",
+      "descriptionAiOff": "Mga impormasyon tungkol sa iyo na magagamit ng AI para sagutin ang mga open-ended na tanong (hal. \"Work style: remote lang\"). Ginagamit lang kapag naka-on ang AI Smart Fill. Ipinapadala sa {provider} ang mga naka-enable na memory at naka-save nang hindi naka-encrypt sa browser na ito, kaya huwag maglagay ng password o ID number.",
+      "titlePlaceholder": "Pamagat",
+      "contentPlaceholder": "Ano ang dapat malaman ng AI",
+      "enabledTitle": "Ipinapadala sa AI ang memory",
+      "disabledTitle": "Hindi ginagamit ang memory",
+      "on": "ON",
+      "off": "OFF",
+      "delete": "Burahin ang memory",
+      "newTitlePlaceholder": "Pamagat (hal. Work style)",
+      "newContentPlaceholder": "Nilalaman (hal. Mas gusto ang fully remote na trabaho, bukas sa contract)",
+      "add": "Magdagdag ng memory"
+    },
+    "deviceData": {
+      "title": "Data sa Device na Ito",
+      "total": "{size} kabuuan",
+      "description": "May sariling naka-encrypt na vault dito ang bawat account. Hindi kailanman nakikita ng mga account ang profile, dokumento, API key, memory, o link ng isa't isa.",
+      "empty": "Wala pang naka-save na data.",
+      "localOwner": "Hindi naka-sign in (mga local profile)",
+      "anotherAccount": "Ibang account",
+      "inUse": "{size} · ginagamit ngayon",
+      "deleteTitle": "Burahin ang data ng account na ito sa device na ito",
+      "delete": "Burahin",
+      "confirmDelete": "Burahin ang data ng Aullevo para sa \"{name}\" sa device na ito?\n\nPermanenteng aalisin nito ang mga naka-encrypt na profile, dokumento, API key, AI memory, at link queue nito. Hindi na ito maibabalik.",
+      "bytes": "{size} B",
+      "kilobytes": "{size} KB",
+      "megabytes": "{size} MB"
+    }
+  },
+  "status": {
+    "plan": {
+      "profileLimit": "Hanggang {max} aktibong profile lang sa Free plan. I-OFF ang mga sobrang profile o mag-upgrade sa Pro.",
+      "activeLimit": "Hanggang {max} aktibong profile lang sa Free plan. Mag-OFF ng isa o mag-upgrade sa Pro.",
+      "createdOff": "Ginawa ang profile nang naka-OFF. Hanggang {max} aktibong profile lang sa Free plan. Mag-OFF ng isa o mag-upgrade sa Pro.",
+      "autoPaginatePro": "Pro feature ang Auto-Pagination. Mag-upgrade sa Pro para mapunan ang mga form na maraming page.",
+      "jsonImportLimit": "Nagamit mo na ang lahat ng {limit} libreng JSON import para sa 2 linggong ito. Mare-reset ito sa {date}, o mag-upgrade sa Pro para sa unlimited na import.",
+      "documentsSkipped": {
+        "one": "Hindi na-attach ang {count} dokumento: Pro feature ang pag-upload sa mga form.",
+        "other": "Hindi na-attach ang {count} dokumento: Pro feature ang pag-upload sa mga form."
+      }
+    },
+    "batch": {
+      "starting": {
+        "one": "Sinisimulan ang batch fill para sa {count} form...",
+        "other": "Sinisimulan ang batch fill para sa {count} form..."
+      },
+      "progress": "Pinupunan ang {current} sa {total}: {host}",
+      "progressNoHost": "Pinupunan ang {current} sa {total}...",
+      "complete": {
+        "one": "Tapos na ang batch fill sa {count} form!",
+        "other": "Tapos na ang batch fill sa {count} form!"
+      }
+    },
+    "save": {
+      "success": "Matagumpay na na-save ang {type} Profile!",
+      "failed": "Hindi na-save: {error}",
+      "noProfile": "Walang napiling profile",
+      "unknownError": "Hindi na-save"
+    },
+    "profile": {
+      "nameExists": "May profile na na may ganitong pangalan!",
+      "disabled": "Naka-disable ang {type}. I-ON ito para mag-autofill.",
+      "defaultType": "PROFILE",
+      "imported": {
+        "one": "Matagumpay na na-import ang {count} field sa {type}!",
+        "other": "Matagumpay na na-import ang {count} field sa {type}!"
+      }
+    },
+    "highlight": {
+      "noActiveTab": "Walang nahanap na aktibong tab.",
+      "refreshToConnect": "I-refresh ang page para ikonekta ang highlight.",
+      "on": {
+        "one": "Na-highlight ang {count} field sa page!",
+        "other": "Na-highlight ang {count} field sa page!"
+      },
+      "cleared": "Na-clear ang mga highlight."
+    },
+    "fill": {
+      "injectingAi": "Pinupunan ang mga field gamit ang AI ({type})...",
+      "injecting": "Pinupunan ang mga field ({type})...",
+      "noTab": "Hindi maabot ang aktibong tab.",
+      "refreshToConnect": "I-refresh ang tab para ikonekta ang autofill.",
+      "cannotConnect": "Hindi makakonekta sa page. I-refresh ang tab.",
+      "aiPartlySkipped": {
+        "one": "Napunan ang {count} input (bahagyang nilaktawan ang AI).",
+        "other": "Napunan ang {count} input (bahagyang nilaktawan ang AI)."
+      },
+      "keywordMode": {
+        "one": "Napunan ang {count} input (keyword mode).",
+        "other": "Napunan ang {count} input (keyword mode)."
+      },
+      "withAi": {
+        "one": "Napunan ang form gamit ang AI ({count} input ang tumugma).",
+        "other": "Napunan ang form gamit ang AI ({count} input ang tumugma)."
+      },
+      "withoutAi": {
+        "one": "Napunan ang form nang walang AI ({count} input ang tumugma).",
+        "other": "Napunan ang form nang walang AI ({count} input ang tumugma)."
+      },
+      "error": "Error sa pagpuno: {error}",
+      "injected": {
+        "one": "Napunan ang {count} field sa page.",
+        "other": "Napunan ang {count} field sa page."
+      }
+    },
+    "pagination": {
+      "progress": "Auto-Pagination: pinupunan ang page {page}...",
+      "lostConnection": "Huminto ang Auto-Pagination: nawala ang koneksyon sa extension.",
+      "filled": {
+        "one": "Napunan ang {filled} input sa {count} page.",
+        "other": "Napunan ang {filled} input sa {count} page."
+      },
+      "corrected": {
+        "one": "Naitama ang {count} sagot na tinanggihan ng form.",
+        "other": "Naitama ang {count} sagot na tinanggihan ng form."
+      },
+      "field": "\"{name}\"",
+      "fieldAndMore": {
+        "one": "\"{name}\" (+{count} pa)",
+        "other": "\"{name}\" (+{count} pa)"
+      },
+      "aField": "isang field",
+      "nextButton": "Next",
+      "submitted": "Na-submit na!",
+      "noNext": "Walang nahanap na Next / Continue button.",
+      "stillEmpty": "Wala pa ring laman ang {field}.",
+      "check": "Tingnan ang {field}.",
+      "blocked": "Huminto sa page {page}: kailangan ang {field} pero wala itong laman. Punan ito, saka patakbuhin ulit.",
+      "nextDisabled": "Huminto sa page {page}: naka-disable ang \"{button}\" button. Tingnan ang page, saka patakbuhin ulit.",
+      "validationError": "Huminto sa page {page}: nag-report ang form ng \"{error}\".",
+      "validationErrorUnknown": "Huminto sa page {page}: nag-report ang form ng error.",
+      "correctionTried": "(sinubukan ang awtomatikong pagtatama)",
+      "stuck": "Huminto sa page {page}: na-click ang \"{button}\" pero hindi umusad ang form.",
+      "maxPages": "Huminto sa safety limit na {max} page.",
+      "noForm": "Walang nahanap na form sa page na ito (o hindi gumagana rito ang Aullevo).",
+      "stopped": "Huminto ang Auto-Pagination: {error}",
+      "unknownError": "hindi kilalang error"
+    }
+  },
+  "tour": {
+    "card": {
+      "progress": "{section} · {current} sa {total}",
+      "skip": "Laktawan ang tour",
+      "dontShowAgain": "Huwag nang ipakita ulit",
+      "back": "Bumalik",
+      "next": "Susunod",
+      "done": "Tapos"
+    },
+    "shortcuts": {
+      "allActive": "Aktibo ang lahat ng 3 shortcut sa browser na ito.",
+      "notSet": "Hindi naka-set sa browser na ito: {list}. I-set ang mga ito sa shortcut settings ng Chrome.",
+      "openSettings": "Buksan ang shortcut settings ng Chrome",
+      "toggleSidePanel": "Buksan/Isara ang Side Panel",
+      "fallbackName": "Shortcut"
+    },
+    "sections": {
+      "autofill": "Autofill",
+      "header": "Mga button sa itaas",
+      "profiles": "Mga Profile",
+      "multilink": "Multi-link",
+      "settings": "Settings"
+    },
+    "autofill": {
+      "detection": {
+        "title": "Pag-detect ng form",
+        "body": "Binibilang ng Aullevo ang mga field na puwedeng punan sa page ng kasalukuyang tab. Magbukas ng form at mag-a-update ang numerong ito."
+      },
+      "highlight": {
+        "title": "I-highlight ang mga field",
+        "body": "Nilalagyan ng outline ang bawat field na nahanap ng Aullevo sa page, para makita mo kung ano ang mapupunan bago mo ito punan. I-click ulit para alisin ang mga outline."
+      },
+      "rescan": {
+        "title": "I-rescan",
+        "body": "May mga form na nagdadagdag ng field pagkatapos mag-load ng page, tulad ng mga multi-step form o pop-up. Binibilang ulit ng I-rescan ang mga field."
+      },
+      "fill": {
+        "title": "Punan ang form",
+        "body": "Pinupunan ang page gamit ang iyong aktibong profile. Kapag naka-on ang AI fill (sa Settings), naitutugma ang mga tanong sa iyong mga sagot kahit iba ang pagkakasabi. Kapag naka-off, itinutugma ang mga field ayon sa keyword."
+      },
+      "activeProfile": {
+        "title": "Aktibong profile",
+        "body": "Ang profile na ginagamit sa pagpuno, kasama kung ilang field at dokumento ang naka-on. Magpalit ng profile o i-edit ang iyong mga sagot sa tab na <b>Mga Profile</b>."
+      },
+      "shortcuts": {
+        "title": "Mga keyboard shortcut",
+        "body": "Itinatakda ng Chrome ang mga key na ito kapag na-install ang Aullevo, pero nilalaktawan ang mga ginagamit na ng Chrome o ng ibang extension. Puwede mong palitan ang mga ito anumang oras."
+      }
+    },
+    "header": {
+      "voice": {
+        "title": "Voice mode",
+        "body": "Kausapin ang Aullevo sa halip na mag-click. Inililipat ng button na ito ang panel sa voice agent: sabihin ang \"fill this page\", \"fill the email\", o \"fill the first question\", at sasagot ito nang malakas. I-click ulit para bumalik sa view na ito.",
+        "note": "Pro feature. Kailangan ang sarili mong ElevenLabs API key, na idinadagdag sa Voice settings. Gumagana ang voice commands sa English at Tagalog."
+      },
+      "language": {
+        "title": "Wika",
+        "body": "Piliin ang wika para sa buong Aullevo. Laging nasa itaas ng listahan ang English, kaya puwede kang bumalik anumang oras."
+      },
+      "theme": {
+        "title": "Light o dark theme",
+        "body": "Pinapalitan ang panel sa pagitan ng light at dark mode."
+      },
+      "json": {
+        "title": "Mabilis na setup gamit ang JSON",
+        "intro": "Ang iyong profile bilang JSON. Ang pinakamabilis na paraan para mag-set up ng profile:",
+        "step1": "Kopyahin ang JSON mula rito.",
+        "step2": "Ibigay ito sa Gemini, Claude, o ChatGPT kasama ang iyong resume o anumang ibang dokumento.",
+        "step3": "Ipapuno sa AI ang mga value at ipapanatili ang parehong structure.",
+        "step4": "I-paste pabalik dito ang resulta at i-click ang <b>I-import</b>.",
+        "noteDaily": "Free plan: {limit} import bawat araw. Pro: unlimited."
+      },
+      "fullPage": {
+        "title": "Buksan sa buong page",
+        "body": "Binubuksan ang Aullevo sa isang browser tab na mas maluwag para mag-edit ng profile. Dito pa rin sa side panel nangyayari ang pagpuno."
+      },
+      "close": {
+        "title": "Isara ang panel",
+        "body": "Isinasara ang side panel. Buksan ulit ito gamit ang <b>Alt+Q</b> (<b>Option+Q</b> sa Mac) o sa pag-click sa icon ng Aullevo sa toolbar."
+      }
+    },
+    "profiles": {
+      "switcher": {
+        "title": "Magpalit ng profile",
+        "body1": "May sariling set ng sagot ang bawat profile (Trabaho, Akademiko, Pinansyal, o sarili mo). Piliin ang gusto mong i-edit at gamitin sa pagpuno.",
+        "body2": "Buksan ang listahan para makita kung aling profile ang ON o OFF, at para gumawa ng bago sa pinakaibaba.",
+        "note": "Free plan: hanggang 2 profile lang ang puwedeng naka-ON nang sabay."
+      },
+      "config": {
+        "title": "Pangalan at on/off switch",
+        "body": "Palitan dito ang pangalan ng profile. Ino-on o ino-off ng <b>PROFILE ON</b> ang buong profile. Kapag naka-off, hindi ito ginagamit sa pagpuno."
+      },
+      "identity": {
+        "title": "Pagkakakilanlan at contact",
+        "body": "Ang iyong pangalan, email, telepono, at address. I-click ang header ng anumang section para i-collapse o i-expand ito. May tatlong maliliit na control ang bawat field, na ipapakita sa susunod."
+      },
+      "fieldContext": {
+        "title": "AI context hint",
+        "body": "Nagdadagdag ang ✨ button ng hint na nagsasabi sa AI kung ano ang ibig sabihin ng field na ito, tulad ng \"Legal na pangalan sa passport\". Nakakatulong ito kapag malabo ang pagkakasulat ng tanong sa form. Ang tuldok ay nangangahulugang may naka-set na hint."
+      },
+      "fieldPrivacy": {
+        "title": "Ligtas sa AI o Sensitibo",
+        "safe": "<b>Ligtas sa AI</b>: ibinabahagi sa AI ang value para mapili nito ang tamang sagot sa mga dropdown at multiple-choice na tanong.",
+        "sensitive": "<b>Sensitibo</b>: pangalan at hint lang ng field ang nakikita ng AI, hindi kailanman ang value. Ita-type pa rin ng Aullevo ang value sa iyong device.",
+        "toggle": "I-click ito para magpalit."
+      },
+      "fieldToggle": {
+        "title": "I-on o i-off ang field",
+        "body": "I-OFF ang field para laktawan ito sa pagpuno, nang hindi binubura ang tinype mo."
+      },
+      "documents": {
+        "title": "Mag-attach ng mga dokumento",
+        "body": "Piliin ang uri ng dokumento, saka i-upload ang iyong resume, cover letter, ID, at iba pa. Kapag may tanong na file upload ang form, ia-attach ng Aullevo ang mga dokumento mong naka-ON.",
+        "note": "Pro feature ang pag-attach ng dokumento sa mga form."
+      },
+      "attributes": {
+        "title": "Mga field para sa profile na ito",
+        "body": "Mga field na para sa ganitong uri ng profile. Ang Trabaho profile ay may headline, LinkedIn, skills, at edukasyon. May kani-kaniyang field din ang Akademiko, Medikal, at iba pa."
+      },
+      "customFields": {
+        "title": "Magdagdag ng sarili mong field",
+        "body": "Para sa anumang hindi sakop ng mga standard field, tulad ng \"Inaasahang sahod\" o \"Bakit mo gusto ang trabahong ito?\". Mag-type ng label at value, saka i-click ang <b>+</b>. Magandang gamitin ang mismong tanong bilang label."
+      },
+      "save": {
+        "title": "Pag-save",
+        "body": "Awtomatikong nase-save ang mga pagbabago habang nagta-type ka. Agad na nagse-save ang button na ito, na kapaki-pakinabang bago mo isara ang panel."
+      }
+    },
+    "multilink": {
+      "addLink": {
+        "title": "Magdagdag ng link ng form",
+        "body": "I-paste ang buong link ng form o job application (nagsisimula sa https://) at i-click ang <b>+</b>. Magdagdag ng kahit ilan."
+      },
+      "savedLinks": {
+        "title": "Ang iyong link queue",
+        "body": "Lumalabas dito ang bawat link na idinagdag mo. I-check ang link para isama ito sa susunod na batch, o i-uncheck para laktawan ito. Binubuksan ng arrow icon ang link at inaalis naman ito ng trash icon."
+      },
+      "batchRun": {
+        "title": "Punan lahat nang sabay-sabay",
+        "body1": "Isa-isang binubuksan ang bawat naka-check na link sa background tab at pinupunan gamit ang iyong aktibong profile. Makikita ang progress sa itaas ng panel.",
+        "note": "Shortcut: Alt+Shift+B (Option+Shift+B sa Mac)."
+      }
+    },
+    "settings": {
+      "account": {
+        "title": "Ang iyong account",
+        "body": "Ikonekta ang iyong Aullevo Web account para magamit dito ang iyong plan (Free o Pro). Mananatiling naka-encrypt sa device na ito ang iyong mga profile at hindi ina-upload."
+      },
+      "aiMode": {
+        "title": "AI Smart Fill o Standard Fill",
+        "standard": "Itinutugma ng <b>Standard Fill</b> ang mga field ayon sa pangalan, nang walang AI.",
+        "smart": "Naiintindihan ng <b>AI Smart Fill</b> ang mga tanong na iba ang pagkakasabi at pumipili ng sagot sa mga dropdown at multiple-choice na tanong."
+      },
+      "aiEngine": {
+        "title": "AI provider, model at API key"
+      },
+      "memories": {
+        "title": "Mga AI memory",
+        "body": "Maiikling impormasyon na magagamit ng AI para sa mga open-ended na tanong, tulad ng \"Work style: remote lang\". Ipinapadala ang mga ito sa AI provider na pinili mo at hindi naka-encrypt, kaya huwag kailanman maglagay ng password o ID number."
+      },
+      "autoPaginate": {},
+      "floatingIcon": {
+        "title": "Floating button",
+        "body": "Maliit na tab ng Aullevo sa gilid ng mga web page para sa mabilis na access. I-off ito kung nakakaabala."
+      },
+      "typingSpeed": {
+        "title": "Bilis ng pag-type",
+        "body": "Kung gaano kabilis mag-type ang Aullevo sa mga field. Mas mukhang taong nagta-type ang <b>Natural</b>, at pinakamabilis ang <b>Instant</b>. Pro ang mabagal at custom na bilis."
+      },
+      "replayTour": {
+        "title": "Ulitin ang gabay na ito",
+        "body": "May nakalimutan ka? I-click ang <b>Ulitin</b> para daanan ulit ang buong gabay."
+      },
+      "deviceData": {
+        "title": "Data sa device na ito",
+        "body": "May sariling naka-encrypt na vault sa browser na ito ang bawat account. Burahin ang data ng mga account na hindi mo na ginagamit."
+      }
+    }
+  },
+  "vault": {
+    "loading": "Naglo-load…",
+    "account": {
+      "signedInAs": "Naka-sign in bilang <b>{account}</b>",
+      "notSignedIn": "Hindi naka-sign in: mga local profile sa device na ito",
+      "fallbackName": "iyong account"
+    },
+    "errors": {
+      "createFailed": "Hindi magawa ang vault. Pakisubukan ulit.",
+      "wrongPassphrase": "Maling passphrase.",
+      "wrongClaimPassphrase": "Maling passphrase para sa mga profile na iyon."
+    }
+  }
+}

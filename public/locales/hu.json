@@ -1,0 +1,706 @@
+{
+  "autofill": {
+    "detection": {
+      "title": "Űrlapfelismerés",
+      "sub": "Mezők az aktív lapon",
+      "highlightTitle": "Mezők vizsgálata és kiemelése az oldalon",
+      "clear": "Törlés",
+      "highlight": "Kiemelés",
+      "rescanTitle": "Oldal újraszkennelése",
+      "rescan": "Újraszkennelés"
+    },
+    "fill": {
+      "injecting": "Beillesztés...",
+      "disabled": "{type}: letiltva",
+      "withAi": "Űrlap kitöltése AI-jal ({type})",
+      "standard": "Űrlap kitöltése ({type})",
+      "autoPaginate": "Automatikus lapozás bekapcsolva: minden oldalt kitölt, majd beküldi"
+    },
+    "activeProfile": {
+      "title": "Aktív profil",
+      "summary": "{fields} • {docs} kész",
+      "fieldCount": {
+        "one": "{count} mező",
+        "other": "{count} mező"
+      },
+      "docCount": {
+        "one": "{count} dokumentum",
+        "other": "{count} dokumentum"
+      },
+      "ready": "KÉSZ",
+      "disabled": "LETILTVA"
+    },
+    "shortcuts": {
+      "title": "Billentyűparancsok",
+      "toggleSidePanel": "Oldalpanel be/ki",
+      "formFill": "Űrlapkitöltés: AI / kulcsszó",
+      "batchFill": "Csoportos kitöltés több linkből"
+    }
+  },
+  "content": {
+    "openSidebar": "Az Aullevo oldalpanel megnyitása",
+    "filled": "KITÖLTVE",
+    "file": "Fájl: {name}",
+    "files": {
+      "one": "{count} fájl csatolva",
+      "other": "{count} fájl csatolva"
+    },
+    "matched": "Egyezés: {name}",
+    "ranked": "Rangsor: {value}",
+    "ai": "[AI] {text}",
+    "aiGenerated": "[AI] Generálva",
+    "fixed": "Javítva: {value}"
+  },
+  "header": {
+    "versionLine": "v{version} • Automatikus kitöltés",
+    "lightTheme": "Világos téma",
+    "darkTheme": "Sötét téma",
+    "jsonConfig": "JSON-konfiguráció",
+    "openFullPage": "Megnyitás teljes oldalon",
+    "closeSidePanel": "Oldalpanel bezárása",
+    "footer": {
+      "engine": "Aullevo kitöltőmotor",
+      "ready": "Kész"
+    }
+  },
+  "json": {
+    "title": "JSON-konfiguráció",
+    "badge": {
+      "fields": {
+        "one": "✓ {count} mező",
+        "other": "✓ {count} mező"
+      },
+      "invalid": "Érvénytelen JSON"
+    },
+    "actions": {
+      "format": "JSON formázása",
+      "fullscreen": "Teljes képernyő",
+      "exitFullscreen": "Kilépés a teljes képernyőből",
+      "close": "Bezárás",
+      "download": "Letöltés",
+      "copy": "JSON másolása",
+      "copied": "Másolva",
+      "upload": "Fájl feltöltése",
+      "import": "Importálás"
+    },
+    "quota": {
+      "downloadPro": "A letöltés (exportálás) Pro funkció."
+    },
+    "errors": {
+      "noFields": "A megadott JSON nem tartalmaz érvényes mezőt.",
+      "invalidFormat": "Érvénytelen JSON-formátum: {error}"
+    }
+  },
+  "language": {
+    "title": "Nyelv",
+    "button": "Nyelv: {name}",
+    "search": "Nyelvek keresése",
+    "auto": "Automatikus: {name}",
+    "autoHint": "A böngésző nyelvét követi",
+    "backToEnglish": "Vissza az angolra",
+    "changed": "A nyelv módosítva: {name}.",
+    "switchBack": "Vissza erre: {name}",
+    "keep": "Megtartás",
+    "noResults": "Nincs találat",
+    "settingsHint": "Az Aullevo minden képernyőjét módosítja, a bemutatót is."
+  },
+  "manifest": {
+    "appName": "Aullevo - AI űrlapkitöltő és álláspályázat-kitöltő",
+    "appDescription": "AI űrlapkitöltő álláspályázatokhoz, kérdőívekhez és bármilyen webes űrlaphoz. Mentett profilok, önéletrajz és okos kitöltés.",
+    "actionTitle": "Az Aullevo oldalpanel megnyitása",
+    "commandTogglePanel": "Az Aullevo oldalpanel be- és kikapcsolása",
+    "commandFill": "AI-alapú vagy kulcsszavas űrlapkitöltés indítása az oldalon",
+    "commandBatchFill": "Csoportos űrlapkitöltés indítása több linkből"
+  },
+  "multilink": {
+    "batch": {
+      "title": "Csoportos kitöltési sor",
+      "activeCount": "{enabled}/{total} aktív",
+      "description": "Űrlapok automatikus megnyitása és kitöltése több lapon az aktív <b>{type}</b> profillal.",
+      "running": "Csoportos kitöltés folyamatban...",
+      "start": {
+        "one": "{count} űrlap csoportos kitöltése",
+        "other": "{count} űrlap csoportos kitöltése"
+      }
+    },
+    "add": {
+      "title": "Űrlap- / állásajánlat-link hozzáadása"
+    },
+    "saved": {
+      "title": "Mentett linkek ({count})",
+      "clearAll": "Összes törlése",
+      "empty": "Még nincs link. Kezdéshez illessz be fent egy űrlap URL-jét.",
+      "open": "Link megnyitása",
+      "remove": "Link eltávolítása"
+    }
+  },
+  "nav": {
+    "autofill": "Kitöltés",
+    "profiles": "Profilok ({count})",
+    "multiLink": "Több link",
+    "settings": "Beállítások"
+  },
+  "profiles": {
+    "types": {
+      "job": "Munka",
+      "medical": "Egészség",
+      "government": "Hivatalos",
+      "survey": "Felmérés",
+      "academic": "Tanulmányok",
+      "financial": "Pénzügy",
+      "custom": "Egyéni"
+    },
+    "badges": {
+      "on": "BE",
+      "off": "KI",
+      "disabled": "LETILTVA",
+      "sensitive": "BIZALMAS",
+      "aiSafe": "AI-BIZTONSÁGOS"
+    },
+    "save": {
+      "button": "{type} profil mentése",
+      "saved": "Mentve ✓"
+    },
+    "dropdown": {
+      "newProfilePlaceholder": "Új profil neve...",
+      "add": "Hozzáadás"
+    },
+    "config": {
+      "title": "Profilbeállítások",
+      "on": "PROFIL BE",
+      "off": "PROFIL KI",
+      "activeTooltip": "A(z) {type} profil aktív",
+      "disabledTooltip": "A(z) {type} profil le van tiltva",
+      "namePlaceholder": "Profil neve"
+    },
+    "identity": {
+      "title": "Személyes adatok és elérhetőség",
+      "firstName": "Keresztnév",
+      "lastName": "Vezetéknév",
+      "email": "E-mail-cím",
+      "phone": "Telefonszám",
+      "address": "Lakcím"
+    },
+    "attributes": {
+      "title": "{type} jellemzők",
+      "customHint": "Adj hozzá saját mezőket lent, vagy importáld őket JSON-ból.",
+      "job": {
+        "headline": "Címsor / beosztás",
+        "linkedin": "LinkedIn",
+        "github": "GitHub",
+        "portfolio": "Portfólió",
+        "skills": "Készségek",
+        "education": "Végzettség / fokozat",
+        "certifications": "Tanúsítványok"
+      },
+      "medical": {
+        "bloodType": "Vércsoport",
+        "allergies": "Allergiák",
+        "emergencyContact": "Vészhelyzeti kapcsolattartó",
+        "insuranceProvider": "Biztosító"
+      },
+      "government": {
+        "nationalId": "Személyi szám / TAJ",
+        "citizenship": "Állampolgárság",
+        "passport": "Útlevélszám",
+        "driversLicense": "Jogosítvány"
+      },
+      "survey": {
+        "ageRange": "Korcsoport",
+        "income": "Jövedelem",
+        "education": "Végzettség",
+        "employment": "Foglalkoztatás"
+      },
+      "academic": {
+        "institution": "Intézmény",
+        "major": "Szak / tudományterület",
+        "gpa": "Tanulmányi átlag (GPA)",
+        "gradYear": "Végzés éve",
+        "testScores": "Teszteredmények"
+      },
+      "financial": {
+        "billingAddress": "Számlázási cím",
+        "payment": "Fizetés",
+        "cardholder": "Kártyabirtokos"
+      }
+    },
+    "field": {
+      "sensitiveTooltip": "Bizalmas: az érték rejtve marad az AI elől (zero-knowledge)",
+      "aiSafeTooltip": "AI-biztonságos: az érték megosztásra kerül az AI-jal az okos választáshoz"
+    },
+    "context": {
+      "buttonTitle": "AI-kontextus: {label}",
+      "title": "AI-kontextus: {label}",
+      "placeholder": "Tipp az AI-nak (pl. „Hivatalos keresztnév az útlevélben”)",
+      "hint": "Az AI ezzel a tippel azonosítja a weboldalak nem egyértelmű űrlapmezőit."
+    },
+    "custom": {
+      "title": "Egyéni mezők",
+      "labelPlaceholder": "Mező címkéje",
+      "valuePlaceholder": "Mező értéke",
+      "sensitiveTooltip": "Bizalmas: az érték rejtve marad az AI elől",
+      "aiSafeTooltip": "AI-biztonságos: az érték megosztásra kerül az AI-jal",
+      "enabledTooltip": "Mező bekapcsolva",
+      "disabledTooltip": "Mező kikapcsolva",
+      "delete": "Mező törlése",
+      "pagination": {
+        "one": "{page}/{total}. oldal ({count} elem)",
+        "other": "{page}/{total}. oldal ({count} elem)"
+      },
+      "newLabelPlaceholder": "Címke",
+      "newValuePlaceholder": "Érték",
+      "add": "Egyéni mező hozzáadása"
+    },
+    "documents": {
+      "title": "Csatolt dokumentumok",
+      "labelPlaceholder": "Dokumentum címkéje",
+      "labelTooltip": "Kattints a dokumentum címkéjének szerkesztéséhez",
+      "remove": "Fájl eltávolítása",
+      "pagination": "{page}/{total}. oldal",
+      "categories": {
+        "resume": "Önéletrajz / CV",
+        "coverLetter": "Motivációs levél",
+        "identity": "Személyazonosító okmány",
+        "academic": "Tanulmányi igazolás",
+        "portfolio": "Portfólió",
+        "other": "Egyéb dokumentum"
+      },
+      "upload": {
+        "resume": "Önéletrajz feltöltése",
+        "coverLetter": "Motivációs levél feltöltése",
+        "identity": "Okmány feltöltése",
+        "academic": "Tanulmányi igazolás feltöltése",
+        "portfolio": "Portfólió feltöltése",
+        "other": "Dokumentum feltöltése"
+      },
+      "size": {
+        "bytes": "{size} B",
+        "kilobytes": "{size} KB",
+        "megabytes": "{size} MB"
+      }
+    }
+  },
+  "settings": {
+    "account": {
+      "title": "Fiók",
+      "proUntil": "Pro eddig: {date}",
+      "proLifetime": "Pro · Élettartam",
+      "disconnect": "Fiók leválasztása",
+      "waiting": "Várakozás a bejelentkezésre…",
+      "connect": "Csatlakozás az Aullevo Webhez",
+      "renew": "A Pro lejárt · Megújítás",
+      "upgrade": "Váltás Pro-ra"
+    },
+    "theme": {
+      "title": "Téma megjelenése",
+      "dark": "Sötét téma",
+      "description": "Váltás a sötét Slate és a világos téma között"
+    },
+    "mode": {
+      "title": "Kitöltőmotor módja",
+      "aiActive": "AI intelligens kitöltés (aktív)",
+      "standard": "Normál kitöltés (AI nélkül)",
+      "aiDescription": "AI-következtetéssel értelmezi a kérdéseket és párosítja az összetett mezőket",
+      "standardDescription": "Közvetlen profiladat-párosítás AI-hívások nélkül",
+      "toggle": "AI kitöltési mód be/ki"
+    },
+    "ai": {
+      "title": "AI-motor",
+      "unlimited": "Korlátlan hozzáférés",
+      "keyRequired": "API-kulcs szükséges",
+      "freeUsage": "Free: {used}/{limit} ezen a héten",
+      "privacy": "<b>Adatvédelem:</b> a BIZALMAS jelölésű mezők sosem kerülnek az AI-hoz, csak a címkéik. Az AI-BIZTONSÁGOS mezők értékei és az űrlap kérdései a(z) {provider} szolgáltatáshoz kerülnek.",
+      "provider": "AI-szolgáltató",
+      "customProvider": "Egyéni (OpenAI-kompatibilis)",
+      "baseUrl": "Szerver URL-je",
+      "customHint": "Bármilyen szerverrel működik, amely támogatja az OpenAI chat API-ját, például OpenRouter, Groq, Mistral, Ollama vagy LM Studio. Helyi szerverekhez nem kell kulcs.",
+      "model": "AI-modell",
+      "modelOption": "{name} ({description})",
+      "models": {
+        "fastest": "Leggyorsabb és rendkívül olcsó",
+        "balanced": "Kiegyensúlyozott következtetés",
+        "capable": "Gyors és képes",
+        "smartest": "Legmagasabb intelligencia",
+        "legacy": "Régebbi, gyors"
+      },
+      "otherModel": "Másik modell (add meg az azonosítóját)",
+      "modelIdPlaceholder": "Pontos modellazonosító, pl. {example}",
+      "apiKey": "{provider} API-kulcs",
+      "getKey": "API-kulcs beszerzése",
+      "keyPlaceholder": "Illeszd be a(z) {provider} API-kulcsodat",
+      "hideKey": "Kulcs elrejtése",
+      "showKey": "Kulcs megjelenítése",
+      "addKeyHint": "Az AI intelligens kitöltés használatához add meg a(z) {provider} API-kulcsodat.",
+      "proHint": "Pro: korlátlan AI-kitöltés. A kulcsod ebben a böngészőben marad.",
+      "freeHint": "Free csomag: heti {limit} AI-kitöltés. Válts Pro-ra a korlátlan használatért."
+    },
+    "paginate": {
+      "title": "Automatikus lapozás",
+      "toggleTitle": "Többoldalas űrlapok kitöltése",
+      "description": "Kitölti az összes oldalt, a Tovább / Folytatás gombra kattint, a végén pedig a Beküldésre. Javítja az űrlap által elutasított válaszokat; ha nem tudja, szünetel.",
+      "toggle": "Automatikus lapozás be/ki",
+      "proFeature": "Pro funkció",
+      "upgrade": "Válts Pro-ra az Automatikus lapozás használatához"
+    },
+    "floating": {
+      "title": "Lebegő ikon a weboldalakon",
+      "toggleTitle": "Lebegő gomb megjelenítése",
+      "description": "Gyorselérési Aullevo fül megjelenítése a weboldalak szélén",
+      "toggle": "Lebegő gomb be/ki a weboldalakon"
+    },
+    "typing": {
+      "title": "Emberi gépelési sebesség",
+      "instant": "Azonnali ({ms}ms)",
+      "natural": "Természetes ({ms}ms)",
+      "slow": "Lassú ({ms}ms)",
+      "custom": "Egyéni ({ms}ms)",
+      "naturalFree": "Természetes ({ms}ms) · Free csomag",
+      "description": "Karakterenként, emberi tempóban gépel azokon az oldalakon, amelyek valódi billentyűleütéseket várnak.",
+      "proFeature": "Pro funkció",
+      "customDelay": "Egyéni késleltetés:",
+      "customProFeature": "Az egyéni késleltetés Pro funkció",
+      "unitMs": "ms"
+    },
+    "tour": {
+      "title": "Bemutató",
+      "toggleTitle": "Bemutató megtekintése újra",
+      "description": "Lépésről lépésre újra végigvezet minden lapon",
+      "replay": "Újraindítás"
+    },
+    "security": {
+      "title": "Helyben titkosítva"
+    },
+    "memories": {
+      "title": "AI-emlékek",
+      "count": "({enabled}/{total} be)",
+      "descriptionAiOn": "Rólad szóló tények, amelyeket az AI nyitott kérdések megválaszolásához használhat (pl. „Munkavégzés: csak távmunka”). A bekapcsolt emlékek a(z) {provider} szolgáltatáshoz kerülnek, és titkosítás nélkül tárolódnak ebben a böngészőben, ezért ne adj meg jelszót vagy igazolványszámot.",
+      "descriptionAiOff": "Rólad szóló tények, amelyeket az AI nyitott kérdések megválaszolásához használhat (pl. „Munkavégzés: csak távmunka”). Csak bekapcsolt AI intelligens kitöltés esetén használatos. A bekapcsolt emlékek a(z) {provider} szolgáltatáshoz kerülnek, és titkosítás nélkül tárolódnak ebben a böngészőben, ezért ne adj meg jelszót vagy igazolványszámot.",
+      "titlePlaceholder": "Cím",
+      "contentPlaceholder": "Mit tudjon az AI",
+      "enabledTitle": "Az emlék az AI-hoz kerül",
+      "disabledTitle": "Az emlék nincs használatban",
+      "on": "BE",
+      "off": "KI",
+      "delete": "Emlék törlése",
+      "newTitlePlaceholder": "Cím (pl. Munkavégzés)",
+      "newContentPlaceholder": "Tartalom (pl. Teljesen távoli munkát keres, nyitott szerződéses munkára is)",
+      "add": "Emlék hozzáadása"
+    },
+    "deviceData": {
+      "title": "Adatok ezen az eszközön",
+      "total": "Összesen {size}",
+      "description": "Itt minden fióknak saját titkosított széfje van. A fiókok sosem látják egymás profiljait, dokumentumait, API-kulcsát, emlékeit vagy linkjeit.",
+      "empty": "Még nincs mentett adat.",
+      "localOwner": "Nincs bejelentkezve (helyi profilok)",
+      "anotherAccount": "Másik fiók",
+      "inUse": "{size} · jelenleg használatban",
+      "deleteTitle": "A fiók adatainak törlése erről az eszközről",
+      "delete": "Törlés",
+      "confirmDelete": "Törlöd az Aullevo-adatokat erről az eszközről ehhez: „{name}”?\n\nEz véglegesen eltávolítja a titkosított profilokat, dokumentumokat, az API-kulcsot, az AI-emlékeket és a linksort. A művelet nem vonható vissza.",
+      "bytes": "{size} B",
+      "kilobytes": "{size} KB",
+      "megabytes": "{size} MB"
+    }
+  },
+  "status": {
+    "plan": {
+      "profileLimit": "A Free csomagban legfeljebb {max} aktív profil lehet. Kapcsold KI a további profilokat, vagy válts Pro-ra.",
+      "activeLimit": "A Free csomagban legfeljebb {max} aktív profil lehet. Kapcsolj egyet KI, vagy válts Pro-ra.",
+      "createdOff": "A profil KI állapotban jött létre. A Free csomagban legfeljebb {max} aktív profil lehet. Kapcsolj egyet KI, vagy válts Pro-ra.",
+      "autoPaginatePro": "Az Automatikus lapozás Pro funkció. Válts Pro-ra a többoldalas űrlapok kitöltéséhez.",
+      "jsonImportLimit": "Elfogyott a kétheti {limit} ingyenes JSON-importálásod. A keret megújul: {date}, vagy válts Pro-ra a korlátlan importálásért.",
+      "documentsSkipped": {
+        "one": "{count} dokumentum nincs csatolva: az űrlapokba való feltöltés Pro funkció.",
+        "other": "{count} dokumentum nincs csatolva: az űrlapokba való feltöltés Pro funkció."
+      }
+    },
+    "batch": {
+      "starting": {
+        "one": "Csoportos kitöltés indítása {count} űrlapra...",
+        "other": "Csoportos kitöltés indítása {count} űrlapra..."
+      },
+      "progress": "Kitöltés: {current}/{total}: {host}",
+      "progressNoHost": "Kitöltés: {current}/{total}...",
+      "complete": {
+        "one": "A csoportos kitöltés {count} űrlapon elkészült!",
+        "other": "A csoportos kitöltés {count} űrlapon elkészült!"
+      }
+    },
+    "save": {
+      "success": "A(z) {type} profil sikeresen mentve!",
+      "failed": "A mentés sikertelen: {error}",
+      "noProfile": "Nincs kiválasztott profil",
+      "unknownError": "A mentés sikertelen"
+    },
+    "profile": {
+      "nameExists": "Már létezik ilyen nevű profil!",
+      "disabled": "{type}: a profil le van tiltva. Kapcsold BE az automatikus kitöltéshez.",
+      "defaultType": "PROFIL",
+      "imported": {
+        "one": "{count} mező sikeresen importálva ide: {type}!",
+        "other": "{count} mező sikeresen importálva ide: {type}!"
+      }
+    },
+    "highlight": {
+      "noActiveTab": "Nem található aktív lap.",
+      "refreshToConnect": "Frissítsd az oldalt a kiemelés csatlakoztatásához.",
+      "on": {
+        "one": "{count} mező kiemelve az oldalon!",
+        "other": "{count} mező kiemelve az oldalon!"
+      },
+      "cleared": "Kiemelések törölve."
+    },
+    "fill": {
+      "injectingAi": "Mezők beillesztése AI-jal ({type})...",
+      "injecting": "Mezők beillesztése ({type})...",
+      "noTab": "Az aktív lap nem érhető el.",
+      "refreshToConnect": "Frissítsd a lapot az automatikus kitöltés csatlakoztatásához.",
+      "cannotConnect": "Nem sikerült csatlakozni az oldalhoz. Frissítsd a lapot.",
+      "aiPartlySkipped": {
+        "one": "{count} mező kitöltve (az AI részben kimaradt).",
+        "other": "{count} mező kitöltve (az AI részben kimaradt)."
+      },
+      "keywordMode": {
+        "one": "{count} mező kitöltve (kulcsszavas mód).",
+        "other": "{count} mező kitöltve (kulcsszavas mód)."
+      },
+      "withAi": {
+        "one": "Űrlap kitöltve AI-jal ({count} mező párosítva).",
+        "other": "Űrlap kitöltve AI-jal ({count} mező párosítva)."
+      },
+      "withoutAi": {
+        "one": "Űrlap kitöltve AI nélkül ({count} mező párosítva).",
+        "other": "Űrlap kitöltve AI nélkül ({count} mező párosítva)."
+      },
+      "error": "Kitöltési hiba: {error}",
+      "injected": {
+        "one": "{count} mező beillesztve az oldalba.",
+        "other": "{count} mező beillesztve az oldalba."
+      }
+    },
+    "pagination": {
+      "progress": "Automatikus lapozás: {page}. oldal kitöltése...",
+      "lostConnection": "Az Automatikus lapozás leállt: megszakadt a kapcsolat a bővítménnyel.",
+      "filled": {
+        "one": "{filled} mező kitöltve {count} oldalon.",
+        "other": "{filled} mező kitöltve {count} oldalon."
+      },
+      "corrected": {
+        "one": "{count} elutasított válasz javítva.",
+        "other": "{count} elutasított válasz javítva."
+      },
+      "field": "„{name}”",
+      "fieldAndMore": {
+        "one": "„{name}” (+{count} további)",
+        "other": "„{name}” (+{count} további)"
+      },
+      "aField": "egy mező",
+      "nextButton": "Tovább",
+      "submitted": "Beküldve!",
+      "noNext": "Nem található Tovább / Folytatás gomb.",
+      "stillEmpty": "{field} még mindig üres.",
+      "check": "Ellenőrizd: {field}.",
+      "blocked": "Szünet a(z) {page}. oldalon: {field} kötelező, de üres. Töltsd ki, majd futtasd újra.",
+      "nextDisabled": "Szünet a(z) {page}. oldalon: a(z) „{button}” gomb le van tiltva. Ellenőrizd az oldalt, majd futtasd újra.",
+      "validationError": "Szünet a(z) {page}. oldalon: az űrlap ezt jelezte: „{error}”.",
+      "validationErrorUnknown": "Szünet a(z) {page}. oldalon: az űrlap hibát jelzett.",
+      "correctionTried": "(automatikus javítási kísérlet történt)",
+      "stuck": "Szünet a(z) {page}. oldalon: a(z) „{button}” gombra kattintás után az űrlap nem lépett tovább.",
+      "maxPages": "Leállítva a(z) {max} oldalas biztonsági korlátnál.",
+      "noForm": "Nem található űrlap ezen az oldalon (vagy az Aullevo itt nem futhat).",
+      "stopped": "Az Automatikus lapozás leállt: {error}",
+      "unknownError": "ismeretlen hiba"
+    }
+  },
+  "tour": {
+    "card": {
+      "progress": "{section} · {current}/{total}",
+      "skip": "Bemutató kihagyása",
+      "dontShowAgain": "Ne jelenjen meg újra",
+      "back": "Vissza",
+      "next": "Tovább",
+      "done": "Kész"
+    },
+    "shortcuts": {
+      "allActive": "Mind a 3 billentyűparancs aktív ebben a böngészőben.",
+      "notSet": "Nincs beállítva ebben a böngészőben: {list}. Állítsd be őket a Chrome billentyűparancs-beállításaiban.",
+      "openSettings": "Chrome billentyűparancs-beállítások megnyitása",
+      "toggleSidePanel": "Oldalpanel be/ki",
+      "fallbackName": "Billentyűparancs"
+    },
+    "sections": {
+      "autofill": "Kitöltés",
+      "header": "Felső gombok",
+      "profiles": "Profilok",
+      "multilink": "Több link",
+      "settings": "Beállítások"
+    },
+    "autofill": {
+      "detection": {
+        "title": "Űrlapfelismerés",
+        "body": "Az Aullevo megszámolja az aktuális lapon lévő oldal kitölthető mezőit. Nyiss meg egy űrlapot, és a szám frissül."
+      },
+      "highlight": {
+        "title": "Mezők kiemelése",
+        "body": "Körberajzolja az Aullevo által az oldalon talált összes mezőt, így kitöltés előtt láthatod, mi lesz kitöltve. Kattints rá újra a körvonalak eltüntetéséhez."
+      },
+      "rescan": {
+        "title": "Újraszkennelés",
+        "body": "Egyes űrlapok az oldal betöltése után adnak hozzá mezőket, például a többlépéses űrlapok vagy a felugró ablakok. Az Újraszkennelés újra megszámolja a mezőket."
+      },
+      "fill": {
+        "title": "Űrlap kitöltése",
+        "body": "Kitölti az oldalt az aktív profiloddal. Bekapcsolt AI-kitöltésnél (a Beállításokban) a kérdések akkor is a válaszaidhoz párosulnak, ha másképp vannak megfogalmazva. Kikapcsolva a mezők kulcsszó alapján párosulnak."
+      },
+      "activeProfile": {
+        "title": "Aktív profil",
+        "body": "A kitöltéshez használt profil, a bekapcsolt mezők és dokumentumok számával. Profilt váltani vagy a válaszaidat szerkeszteni a <b>Profilok</b> lapon tudsz."
+      },
+      "shortcuts": {
+        "title": "Billentyűparancsok",
+        "body": "A Chrome az Aullevo telepítésekor beállítja ezeket a billentyűket, de kihagyja azokat, amelyeket a Chrome vagy egy másik bővítmény már használ. Bármikor módosíthatod őket."
+      }
+    },
+    "header": {
+      "voice": {
+        "title": "Hangmód",
+        "body": "Kattintás helyett beszélj az Aullevóval. Ez a gomb hangasszisztensre váltja a panelt: mondd, hogy \"fill this page\", \"fill the email\" vagy \"fill the first question\", és hangosan válaszol. Kattints újra, hogy visszatérj ehhez a nézethez.",
+        "note": "Pro funkció. Saját ElevenLabs API-kulcs kell hozzá, amelyet a Voice settings részben adhatsz meg. A hangparancsok angolul és tagalogul működnek."
+      },
+      "language": {
+        "title": "Nyelv",
+        "body": "Válaszd ki az egész Aullevo nyelvét. Az angol mindig a lista tetején van, így bármikor visszaválthatsz."
+      },
+      "theme": {
+        "title": "Világos vagy sötét téma",
+        "body": "Világos és sötét mód között váltja a panelt."
+      },
+      "json": {
+        "title": "Gyors beállítás JSON-nal",
+        "intro": "A profilod JSON formátumban. A profil beállításának leggyorsabb módja:",
+        "step1": "Másold ki innen a JSON-t.",
+        "step2": "Add oda a Gemininek, a Claude-nak vagy a ChatGPT-nek az önéletrajzoddal vagy bármilyen más dokumentummal együtt.",
+        "step3": "Kérd meg az AI-t, hogy töltse ki az értékeket, és tartsa meg a szerkezetet.",
+        "step4": "Illeszd vissza ide az eredményt, és kattints az <b>Importálás</b> gombra."
+      },
+      "fullPage": {
+        "title": "Megnyitás teljes oldalon",
+        "body": "Böngészőlapon nyitja meg az Aullevót, ahol több hely van a profilok szerkesztésére. A kitöltés továbbra is ebből az oldalpanelből történik."
+      },
+      "close": {
+        "title": "A panel bezárása",
+        "body": "Bezárja az oldalpanelt. Újranyitáshoz nyomd meg az <b>Alt+Q</b> (Macen <b>Option+Q</b>) billentyűket, vagy kattints az Aullevo ikonra az eszköztáron."
+      }
+    },
+    "profiles": {
+      "switcher": {
+        "title": "Profilváltás",
+        "body1": "Minden profil (Munka, Tanulmányok, Pénzügy vagy saját) külön válaszkészletet tárol. Válaszd ki, melyiket szeretnéd szerkeszteni és kitöltéshez használni.",
+        "body2": "Nyisd meg a listát, hogy lásd, mely profilok vannak BE vagy KI, és alul újat is létrehozhatsz.",
+        "note": "Free csomag: egyszerre legfeljebb 2 profil lehet BE."
+      },
+      "config": {
+        "title": "Név és be/ki kapcsoló",
+        "body": "Itt nevezheted át a profilt. A <b>PROFIL BE</b> az egész profilt be- vagy kikapcsolja. Kikapcsolva nem használja kitöltéshez."
+      },
+      "identity": {
+        "title": "Személyes adatok és elérhetőség",
+        "body": "A neved, e-mail-címed, telefonszámod és címed. Egy szakasz fejlécére kattintva összecsukhatod vagy kinyithatod. Minden mezőnek három kis vezérlője van, ezeket mutatjuk most."
+      },
+      "fieldContext": {
+        "title": "AI-kontextus tipp",
+        "body": "A ✨ gomb tippet ad hozzá, amely elmondja az AI-nak, mit jelent a mező, például „Hivatalos keresztnév az útlevélben”. Akkor segít, ha egy űrlap kérdése nem egyértelmű. A pont azt jelzi, hogy van megadott tipp."
+      },
+      "fieldPrivacy": {
+        "title": "AI-biztonságos vagy Bizalmas",
+        "safe": "<b>AI-biztonságos</b>: az érték megosztásra kerül az AI-jal, hogy ki tudja választani a helyes választ a legördülő listákban és a feleletválasztós kérdésekben.",
+        "sensitive": "<b>Bizalmas</b>: az AI csak a mező nevét és tippjét látja, az értékét soha. Az Aullevo az értéket ettől még beírja az eszközödön.",
+        "toggle": "Kattints rá a váltáshoz."
+      },
+      "fieldToggle": {
+        "title": "Mező be- és kikapcsolása",
+        "body": "Kapcsolj KI egy mezőt, hogy kitöltéskor kimaradjon, anélkül hogy törölnéd, amit beírtál."
+      },
+      "documents": {
+        "title": "Dokumentumok csatolása",
+        "body": "Válaszd ki a dokumentum típusát, majd töltsd fel az önéletrajzodat, a motivációs leveledet, az okmányodat és a többit. Ha egy űrlapon fájlfeltöltős kérdés van, az Aullevo csatolja a BE állapotú dokumentumaidat.",
+        "note": "A dokumentumok űrlapokhoz csatolása Pro funkció."
+      },
+      "attributes": {
+        "title": "Profilspecifikus mezők",
+        "body": "Az adott profiltípushoz tartozó mezők. A Munka profilban címsor, LinkedIn, készségek és végzettség van. A Tanulmányok, az Egészség és a többi saját mezőkkel rendelkezik."
+      },
+      "customFields": {
+        "title": "Saját mezők hozzáadása",
+        "body": "Mindenre, amit a normál mezők nem fednek le, például „Elvárt fizetés” vagy „Miért szeretnéd ezt az állást?”. Írj be egy címkét és egy értéket, majd kattints a <b>+</b> gombra. Jól működik, ha címkének a kérdés szövegét használod."
+      },
+      "save": {
+        "title": "Mentés",
+        "body": "A módosítások gépelés közben automatikusan mentődnek. Ez a gomb azonnal ment, ami jól jön közvetlenül a panel bezárása előtt."
+      }
+    },
+    "multilink": {
+      "addLink": {
+        "title": "Űrlaplink hozzáadása",
+        "body": "Illeszd be egy űrlap vagy álláspályázat teljes linkjét (https://-sel kezdődik), és kattints a <b>+</b> gombra. Annyit adhatsz hozzá, amennyit szeretnél."
+      },
+      "savedLinks": {
+        "title": "A linksorod",
+        "body": "Minden hozzáadott link itt jelenik meg. Jelölj be egy linket, hogy a következő csoportba kerüljön, vagy vedd ki a jelölést a kihagyásához. A nyíl ikon megnyitja, a kuka ikon eltávolítja a linket."
+      },
+      "batchRun": {
+        "title": "Mindet egyszerre",
+        "body1": "Egymás után háttérlapon megnyit minden bejelölt linket, és kitölti az aktív profiloddal. A folyamat a panel tetején látható.",
+        "note": "Billentyűparancs: Alt+Shift+B (Macen Option+Shift+B)."
+      }
+    },
+    "settings": {
+      "account": {
+        "title": "A fiókod",
+        "body": "Csatlakoztasd az Aullevo Web-fiókodat, hogy itt is a csomagod (Free vagy Pro) legyen érvényes. A profiljaid titkosítva maradnak ezen az eszközön, és nem kerülnek feltöltésre."
+      },
+      "aiMode": {
+        "title": "AI intelligens kitöltés vagy Normál kitöltés",
+        "standard": "A <b>Normál kitöltés</b> név alapján párosítja a mezőket, AI nélkül.",
+        "smart": "Az <b>AI intelligens kitöltés</b> megérti a másképp megfogalmazott kérdéseket, és választ a legördülő listákban és a feleletválasztós kérdésekben."
+      },
+      "aiEngine": {
+        "title": "AI-szolgáltató, modell és API-kulcs"
+      },
+      "memories": {
+        "title": "AI-emlékek",
+        "body": "Rövid tények, amelyeket az AI nyitott kérdéseknél használhat, például „Munkavégzés: csak távmunka”. A választott AI-szolgáltatóhoz kerülnek, és nincsenek titkosítva, ezért soha ne adj meg jelszót vagy igazolványszámot."
+      },
+      "autoPaginate": {},
+      "floatingIcon": {
+        "title": "Lebegő gomb",
+        "body": "Kis Aullevo fül a weboldalak szélén a gyors eléréshez. Kapcsold ki, ha útban van."
+      },
+      "typingSpeed": {
+        "title": "Gépelési sebesség",
+        "body": "Milyen gyorsan gépel az Aullevo a mezőkbe. A <b>Természetes</b> inkább emberi gépelésre hasonlít, az <b>Azonnali</b> a leggyorsabb. A lassú és az egyéni sebesség Pro funkció."
+      },
+      "replayTour": {
+        "title": "A bemutató újraindítása",
+        "body": "Elfelejtettél valamit? Kattints az <b>Újraindítás</b> gombra, hogy újra végigmenj az egész bemutatón."
+      },
+      "deviceData": {
+        "title": "Adatok ezen az eszközön",
+        "body": "Ebben a böngészőben minden fióknak saját titkosított széfje van. Töröld azoknak a fiókoknak az adatait, amelyeket már nem használsz."
+      }
+    }
+  },
+  "vault": {
+    "loading": "Betöltés…",
+    "account": {
+      "signedInAs": "Bejelentkezve: <b>{account}</b>",
+      "notSignedIn": "Nincs bejelentkezve: helyi profilok ezen az eszközön",
+      "fallbackName": "a fiókod"
+    },
+    "errors": {
+      "createFailed": "Nem sikerült létrehozni a széfet. Próbáld újra.",
+      "wrongPassphrase": "Hibás jelmondat.",
+      "wrongClaimPassphrase": "Hibás jelmondat ezekhez a profilokhoz."
+    }
+  }
+}

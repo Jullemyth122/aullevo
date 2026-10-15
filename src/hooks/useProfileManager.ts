@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import type { UserData, CM, JobUserData, MedicalUserData } from '../types';
-import { countActiveProfiles, FREE_MAX_ACTIVE_PROFILES } from '../services/tier';
-
-const ACTIVE_LIMIT_MESSAGE = `Free plan allows ${FREE_MAX_ACTIVE_PROFILES} active profiles. Turn one OFF or upgrade to Pro.`;
+import { activeProfileLimit, countActiveProfiles, FREE_MAX_ACTIVE_PROFILES, UNLOCKED_MAX_ACTIVE_PROFILES } from '../services/tier';
+import { t } from '../i18n';
+import { getProfileCustomFields } from '../types';
+import type { RewardFeature } from '../services/rewards';
+import { FREE_JSON_IMPORTS_PER_DAY, getJsonImportsUsed, recordJsonImport } from '../services/importQuota';
 
 interface UseProfileManagerProps {
     profiles: Record<string, UserData>;
@@ -11,6 +13,9 @@ interface UseProfileManagerProps {
     setSelectedProfileType: (key: string) => void;
     currentProfile: UserData | undefined;
     isPro: boolean;
+    profilesUnlocked?: boolean; // Free plan: more than 3 active profiles (2-hour ad unlock)
+    jsonUnlocked?: boolean;     // Free plan: JSON imports from an ad unlock are left
+    consumeReward?: (feature: RewardFeature) => Promise<{ ok: boolean; error?: string }>;
     onNotify?: (text: string, type: 'info' | 'success' | 'error', duration?: number) => void;
 }
 
@@ -21,12 +26,20 @@ export function useProfileManager({
     setSelectedProfileType,
     currentProfile,
     isPro,
+    profilesUnlocked = false,
+    jsonUnlocked = false,
+    consumeReward,
     onNotify
 }: UseProfileManagerProps) {
     // Input state for new profiles and fields
     const [newProfileName, setNewProfileName] = useState<string>('');
     const [newFieldLabel, setNewFieldLabel] = useState<string>('');
     const [newFieldValue, setNewFieldValue] = useState<string>('');
+
+    // The active-profile limit was reached: Free (3) offers the ad, the ad unlock (6) only Pro
+    const profileLimitText = () => profilesUnlocked
+        ? t('rewards.status.profilesMax', { max: UNLOCKED_MAX_ACTIVE_PROFILES })
+        : t('rewards.status.profilesLocked', { max: FREE_MAX_ACTIVE_PROFILES, unlocked: UNLOCKED_MAX_ACTIVE_PROFILES });
 
     // -------------------------------------------------------------------
     // 1. Dynamic Profile Creation (Preserving your exact CustomProfileData)
@@ -35,15 +48,27 @@ export function useProfileManager({
         const name = newProfileName.trim();
         if (!name) return;
         if (profiles[name]) {
-            alert('A profile with this name already exists!');
+            alert(t('status.profile.nameExists'));
             return;
         }
+        createProfileNamed(name);
+        setNewProfileName('');
+    };
 
-        // Free plan: new profiles start OFF once the active-profile limit is reached
-        const canActivate = isPro || countActiveProfiles(profiles) < FREE_MAX_ACTIVE_PROFILES;
-        if (!canActivate) {
-            onNotify?.(`Profile created as OFF. ${ACTIVE_LIMIT_MESSAGE}`, 'info', 5000);
+    // Also used by the voice agent ("create a profile called Work"): a name that already exists switches to that profile
+    const createProfileNamed = (rawName: string): { key: string; created: boolean; enabled: boolean } | null => {
+        const name = rawName.trim();
+        if (!name) return null;
+        const existing = Object.values(profiles).find(p =>
+            p.profileType.toLowerCase() === name.toLowerCase() || (p.profileName || '').toLowerCase() === name.toLowerCase());
+        if (existing) {
+            setSelectedProfileType(existing.profileType);
+            return { key: existing.profileType, created: false, enabled: existing.enabled };
         }
+
+        // Free plan: new profiles start OFF once the active-profile limit is reached (3, or 6 while the ad unlock runs)
+        const canActivate = countActiveProfiles(profiles) < activeProfileLimit(isPro, profilesUnlocked);
+        if (!canActivate) onNotify?.(profileLimitText(), 'info', 6000);
 
         const newProfile: any = {
             id: `prof_${Date.now()}`,
@@ -63,7 +88,7 @@ export function useProfileManager({
             [name]: newProfile
         }));
         setSelectedProfileType(name);
-        setNewProfileName('');
+        return { key: name, created: true, enabled: canActivate };
     };
 
     // -------------------------------------------------------------------
@@ -71,8 +96,8 @@ export function useProfileManager({
     // -------------------------------------------------------------------
     const updateCurrentProfile = (patch: Partial<UserData>) => {
         // Free plan: block turning ON a profile beyond the active-profile limit
-        if (patch.enabled === true && !isPro && countActiveProfiles(profiles, selectedProfileType) >= FREE_MAX_ACTIVE_PROFILES) {
-            onNotify?.(ACTIVE_LIMIT_MESSAGE, 'error', 5000);
+        if (patch.enabled === true && countActiveProfiles(profiles, selectedProfileType) >= activeProfileLimit(isPro, profilesUnlocked)) {
+            onNotify?.(profileLimitText(), 'error', 6000);
             return;
         }
         setProfiles(prev => ({
@@ -190,6 +215,55 @@ export function useProfileManager({
         }));
     };
 
+    // Voice agent: "set my phone to 0917...", "add a field called Nickname with value Xen".
+    // Updates the current profile's field with that label (any group, custom fields too), or adds a custom field.
+    const setFieldByLabel = (label: string, value: string): { status: 'updated' | 'added'; label: string } => {
+        const normalize = (text: string) => text.toLowerCase().replace(/e[\s-]?mail/g, 'email').replace(/[^a-z0-9]+/g, ' ').trim();
+        const wanted = normalize(label);
+        const wantedWords = wanted.split(' ').filter(Boolean);
+        const score = (field: CM) => {
+            const have = normalize(field.label);
+            if (have === wanted) return 2;
+            const haveWords = have.split(' ');
+            // "phone" names "Phone Number"; the shortest label containing every word wins
+            return wantedWords.length && wantedWords.every(w => haveWords.includes(w)) ? 1 + 1 / haveWords.length : 0;
+        };
+        const best = currentProfile
+            ? getProfileCustomFields(currentProfile).map(field => ({ field, score: score(field) })).filter(m => m.score > 0).sort((a, b) => b.score - a.score)[0]
+            : undefined;
+
+        if (best) {
+            const id = best.field.id;
+            const update = (cm: any) => (cm && typeof cm === 'object' && cm.id === id ? { ...cm, value, enabled: true } : cm);
+            setProfiles(prev => {
+                const prof: any = prev[selectedProfileType];
+                if (!prof) return prev;
+                const next: any = {};
+                for (const [key, val] of Object.entries(prof)) next[key] = Array.isArray(val) ? val.map(update) : update(val);
+                return { ...prev, [selectedProfileType]: next as UserData };
+            });
+            return { status: 'updated', label: best.field.label };
+        }
+
+        const cleanLabel = label.trim().charAt(0).toUpperCase() + label.trim().slice(1);
+        const newField: CM = {
+            id: `cf_${Date.now()}`,
+            label: cleanLabel,
+            value,
+            enabled: true,
+            isSensitive: false,
+            context: `Custom field for ${cleanLabel}`
+        };
+        setProfiles(prev => ({
+            ...prev,
+            [selectedProfileType]: {
+                ...prev[selectedProfileType],
+                customFields: [...(prev[selectedProfileType].customFields || []), newField]
+            }
+        }));
+        return { status: 'added', label: cleanLabel };
+    };
+
     const handleRemoveCustomField = (id: string) => {
         setProfiles(prev => ({
             ...prev,
@@ -203,10 +277,19 @@ export function useProfileManager({
     // -------------------------------------------------------------------
     // 6. JSON Import Engine
     // -------------------------------------------------------------------
-    const handleImportJson = (importedFields: CM[]) => {
-        if (!isPro) {
-            onNotify?.('JSON import is a Pro feature.', 'error', 4000);
-            return;
+    const handleImportJson = async (importedFields: CM[]) => {
+        // Free plan: FREE_JSON_IMPORTS_PER_DAY imports a day (reset at local midnight); after those, each import
+        // uses one of the 10 a short ad unlocks (5 hours). Pro: unlimited.
+        if (!isPro && (await getJsonImportsUsed()) >= FREE_JSON_IMPORTS_PER_DAY) {
+            if (!jsonUnlocked || !consumeReward) {
+                onNotify?.(t('rewards.status.jsonLocked'), 'error', 7000);
+                return;
+            }
+            const used = await consumeReward('json');
+            if (!used.ok) {
+                onNotify?.(t('rewards.status.jsonFailed', { error: used.error ?? '' }), 'error', 7000);
+                return;
+            }
         }
         setProfiles(prev => {
             const current = { ...prev[selectedProfileType] } as any;
@@ -270,8 +353,10 @@ export function useProfileManager({
             };
         });
 
+        if (!isPro) await recordJsonImport();
+
         onNotify?.(
-            `Successfully imported ${importedFields.length} fields into ${selectedProfileType.toUpperCase()}!`,
+            t('status.profile.imported', { count: importedFields.length, type: selectedProfileType.toUpperCase() }),
             'success',
             4000
         );
@@ -285,6 +370,8 @@ export function useProfileManager({
         newFieldValue,
         setNewFieldValue,
         handleCreateProfile,
+        createProfileNamed,
+        setFieldByLabel,
         handleImportJson,
         updateCurrentProfile,
         updateField,

@@ -1,0 +1,744 @@
+{
+  "autofill": {
+    "detection": {
+      "title": "Wykrywanie formularzy",
+      "sub": "Pola w aktywnej karcie",
+      "highlightTitle": "Sprawdź i podświetl pola na stronie",
+      "clear": "Wyczyść",
+      "highlight": "Podświetl",
+      "rescanTitle": "Skanuj stronę ponownie",
+      "rescan": "Skanuj ponownie"
+    },
+    "fill": {
+      "injecting": "Wstawianie...",
+      "disabled": "{type}: wyłączony",
+      "withAi": "Wypełnij formularz z AI ({type})",
+      "standard": "Wypełnij formularz ({type})",
+      "autoPaginate": "Auto-stronicowanie włączone: wypełnia każdą stronę, a potem wysyła"
+    },
+    "activeProfile": {
+      "title": "Aktywny profil",
+      "summary": "{fields} • {docs} gotowe",
+      "fieldCount": {
+        "one": "{count} pole",
+        "few": "{count} pola",
+        "many": "{count} pól",
+        "other": "{count} pola"
+      },
+      "docCount": {
+        "one": "{count} dokument",
+        "few": "{count} dokumenty",
+        "many": "{count} dokumentów",
+        "other": "{count} dokumentu"
+      },
+      "ready": "GOTOWY",
+      "disabled": "WYŁĄCZONY"
+    },
+    "shortcuts": {
+      "title": "Skróty klawiszowe",
+      "toggleSidePanel": "Pokaż/ukryj panel boczny",
+      "formFill": "Wypełnianie formularza: AI / słowa kluczowe",
+      "batchFill": "Wypełnianie wsadowe z wielu linków"
+    }
+  },
+  "content": {
+    "openSidebar": "Otwórz panel boczny Aullevo",
+    "filled": "WYPEŁNIONO",
+    "file": "Plik: {name}",
+    "files": {
+      "one": "Załączono {count} plik",
+      "few": "Załączono {count} pliki",
+      "many": "Załączono {count} plików",
+      "other": "Załączono {count} pliku"
+    },
+    "matched": "Dopasowano: {name}",
+    "ranked": "Ranking: {value}",
+    "ai": "[AI] {text}",
+    "aiGenerated": "[AI] Wygenerowano",
+    "fixed": "Poprawiono: {value}"
+  },
+  "header": {
+    "versionLine": "v{version} • Autouzupełnianie",
+    "lightTheme": "Jasny motyw",
+    "darkTheme": "Ciemny motyw",
+    "jsonConfig": "Konfiguracja JSON",
+    "openFullPage": "Otwórz pełną stronę",
+    "closeSidePanel": "Zamknij panel boczny",
+    "footer": {
+      "engine": "Silnik autouzupełniania Aullevo",
+      "ready": "Gotowe"
+    }
+  },
+  "json": {
+    "title": "Konfiguracja JSON",
+    "badge": {
+      "fields": {
+        "one": "✓ {count} pole",
+        "few": "✓ {count} pola",
+        "many": "✓ {count} pól",
+        "other": "✓ {count} pola"
+      },
+      "invalid": "Nieprawidłowy JSON"
+    },
+    "actions": {
+      "format": "Formatuj JSON",
+      "fullscreen": "Pełny ekran",
+      "exitFullscreen": "Zamknij pełny ekran",
+      "close": "Zamknij",
+      "download": "Pobierz",
+      "copy": "Kopiuj JSON",
+      "copied": "Skopiowano",
+      "upload": "Prześlij plik",
+      "import": "Importuj"
+    },
+    "quota": {
+      "downloadPro": "Pobieranie (eksport) to funkcja Pro."
+    },
+    "errors": {
+      "noFields": "W podanym JSON nie znaleziono prawidłowych pól.",
+      "invalidFormat": "Nieprawidłowy format JSON: {error}"
+    }
+  },
+  "language": {
+    "title": "Język",
+    "button": "Język: {name}",
+    "search": "Szukaj języków",
+    "auto": "Automatycznie: {name}",
+    "autoHint": "Zgodnie z językiem przeglądarki",
+    "backToEnglish": "Wróć do angielskiego",
+    "changed": "Zmieniono język na: {name}.",
+    "switchBack": "Wróć do: {name}",
+    "keep": "Zachowaj",
+    "noResults": "Nie znaleziono języków",
+    "settingsHint": "Zmienia każdy ekran Aullevo, łącznie z przewodnikiem."
+  },
+  "manifest": {
+    "appName": "Aullevo - Autouzupełnianie formularzy AI i aplikacji o pracę",
+    "appDescription": "Wypełnianie z AI aplikacji o pracę, ankiet i formularzy www. Zapisane profile, przesyłanie CV i inteligentne autouzupełnianie.",
+    "actionTitle": "Otwórz panel boczny Aullevo",
+    "commandTogglePanel": "Pokaż/ukryj panel boczny Aullevo",
+    "commandFill": "Uruchom autouzupełnianie formularza na stronie (AI lub słowa kluczowe)",
+    "commandBatchFill": "Uruchom wsadowe autouzupełnianie formularzy z wielu linków"
+  },
+  "multilink": {
+    "batch": {
+      "title": "Kolejka wsadowego autouzupełniania",
+      "activeCount": "Aktywne: {enabled} z {total}",
+      "description": "Automatycznie otwieraj i wypełniaj formularze w wielu kartach, używając aktywnego profilu <b>{type}</b>.",
+      "running": "Trwa wsadowe autouzupełnianie...",
+      "start": {
+        "one": "Wypełnij wsadowo {count} formularz",
+        "few": "Wypełnij wsadowo {count} formularze",
+        "many": "Wypełnij wsadowo {count} formularzy",
+        "other": "Wypełnij wsadowo {count} formularza"
+      }
+    },
+    "add": {
+      "title": "Dodaj link do formularza / oferty pracy"
+    },
+    "saved": {
+      "title": "Zapisane linki ({count})",
+      "clearAll": "Wyczyść wszystko",
+      "empty": "Nie dodano jeszcze linków. Wklej powyżej adres URL formularza, aby zacząć.",
+      "open": "Otwórz link",
+      "remove": "Usuń link"
+    }
+  },
+  "nav": {
+    "autofill": "Wypełnianie",
+    "profiles": "Profile ({count})",
+    "multiLink": "Wiele linków",
+    "settings": "Ustawienia"
+  },
+  "profiles": {
+    "types": {
+      "job": "Praca",
+      "medical": "Zdrowie",
+      "government": "Urząd",
+      "survey": "Ankieta",
+      "academic": "Nauka",
+      "financial": "Finanse",
+      "custom": "Własny"
+    },
+    "badges": {
+      "on": "WŁ.",
+      "off": "WYŁ.",
+      "disabled": "WYŁĄCZONY",
+      "sensitive": "POUFNE",
+      "aiSafe": "BEZPIECZNE DLA AI"
+    },
+    "save": {
+      "button": "Zapisz profil {type}",
+      "saved": "Zapisano ✓"
+    },
+    "dropdown": {
+      "newProfilePlaceholder": "Nazwa nowego profilu...",
+      "add": "Dodaj"
+    },
+    "config": {
+      "title": "Konfiguracja profilu",
+      "on": "PROFIL WŁ.",
+      "off": "PROFIL WYŁ.",
+      "activeTooltip": "Profil {type} jest aktywny",
+      "disabledTooltip": "Profil {type} jest wyłączony",
+      "namePlaceholder": "Nazwa profilu"
+    },
+    "identity": {
+      "title": "Tożsamość i kontakt",
+      "firstName": "Imię",
+      "lastName": "Nazwisko",
+      "email": "Adres e-mail",
+      "phone": "Numer telefonu",
+      "address": "Adres zamieszkania"
+    },
+    "attributes": {
+      "title": "Atrybuty: {type}",
+      "customHint": "Dodaj własne pola poniżej lub zaimportuj je z JSON.",
+      "job": {
+        "headline": "Nagłówek / stanowisko",
+        "linkedin": "LinkedIn",
+        "github": "GitHub",
+        "portfolio": "Portfolio",
+        "skills": "Umiejętności",
+        "education": "Wykształcenie / stopień",
+        "certifications": "Certyfikaty"
+      },
+      "medical": {
+        "bloodType": "Grupa krwi",
+        "allergies": "Alergie",
+        "emergencyContact": "Kontakt alarmowy",
+        "insuranceProvider": "Ubezpieczyciel"
+      },
+      "government": {
+        "nationalId": "Nr identyfikacyjny / PESEL",
+        "citizenship": "Obywatelstwo",
+        "passport": "Nr paszportu",
+        "driversLicense": "Prawo jazdy"
+      },
+      "survey": {
+        "ageRange": "Przedział wieku",
+        "income": "Dochód",
+        "education": "Wykształcenie",
+        "employment": "Zatrudnienie"
+      },
+      "academic": {
+        "institution": "Uczelnia",
+        "major": "Kierunek / dziedzina studiów",
+        "gpa": "Średnia ocen (GPA)",
+        "gradYear": "Rok ukończenia",
+        "testScores": "Wyniki testów"
+      },
+      "financial": {
+        "billingAddress": "Adres rozliczeniowy",
+        "payment": "Płatność",
+        "cardholder": "Posiadacz karty"
+      }
+    },
+    "field": {
+      "sensitiveTooltip": "Poufne: wartość jest ukryta przed AI (zero-knowledge)",
+      "aiSafeTooltip": "Bezpieczne dla AI: wartość jest udostępniana AI do inteligentnego wyboru opcji"
+    },
+    "context": {
+      "buttonTitle": "Kontekst AI dla: {label}",
+      "title": "Kontekst AI: {label}",
+      "placeholder": "Wskazówka dla AI (np. „Imię zgodne z paszportem”)",
+      "hint": "AI używa tej wskazówki do rozpoznawania niejednoznacznych pól formularzy na stronach."
+    },
+    "custom": {
+      "title": "Pola własne",
+      "labelPlaceholder": "Etykieta pola",
+      "valuePlaceholder": "Wartość pola",
+      "sensitiveTooltip": "Poufne: wartość jest ukryta przed AI",
+      "aiSafeTooltip": "Bezpieczne dla AI: wartość jest udostępniana AI",
+      "enabledTooltip": "Pole włączone",
+      "disabledTooltip": "Pole wyłączone",
+      "delete": "Usuń pole",
+      "pagination": {
+        "one": "Strona {page} z {total} ({count} element)",
+        "few": "Strona {page} z {total} ({count} elementy)",
+        "many": "Strona {page} z {total} ({count} elementów)",
+        "other": "Strona {page} z {total} ({count} elementu)"
+      },
+      "newLabelPlaceholder": "Etykieta",
+      "newValuePlaceholder": "Wartość",
+      "add": "Dodaj pole własne"
+    },
+    "documents": {
+      "title": "Załączone dokumenty",
+      "labelPlaceholder": "Etykieta dokumentu",
+      "labelTooltip": "Kliknij, aby edytować etykietę dokumentu",
+      "remove": "Usuń plik",
+      "pagination": "Strona {page} z {total}",
+      "categories": {
+        "resume": "CV / życiorys",
+        "coverLetter": "List motywacyjny",
+        "identity": "Dokument tożsamości",
+        "academic": "Dokumentacja z uczelni",
+        "portfolio": "Portfolio",
+        "other": "Inny dokument"
+      },
+      "upload": {
+        "resume": "Prześlij CV",
+        "coverLetter": "Prześlij list motywacyjny",
+        "identity": "Prześlij dokument tożsamości",
+        "academic": "Prześlij dokumentację z uczelni",
+        "portfolio": "Prześlij portfolio",
+        "other": "Prześlij dokument"
+      },
+      "size": {
+        "bytes": "{size} B",
+        "kilobytes": "{size} KB",
+        "megabytes": "{size} MB"
+      }
+    }
+  },
+  "settings": {
+    "account": {
+      "title": "Konto",
+      "proUntil": "Pro do {date}",
+      "proLifetime": "Pro · Dożywotnio",
+      "disconnect": "Odłącz konto",
+      "waiting": "Oczekiwanie na zalogowanie…",
+      "connect": "Połącz z Aullevo Web",
+      "renew": "Pro wygasł · Odnów",
+      "upgrade": "Przejdź na Pro"
+    },
+    "theme": {
+      "title": "Wygląd motywu",
+      "dark": "Ciemny motyw",
+      "description": "Przełączaj między ciemnym motywem Slate a jasnym"
+    },
+    "mode": {
+      "title": "Tryb silnika autouzupełniania",
+      "aiActive": "Inteligentne wypełnianie AI (aktywne)",
+      "standard": "Wypełnianie standardowe (bez AI)",
+      "aiDescription": "Używa rozumowania AI do interpretacji pytań i dopasowania złożonych pól",
+      "standardDescription": "Bezpośrednie dopasowanie atrybutów profilu bez wywołań AI",
+      "toggle": "Przełącz tryb wypełniania AI"
+    },
+    "ai": {
+      "title": "Silnik AI",
+      "unlimited": "Nieograniczony dostęp",
+      "keyRequired": "Wymagany klucz API",
+      "freeUsage": "Free: {used}/{limit} w tym tygodniu",
+      "privacy": "<b>Prywatność:</b> pola oznaczone jako POUFNE nigdy nie są wysyłane do AI, tylko ich etykiety. Wartości pól BEZPIECZNE DLA AI i pytania z formularza są wysyłane do {provider}.",
+      "provider": "Dostawca AI",
+      "customProvider": "Własny (zgodny z OpenAI)",
+      "baseUrl": "Adres URL serwera",
+      "customHint": "Działa z każdym serwerem obsługującym API czatu OpenAI, np. OpenRouter, Groq, Mistral, Ollama lub LM Studio. Serwery lokalne nie wymagają klucza.",
+      "model": "Model AI",
+      "modelOption": "{name} ({description})",
+      "models": {
+        "fastest": "Najszybszy i bardzo tani",
+        "balanced": "Zrównoważone rozumowanie",
+        "capable": "Szybki i wydajny",
+        "smartest": "Najwyższa inteligencja",
+        "legacy": "Starszy, szybki"
+      },
+      "otherModel": "Inny model (wpisz jego ID)",
+      "modelIdPlaceholder": "Dokładne ID modelu, np. {example}",
+      "apiKey": "Klucz API {provider}",
+      "getKey": "Pobierz klucz API",
+      "keyPlaceholder": "Wklej swój klucz API {provider}",
+      "hideKey": "Ukryj klucz",
+      "showKey": "Pokaż klucz",
+      "addKeyHint": "Dodaj klucz API {provider}, aby korzystać z funkcji Inteligentne wypełnianie AI.",
+      "proHint": "Pro: nieograniczone wypełnienia AI. Twój klucz zostaje w tej przeglądarce.",
+      "freeHint": "Plan Free: {limit} wypełnień AI tygodniowo. Przejdź na Pro, aby korzystać bez limitu."
+    },
+    "paginate": {
+      "title": "Auto-stronicowanie",
+      "toggleTitle": "Wypełniaj formularze wielostronicowe",
+      "description": "Wypełnia każdą stronę, klika Dalej / Kontynuuj, a na końcu naciska Wyślij. Poprawia odpowiedzi odrzucone przez formularz; wstrzymuje się, gdy nie może.",
+      "toggle": "Przełącz Auto-stronicowanie",
+      "proFeature": "Funkcja Pro",
+      "upgrade": "Przejdź na Pro, aby korzystać z Auto-stronicowania"
+    },
+    "floating": {
+      "title": "Pływająca ikona na stronach",
+      "toggleTitle": "Pokaż pływający przycisk",
+      "description": "Wyświetlaj kartę szybkiego dostępu Aullevo przy krawędzi stron",
+      "toggle": "Przełącz pływający przycisk na stronach"
+    },
+    "typing": {
+      "title": "Ludzka szybkość pisania",
+      "instant": "Natychmiastowa ({ms}ms)",
+      "natural": "Naturalna ({ms}ms)",
+      "slow": "Wolna ({ms}ms)",
+      "custom": "Własna ({ms}ms)",
+      "naturalFree": "Naturalna ({ms}ms) · Plan Free",
+      "description": "Wpisuje po jednym znaku w ludzkim tempie, dla stron, które oczekują prawdziwych naciśnięć klawiszy.",
+      "proFeature": "Funkcja Pro",
+      "customDelay": "Własne opóźnienie:",
+      "customProFeature": "Własne opóźnienie to funkcja Pro",
+      "unitMs": "ms"
+    },
+    "tour": {
+      "title": "Przewodnik",
+      "toggleTitle": "Pokaż przewodnik ponownie",
+      "description": "Ponownie przeprowadza przez każdą kartę, krok po kroku",
+      "replay": "Powtórz"
+    },
+    "security": {
+      "title": "Szyfrowane lokalnie"
+    },
+    "memories": {
+      "title": "Pamięć AI",
+      "count": "({enabled}/{total} wł.)",
+      "descriptionAiOn": "Fakty o Tobie, których AI może użyć, by odpowiadać na pytania otwarte (np. „Styl pracy: tylko zdalnie”). Włączone wpisy są wysyłane do {provider} i przechowywane w tej przeglądarce bez szyfrowania, więc nie dodawaj haseł ani numerów dokumentów.",
+      "descriptionAiOff": "Fakty o Tobie, których AI może użyć, by odpowiadać na pytania otwarte (np. „Styl pracy: tylko zdalnie”). Używane tylko wtedy, gdy Inteligentne wypełnianie AI jest włączone. Włączone wpisy są wysyłane do {provider} i przechowywane w tej przeglądarce bez szyfrowania, więc nie dodawaj haseł ani numerów dokumentów.",
+      "titlePlaceholder": "Tytuł",
+      "contentPlaceholder": "Co AI powinno wiedzieć",
+      "enabledTitle": "Wpis jest wysyłany do AI",
+      "disabledTitle": "Wpis nie jest używany",
+      "on": "WŁ.",
+      "off": "WYŁ.",
+      "delete": "Usuń wpis",
+      "newTitlePlaceholder": "Tytuł (np. Styl pracy)",
+      "newContentPlaceholder": "Treść (np. Woli pracę w pełni zdalną, otwarty na kontrakty)",
+      "add": "Dodaj wpis"
+    },
+    "deviceData": {
+      "title": "Dane na tym urządzeniu",
+      "total": "Łącznie {size}",
+      "description": "Każde konto ma tu własny zaszyfrowany sejf. Konta nigdy nie widzą nawzajem swoich profili, dokumentów, klucza API, pamięci AI ani linków.",
+      "empty": "Brak zapisanych danych.",
+      "localOwner": "Niezalogowano (profile lokalne)",
+      "anotherAccount": "Inne konto",
+      "inUse": "{size} · obecnie w użyciu",
+      "deleteTitle": "Usuń dane tego konta z tego urządzenia",
+      "delete": "Usuń",
+      "confirmDelete": "Usunąć dane Aullevo dla „{name}” z tego urządzenia?\n\nSpowoduje to trwałe usunięcie zaszyfrowanych profili, dokumentów, klucza API, pamięci AI i kolejki linków. Tej operacji nie można cofnąć.",
+      "bytes": "{size} B",
+      "kilobytes": "{size} KB",
+      "megabytes": "{size} MB"
+    }
+  },
+  "status": {
+    "plan": {
+      "profileLimit": "Plan Free pozwala na {max} aktywne profile. Ustaw dodatkowe profile na WYŁ. lub przejdź na Pro.",
+      "activeLimit": "Plan Free pozwala na {max} aktywne profile. Ustaw jeden na WYŁ. lub przejdź na Pro.",
+      "createdOff": "Profil utworzono jako WYŁ. Plan Free pozwala na {max} aktywne profile. Ustaw jeden na WYŁ. lub przejdź na Pro.",
+      "autoPaginatePro": "Auto-stronicowanie to funkcja Pro. Przejdź na Pro, aby wypełniać formularze wielostronicowe.",
+      "jsonImportLimit": "Wykorzystano limit bezpłatnych importów JSON na te 2 tygodnie ({limit}). Odnowi się {date}. Możesz też przejść na Pro, aby importować bez limitu.",
+      "documentsSkipped": {
+        "one": "Nie załączono {count} dokumentu: przesyłanie do formularzy to funkcja Pro.",
+        "few": "Nie załączono {count} dokumentów: przesyłanie do formularzy to funkcja Pro.",
+        "many": "Nie załączono {count} dokumentów: przesyłanie do formularzy to funkcja Pro.",
+        "other": "Nie załączono {count} dokumentu: przesyłanie do formularzy to funkcja Pro."
+      }
+    },
+    "batch": {
+      "starting": {
+        "one": "Rozpoczynanie wsadowego wypełniania {count} formularza...",
+        "few": "Rozpoczynanie wsadowego wypełniania {count} formularzy...",
+        "many": "Rozpoczynanie wsadowego wypełniania {count} formularzy...",
+        "other": "Rozpoczynanie wsadowego wypełniania {count} formularza..."
+      },
+      "progress": "Wypełnianie {current} z {total}: {host}",
+      "progressNoHost": "Wypełnianie {current} z {total}...",
+      "complete": {
+        "one": "Zakończono wsadowe wypełnianie {count} formularza!",
+        "few": "Zakończono wsadowe wypełnianie {count} formularzy!",
+        "many": "Zakończono wsadowe wypełnianie {count} formularzy!",
+        "other": "Zakończono wsadowe wypełnianie {count} formularza!"
+      }
+    },
+    "save": {
+      "success": "Profil {type} został zapisany!",
+      "failed": "Zapis nie powiódł się: {error}",
+      "noProfile": "Nie wybrano profilu",
+      "unknownError": "Zapis nie powiódł się"
+    },
+    "profile": {
+      "nameExists": "Profil o tej nazwie już istnieje!",
+      "disabled": "{type}: profil jest wyłączony. Ustaw go na WŁ., aby korzystać z autouzupełniania.",
+      "defaultType": "PROFIL",
+      "imported": {
+        "one": "Zaimportowano {count} pole do: {type}!",
+        "few": "Zaimportowano {count} pola do: {type}!",
+        "many": "Zaimportowano {count} pól do: {type}!",
+        "other": "Zaimportowano {count} pola do: {type}!"
+      }
+    },
+    "highlight": {
+      "noActiveTab": "Nie znaleziono aktywnej karty.",
+      "refreshToConnect": "Odśwież stronę, aby połączyć podświetlanie.",
+      "on": {
+        "one": "Podświetlono {count} pole na stronie!",
+        "few": "Podświetlono {count} pola na stronie!",
+        "many": "Podświetlono {count} pól na stronie!",
+        "other": "Podświetlono {count} pola na stronie!"
+      },
+      "cleared": "Wyczyszczono podświetlenia."
+    },
+    "fill": {
+      "injectingAi": "Wstawianie pól z AI ({type})...",
+      "injecting": "Wstawianie pól ({type})...",
+      "noTab": "Nie udało się połączyć z aktywną kartą.",
+      "refreshToConnect": "Odśwież kartę, aby połączyć autouzupełnianie.",
+      "cannotConnect": "Nie udało się połączyć ze stroną. Odśwież kartę.",
+      "aiPartlySkipped": {
+        "one": "Wypełniono {count} pole (AI częściowo pominięte).",
+        "few": "Wypełniono {count} pola (AI częściowo pominięte).",
+        "many": "Wypełniono {count} pól (AI częściowo pominięte).",
+        "other": "Wypełniono {count} pola (AI częściowo pominięte)."
+      },
+      "keywordMode": {
+        "one": "Wypełniono {count} pole (tryb słów kluczowych).",
+        "few": "Wypełniono {count} pola (tryb słów kluczowych).",
+        "many": "Wypełniono {count} pól (tryb słów kluczowych).",
+        "other": "Wypełniono {count} pola (tryb słów kluczowych)."
+      },
+      "withAi": {
+        "one": "Formularz wypełniony z AI (dopasowano {count} pole).",
+        "few": "Formularz wypełniony z AI (dopasowano {count} pola).",
+        "many": "Formularz wypełniony z AI (dopasowano {count} pól).",
+        "other": "Formularz wypełniony z AI (dopasowano {count} pola)."
+      },
+      "withoutAi": {
+        "one": "Formularz wypełniony bez AI (dopasowano {count} pole).",
+        "few": "Formularz wypełniony bez AI (dopasowano {count} pola).",
+        "many": "Formularz wypełniony bez AI (dopasowano {count} pól).",
+        "other": "Formularz wypełniony bez AI (dopasowano {count} pola)."
+      },
+      "error": "Błąd wypełniania: {error}",
+      "injected": {
+        "one": "Wstawiono {count} pole na stronę.",
+        "few": "Wstawiono {count} pola na stronę.",
+        "many": "Wstawiono {count} pól na stronę.",
+        "other": "Wstawiono {count} pola na stronę."
+      }
+    },
+    "pagination": {
+      "progress": "Auto-stronicowanie: wypełnianie strony {page}...",
+      "lostConnection": "Auto-stronicowanie zatrzymane: utracono połączenie z rozszerzeniem.",
+      "filled": {
+        "one": "Wypełnione pola: {filled} na {count} stronie.",
+        "few": "Wypełnione pola: {filled} na {count} stronach.",
+        "many": "Wypełnione pola: {filled} na {count} stronach.",
+        "other": "Wypełnione pola: {filled} na {count} strony."
+      },
+      "corrected": {
+        "one": "Poprawiono {count} odpowiedź odrzuconą przez formularz.",
+        "few": "Poprawiono {count} odpowiedzi odrzucone przez formularz.",
+        "many": "Poprawiono {count} odpowiedzi odrzuconych przez formularz.",
+        "other": "Poprawiono {count} odpowiedzi odrzuconej przez formularz."
+      },
+      "field": "„{name}”",
+      "fieldAndMore": {
+        "one": "„{name}” (+{count} więcej)",
+        "few": "„{name}” (+{count} więcej)",
+        "many": "„{name}” (+{count} więcej)",
+        "other": "„{name}” (+{count} więcej)"
+      },
+      "aField": "pole",
+      "nextButton": "Dalej",
+      "submitted": "Wysłano!",
+      "noNext": "Nie znaleziono przycisku Dalej / Kontynuuj.",
+      "stillEmpty": "{field} jest nadal puste.",
+      "check": "Sprawdź {field}.",
+      "blocked": "Wstrzymano na stronie {page}: {field} jest wymagane i puste. Wypełnij je i uruchom ponownie.",
+      "nextDisabled": "Wstrzymano na stronie {page}: przycisk „{button}” jest nieaktywny. Sprawdź stronę i uruchom ponownie.",
+      "validationError": "Wstrzymano na stronie {page}: formularz zgłosił „{error}”.",
+      "validationErrorUnknown": "Wstrzymano na stronie {page}: formularz zgłosił błąd.",
+      "correctionTried": "(podjęto próbę automatycznej poprawki)",
+      "stuck": "Wstrzymano na stronie {page}: kliknięto „{button}”, ale formularz nie przeszedł dalej.",
+      "maxPages": "Zatrzymano na limicie bezpieczeństwa: {max} stron.",
+      "noForm": "Nie znaleziono formularza na tej stronie (lub Aullevo nie może tu działać).",
+      "stopped": "Auto-stronicowanie zatrzymane: {error}",
+      "unknownError": "nieznany błąd"
+    }
+  },
+  "tour": {
+    "card": {
+      "progress": "{section} · {current} z {total}",
+      "skip": "Pomiń przewodnik",
+      "dontShowAgain": "Nie pokazuj ponownie",
+      "back": "Wstecz",
+      "next": "Dalej",
+      "done": "Gotowe"
+    },
+    "shortcuts": {
+      "allActive": "Wszystkie 3 skróty są aktywne w tej przeglądarce.",
+      "notSet": "Nieustawione w tej przeglądarce: {list}. Ustaw je samodzielnie w ustawieniach skrótów Chrome.",
+      "openSettings": "Otwórz ustawienia skrótów Chrome",
+      "toggleSidePanel": "Pokaż/ukryj panel boczny",
+      "fallbackName": "Skrót"
+    },
+    "sections": {
+      "autofill": "Wypełnianie",
+      "header": "Górne przyciski",
+      "profiles": "Profile",
+      "multilink": "Wiele linków",
+      "settings": "Ustawienia"
+    },
+    "autofill": {
+      "detection": {
+        "title": "Wykrywanie formularzy",
+        "body": "Aullevo liczy pola do wypełnienia na stronie w bieżącej karcie. Otwórz formularz, a ta liczba się zaktualizuje."
+      },
+      "highlight": {
+        "title": "Podświetl pola",
+        "body": "Obrysowuje każde pole znalezione przez Aullevo na stronie, dzięki czemu widzisz, co zostanie wypełnione, zanim to zrobisz. Kliknij ponownie, aby usunąć obrysy."
+      },
+      "rescan": {
+        "title": "Skanuj ponownie",
+        "body": "Niektóre formularze dodają pola po załadowaniu strony, np. formularze wieloetapowe lub okna wyskakujące. Skanuj ponownie liczy pola od nowa."
+      },
+      "fill": {
+        "title": "Wypełnij formularz",
+        "body": "Wypełnia stronę danymi z aktywnego profilu. Gdy wypełnianie AI jest włączone (w Ustawieniach), pytania są dopasowywane do Twoich odpowiedzi, nawet jeśli są inaczej sformułowane. Gdy jest wyłączone, pola są dopasowywane według słów kluczowych."
+      },
+      "activeProfile": {
+        "title": "Aktywny profil",
+        "body": "Profil używany do wypełniania oraz liczba włączonych pól i dokumentów. Przełączaj profile lub edytuj odpowiedzi na karcie <b>Profile</b>."
+      },
+      "shortcuts": {
+        "title": "Skróty klawiszowe",
+        "body": "Chrome ustawia te klawisze podczas instalacji Aullevo, ale pomija te, których już używa Chrome lub inne rozszerzenie. Możesz je zmienić w dowolnym momencie."
+      }
+    },
+    "header": {
+      "voice": {
+        "title": "Tryb głosowy",
+        "body": "Rozmawiaj z Aullevo zamiast klikać. Ten przycisk przełącza panel na asystenta głosowego: powiedz \"fill this page\", \"fill the email\" lub \"fill the first question\", a odpowie na głos. Kliknij ponownie, aby wrócić do tego widoku.",
+        "note": "Funkcja Pro. Wymaga własnego klucza API ElevenLabs, który dodajesz w Voice settings. Polecenia głosowe działają po angielsku i tagalsku."
+      },
+      "language": {
+        "title": "Język",
+        "body": "Wybierz język całego Aullevo. Angielski jest zawsze na górze listy, więc w każdej chwili możesz do niego wrócić."
+      },
+      "theme": {
+        "title": "Jasny lub ciemny motyw",
+        "body": "Przełącza panel między trybem jasnym a ciemnym."
+      },
+      "json": {
+        "title": "Szybka konfiguracja JSON",
+        "intro": "Twój profil w formacie JSON. Najszybszy sposób na skonfigurowanie profilu:",
+        "step1": "Skopiuj stąd JSON.",
+        "step2": "Przekaż go do Gemini, Claude lub ChatGPT razem z CV albo innym dokumentem.",
+        "step3": "Poproś AI o uzupełnienie wartości z zachowaniem tej samej struktury.",
+        "step4": "Wklej wynik tutaj i kliknij <b>Importuj</b>."
+      },
+      "fullPage": {
+        "title": "Otwórz pełną stronę",
+        "body": "Otwiera Aullevo w karcie przeglądarki, gdzie jest więcej miejsca na edycję profili. Wypełnianie nadal odbywa się z tego panelu bocznego."
+      },
+      "close": {
+        "title": "Zamknij panel",
+        "body": "Zamyka panel boczny. Otwórz go ponownie skrótem <b>Alt+Q</b> (<b>Option+Q</b> na Macu) lub klikając ikonę Aullevo na pasku narzędzi."
+      }
+    },
+    "profiles": {
+      "switcher": {
+        "title": "Przełączaj profile",
+        "body1": "Każdy profil (Praca, Nauka, Finanse lub własny) ma własny zestaw odpowiedzi. Wybierz ten, który chcesz edytować i używać do wypełniania.",
+        "body2": "Otwórz listę, aby zobaczyć, które profile są WŁ., a które WYŁ., i utworzyć nowy na dole.",
+        "note": "Plan Free: maksymalnie 2 profile mogą być jednocześnie WŁ."
+      },
+      "config": {
+        "title": "Nazwa i włącznik",
+        "body": "Tutaj zmienisz nazwę profilu. <b>PROFIL WŁ.</b> włącza lub wyłącza cały profil. Gdy jest wyłączony, nie jest używany do wypełniania."
+      },
+      "identity": {
+        "title": "Tożsamość i kontakt",
+        "body": "Imię i nazwisko, e-mail, telefon i adres. Kliknij nagłówek dowolnej sekcji, aby ją zwinąć lub rozwinąć. Każde pole ma trzy małe przełączniki, opisane dalej."
+      },
+      "fieldContext": {
+        "title": "Wskazówka kontekstu AI",
+        "body": "Przycisk ✨ dodaje wskazówkę, która mówi AI, co oznacza to pole, np. „Imię zgodne z paszportem”. Pomaga, gdy pytanie w formularzu jest niejasno sformułowane. Kropka oznacza, że wskazówka jest ustawiona."
+      },
+      "fieldPrivacy": {
+        "title": "Bezpieczne dla AI lub Poufne",
+        "safe": "<b>Bezpieczne dla AI</b>: wartość jest udostępniana AI, aby mogła wybrać właściwą odpowiedź na listach rozwijanych i w pytaniach wielokrotnego wyboru.",
+        "sensitive": "<b>Poufne</b>: AI widzi tylko nazwę pola i wskazówkę, nigdy wartość. Aullevo i tak wpisuje wartość na Twoim urządzeniu.",
+        "toggle": "Kliknij, aby przełączyć."
+      },
+      "fieldToggle": {
+        "title": "Włącz lub wyłącz pole",
+        "body": "Ustaw pole na WYŁ., aby pominąć je przy wypełnianiu bez usuwania tego, co wpisano."
+      },
+      "documents": {
+        "title": "Załącz dokumenty",
+        "body": "Wybierz typ dokumentu, a następnie prześlij CV, list motywacyjny, dokument tożsamości i inne. Gdy formularz ma pole przesyłania pliku, Aullevo załącza Twoje dokumenty, które są WŁ.",
+        "note": "Załączanie dokumentów do formularzy to funkcja Pro."
+      },
+      "attributes": {
+        "title": "Pola zależne od profilu",
+        "body": "Pola właściwe dla danego rodzaju profilu. Profil Praca ma nagłówek, LinkedIn, umiejętności i wykształcenie. Nauka, Zdrowie i pozostałe mają własne."
+      },
+      "customFields": {
+        "title": "Dodaj własne pola",
+        "body": "Na wszystko, czego nie obejmują pola standardowe, np. „Oczekiwane wynagrodzenie” lub „Dlaczego chcesz tę pracę?”. Wpisz etykietę i wartość, a potem kliknij <b>+</b>. Dobrze sprawdza się użycie treści pytania jako etykiety."
+      },
+      "save": {
+        "title": "Zapisywanie",
+        "body": "Zmiany zapisują się automatycznie podczas pisania. Ten przycisk zapisuje od razu, co przydaje się tuż przed zamknięciem panelu."
+      }
+    },
+    "multilink": {
+      "addLink": {
+        "title": "Dodaj link do formularza",
+        "body": "Wklej pełny link do formularza lub aplikacji o pracę (zaczynający się od https://) i kliknij <b>+</b>. Dodaj ich tyle, ile chcesz."
+      },
+      "savedLinks": {
+        "title": "Twoja kolejka linków",
+        "body": "Każdy dodany link pojawia się tutaj. Zaznacz link, aby uwzględnić go w następnej partii, lub odznacz, aby go pominąć. Ikona strzałki otwiera link, a ikona kosza go usuwa."
+      },
+      "batchRun": {
+        "title": "Wypełnij wszystkie naraz",
+        "body1": "Otwiera każdy zaznaczony link w karcie w tle, jeden po drugim, i wypełnia go danymi z aktywnego profilu. Postęp jest widoczny u góry panelu.",
+        "note": "Skrót: Alt+Shift+B (Option+Shift+B na Macu)."
+      }
+    },
+    "settings": {
+      "account": {
+        "title": "Twoje konto",
+        "body": "Połącz konto Aullevo Web, aby obowiązywał tu Twój plan (Free lub Pro). Profile pozostają zaszyfrowane na tym urządzeniu i nie są przesyłane."
+      },
+      "aiMode": {
+        "title": "Inteligentne wypełnianie AI lub Wypełnianie standardowe",
+        "standard": "<b>Wypełnianie standardowe</b> dopasowuje pola według nazwy, bez AI.",
+        "smart": "<b>Inteligentne wypełnianie AI</b> rozumie inaczej sformułowane pytania i wybiera odpowiedzi na listach rozwijanych i w pytaniach wielokrotnego wyboru."
+      },
+      "aiEngine": {
+        "title": "Dostawca AI, model i klucz API"
+      },
+      "memories": {
+        "title": "Pamięć AI",
+        "body": "Krótkie fakty, których AI może użyć przy pytaniach otwartych, np. „Styl pracy: tylko zdalnie”. Są wysyłane do wybranego dostawcy AI i nie są szyfrowane, więc nigdy nie dodawaj haseł ani numerów dokumentów."
+      },
+      "autoPaginate": {},
+      "floatingIcon": {
+        "title": "Pływający przycisk",
+        "body": "Mała karta Aullevo przy krawędzi stron internetowych do szybkiego dostępu. Wyłącz ją, jeśli przeszkadza."
+      },
+      "typingSpeed": {
+        "title": "Szybkość pisania",
+        "body": "Jak szybko Aullevo wpisuje tekst w pola. <b>Naturalna</b> bardziej przypomina pisanie przez człowieka, a <b>Natychmiastowa</b> jest najszybsza. Wolna i własna szybkość są dostępne w Pro."
+      },
+      "replayTour": {
+        "title": "Powtórz ten przewodnik",
+        "body": "Coś umknęło? Kliknij <b>Powtórz</b>, aby przejść cały przewodnik jeszcze raz."
+      },
+      "deviceData": {
+        "title": "Dane na tym urządzeniu",
+        "body": "Każde konto ma własny zaszyfrowany sejf w tej przeglądarce. Usuń dane kont, których już nie używasz."
+      }
+    }
+  },
+  "vault": {
+    "loading": "Ładowanie…",
+    "account": {
+      "signedInAs": "Zalogowano jako <b>{account}</b>",
+      "notSignedIn": "Niezalogowano: profile lokalne na tym urządzeniu",
+      "fallbackName": "Twoje konto"
+    },
+    "errors": {
+      "createFailed": "Nie udało się utworzyć sejfu. Spróbuj ponownie.",
+      "wrongPassphrase": "Nieprawidłowe hasło.",
+      "wrongClaimPassphrase": "Nieprawidłowe hasło dla tych profili."
+    }
+  }
+}

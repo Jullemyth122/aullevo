@@ -2,6 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Code2, X, Copy, Upload, Download, Maximize2, Minimize2, Check, AlignLeft, Crown } from 'lucide-react';
 import type { CM } from '../types';
 import './jsonmodal.scss';
+import { useT } from '../i18n';
+import { FREE_JSON_IMPORTS_PER_DAY, JSON_IMPORT_COUNT_KEY, getJsonImportsUsed, jsonImportsLeft } from '../services/importQuota';
+import { usesLeft } from '../services/rewards';
+import { usePlanRewards } from '../hooks/useRewards';
+import { PlanUnlock } from './UnlockCard';
 
 interface JsonConfigModalProps {
     isOpen: boolean;
@@ -20,12 +25,30 @@ export const JsonConfigModal: React.FC<JsonConfigModalProps> = ({
     isPro,
     profileName
 }) => {
+    const { t } = useT();
     const [jsonText, setJsonText] = useState<string>('');
     const [fieldCount, setFieldCount] = useState<number>(0);
     const [parseError, setParseError] = useState<string | null>(null);
     const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
     const [copied, setCopied] = useState<boolean>(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Free plan: limited imports per week (Pro: unlimited); refreshed when the window opens or an import is counted
+    const [importsUsed, setImportsUsed] = useState<number>(0);
+    useEffect(() => {
+        if (!isOpen || isPro) return;
+        const refresh = () => { getJsonImportsUsed().then(setImportsUsed).catch(() => { }); };
+        refresh();
+        const handleChange = (changes: Record<string, chrome.storage.StorageChange>, area: string) => {
+            if (area === 'local' && changes[JSON_IMPORT_COUNT_KEY]) refresh();
+        };
+        chrome.storage?.onChanged?.addListener(handleChange);
+        return () => chrome.storage?.onChanged?.removeListener(handleChange);
+    }, [isOpen, isPro]);
+    // After the free imports, each import uses one of the 10 a short ad unlocks (useProfileManager spends it)
+    const plan = usePlanRewards();
+    const freeLeft = jsonImportsLeft(importsUsed, isPro);
+    const importsLeft = freeLeft > 0 ? freeLeft : plan.access.json ? usesLeft(plan.cache, 'json') : 0;
 
     // Sync JSON text when modal opens (filters out any garbage fields automatically)
     useEffect(() => {
@@ -175,13 +198,13 @@ export const JsonConfigModal: React.FC<JsonConfigModalProps> = ({
         try {
             const imported = parseAnyJsonToFields(jsonText);
             if (imported.length === 0) {
-                alert("No valid fields found in the provided JSON.");
+                alert(t('json.errors.noFields'));
                 return;
             }
             onImport(imported);
             onClose();
         } catch (err: any) {
-            alert("Invalid JSON format: " + err.message);
+            alert(t('json.errors.invalidFormat', { error: err.message }));
         }
     };
 
@@ -195,10 +218,10 @@ export const JsonConfigModal: React.FC<JsonConfigModalProps> = ({
                     <div className="av-modal-title-group">
                         <div className="av-modal-title">
                             <Code2 size={15} />
-                            <span>JSON Configuration</span>
+                            <span>{t('json.title')}</span>
                         </div>
                         <span className={`av-badge-json ${parseError ? 'error' : ''}`}>
-                            {parseError ? 'Invalid JSON' : `✓ ${fieldCount} fields`}
+                            {parseError ? t('json.badge.invalid') : t('json.badge.fields', { count: fieldCount })}
                         </span>
                     </div>
 
@@ -207,7 +230,7 @@ export const JsonConfigModal: React.FC<JsonConfigModalProps> = ({
                             type="button"
                             className="av-btn-subtle"
                             onClick={handleFormatJson}
-                            title="Format / Beautify JSON"
+                            title={t('json.actions.format')}
                         >
                             <AlignLeft size={13} />
                         </button>
@@ -215,7 +238,7 @@ export const JsonConfigModal: React.FC<JsonConfigModalProps> = ({
                             type="button"
                             className="av-btn-subtle"
                             onClick={() => setIsFullscreen(!isFullscreen)}
-                            title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+                            title={isFullscreen ? t('json.actions.exitFullscreen') : t('json.actions.fullscreen')}
                         >
                             {isFullscreen ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
                         </button>
@@ -223,7 +246,7 @@ export const JsonConfigModal: React.FC<JsonConfigModalProps> = ({
                             type="button"
                             className="av-btn-subtle"
                             onClick={onClose}
-                            title="Close"
+                            title={t('json.actions.close')}
                         >
                             <X size={13} />
                         </button>
@@ -242,7 +265,17 @@ export const JsonConfigModal: React.FC<JsonConfigModalProps> = ({
                 {!isPro && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, padding: '6px 10px', color: '#eab308' }}>
                         <Crown size={12} />
-                        <span>JSON import & export are Pro features. You can view your fields here.</span>
+                        <span>
+                            {freeLeft > 0
+                                ? t('json.quota.leftToday', { left: freeLeft, limit: FREE_JSON_IMPORTS_PER_DAY })
+                                : t('json.quota.reachedToday', { limit: FREE_JSON_IMPORTS_PER_DAY })}
+                            {' '}{t('json.quota.downloadPro')}
+                        </span>
+                    </div>
+                )}
+                {!isPro && freeLeft <= 0 && (
+                    <div style={{ padding: '0 10px 8px' }}>
+                        <PlanUnlock feature="json" reason={t('rewards.status.jsonLocked')} />
                     </div>
                 )}
 
@@ -251,11 +284,11 @@ export const JsonConfigModal: React.FC<JsonConfigModalProps> = ({
                     <div style={{ display: 'flex', gap: 6 }}>
                         <button type="button" className="av-btn-secondary" onClick={handleDownload} disabled={!isPro || Boolean(parseError)}>
                             <Download size={12} />
-                            <span>Download</span>
+                            <span>{t('json.actions.download')}</span>
                         </button>
-                        <button type="button" className="av-btn-secondary" onClick={handleCopy} disabled={!isPro}>
+                        <button type="button" className="av-btn-secondary" onClick={handleCopy}>
                             {copied ? <Check size={12} /> : <Copy size={12} />}
-                            <span>{copied ? 'Copied' : 'Copy JSON'}</span>
+                            <span>{copied ? t('json.actions.copied') : t('json.actions.copy')}</span>
                         </button>
 
                         <input
@@ -269,19 +302,18 @@ export const JsonConfigModal: React.FC<JsonConfigModalProps> = ({
                             type="button"
                             className="av-btn-secondary"
                             onClick={() => fileInputRef.current?.click()}
-                            disabled={!isPro}
                         >
                             <Upload size={12} />
-                            <span>Upload File</span>
+                            <span>{t('json.actions.upload')}</span>
                         </button>
                     </div>
 
                     <div style={{ display: 'flex', gap: 6 }}>
-                        <button type="button" className="av-btn-primary" onClick={handleImport} disabled={!isPro}>
-                            Import
+                        <button type="button" className="av-btn-primary" onClick={handleImport} disabled={importsLeft <= 0}>
+                            {t('json.actions.import')}
                         </button>
                         <button type="button" className="av-btn-cancel" onClick={onClose}>
-                            Close
+                            {t('json.actions.close')}
                         </button>
                     </div>
                 </div>

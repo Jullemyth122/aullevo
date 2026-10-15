@@ -1,0 +1,20 @@
+{
+  "appName": {
+    "message": "Aullevo - AI ফর্ম অটোফিল ও চাকরির আবেদন পূরণকারী"
+  },
+  "appDescription": {
+    "message": "চাকরির আবেদন, সার্ভে ও যেকোনো ওয়েব ফর্মের জন্য AI ফর্ম পূরণকারী। সেভ করা প্রোফাইল, রিজিউমে আপলোড ও স্মার্ট অটোফিল।"
+  },
+  "actionTitle": {
+    "message": "Aullevo সাইড প্যানেল খুলুন"
+  },
+  "commandTogglePanel": {
+    "message": "Aullevo সাইড প্যানেল খুলুন/বন্ধ করুন"
+  },
+  "commandFill": {
+    "message": "পেজে AI বা কীওয়ার্ড দিয়ে ফর্ম অটোফিল চালান"
+  },
+  "commandBatchFill": {
+    "message": "মাল্টি-লিংক ব্যাচ ফর্ম অটোফিল চালান"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "appName": {
+    "message": "Aullevo - AI-autoutfylling av skjemaer og jobbsøknader"
+  },
+  "appDescription": {
+    "message": "AI-utfylling for jobbsøknader, undersøkelser og alle nettskjemaer. Lagrede profiler, CV-opplasting og smart autoutfylling."
+  },
+  "actionTitle": {
+    "message": "Åpne Aullevos sidepanel"
+  },
+  "commandTogglePanel": {
+    "message": "Vis/skjul Aullevos sidepanel"
+  },
+  "commandFill": {
+    "message": "Start autoutfylling med AI eller nøkkelord på siden"
+  },
+  "commandBatchFill": {
+    "message": "Start masseutfylling via flere lenker"
+  }
+}

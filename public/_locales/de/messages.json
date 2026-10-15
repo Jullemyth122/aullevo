@@ -1,0 +1,20 @@
+{
+  "appName": {
+    "message": "Aullevo - KI-Formularausfüller für Bewerbungen und Webformulare"
+  },
+  "appDescription": {
+    "message": "KI-Ausfüllhilfe für Bewerbungen, Umfragen und jedes Webformular. Gespeicherte Profile, Lebenslauf-Upload und smartes Autofill."
+  },
+  "actionTitle": {
+    "message": "Aullevo-Seitenleiste öffnen"
+  },
+  "commandTogglePanel": {
+    "message": "Aullevo-Seitenleiste ein-/ausblenden"
+  },
+  "commandFill": {
+    "message": "Formular auf der Seite mit KI oder Stichwörtern ausfüllen"
+  },
+  "commandBatchFill": {
+    "message": "Multi-Link-Stapelausfüllung starten"
+  }
+}

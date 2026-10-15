@@ -1,0 +1,687 @@
+{
+  "autofill": {
+    "detection": {
+      "title": "Pengesanan Borang",
+      "sub": "Medan pada tab aktif",
+      "highlightTitle": "Periksa dan serlahkan medan pada halaman",
+      "clear": "Kosongkan",
+      "highlight": "Serlah",
+      "rescanTitle": "Imbas semula halaman",
+      "rescan": "Imbas Semula"
+    },
+    "fill": {
+      "injecting": "Mengisi...",
+      "disabled": "{type} Dilumpuhkan",
+      "withAi": "Isi Borang dengan AI ({type})",
+      "standard": "Isi Borang ({type})",
+      "autoPaginate": "Penomboran Auto hidup: mengisi setiap halaman, kemudian menghantar"
+    },
+    "activeProfile": {
+      "title": "Profil Aktif",
+      "summary": "{fields} • {docs} sedia",
+      "fieldCount": {
+        "other": "{count} medan"
+      },
+      "docCount": {
+        "other": "{count} dokumen"
+      },
+      "ready": "SEDIA",
+      "disabled": "DILUMPUHKAN"
+    },
+    "shortcuts": {
+      "title": "Pintasan Papan Kekunci",
+      "toggleSidePanel": "Togol Panel Sisi",
+      "formFill": "Isian Borang AI / Kata Kunci",
+      "batchFill": "Isian Berkelompok Pelbagai Pautan"
+    }
+  },
+  "content": {
+    "openSidebar": "Buka panel sisi Aullevo",
+    "filled": "DIISI",
+    "file": "Fail: {name}",
+    "files": {
+      "other": "{count} fail dilampirkan"
+    },
+    "matched": "Dipadankan: {name}",
+    "ranked": "Kedudukan: {value}",
+    "ai": "[AI] {text}",
+    "aiGenerated": "[AI] Dijana",
+    "fixed": "Dibetulkan: {value}"
+  },
+  "header": {
+    "versionLine": "v{version} • Isi Auto",
+    "lightTheme": "Tema cerah",
+    "darkTheme": "Tema gelap",
+    "jsonConfig": "Konfigurasi JSON",
+    "openFullPage": "Buka halaman penuh",
+    "closeSidePanel": "Tutup panel sisi",
+    "footer": {
+      "engine": "Enjin Isi Auto Aullevo",
+      "ready": "Sedia"
+    }
+  },
+  "json": {
+    "title": "Konfigurasi JSON",
+    "badge": {
+      "fields": {
+        "other": "✓ {count} medan"
+      },
+      "invalid": "JSON tidak sah"
+    },
+    "actions": {
+      "format": "Format / Kemaskan JSON",
+      "fullscreen": "Skrin Penuh",
+      "exitFullscreen": "Keluar Skrin Penuh",
+      "close": "Tutup",
+      "download": "Muat Turun",
+      "copy": "Salin JSON",
+      "copied": "Disalin",
+      "upload": "Muat Naik Fail",
+      "import": "Import"
+    },
+    "quota": {
+      "downloadPro": "Muat turun (eksport) ialah ciri Pro."
+    },
+    "errors": {
+      "noFields": "Tiada medan yang sah ditemui dalam JSON yang diberikan.",
+      "invalidFormat": "Format JSON tidak sah: {error}"
+    }
+  },
+  "language": {
+    "title": "Bahasa",
+    "button": "Bahasa: {name}",
+    "search": "Cari bahasa",
+    "auto": "Automatik: {name}",
+    "autoHint": "Mengikut bahasa pelayar anda",
+    "backToEnglish": "Kembali ke bahasa Inggeris",
+    "changed": "Bahasa ditukar kepada {name}.",
+    "switchBack": "Tukar semula ke {name}",
+    "keep": "Kekalkan",
+    "noResults": "Tiada bahasa ditemui",
+    "settingsHint": "Menukar setiap skrin Aullevo, termasuk jelajah berpandu."
+  },
+  "manifest": {
+    "appName": "Aullevo - Isi Auto Borang dengan AI & Pengisi Permohonan Kerja",
+    "appDescription": "Pengisi borang AI untuk permohonan kerja, tinjauan dan sebarang borang web. Profil tersimpan, muat naik resume, isian auto pintar.",
+    "actionTitle": "Buka Panel Sisi Aullevo",
+    "commandTogglePanel": "Togol Panel Sisi Aullevo",
+    "commandFill": "Cetuskan Isian Auto Borang AI atau Kata Kunci pada Halaman",
+    "commandBatchFill": "Cetuskan Isian Auto Borang Berkelompok Pelbagai Pautan"
+  },
+  "multilink": {
+    "batch": {
+      "title": "Baris Gilir Isian Auto Berkelompok",
+      "activeCount": "{enabled} daripada {total} aktif",
+      "description": "Automasikan pembukaan dan pengisian borang merentas berbilang tab menggunakan profil <b>{type}</b> aktif anda.",
+      "running": "Isian Auto Berkelompok Sedang Berjalan...",
+      "start": {
+        "other": "Isi {count} Borang Secara Berkelompok"
+      }
+    },
+    "add": {
+      "title": "Tambah Pautan Borang / Kerja"
+    },
+    "saved": {
+      "title": "Pautan Disimpan ({count})",
+      "clearAll": "Kosongkan Semua",
+      "empty": "Belum ada pautan ditambah. Tampal URL borang di atas untuk bermula.",
+      "open": "Buka pautan",
+      "remove": "Alih keluar pautan"
+    }
+  },
+  "nav": {
+    "autofill": "Isi Auto",
+    "profiles": "Profil ({count})",
+    "multiLink": "Pelbagai Pautan",
+    "settings": "Tetapan"
+  },
+  "profiles": {
+    "types": {
+      "job": "Kerjaya",
+      "medical": "Perubatan",
+      "government": "Kerajaan",
+      "survey": "Tinjauan",
+      "academic": "Akademik",
+      "financial": "Kewangan",
+      "custom": "Tersuai"
+    },
+    "badges": {
+      "on": "HIDUP",
+      "off": "MATI",
+      "disabled": "DILUMPUHKAN",
+      "sensitive": "SENSITIF",
+      "aiSafe": "SELAMAT AI"
+    },
+    "save": {
+      "button": "Simpan Profil {type}",
+      "saved": "Disimpan ✓"
+    },
+    "dropdown": {
+      "newProfilePlaceholder": "Nama profil baharu...",
+      "add": "Tambah"
+    },
+    "config": {
+      "title": "Konfigurasi Profil",
+      "on": "PROFIL HIDUP",
+      "off": "PROFIL MATI",
+      "activeTooltip": "Profil {type} aktif",
+      "disabledTooltip": "Profil {type} dilumpuhkan",
+      "namePlaceholder": "Nama Profil"
+    },
+    "identity": {
+      "title": "Identiti & Hubungan",
+      "firstName": "Nama Pertama",
+      "lastName": "Nama Akhir",
+      "email": "Alamat E-mel",
+      "phone": "Nombor Telefon",
+      "address": "Alamat Kediaman"
+    },
+    "attributes": {
+      "title": "Atribut {type}",
+      "customHint": "Tambah medan anda sendiri di bawah atau import melalui JSON.",
+      "job": {
+        "headline": "Tajuk / Jawatan",
+        "linkedin": "LinkedIn",
+        "github": "GitHub",
+        "portfolio": "Portfolio",
+        "skills": "Kemahiran",
+        "education": "Pendidikan / Ijazah",
+        "certifications": "Pensijilan"
+      },
+      "medical": {
+        "bloodType": "Jenis Darah",
+        "allergies": "Alahan",
+        "emergencyContact": "Hubungan Kecemasan",
+        "insuranceProvider": "Penyedia Insurans"
+      },
+      "government": {
+        "nationalId": "No. Kad Pengenalan / SSN",
+        "citizenship": "Kewarganegaraan",
+        "passport": "No. Pasport",
+        "driversLicense": "Lesen Memandu"
+      },
+      "survey": {
+        "ageRange": "Julat Umur",
+        "income": "Pendapatan",
+        "education": "Pendidikan",
+        "employment": "Pekerjaan"
+      },
+      "academic": {
+        "institution": "Institusi",
+        "major": "Jurusan / Bidang Pengajian",
+        "gpa": "PNGK",
+        "gradYear": "Tahun Graduasi",
+        "testScores": "Skor Ujian"
+      },
+      "financial": {
+        "billingAddress": "Alamat Pengebilan",
+        "payment": "Pembayaran",
+        "cardholder": "Pemegang Kad"
+      }
+    },
+    "field": {
+      "sensitiveTooltip": "Sensitif: Nilai disembunyikan daripada AI (Zero-Knowledge)",
+      "aiSafeTooltip": "Selamat AI: Nilai dikongsi dengan AI untuk pemilihan jawapan pintar"
+    },
+    "context": {
+      "buttonTitle": "Konteks AI untuk {label}",
+      "title": "Konteks AI: {label}",
+      "placeholder": "Petunjuk konteks untuk AI (cth. 'Nama pertama sah dalam pasport')",
+      "hint": "AI menggunakan petunjuk ini untuk mengenal pasti medan borang laman web yang samar."
+    },
+    "custom": {
+      "title": "Medan Tersuai",
+      "labelPlaceholder": "Label Medan",
+      "valuePlaceholder": "Nilai Medan",
+      "sensitiveTooltip": "Sensitif: Nilai disembunyikan daripada AI",
+      "aiSafeTooltip": "Selamat AI: Nilai dikongsi dengan AI",
+      "enabledTooltip": "Medan didayakan",
+      "disabledTooltip": "Medan dilumpuhkan",
+      "delete": "Padam medan",
+      "pagination": {
+        "other": "Halaman {page} daripada {total} ({count} item)"
+      },
+      "newLabelPlaceholder": "Label",
+      "newValuePlaceholder": "Nilai",
+      "add": "Tambah medan tersuai"
+    },
+    "documents": {
+      "title": "Dokumen Dilampirkan",
+      "labelPlaceholder": "Label Dokumen",
+      "labelTooltip": "Klik untuk mengedit label dokumen",
+      "remove": "Alih keluar fail",
+      "pagination": "Halaman {page} daripada {total}",
+      "categories": {
+        "resume": "Resume / CV",
+        "coverLetter": "Surat Iringan",
+        "identity": "Identiti / Kad Pengenalan",
+        "academic": "Rekod Akademik",
+        "portfolio": "Portfolio",
+        "other": "Dokumen Lain"
+      },
+      "upload": {
+        "resume": "Muat Naik Resume",
+        "coverLetter": "Muat Naik Surat Iringan",
+        "identity": "Muat Naik Kad Pengenalan",
+        "academic": "Muat Naik Rekod Akademik",
+        "portfolio": "Muat Naik Portfolio",
+        "other": "Muat Naik Dokumen"
+      },
+      "size": {
+        "bytes": "{size} B",
+        "kilobytes": "{size} KB",
+        "megabytes": "{size} MB"
+      }
+    }
+  },
+  "settings": {
+    "account": {
+      "title": "Akaun",
+      "proUntil": "Pro sehingga {date}",
+      "proLifetime": "Pro · Seumur Hidup",
+      "disconnect": "Putuskan sambungan akaun",
+      "waiting": "Menunggu log masuk…",
+      "connect": "Sambung dengan Aullevo Web",
+      "renew": "Pro tamat tempoh · Perbaharui",
+      "upgrade": "Naik taraf ke Pro"
+    },
+    "theme": {
+      "title": "Penampilan Tema",
+      "dark": "Tema Gelap",
+      "description": "Tukar antara tema Slate Gelap dan Cerah"
+    },
+    "mode": {
+      "title": "Mod Enjin Isi Auto",
+      "aiActive": "Isian Pintar AI (Aktif)",
+      "standard": "Isian Standard (Tanpa AI)",
+      "aiDescription": "Menggunakan penaakulan AI untuk mentafsir soalan & memadankan medan yang kompleks",
+      "standardDescription": "Pemadanan terus atribut profil tanpa panggilan AI",
+      "toggle": "Togol Mod Isian AI"
+    },
+    "ai": {
+      "title": "Enjin AI",
+      "unlimited": "Akses Tanpa Had",
+      "keyRequired": "Kunci API Diperlukan",
+      "freeUsage": "Free: {used}/{limit} minggu ini",
+      "privacy": "<b>Privasi:</b> Medan bertanda SENSITIF tidak pernah dihantar kepada AI, hanya labelnya. Nilai medan SELAMAT AI dan soalan borang dihantar kepada {provider}.",
+      "provider": "Penyedia AI",
+      "customProvider": "Tersuai (serasi OpenAI)",
+      "baseUrl": "URL pelayan",
+      "customHint": "Berfungsi dengan mana-mana pelayan yang menyokong API sembang OpenAI, seperti OpenRouter, Groq, Mistral, Ollama atau LM Studio. Pelayan setempat tidak memerlukan kunci.",
+      "model": "Model AI",
+      "modelOption": "{name} ({description})",
+      "models": {
+        "fastest": "Terpantas & Sangat Murah",
+        "balanced": "Penaakulan Seimbang",
+        "capable": "Pantas & Berkebolehan",
+        "smartest": "Kecerdasan Tertinggi",
+        "legacy": "Pantas (Versi Lama)"
+      },
+      "otherModel": "Model lain (taip ID-nya)",
+      "modelIdPlaceholder": "ID model yang tepat, cth. {example}",
+      "apiKey": "Kunci API {provider}",
+      "getKey": "Dapatkan kunci API",
+      "keyPlaceholder": "Tampal kunci API {provider} anda",
+      "hideKey": "Sembunyikan kunci",
+      "showKey": "Tunjukkan kunci",
+      "addKeyHint": "Tambah kunci API {provider} anda untuk menggunakan Isian Pintar AI.",
+      "proHint": "Pro: isian AI tanpa had. Kunci anda kekal dalam pelayar ini.",
+      "freeHint": "Pelan Free: {limit} isian AI seminggu. Naik taraf ke Pro untuk tanpa had."
+    },
+    "paginate": {
+      "title": "Penomboran Auto",
+      "toggleTitle": "Isi Borang Berbilang Halaman",
+      "description": "Mengisi setiap halaman, mengklik Seterusnya / Teruskan dan menekan Hantar pada akhirnya. Membetulkan jawapan yang ditolak borang; dijeda jika tidak dapat.",
+      "toggle": "Togol Penomboran Auto",
+      "proFeature": "Ciri Pro",
+      "upgrade": "Naik taraf ke Pro untuk menggunakan Penomboran Auto"
+    },
+    "floating": {
+      "title": "Ikon Terapung Halaman Web",
+      "toggleTitle": "Tunjukkan Butang Terapung",
+      "description": "Paparkan tab akses pantas Aullevo yang terlekat di tepi halaman web",
+      "toggle": "Togol Butang Terapung Halaman Web"
+    },
+    "typing": {
+      "title": "Kelajuan Menaip Manusia",
+      "instant": "Serta-merta ({ms}ms)",
+      "natural": "Semula Jadi ({ms}ms)",
+      "slow": "Perlahan ({ms}ms)",
+      "custom": "Tersuai ({ms}ms)",
+      "naturalFree": "Semula Jadi ({ms}ms) · Pelan Free",
+      "description": "Menaip satu aksara pada satu masa pada kelajuan manusia, untuk laman yang menjangkakan ketukan kekunci sebenar.",
+      "proFeature": "Ciri Pro",
+      "customDelay": "Lengah Tersuai:",
+      "customProFeature": "Lengah tersuai ialah ciri Pro",
+      "unitMs": "ms"
+    },
+    "tour": {
+      "title": "Jelajah Berpandu",
+      "toggleTitle": "Tunjukkan panduan sekali lagi",
+      "description": "Melalui setiap tab sekali lagi, langkah demi langkah",
+      "replay": "Main Semula"
+    },
+    "security": {
+      "title": "Disulitkan Secara Setempat"
+    },
+    "memories": {
+      "title": "Memori AI",
+      "count": "({enabled}/{total} hidup)",
+      "descriptionAiOn": "Fakta tentang anda yang boleh digunakan AI untuk menjawab soalan terbuka (cth. \"Gaya kerja: jarak jauh sahaja\"). Memori yang didayakan dihantar kepada {provider} dan disimpan tanpa penyulitan dalam pelayar ini, jadi jangan tambah kata laluan atau nombor pengenalan.",
+      "descriptionAiOff": "Fakta tentang anda yang boleh digunakan AI untuk menjawab soalan terbuka (cth. \"Gaya kerja: jarak jauh sahaja\"). Digunakan hanya apabila Isian Pintar AI hidup. Memori yang didayakan dihantar kepada {provider} dan disimpan tanpa penyulitan dalam pelayar ini, jadi jangan tambah kata laluan atau nombor pengenalan.",
+      "titlePlaceholder": "Tajuk",
+      "contentPlaceholder": "Perkara yang perlu AI ketahui",
+      "enabledTitle": "Memori dihantar kepada AI",
+      "disabledTitle": "Memori tidak digunakan",
+      "on": "HIDUP",
+      "off": "MATI",
+      "delete": "Padam memori",
+      "newTitlePlaceholder": "Tajuk (cth. Gaya kerja)",
+      "newContentPlaceholder": "Kandungan (cth. Lebih suka jawatan jarak jauh sepenuhnya, terbuka kepada kontrak)",
+      "add": "Tambah memori"
+    },
+    "deviceData": {
+      "title": "Data pada Peranti Ini",
+      "total": "Jumlah {size}",
+      "description": "Setiap akaun mempunyai peti besi tersulit sendiri di sini. Akaun tidak pernah melihat profil, dokumen, kunci API, memori atau pautan akaun lain.",
+      "empty": "Belum ada data disimpan.",
+      "localOwner": "Tidak log masuk (profil setempat)",
+      "anotherAccount": "Akaun lain",
+      "inUse": "{size} · sedang digunakan",
+      "deleteTitle": "Padam data akaun ini daripada peranti ini",
+      "delete": "Padam",
+      "confirmDelete": "Padam data Aullevo untuk \"{name}\" daripada peranti ini?\n\nIni akan mengalih keluar secara kekal profil tersulit, dokumen, kunci API, memori AI dan baris gilir pautannya. Tindakan ini tidak boleh dibuat asal.",
+      "bytes": "{size} B",
+      "kilobytes": "{size} KB",
+      "megabytes": "{size} MB"
+    }
+  },
+  "status": {
+    "plan": {
+      "profileLimit": "Pelan Free membenarkan {max} profil aktif. Tukar profil tambahan kepada MATI atau naik taraf ke Pro.",
+      "activeLimit": "Pelan Free membenarkan {max} profil aktif. Tukar satu kepada MATI atau naik taraf ke Pro.",
+      "createdOff": "Profil dicipta dalam keadaan MATI. Pelan Free membenarkan {max} profil aktif. Tukar satu kepada MATI atau naik taraf ke Pro.",
+      "autoPaginatePro": "Penomboran Auto ialah ciri Pro. Naik taraf ke Pro untuk mengisi borang berbilang halaman.",
+      "jsonImportLimit": "Anda telah menggunakan kesemua {limit} import JSON percuma untuk 2 minggu ini. Kuota ditetapkan semula pada {date}, atau naik taraf ke Pro untuk import tanpa had.",
+      "documentsSkipped": {
+        "other": "{count} dokumen tidak dilampirkan: muat naik ke dalam borang ialah ciri Pro."
+      }
+    },
+    "batch": {
+      "starting": {
+        "other": "Memulakan isian berkelompok untuk {count} borang..."
+      },
+      "progress": "Mengisi {current} daripada {total}: {host}",
+      "progressNoHost": "Mengisi {current} daripada {total}...",
+      "complete": {
+        "other": "Isian berkelompok selesai untuk {count} borang!"
+      }
+    },
+    "save": {
+      "success": "Profil {type} berjaya disimpan!",
+      "failed": "Gagal menyimpan: {error}",
+      "noProfile": "Tiada profil dipilih",
+      "unknownError": "Gagal menyimpan"
+    },
+    "profile": {
+      "nameExists": "Profil dengan nama ini sudah wujud!",
+      "disabled": "{type} dilumpuhkan. Tukar kepada HIDUP untuk isi auto.",
+      "defaultType": "PROFIL",
+      "imported": {
+        "other": "Berjaya mengimport {count} medan ke dalam {type}!"
+      }
+    },
+    "highlight": {
+      "noActiveTab": "Tiada tab aktif ditemui.",
+      "refreshToConnect": "Muat semula halaman untuk menyambungkan serlahan.",
+      "on": {
+        "other": "{count} medan diserlahkan pada halaman!"
+      },
+      "cleared": "Serlahan dikosongkan."
+    },
+    "fill": {
+      "injectingAi": "Mengisi medan dengan AI ({type})...",
+      "injecting": "Mengisi medan ({type})...",
+      "noTab": "Tidak dapat mencapai tab aktif.",
+      "refreshToConnect": "Muat semula tab untuk menyambungkan isi auto.",
+      "cannotConnect": "Tidak dapat menyambung ke halaman. Muat semula tab.",
+      "aiPartlySkipped": {
+        "other": "{count} input diisi (AI dilangkau sebahagiannya)."
+      },
+      "keywordMode": {
+        "other": "{count} input diisi (mod kata kunci)."
+      },
+      "withAi": {
+        "other": "Borang diisi dengan AI ({count} input dipadankan)."
+      },
+      "withoutAi": {
+        "other": "Borang diisi tanpa AI ({count} input dipadankan)."
+      },
+      "error": "Ralat pengisian: {error}",
+      "injected": {
+        "other": "{count} medan dimasukkan ke dalam halaman."
+      }
+    },
+    "pagination": {
+      "progress": "Penomboran Auto: mengisi halaman {page}...",
+      "lostConnection": "Penomboran Auto dihentikan: hubungan dengan sambungan terputus.",
+      "filled": {
+        "other": "{filled} input diisi merentas {count} halaman."
+      },
+      "corrected": {
+        "other": "{count} jawapan yang ditolak borang telah dibetulkan."
+      },
+      "field": "\"{name}\"",
+      "fieldAndMore": {
+        "other": "\"{name}\" (+{count} lagi)"
+      },
+      "aField": "satu medan",
+      "nextButton": "Seterusnya",
+      "submitted": "Dihantar!",
+      "noNext": "Butang Seterusnya / Teruskan tidak ditemui.",
+      "stillEmpty": "{field} masih kosong.",
+      "check": "Semak {field}.",
+      "blocked": "Dijeda pada halaman {page}: {field} wajib diisi tetapi kosong. Isikannya, kemudian jalankan semula.",
+      "nextDisabled": "Dijeda pada halaman {page}: butang \"{button}\" dilumpuhkan. Semak halaman, kemudian jalankan semula.",
+      "validationError": "Dijeda pada halaman {page}: borang melaporkan \"{error}\".",
+      "validationErrorUnknown": "Dijeda pada halaman {page}: borang melaporkan ralat.",
+      "correctionTried": "(pembetulan automatik telah dicuba)",
+      "stuck": "Dijeda pada halaman {page}: \"{button}\" telah diklik tetapi borang tidak beralih.",
+      "maxPages": "Dihentikan pada had keselamatan {max} halaman.",
+      "noForm": "Tiada borang ditemui pada halaman ini (atau Aullevo tidak boleh berjalan di sini).",
+      "stopped": "Penomboran Auto dihentikan: {error}",
+      "unknownError": "ralat tidak diketahui"
+    }
+  },
+  "tour": {
+    "card": {
+      "progress": "{section} · {current} daripada {total}",
+      "skip": "Langkau jelajah",
+      "dontShowAgain": "Jangan tunjukkan lagi",
+      "back": "Kembali",
+      "next": "Seterusnya",
+      "done": "Selesai"
+    },
+    "shortcuts": {
+      "allActive": "Kesemua 3 pintasan aktif dalam pelayar ini.",
+      "notSet": "Belum ditetapkan dalam pelayar ini: {list}. Tetapkannya sendiri dalam tetapan pintasan Chrome.",
+      "openSettings": "Buka tetapan pintasan Chrome",
+      "toggleSidePanel": "Togol Panel Sisi",
+      "fallbackName": "Pintasan"
+    },
+    "sections": {
+      "autofill": "Isi Auto",
+      "header": "Butang atas",
+      "profiles": "Profil",
+      "multilink": "Pelbagai Pautan",
+      "settings": "Tetapan"
+    },
+    "autofill": {
+      "detection": {
+        "title": "Pengesanan borang",
+        "body": "Aullevo mengira medan yang boleh diisi pada halaman dalam tab semasa anda. Buka borang dan nombor ini akan dikemas kini."
+      },
+      "highlight": {
+        "title": "Serlahkan medan",
+        "body": "Menggariskan setiap medan yang ditemui Aullevo pada halaman, supaya anda boleh melihat apa yang akan diisi sebelum mengisinya. Klik sekali lagi untuk mengosongkan garisan."
+      },
+      "rescan": {
+        "title": "Imbas Semula",
+        "body": "Sesetengah borang menambah medan selepas halaman dimuatkan, seperti borang berbilang langkah atau tetingkap timbul. Imbas Semula mengira medan sekali lagi."
+      },
+      "fill": {
+        "title": "Isi borang",
+        "body": "Mengisi halaman dengan profil aktif anda. Apabila isian AI hidup (dalam Tetapan), soalan dipadankan dengan jawapan anda walaupun kata-katanya berbeza. Apabila mati, medan dipadankan mengikut kata kunci."
+      },
+      "activeProfile": {
+        "title": "Profil aktif",
+        "body": "Profil yang digunakan untuk mengisi, berserta bilangan medan dan dokumen yang dihidupkan. Tukar profil atau edit jawapan anda dalam tab <b>Profil</b>."
+      },
+      "shortcuts": {
+        "title": "Pintasan papan kekunci",
+        "body": "Chrome menetapkan kekunci ini apabila Aullevo dipasang, tetapi melangkau mana-mana yang sudah digunakan oleh Chrome atau sambungan lain. Anda boleh menukarnya bila-bila masa."
+      }
+    },
+    "header": {
+      "voice": {
+        "title": "Mod suara",
+        "body": "Bercakap dengan Aullevo dan bukannya mengklik. Butang ini menukar panel kepada ejen suara: sebut \"fill this page\", \"fill the email\" atau \"fill the first question\", dan ia akan menjawab dengan suara. Klik sekali lagi untuk kembali ke paparan ini.",
+        "note": "Ciri Pro. Memerlukan kunci API ElevenLabs anda sendiri, yang ditambah dalam Voice settings. Arahan suara berfungsi dalam bahasa Inggeris dan Tagalog."
+      },
+      "language": {
+        "title": "Bahasa",
+        "body": "Pilih bahasa untuk keseluruhan Aullevo. Bahasa Inggeris sentiasa berada di bahagian atas senarai, jadi anda boleh menukar semula bila-bila masa."
+      },
+      "theme": {
+        "title": "Tema cerah atau gelap",
+        "body": "Menukar panel antara mod cerah dan gelap."
+      },
+      "json": {
+        "title": "Persediaan pantas JSON",
+        "intro": "Profil anda dalam bentuk JSON. Cara terpantas untuk menyediakan profil:",
+        "step1": "Salin JSON dari sini.",
+        "step2": "Berikan kepada Gemini, Claude atau ChatGPT bersama resume anda atau sebarang dokumen lain.",
+        "step3": "Minta AI mengisi nilai dan mengekalkan struktur yang sama.",
+        "step4": "Tampal hasilnya semula di sini dan klik <b>Import</b>."
+      },
+      "fullPage": {
+        "title": "Buka halaman penuh",
+        "body": "Membuka Aullevo dalam tab pelayar dengan lebih banyak ruang untuk mengedit profil. Pengisian masih dilakukan dari panel sisi ini."
+      },
+      "close": {
+        "title": "Tutup panel",
+        "body": "Menutup panel sisi. Buka semula dengan <b>Alt+Q</b> (<b>Option+Q</b> pada Mac) atau dengan mengklik ikon Aullevo dalam bar alat."
+      }
+    },
+    "profiles": {
+      "switcher": {
+        "title": "Tukar profil",
+        "body1": "Setiap profil (Kerjaya, Akademik, Kewangan atau profil anda sendiri) menyimpan set jawapannya sendiri. Pilih profil yang ingin anda edit dan gunakan untuk mengisi.",
+        "body2": "Buka senarai untuk melihat profil yang HIDUP atau MATI, dan untuk mencipta profil baharu di bahagian bawah.",
+        "note": "Pelan Free: sehingga 2 profil boleh HIDUP pada satu masa."
+      },
+      "config": {
+        "title": "Nama dan suis hidup/mati",
+        "body": "Namakan semula profil di sini. <b>PROFIL HIDUP</b> menghidupkan atau mematikan keseluruhan profil. Apabila mati, profil tidak digunakan untuk mengisi."
+      },
+      "identity": {
+        "title": "Identiti & hubungan",
+        "body": "Nama, e-mel, telefon dan alamat anda. Klik mana-mana pengepala bahagian untuk meruntuhkan atau mengembangkannya. Setiap medan mempunyai tiga kawalan kecil, yang ditunjukkan seterusnya."
+      },
+      "fieldContext": {
+        "title": "Petunjuk konteks AI",
+        "body": "Butang ✨ menambah petunjuk yang memberitahu AI maksud medan ini, seperti \"Nama pertama sah dalam pasport\". Ia membantu apabila soalan borang kurang jelas. Titik menunjukkan petunjuk telah ditetapkan."
+      },
+      "fieldPrivacy": {
+        "title": "Selamat AI atau Sensitif",
+        "safe": "<b>Selamat AI</b>: nilai dikongsi dengan AI supaya ia boleh memilih jawapan yang betul dalam menu lungsur dan soalan aneka pilihan.",
+        "sensitive": "<b>Sensitif</b>: AI hanya melihat nama dan petunjuk medan, tidak pernah nilainya. Aullevo tetap menaip nilai tersebut pada peranti anda.",
+        "toggle": "Klik untuk menukar."
+      },
+      "fieldToggle": {
+        "title": "Hidupkan atau matikan medan",
+        "body": "Tukar medan kepada MATI untuk melangkaunya semasa mengisi, tanpa memadam apa yang telah anda taip."
+      },
+      "documents": {
+        "title": "Lampirkan dokumen",
+        "body": "Pilih jenis dokumen, kemudian muat naik resume, surat iringan, kad pengenalan dan banyak lagi. Apabila borang mempunyai soalan muat naik fail, Aullevo melampirkan dokumen anda yang HIDUP.",
+        "note": "Melampirkan dokumen pada borang ialah ciri Pro."
+      },
+      "attributes": {
+        "title": "Medan khusus profil",
+        "body": "Medan yang berkaitan dengan jenis profil ini. Profil Kerjaya mempunyai tajuk, LinkedIn, kemahiran dan pendidikan. Akademik, Perubatan dan yang lain mempunyai medan tersendiri."
+      },
+      "customFields": {
+        "title": "Tambah medan anda sendiri",
+        "body": "Untuk apa-apa yang tidak diliputi medan standard, seperti \"Gaji dijangka\" atau \"Mengapa anda mahukan kerja ini?\". Taip label dan nilai, kemudian klik <b>+</b>. Menggunakan perkataan soalan sebagai label amat berkesan."
+      },
+      "save": {
+        "title": "Menyimpan",
+        "body": "Perubahan disimpan secara automatik semasa anda menaip. Butang ini menyimpan dengan serta-merta, berguna sejurus sebelum anda menutup panel."
+      }
+    },
+    "multilink": {
+      "addLink": {
+        "title": "Tambah pautan borang",
+        "body": "Tampal pautan penuh ke borang atau permohonan kerja (bermula dengan https://) dan klik <b>+</b>. Tambah seberapa banyak yang anda mahu."
+      },
+      "savedLinks": {
+        "title": "Baris gilir pautan anda",
+        "body": "Setiap pautan yang anda tambah dipaparkan di sini. Tandakan pautan untuk memasukkannya dalam kelompok seterusnya, atau nyahtanda untuk melangkaunya. Ikon anak panah membuka pautan dan ikon tong sampah mengalih keluarnya."
+      },
+      "batchRun": {
+        "title": "Isi semuanya serentak",
+        "body1": "Membuka setiap pautan yang ditanda dalam tab latar belakang, satu demi satu, dan mengisinya dengan profil aktif anda. Kemajuan dipaparkan di bahagian atas panel.",
+        "note": "Pintasan: Alt+Shift+B (Option+Shift+B pada Mac)."
+      }
+    },
+    "settings": {
+      "account": {
+        "title": "Akaun anda",
+        "body": "Sambungkan akaun Aullevo Web anda supaya pelan anda (Free atau Pro) terpakai di sini. Profil anda kekal tersulit pada peranti ini dan tidak dimuat naik."
+      },
+      "aiMode": {
+        "title": "Isian Pintar AI atau Isian Standard",
+        "standard": "<b>Isian Standard</b> memadankan medan mengikut nama, tanpa AI.",
+        "smart": "<b>Isian Pintar AI</b> memahami soalan yang menggunakan perkataan berbeza dan memilih jawapan dalam menu lungsur dan soalan aneka pilihan."
+      },
+      "aiEngine": {
+        "title": "Penyedia AI, model dan kunci API"
+      },
+      "memories": {
+        "title": "Memori AI",
+        "body": "Fakta ringkas yang boleh digunakan AI untuk soalan terbuka, seperti \"Gaya kerja: jarak jauh sahaja\". Memori dihantar kepada penyedia AI pilihan anda dan tidak disulitkan, jadi jangan sekali-kali tambah kata laluan atau nombor pengenalan."
+      },
+      "autoPaginate": {},
+      "floatingIcon": {
+        "title": "Butang terapung",
+        "body": "Tab kecil Aullevo di tepi halaman web untuk akses pantas. Matikannya jika ia mengganggu."
+      },
+      "typingSpeed": {
+        "title": "Kelajuan menaip",
+        "body": "Sepantas mana Aullevo menaip ke dalam medan. <b>Semula Jadi</b> lebih menyerupai orang menaip, dan <b>Serta-merta</b> paling pantas. Kelajuan perlahan dan tersuai ialah ciri Pro."
+      },
+      "replayTour": {
+        "title": "Main semula panduan ini",
+        "body": "Terlupa sesuatu? Klik <b>Main Semula</b> untuk melalui keseluruhan panduan ini sekali lagi."
+      },
+      "deviceData": {
+        "title": "Data pada peranti ini",
+        "body": "Setiap akaun mempunyai peti besi tersulit sendiri dalam pelayar ini. Padam data akaun yang tidak lagi anda gunakan."
+      }
+    }
+  },
+  "vault": {
+    "loading": "Memuatkan…",
+    "account": {
+      "signedInAs": "Log masuk sebagai <b>{account}</b>",
+      "notSignedIn": "Tidak log masuk: profil setempat pada peranti ini",
+      "fallbackName": "akaun anda"
+    },
+    "errors": {
+      "createFailed": "Tidak dapat mencipta peti besi. Sila cuba lagi.",
+      "wrongPassphrase": "Frasa laluan salah.",
+      "wrongClaimPassphrase": "Frasa laluan salah untuk profil tersebut."
+    }
+  }
+}

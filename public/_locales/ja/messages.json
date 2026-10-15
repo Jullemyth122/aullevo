@@ -1,0 +1,20 @@
+{
+  "appName": {
+    "message": "Aullevo - AIフォーム自動入力・求人応募の入力支援"
+  },
+  "appDescription": {
+    "message": "求人応募、アンケート、あらゆるWebフォームに対応するAI入力ツール。プロフィール保存、履歴書アップロード、スマートな自動入力。"
+  },
+  "actionTitle": {
+    "message": "Aullevo のサイドパネルを開く"
+  },
+  "commandTogglePanel": {
+    "message": "Aullevo のサイドパネルの表示切替"
+  },
+  "commandFill": {
+    "message": "ページで AI / キーワードによるフォーム自動入力を実行"
+  },
+  "commandBatchFill": {
+    "message": "マルチリンクのフォーム一括自動入力を実行"
+  }
+}

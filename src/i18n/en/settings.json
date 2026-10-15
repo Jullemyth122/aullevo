@@ -1,0 +1,157 @@
+{
+    "account": {
+        "title": "Account",
+        "proUntil": "Pro until {date}",
+        "proLifetime": "Pro · Lifetime",
+        "disconnect": "Disconnect account",
+        "waiting": "Waiting for sign-in…",
+        "connect": "Connect with Aullevo Web",
+        "renew": "Pro expired · Renew",
+        "upgrade": "Upgrade to Pro"
+    },
+    "theme": {
+        "title": "Theme Appearance",
+        "dark": "Dark Theme",
+        "description": "Toggle between Dark Slate and Light theme"
+    },
+    "mode": {
+        "title": "Autofill Engine Mode",
+        "aiActive": "AI Smart Fill (Active)",
+        "standard": "Standard Fill (No AI)",
+        "aiDescription": "Uses AI reasoning to interpret questions & match complex fields",
+        "standardDescription": "Direct profile attribute matching without AI calls",
+        "toggle": "Toggle AI Fill Mode"
+    },
+    "ai": {
+        "title": "AI Engine",
+        "unlimited": "Unlimited Access",
+        "keyRequired": "API Key Required",
+        "freeUsage": "Free: {used}/{limit} this week",
+        "privacy": "<b>Privacy:</b> Fields marked SENSITIVE are never sent to AI, only their labels. Values of AI SAFE fields and the form's questions are sent to {provider}.",
+        "provider": "AI Provider",
+        "customProvider": "Custom (OpenAI-compatible)",
+        "baseUrl": "Server URL",
+        "customHint": "Works with any server that speaks the OpenAI chat API, such as OpenRouter, Groq, Mistral, Ollama or LM Studio. Local servers don't need a key.",
+        "model": "AI Model",
+        "modelOption": "{name} ({description})",
+        "models": {
+            "fastest": "Fastest & Ultra-Cheap",
+            "balanced": "Balanced Reasoning",
+            "capable": "Fast & Capable",
+            "smartest": "Highest Intelligence",
+            "legacy": "Legacy Fast"
+        },
+        "otherModel": "Other model (type its ID)",
+        "modelIdPlaceholder": "Exact model ID, e.g. {example}",
+        "apiKey": "{provider} API Key",
+        "getKey": "Get API key",
+        "keyPlaceholder": "Paste your {provider} API key",
+        "hideKey": "Hide key",
+        "showKey": "Show key",
+        "addKeyHint": "Add your {provider} API key to use AI Smart Fill.",
+        "proHint": "Pro: unlimited AI fills. Your key stays in this browser.",
+        "freeHint": "Free plan: {limit} AI fills per week. Upgrade to Pro for unlimited.",
+        "guide": {
+            "toggle": "How do I get a key?",
+            "optional": "Optional: without a key, Standard Fill still fills forms by matching field names.",
+            "gemini": {
+                "note": "Free, no credit card needed. The easiest way to start.",
+                "step1": "Click <b>Open Google AI Studio</b> below and sign in with your Google account.",
+                "step2": "Click <b>Create API key</b>. If it asks for a project, pick any one or let it create one.",
+                "step3": "Copy the key. It starts with <b>AIza</b>.",
+                "step4": "Paste it in the box above. It is saved automatically, only in this browser.",
+                "open": "Open Google AI Studio"
+            },
+            "openai": {
+                "note": "Paid: OpenAI charges per use, so add a little credit first (a few dollars lasts a long time).",
+                "step1": "Click <b>Open OpenAI</b> below and sign in, or create an account.",
+                "step2": "In <b>Billing</b>, add a payment method and some credit.",
+                "step3": "Open <b>API keys</b>, click <b>Create new secret key</b> and copy it. It starts with <b>sk-</b>.",
+                "step4": "Paste it in the box above. It is saved automatically, only in this browser.",
+                "open": "Open OpenAI"
+            },
+            "anthropic": {
+                "note": "Paid: Anthropic charges per use, so buy a little credit first.",
+                "step1": "Click <b>Open Claude Console</b> below and sign in, or create an account.",
+                "step2": "In <b>Billing</b>, buy some credit.",
+                "step3": "Open <b>API keys</b>, click <b>Create key</b> and copy it. It starts with <b>sk-ant-</b>.",
+                "step4": "Paste it in the box above. It is saved automatically, only in this browser.",
+                "open": "Open Claude Console"
+            },
+            "custom": {
+                "note": "For services like OpenRouter or Groq, or a model running on your own computer (Ollama, LM Studio).",
+                "step1": "Enter the server address, for example <b>https://openrouter.ai/api/v1</b>, or <b>http://localhost:11434/v1</b> for Ollama.",
+                "step2": "Paste that service's API key. A server on your own computer usually needs none.",
+                "step3": "Type the model name the service uses, for example <b>llama3.1</b>."
+            }
+        }
+    },
+    "paginate": {
+        "title": "Auto-Pagination",
+        "toggleTitle": "Fill Multi-Page Forms",
+        "description": "Fills each page, clicks Next / Continue, and presses Submit at the end. Corrects answers the form rejects; pauses when it can't.",
+        "toggle": "Toggle Auto-Pagination",
+        "proFeature": "Pro feature",
+        "upgrade": "Upgrade to Pro to use Auto-Pagination"
+    },
+    "floating": {
+        "title": "Webpage Floating Icon",
+        "toggleTitle": "Show Floating Button",
+        "description": "Display the quick-access Aullevo tab docked on webpage edges",
+        "toggle": "Toggle Webpage Floating Button"
+    },
+    "typing": {
+        "title": "Human Typing Speed",
+        "instant": "Instant ({ms}ms)",
+        "natural": "Natural ({ms}ms)",
+        "slow": "Slow ({ms}ms)",
+        "custom": "Custom ({ms}ms)",
+        "naturalFree": "Natural ({ms}ms) · Free plan",
+        "description": "Types one character at a time at a human pace, for sites that expect real keystrokes.",
+        "proFeature": "Pro feature",
+        "customDelay": "Custom Delay:",
+        "customProFeature": "Custom delay is a Pro feature",
+        "unitMs": "ms"
+    },
+    "tour": {
+        "title": "Guided Tour",
+        "toggleTitle": "Show the walkthrough again",
+        "description": "Walks through every tab again, step by step",
+        "replay": "Replay"
+    },
+    "security": {
+        "title": "Encrypted Locally",
+        "descriptionDevice": "AES-256, kept only in this browser. Each account and the guest have their own data, never shared. Anyone who uses this browser profile can open Aullevo, so use your own browser profile on a shared computer."
+    },
+    "memories": {
+        "title": "AI Memories",
+        "count": "({enabled}/{total} on)",
+        "descriptionAiOn": "Facts about you the AI can use to answer open questions (e.g. \"Work style: remote only\"). Enabled memories are sent to {provider} and stored unencrypted in this browser, so don't add passwords or ID numbers.",
+        "descriptionAiOff": "Facts about you the AI can use to answer open questions (e.g. \"Work style: remote only\"). Used only when AI Smart Fill is on. Enabled memories are sent to {provider} and stored unencrypted in this browser, so don't add passwords or ID numbers.",
+        "titlePlaceholder": "Title",
+        "contentPlaceholder": "What the AI should know",
+        "enabledTitle": "Memory is sent to the AI",
+        "disabledTitle": "Memory is not used",
+        "on": "ON",
+        "off": "OFF",
+        "delete": "Delete memory",
+        "newTitlePlaceholder": "Title (e.g. Work style)",
+        "newContentPlaceholder": "Content (e.g. Prefers fully remote roles, open to contract)",
+        "add": "Add memory"
+    },
+    "deviceData": {
+        "title": "Data on This Device",
+        "total": "{size} total",
+        "description": "Each account has its own encrypted vault here. Accounts never see each other's profiles, documents, API key, memories, or links.",
+        "empty": "No saved data yet.",
+        "localOwner": "Not signed in (local profiles)",
+        "anotherAccount": "Another account",
+        "inUse": "{size} · in use now",
+        "deleteTitle": "Delete this account's data from this device",
+        "delete": "Delete",
+        "confirmDelete": "Delete Aullevo data for \"{name}\" from this device?\n\nThis permanently removes its encrypted profiles, documents, API key, AI memories, and link queue. It cannot be undone.",
+        "bytes": "{size} B",
+        "kilobytes": "{size} KB",
+        "megabytes": "{size} MB"
+    }
+}

@@ -1,0 +1,140 @@
+{
+    "types": {
+        "job": "Job",
+        "medical": "Medical",
+        "government": "Government",
+        "survey": "Survey",
+        "academic": "Academic",
+        "financial": "Financial",
+        "custom": "Custom"
+    },
+    "badges": {
+        "on": "ON",
+        "off": "OFF",
+        "disabled": "DISABLED",
+        "sensitive": "SENSITIVE",
+        "aiSafe": "AI SAFE"
+    },
+    "save": {
+        "button": "Save {type} Profile",
+        "saved": "Saved ✓"
+    },
+    "dropdown": {
+        "newProfilePlaceholder": "New profile name...",
+        "add": "Add"
+    },
+    "config": {
+        "title": "Profile Configuration",
+        "on": "PROFILE ON",
+        "off": "PROFILE OFF",
+        "activeTooltip": "{type} profile is active",
+        "disabledTooltip": "{type} profile is disabled",
+        "namePlaceholder": "Profile Name"
+    },
+    "identity": {
+        "title": "Identity & Contact",
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "email": "Email Address",
+        "phone": "Phone Number",
+        "address": "Residential Address"
+    },
+    "attributes": {
+        "title": "{type} Attributes",
+        "customHint": "Add your own fields below or import via JSON.",
+        "job": {
+            "headline": "Headline / Title",
+            "linkedin": "LinkedIn",
+            "github": "GitHub",
+            "portfolio": "Portfolio",
+            "skills": "Skills",
+            "education": "Education / Degree",
+            "certifications": "Certifications"
+        },
+        "medical": {
+            "bloodType": "Blood Type",
+            "allergies": "Allergies",
+            "emergencyContact": "Emergency Contact",
+            "insuranceProvider": "Insurance Provider"
+        },
+        "government": {
+            "nationalId": "National ID / SSN",
+            "citizenship": "Citizenship",
+            "passport": "Passport #",
+            "driversLicense": "Driver's License"
+        },
+        "survey": {
+            "ageRange": "Age Range",
+            "income": "Income",
+            "education": "Education",
+            "employment": "Employment"
+        },
+        "academic": {
+            "institution": "Institution",
+            "major": "Major / Field of Study",
+            "gpa": "GPA",
+            "gradYear": "Grad Year",
+            "testScores": "Test Scores"
+        },
+        "financial": {
+            "billingAddress": "Billing Address",
+            "payment": "Payment",
+            "cardholder": "Cardholder"
+        }
+    },
+    "field": {
+        "sensitiveTooltip": "Sensitive: Value is hidden from AI (Zero-Knowledge)",
+        "aiSafeTooltip": "AI Safe: Value is shared with AI for smart choice selection"
+    },
+    "context": {
+        "buttonTitle": "AI Context for {label}",
+        "title": "AI Context: {label}",
+        "placeholder": "Context clue for AI (e.g. 'Legal first name on passport')",
+        "hint": "AI uses this prompt to identify ambiguous website form fields."
+    },
+    "custom": {
+        "title": "Custom Fields",
+        "labelPlaceholder": "Field Label",
+        "valuePlaceholder": "Field Value",
+        "sensitiveTooltip": "Sensitive: Value is hidden from AI",
+        "aiSafeTooltip": "AI Safe: Value is shared with AI",
+        "enabledTooltip": "Field enabled",
+        "disabledTooltip": "Field disabled",
+        "delete": "Delete field",
+        "pagination": {
+            "one": "Page {page} of {total} ({count} item)",
+            "other": "Page {page} of {total} ({count} items)"
+        },
+        "newLabelPlaceholder": "Label",
+        "newValuePlaceholder": "Value",
+        "add": "Add custom field"
+    },
+    "documents": {
+        "title": "Attached Documents",
+        "labelPlaceholder": "Document Label",
+        "labelTooltip": "Click to edit document label",
+        "remove": "Remove file",
+        "pagination": "Page {page} of {total}",
+        "categories": {
+            "resume": "Resume / CV",
+            "coverLetter": "Cover Letter",
+            "identity": "Identity / ID",
+            "academic": "Academic Record",
+            "portfolio": "Portfolio",
+            "other": "Other Document"
+        },
+        "upload": {
+            "resume": "Upload Resume",
+            "coverLetter": "Upload Cover Letter",
+            "identity": "Upload ID",
+            "academic": "Upload Academic Record",
+            "portfolio": "Upload Portfolio",
+            "other": "Upload Document"
+        },
+        "size": {
+            "bytes": "{size} B",
+            "kilobytes": "{size} KB",
+            "megabytes": "{size} MB"
+        }
+    }
+}

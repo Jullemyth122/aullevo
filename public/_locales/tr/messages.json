@@ -1,0 +1,20 @@
+{
+  "appName": {
+    "message": "Aullevo - Yapay Zeka ile Form ve İş Başvurusu Doldurma"
+  },
+  "appDescription": {
+    "message": "İş başvuruları, anketler ve her web formu için yapay zeka destekli doldurma. Kayıtlı profiller, özgeçmiş yükleme, akıllı doldurma."
+  },
+  "actionTitle": {
+    "message": "Aullevo Yan Panelini Aç"
+  },
+  "commandTogglePanel": {
+    "message": "Aullevo Yan Panelini Aç/Kapat"
+  },
+  "commandFill": {
+    "message": "Sayfada YZ veya Anahtar Kelimeyle Form Doldurmayı Başlat"
+  },
+  "commandBatchFill": {
+    "message": "Çoklu Bağlantı Toplu Form Doldurmayı Başlat"
+  }
+}

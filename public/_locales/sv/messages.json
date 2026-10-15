@@ -1,0 +1,20 @@
+{
+  "appName": {
+    "message": "Aullevo - AI-autofyll för formulär och jobbansökningar"
+  },
+  "appDescription": {
+    "message": "AI-ifyllning för jobbansökningar, enkäter och alla webbformulär. Sparade profiler, CV-uppladdning och smart autofyll."
+  },
+  "actionTitle": {
+    "message": "Öppna Aullevos sidopanel"
+  },
+  "commandTogglePanel": {
+    "message": "Visa/dölj Aullevos sidopanel"
+  },
+  "commandFill": {
+    "message": "Starta autofyll med AI eller nyckelord på sidan"
+  },
+  "commandBatchFill": {
+    "message": "Starta massautofyll via flera länkar"
+  }
+}

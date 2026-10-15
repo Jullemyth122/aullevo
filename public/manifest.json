@@ -1,9 +1,10 @@
 {
   "manifest_version": 3,
-  "name": "Aullevo - AI Form Autofill & Job Application Filler",
+  "name": "__MSG_appName__",
   "short_name": "Aullevo",
-  "version": "0.6.0",
-  "description": "AI form filler for job applications, surveys, and any web form. Saved profiles, resume upload, and smart autofill.",
+  "version": "0.6.5",
+  "description": "__MSG_appDescription__",
+  "default_locale": "en",
   "permissions": [
     "storage",
     "scripting",
@@ -14,7 +15,7 @@
     "<all_urls>"
   ],
   "action": {
-    "default_title": "Open Aullevo Side Panel",
+    "default_title": "__MSG_actionTitle__",
     "default_icon": {
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",
@@ -58,21 +59,21 @@
         "default": "Alt+Q",
         "mac": "Alt+Q"
       },
-      "description": "Toggle Aullevo Side Panel"
+      "description": "__MSG_commandTogglePanel__"
     },
     "trigger-ai-fill": {
       "suggested_key": {
         "default": "Alt+Shift+L",
         "mac": "Option+Shift+L"
       },
-      "description": "Trigger AI or Keyword Form Autofill on Page"
+      "description": "__MSG_commandFill__"
     },
     "trigger-batch-fill": {
       "suggested_key": {
         "default": "Alt+Shift+B",
         "mac": "Option+Shift+B"
       },
-      "description": "Trigger Multi-Link Batch Form Autofill"
+      "description": "__MSG_commandBatchFill__"
     }
   },
   "icons": {

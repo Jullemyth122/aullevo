@@ -1,0 +1,687 @@
+{
+  "autofill": {
+    "detection": {
+      "title": "フォーム検出",
+      "sub": "アクティブなタブの項目",
+      "highlightTitle": "ページ上の項目を確認してハイライト",
+      "clear": "クリア",
+      "highlight": "ハイライト",
+      "rescanTitle": "ページを再スキャン",
+      "rescan": "再スキャン"
+    },
+    "fill": {
+      "injecting": "入力中...",
+      "disabled": "{type} は無効",
+      "withAi": "AIでフォーム入力（{type}）",
+      "standard": "フォーム入力（{type}）",
+      "autoPaginate": "自動ページ送りON：全ページに入力してから送信します"
+    },
+    "activeProfile": {
+      "title": "使用中のプロフィール",
+      "summary": "{fields} • {docs} 準備完了",
+      "fieldCount": {
+        "other": "{count} 項目"
+      },
+      "docCount": {
+        "other": "書類 {count} 件"
+      },
+      "ready": "準備完了",
+      "disabled": "無効"
+    },
+    "shortcuts": {
+      "title": "キーボードショートカット",
+      "toggleSidePanel": "サイドパネルの表示切替",
+      "formFill": "AI / キーワードでフォーム入力",
+      "batchFill": "マルチリンク一括入力"
+    }
+  },
+  "content": {
+    "openSidebar": "Aullevo のサイドパネルを開く",
+    "filled": "入力済み",
+    "file": "ファイル：{name}",
+    "files": {
+      "other": "{count} 件のファイルを添付"
+    },
+    "matched": "一致：{name}",
+    "ranked": "順位付け：{value}",
+    "ai": "[AI] {text}",
+    "aiGenerated": "[AI] 生成",
+    "fixed": "修正：{value}"
+  },
+  "header": {
+    "versionLine": "v{version} • 自動入力",
+    "lightTheme": "ライトテーマ",
+    "darkTheme": "ダークテーマ",
+    "jsonConfig": "JSON 設定",
+    "openFullPage": "フルページで開く",
+    "closeSidePanel": "サイドパネルを閉じる",
+    "footer": {
+      "engine": "Aullevo 自動入力エンジン",
+      "ready": "準備完了"
+    }
+  },
+  "json": {
+    "title": "JSON 設定",
+    "badge": {
+      "fields": {
+        "other": "✓ {count} 項目"
+      },
+      "invalid": "無効な JSON"
+    },
+    "actions": {
+      "format": "JSON を整形",
+      "fullscreen": "全画面表示",
+      "exitFullscreen": "全画面表示を終了",
+      "close": "閉じる",
+      "download": "ダウンロード",
+      "copy": "JSON をコピー",
+      "copied": "コピーしました",
+      "upload": "ファイルをアップロード",
+      "import": "インポート"
+    },
+    "quota": {
+      "downloadPro": "ダウンロード（エクスポート）は Pro 機能です。"
+    },
+    "errors": {
+      "noFields": "入力された JSON に有効な項目が見つかりません。",
+      "invalidFormat": "JSON の形式が正しくありません：{error}"
+    }
+  },
+  "language": {
+    "title": "言語",
+    "button": "言語：{name}",
+    "search": "言語を検索",
+    "auto": "自動：{name}",
+    "autoHint": "ブラウザの言語に合わせます",
+    "backToEnglish": "英語に戻す",
+    "changed": "言語を{name}に変更しました。",
+    "switchBack": "{name}に戻す",
+    "keep": "このままにする",
+    "noResults": "言語が見つかりません",
+    "settingsHint": "ガイドツアーを含む、Aullevo のすべての画面の言語が変わります。"
+  },
+  "manifest": {
+    "appName": "Aullevo - AIフォーム自動入力・求人応募の入力支援",
+    "appDescription": "求人応募、アンケート、あらゆるWebフォームに対応するAI入力ツール。プロフィール保存、履歴書アップロード、スマートな自動入力。",
+    "actionTitle": "Aullevo のサイドパネルを開く",
+    "commandTogglePanel": "Aullevo のサイドパネルの表示切替",
+    "commandFill": "ページで AI / キーワードによるフォーム自動入力を実行",
+    "commandBatchFill": "マルチリンクのフォーム一括自動入力を実行"
+  },
+  "multilink": {
+    "batch": {
+      "title": "一括自動入力キュー",
+      "activeCount": "{total} 件中 {enabled} 件が有効",
+      "description": "有効な<b>{type}</b>プロフィールを使って、複数のタブでフォームを開いて入力する作業を自動化します。",
+      "running": "一括自動入力を実行中...",
+      "start": {
+        "other": "{count} 件のフォームに一括入力"
+      }
+    },
+    "add": {
+      "title": "フォーム / 求人リンクを追加"
+    },
+    "saved": {
+      "title": "保存済みリンク（{count}）",
+      "clearAll": "すべてクリア",
+      "empty": "リンクはまだありません。上にフォームの URL を貼り付けて始めましょう。",
+      "open": "リンクを開く",
+      "remove": "リンクを削除"
+    }
+  },
+  "nav": {
+    "autofill": "自動入力",
+    "profiles": "プロフィール（{count}）",
+    "multiLink": "マルチリンク",
+    "settings": "設定"
+  },
+  "profiles": {
+    "types": {
+      "job": "求職",
+      "medical": "医療",
+      "government": "行政",
+      "survey": "アンケート",
+      "academic": "学業",
+      "financial": "金融",
+      "custom": "カスタム"
+    },
+    "badges": {
+      "on": "ON",
+      "off": "OFF",
+      "disabled": "無効",
+      "sensitive": "機密",
+      "aiSafe": "AI共有"
+    },
+    "save": {
+      "button": "{type}プロフィールを保存",
+      "saved": "保存済み ✓"
+    },
+    "dropdown": {
+      "newProfilePlaceholder": "新しいプロフィール名...",
+      "add": "追加"
+    },
+    "config": {
+      "title": "プロフィール設定",
+      "on": "プロフィール ON",
+      "off": "プロフィール OFF",
+      "activeTooltip": "{type}プロフィールは有効です",
+      "disabledTooltip": "{type}プロフィールは無効です",
+      "namePlaceholder": "プロフィール名"
+    },
+    "identity": {
+      "title": "本人情報・連絡先",
+      "firstName": "名",
+      "lastName": "姓",
+      "email": "メールアドレス",
+      "phone": "電話番号",
+      "address": "住所"
+    },
+    "attributes": {
+      "title": "{type}の項目",
+      "customHint": "下に独自の項目を追加するか、JSON でインポートしてください。",
+      "job": {
+        "headline": "肩書き / 職種",
+        "linkedin": "LinkedIn",
+        "github": "GitHub",
+        "portfolio": "ポートフォリオ",
+        "skills": "スキル",
+        "education": "学歴 / 学位",
+        "certifications": "資格"
+      },
+      "medical": {
+        "bloodType": "血液型",
+        "allergies": "アレルギー",
+        "emergencyContact": "緊急連絡先",
+        "insuranceProvider": "保険会社"
+      },
+      "government": {
+        "nationalId": "国民ID / SSN",
+        "citizenship": "国籍",
+        "passport": "パスポート番号",
+        "driversLicense": "運転免許証"
+      },
+      "survey": {
+        "ageRange": "年齢層",
+        "income": "収入",
+        "education": "学歴",
+        "employment": "就業状況"
+      },
+      "academic": {
+        "institution": "学校名",
+        "major": "専攻 / 研究分野",
+        "gpa": "GPA",
+        "gradYear": "卒業年",
+        "testScores": "試験のスコア"
+      },
+      "financial": {
+        "billingAddress": "請求先住所",
+        "payment": "支払い方法",
+        "cardholder": "カード名義人"
+      }
+    },
+    "field": {
+      "sensitiveTooltip": "機密：値は AI に送信されません（ゼロ知識）",
+      "aiSafeTooltip": "AI共有：選択肢を賢く選ぶために値を AI と共有します"
+    },
+    "context": {
+      "buttonTitle": "{label} の AI コンテキスト",
+      "title": "AI コンテキスト：{label}",
+      "placeholder": "AI 向けのヒント（例：「パスポート記載の名」）",
+      "hint": "AI はこのヒントを使って、Web サイトのわかりにくいフォーム項目を判別します。"
+    },
+    "custom": {
+      "title": "カスタム項目",
+      "labelPlaceholder": "項目名",
+      "valuePlaceholder": "項目の値",
+      "sensitiveTooltip": "機密：値は AI に送信されません",
+      "aiSafeTooltip": "AI共有：値を AI と共有します",
+      "enabledTooltip": "項目は有効です",
+      "disabledTooltip": "項目は無効です",
+      "delete": "項目を削除",
+      "pagination": {
+        "other": "{page} / {total} ページ（{count} 件）"
+      },
+      "newLabelPlaceholder": "項目名",
+      "newValuePlaceholder": "値",
+      "add": "カスタム項目を追加"
+    },
+    "documents": {
+      "title": "添付書類",
+      "labelPlaceholder": "書類のラベル",
+      "labelTooltip": "クリックして書類のラベルを編集",
+      "remove": "ファイルを削除",
+      "pagination": "{page} / {total} ページ",
+      "categories": {
+        "resume": "履歴書 / CV",
+        "coverLetter": "カバーレター",
+        "identity": "身分証明書",
+        "academic": "成績証明書",
+        "portfolio": "ポートフォリオ",
+        "other": "その他の書類"
+      },
+      "upload": {
+        "resume": "履歴書をアップロード",
+        "coverLetter": "カバーレターをアップロード",
+        "identity": "身分証明書をアップロード",
+        "academic": "成績証明書をアップロード",
+        "portfolio": "ポートフォリオをアップロード",
+        "other": "書類をアップロード"
+      },
+      "size": {
+        "bytes": "{size} B",
+        "kilobytes": "{size} KB",
+        "megabytes": "{size} MB"
+      }
+    }
+  },
+  "settings": {
+    "account": {
+      "title": "アカウント",
+      "proUntil": "Pro（{date} まで）",
+      "proLifetime": "Pro · 買い切り",
+      "disconnect": "アカウントの連携を解除",
+      "waiting": "サインインを待っています…",
+      "connect": "Aullevo Web と連携",
+      "renew": "Pro の期限切れ · 更新",
+      "upgrade": "Pro にアップグレード"
+    },
+    "theme": {
+      "title": "テーマ",
+      "dark": "ダークテーマ",
+      "description": "ダークスレートとライトテーマを切り替えます"
+    },
+    "mode": {
+      "title": "自動入力エンジンのモード",
+      "aiActive": "AIスマート入力（有効）",
+      "standard": "標準入力（AIなし）",
+      "aiDescription": "AI の推論で質問を解釈し、複雑な項目にも対応します",
+      "standardDescription": "AI を使わず、プロフィールの項目を直接照合します",
+      "toggle": "AI 入力モードの切替"
+    },
+    "ai": {
+      "title": "AI エンジン",
+      "unlimited": "無制限",
+      "keyRequired": "API キーが必要です",
+      "freeUsage": "Free：今週 {used}/{limit} 回",
+      "privacy": "<b>プライバシー：</b>「機密」の項目は AI に送信されず、送られるのはラベルだけです。「AI共有」の項目の値とフォームの質問は {provider} に送信されます。",
+      "provider": "AI プロバイダー",
+      "customProvider": "カスタム（OpenAI 互換）",
+      "baseUrl": "サーバー URL",
+      "customHint": "OpenRouter、Groq、Mistral、Ollama、LM Studio など、OpenAI のチャット API に対応したサーバーで使えます。ローカルサーバーにはキーは不要です。",
+      "model": "AI モデル",
+      "modelOption": "{name}（{description}）",
+      "models": {
+        "fastest": "最速・超低コスト",
+        "balanced": "バランス型の推論",
+        "capable": "高速・高性能",
+        "smartest": "最高の知能",
+        "legacy": "旧世代・高速"
+      },
+      "otherModel": "その他のモデル（ID を入力）",
+      "modelIdPlaceholder": "正確なモデル ID（例：{example}）",
+      "apiKey": "{provider} API キー",
+      "getKey": "API キーを取得",
+      "keyPlaceholder": "{provider} API キーを貼り付け",
+      "hideKey": "キーを隠す",
+      "showKey": "キーを表示",
+      "addKeyHint": "AIスマート入力を使うには、{provider} の API キーを追加してください。",
+      "proHint": "Pro：AI 入力は無制限。キーはこのブラウザ内に保存されます。",
+      "freeHint": "Free プラン：AI 入力は週 {limit} 回まで。Pro にアップグレードすると無制限になります。"
+    },
+    "paginate": {
+      "title": "自動ページ送り",
+      "toggleTitle": "複数ページのフォームに入力",
+      "description": "各ページに入力して「次へ / 続行」をクリックし、最後に「送信」を押します。フォームで弾かれた回答は修正し、修正できない場合は一時停止します。",
+      "toggle": "自動ページ送りの切替",
+      "proFeature": "Pro 機能",
+      "upgrade": "自動ページ送りを使うには Pro にアップグレード"
+    },
+    "floating": {
+      "title": "Web ページのフローティングアイコン",
+      "toggleTitle": "フローティングボタンを表示",
+      "description": "Web ページの端に Aullevo のクイックアクセスタブを表示します",
+      "toggle": "Web ページのフローティングボタンの切替"
+    },
+    "typing": {
+      "title": "人間らしい入力速度",
+      "instant": "即時（{ms}ms）",
+      "natural": "自然（{ms}ms）",
+      "slow": "ゆっくり（{ms}ms）",
+      "custom": "カスタム（{ms}ms）",
+      "naturalFree": "自然（{ms}ms）· Free プラン",
+      "description": "実際のキー入力を想定したサイト向けに、人間のペースで 1 文字ずつ入力します。",
+      "proFeature": "Pro 機能",
+      "customDelay": "カスタム遅延：",
+      "customProFeature": "カスタム遅延は Pro 機能です",
+      "unitMs": "ms"
+    },
+    "tour": {
+      "title": "ガイドツアー",
+      "toggleTitle": "ガイドをもう一度表示",
+      "description": "すべてのタブをもう一度順番に案内します",
+      "replay": "もう一度見る"
+    },
+    "security": {
+      "title": "ローカルで暗号化"
+    },
+    "memories": {
+      "title": "AI メモリー",
+      "count": "（{enabled}/{total} ON）",
+      "descriptionAiOn": "自由回答の質問に AI が使えるあなたの情報です（例：「働き方：リモートのみ」）。有効なメモリーは {provider} に送信され、このブラウザに暗号化されずに保存されるため、パスワードや ID 番号は追加しないでください。",
+      "descriptionAiOff": "自由回答の質問に AI が使えるあなたの情報です（例：「働き方：リモートのみ」）。AIスマート入力が有効な場合にのみ使われます。有効なメモリーは {provider} に送信され、このブラウザに暗号化されずに保存されるため、パスワードや ID 番号は追加しないでください。",
+      "titlePlaceholder": "タイトル",
+      "contentPlaceholder": "AI に知っておいてほしいこと",
+      "enabledTitle": "メモリーは AI に送信されます",
+      "disabledTitle": "メモリーは使用されません",
+      "on": "ON",
+      "off": "OFF",
+      "delete": "メモリーを削除",
+      "newTitlePlaceholder": "タイトル（例：働き方）",
+      "newContentPlaceholder": "内容（例：フルリモートの仕事を希望、業務委託も可）",
+      "add": "メモリーを追加"
+    },
+    "deviceData": {
+      "title": "このデバイス上のデータ",
+      "total": "合計 {size}",
+      "description": "アカウントごとに専用の暗号化された保管庫があります。他のアカウントのプロフィール、書類、API キー、メモリー、リンクが見えることはありません。",
+      "empty": "保存されたデータはまだありません。",
+      "localOwner": "未サインイン（ローカルのプロフィール）",
+      "anotherAccount": "別のアカウント",
+      "inUse": "{size} · 使用中",
+      "deleteTitle": "このアカウントのデータをこのデバイスから削除",
+      "delete": "削除",
+      "confirmDelete": "「{name}」の Aullevo データをこのデバイスから削除しますか？\n\n暗号化されたプロフィール、書類、API キー、AI メモリー、リンクキューが完全に削除されます。この操作は元に戻せません。",
+      "bytes": "{size} B",
+      "kilobytes": "{size} KB",
+      "megabytes": "{size} MB"
+    }
+  },
+  "status": {
+    "plan": {
+      "profileLimit": "Free プランで有効にできるプロフィールは {max} 件までです。余分なプロフィールを OFF にするか、Pro にアップグレードしてください。",
+      "activeLimit": "Free プランで有効にできるプロフィールは {max} 件までです。いずれかを OFF にするか、Pro にアップグレードしてください。",
+      "createdOff": "プロフィールを OFF の状態で作成しました。Free プランで有効にできるプロフィールは {max} 件までです。いずれかを OFF にするか、Pro にアップグレードしてください。",
+      "autoPaginatePro": "自動ページ送りは Pro 機能です。複数ページのフォームに入力するには Pro にアップグレードしてください。",
+      "jsonImportLimit": "この 2 週間の無料 JSON インポート（{limit} 回）をすべて使いました。{date} にリセットされます。Pro にアップグレードすると無制限にインポートできます。",
+      "documentsSkipped": {
+        "other": "{count} 件の書類は添付されませんでした：フォームへのアップロードは Pro 機能です。"
+      }
+    },
+    "batch": {
+      "starting": {
+        "other": "{count} 件のフォームの一括入力を開始しています..."
+      },
+      "progress": "{total} 件中 {current} 件目を入力中：{host}",
+      "progressNoHost": "{total} 件中 {current} 件目を入力中...",
+      "complete": {
+        "other": "{count} 件のフォームの一括入力が完了しました！"
+      }
+    },
+    "save": {
+      "success": "{type}プロフィールを保存しました！",
+      "failed": "保存に失敗しました：{error}",
+      "noProfile": "プロフィールが選択されていません",
+      "unknownError": "保存に失敗しました"
+    },
+    "profile": {
+      "nameExists": "この名前のプロフィールはすでに存在します！",
+      "disabled": "{type} は無効です。自動入力するには ON にしてください。",
+      "defaultType": "プロフィール",
+      "imported": {
+        "other": "{type} に {count} 件の項目をインポートしました！"
+      }
+    },
+    "highlight": {
+      "noActiveTab": "アクティブなタブが見つかりません。",
+      "refreshToConnect": "ハイライトを有効にするには、ページを再読み込みしてください。",
+      "on": {
+        "other": "ページ上の {count} 項目をハイライトしました！"
+      },
+      "cleared": "ハイライトをクリアしました。"
+    },
+    "fill": {
+      "injectingAi": "AI で項目に入力中（{type}）...",
+      "injecting": "項目に入力中（{type}）...",
+      "noTab": "アクティブなタブにアクセスできませんでした。",
+      "refreshToConnect": "自動入力を有効にするには、タブを再読み込みしてください。",
+      "cannotConnect": "ページに接続できませんでした。タブを再読み込みしてください。",
+      "aiPartlySkipped": {
+        "other": "{count} 件の入力欄に入力しました（AI は一部スキップ）。"
+      },
+      "keywordMode": {
+        "other": "{count} 件の入力欄に入力しました（キーワードモード）。"
+      },
+      "withAi": {
+        "other": "AI でフォームに入力しました（{count} 件一致）。"
+      },
+      "withoutAi": {
+        "other": "AI なしでフォームに入力しました（{count} 件一致）。"
+      },
+      "error": "入力エラー：{error}",
+      "injected": {
+        "other": "ページに {count} 項目を入力しました。"
+      }
+    },
+    "pagination": {
+      "progress": "自動ページ送り：{page} ページ目を入力中...",
+      "lostConnection": "自動ページ送りを停止しました：拡張機能との接続が切れました。",
+      "filled": {
+        "other": "{count} ページで {filled} 件の入力欄に入力しました。"
+      },
+      "corrected": {
+        "other": "フォームで弾かれた回答を {count} 件修正しました。"
+      },
+      "field": "「{name}」",
+      "fieldAndMore": {
+        "other": "「{name}」（他 {count} 件）"
+      },
+      "aField": "ある項目",
+      "nextButton": "次へ",
+      "submitted": "送信しました！",
+      "noNext": "「次へ / 続行」ボタンが見つかりません。",
+      "stillEmpty": "{field} がまだ空です。",
+      "check": "{field} を確認してください。",
+      "blocked": "{page} ページ目で一時停止：{field} は必須ですが空です。入力してから再実行してください。",
+      "nextDisabled": "{page} ページ目で一時停止：「{button}」ボタンが無効です。ページを確認してから再実行してください。",
+      "validationError": "{page} ページ目で一時停止：フォームが「{error}」と表示しました。",
+      "validationErrorUnknown": "{page} ページ目で一時停止：フォームがエラーを表示しました。",
+      "correctionTried": "（自動修正を試みました）",
+      "stuck": "{page} ページ目で一時停止：「{button}」をクリックしましたが、フォームが先に進みませんでした。",
+      "maxPages": "安全上の上限（{max} ページ）で停止しました。",
+      "noForm": "このページにフォームが見つかりません（または Aullevo はここでは動作できません）。",
+      "stopped": "自動ページ送りを停止しました：{error}",
+      "unknownError": "不明なエラー"
+    }
+  },
+  "tour": {
+    "card": {
+      "progress": "{section} · {current}/{total}",
+      "skip": "ツアーをスキップ",
+      "dontShowAgain": "今後表示しない",
+      "back": "戻る",
+      "next": "次へ",
+      "done": "完了"
+    },
+    "shortcuts": {
+      "allActive": "3 つのショートカットはすべてこのブラウザで有効です。",
+      "notSet": "このブラウザで未設定：{list}。Chrome のショートカット設定でご自身で設定してください。",
+      "openSettings": "Chrome のショートカット設定を開く",
+      "toggleSidePanel": "サイドパネルの表示切替",
+      "fallbackName": "ショートカット"
+    },
+    "sections": {
+      "autofill": "自動入力",
+      "header": "上部のボタン",
+      "profiles": "プロフィール",
+      "multilink": "マルチリンク",
+      "settings": "設定"
+    },
+    "autofill": {
+      "detection": {
+        "title": "フォーム検出",
+        "body": "Aullevo は現在のタブのページで入力可能な項目を数えます。フォームを開くと、この数が更新されます。"
+      },
+      "highlight": {
+        "title": "項目をハイライト",
+        "body": "Aullevo がページ上で見つけたすべての項目を枠で囲み、入力前に何が入力されるかを確認できます。もう一度クリックすると枠が消えます。"
+      },
+      "rescan": {
+        "title": "再スキャン",
+        "body": "複数ステップのフォームやポップアップなど、ページの読み込み後に項目が追加されるフォームもあります。「再スキャン」で項目を数え直します。"
+      },
+      "fill": {
+        "title": "フォームに入力",
+        "body": "使用中のプロフィールでページに入力します。AI 入力が ON（設定で変更）なら、言い回しが違う質問でも回答と照合されます。OFF の場合はキーワードで項目を照合します。"
+      },
+      "activeProfile": {
+        "title": "使用中のプロフィール",
+        "body": "入力に使うプロフィールと、ON になっている項目・書類の数です。プロフィールの切り替えや回答の編集は<b>プロフィール</b>タブで行います。"
+      },
+      "shortcuts": {
+        "title": "キーボードショートカット",
+        "body": "Aullevo をインストールすると Chrome がこれらのキーを設定しますが、Chrome や他の拡張機能が使用中のキーはスキップされます。いつでも変更できます。"
+      }
+    },
+    "header": {
+      "voice": {
+        "title": "音声モード",
+        "body": "クリックする代わりに Aullevo に話しかけられます。このボタンでパネルが音声エージェントに切り替わります。\"fill this page\"、\"fill the email\"、\"fill the first question\" のように話すと、声で応答します。もう一度クリックするとこの表示に戻ります。",
+        "note": "Pro 機能です。ご自身の ElevenLabs API キーが必要です（Voice settings で追加します）。音声コマンドは英語とタガログ語に対応しています。"
+      },
+      "language": {
+        "title": "言語",
+        "body": "Aullevo 全体の言語を選びます。英語は常にリストの先頭にあるので、いつでも元に戻せます。"
+      },
+      "theme": {
+        "title": "ライト / ダークテーマ",
+        "body": "パネルのライトモードとダークモードを切り替えます。"
+      },
+      "json": {
+        "title": "JSON でかんたん設定",
+        "intro": "プロフィールの JSON です。プロフィールを最速で設定する方法：",
+        "step1": "ここから JSON をコピーします。",
+        "step2": "履歴書などの書類と一緒に Gemini、Claude、ChatGPT に渡します。",
+        "step3": "同じ構造のまま値を埋めるよう AI に依頼します。",
+        "step4": "結果をここに貼り付けて<b>インポート</b>をクリックします。"
+      },
+      "fullPage": {
+        "title": "フルページで開く",
+        "body": "Aullevo をブラウザのタブで開き、広い画面でプロフィールを編集できます。入力はこれまでどおりサイドパネルから行います。"
+      },
+      "close": {
+        "title": "パネルを閉じる",
+        "body": "サイドパネルを閉じます。<b>Alt+Q</b>（Mac では <b>Option+Q</b>）またはツールバーの Aullevo アイコンをクリックすると再び開きます。"
+      }
+    },
+    "profiles": {
+      "switcher": {
+        "title": "プロフィールの切り替え",
+        "body1": "プロフィール（求職、学業、金融、または独自のもの）ごとに回答を保持します。編集・入力に使うものを選んでください。",
+        "body2": "リストを開くと、各プロフィールが ON か OFF かを確認でき、一番下から新規作成もできます。",
+        "note": "Free プラン：同時に ON にできるプロフィールは 2 件までです。"
+      },
+      "config": {
+        "title": "名前と ON/OFF スイッチ",
+        "body": "ここでプロフィール名を変更できます。<b>プロフィール ON</b> でプロフィール全体の ON/OFF を切り替えます。OFF の間は入力に使われません。"
+      },
+      "identity": {
+        "title": "本人情報・連絡先",
+        "body": "名前、メールアドレス、電話番号、住所です。セクションの見出しをクリックすると折りたたみ・展開できます。各項目には 3 つの小さなボタンがあり、次に説明します。"
+      },
+      "fieldContext": {
+        "title": "AI コンテキストのヒント",
+        "body": "✨ ボタンで、この項目の意味を AI に伝えるヒント（「パスポート記載の名」など）を追加できます。フォームの質問がわかりにくいときに役立ちます。点が付いていればヒントが設定済みです。"
+      },
+      "fieldPrivacy": {
+        "title": "AI共有 / 機密",
+        "safe": "<b>AI共有</b>：値を AI と共有し、ドロップダウンや選択式の質問で正しい回答を選べるようにします。",
+        "sensitive": "<b>機密</b>：AI に見えるのは項目名とヒントだけで、値は見えません。値の入力は Aullevo がお使いのデバイス上で行います。",
+        "toggle": "クリックで切り替えます。"
+      },
+      "fieldToggle": {
+        "title": "項目の ON/OFF",
+        "body": "項目を OFF にすると、入力内容を削除せずに入力時にスキップします。"
+      },
+      "documents": {
+        "title": "書類を添付",
+        "body": "書類の種類を選んで、履歴書、カバーレター、身分証明書などをアップロードします。フォームにファイルのアップロード欄があると、Aullevo が ON の書類を添付します。",
+        "note": "フォームへの書類の添付は Pro 機能です。"
+      },
+      "attributes": {
+        "title": "プロフィール別の項目",
+        "body": "このプロフィールの種類に固有の項目です。求職プロフィールには肩書き、LinkedIn、スキル、学歴があり、学業、医療などにもそれぞれ専用の項目があります。"
+      },
+      "customFields": {
+        "title": "独自の項目を追加",
+        "body": "「希望年収」や「志望動機は？」など、標準の項目にないものに使います。項目名と値を入力して <b>+</b> をクリックします。質問の文言をそのまま項目名にするとうまくいきます。"
+      },
+      "save": {
+        "title": "保存",
+        "body": "変更は入力するたびに自動で保存されます。このボタンはすぐに保存するので、パネルを閉じる直前に便利です。"
+      }
+    },
+    "multilink": {
+      "addLink": {
+        "title": "フォームのリンクを追加",
+        "body": "フォームや求人応募の完全なリンク（https:// で始まるもの）を貼り付けて <b>+</b> をクリックします。いくつでも追加できます。"
+      },
+      "savedLinks": {
+        "title": "リンクキュー",
+        "body": "追加したリンクはすべてここに表示されます。次の一括入力に含めるリンクはチェックを入れ、スキップするものはチェックを外します。矢印アイコンでリンクを開き、ゴミ箱アイコンで削除します。"
+      },
+      "batchRun": {
+        "title": "まとめて一括入力",
+        "body1": "チェックを入れたリンクを 1 つずつバックグラウンドのタブで開き、使用中のプロフィールで入力します。進捗はパネルの上部に表示されます。",
+        "note": "ショートカット：Alt+Shift+B（Mac では Option+Shift+B）。"
+      }
+    },
+    "settings": {
+      "account": {
+        "title": "アカウント",
+        "body": "Aullevo Web のアカウントと連携すると、プラン（Free または Pro）がここに適用されます。プロフィールはこのデバイス上で暗号化されたままで、アップロードされません。"
+      },
+      "aiMode": {
+        "title": "AIスマート入力 / 標準入力",
+        "standard": "<b>標準入力</b>は AI を使わず、名前で項目を照合します。",
+        "smart": "<b>AIスマート入力</b>は言い回しの違う質問も理解し、ドロップダウンや選択式の質問で回答を選びます。"
+      },
+      "aiEngine": {
+        "title": "AI プロバイダー、モデル、API キー"
+      },
+      "memories": {
+        "title": "AI メモリー",
+        "body": "自由回答の質問に AI が使える短い情報です（「働き方：リモートのみ」など）。選択した AI プロバイダーに送信され、暗号化されないため、パスワードや ID 番号は絶対に追加しないでください。"
+      },
+      "autoPaginate": {},
+      "floatingIcon": {
+        "title": "フローティングボタン",
+        "body": "Web ページの端に表示される小さな Aullevo タブで、すばやくアクセスできます。邪魔な場合は OFF にしてください。"
+      },
+      "typingSpeed": {
+        "title": "入力速度",
+        "body": "Aullevo が項目に入力する速さです。<b>自然</b>は人が入力しているように見え、<b>即時</b>が最速です。ゆっくりとカスタムの速度は Pro 機能です。"
+      },
+      "replayTour": {
+        "title": "このガイドをもう一度",
+        "body": "忘れたことがあれば、<b>もう一度見る</b>をクリックしてこのガイドを最初から確認できます。"
+      },
+      "deviceData": {
+        "title": "このデバイス上のデータ",
+        "body": "アカウントごとに、このブラウザ内に専用の暗号化された保管庫があります。使わなくなったアカウントのデータは削除してください。"
+      }
+    }
+  },
+  "vault": {
+    "loading": "読み込み中…",
+    "account": {
+      "signedInAs": "<b>{account}</b> としてサインイン中",
+      "notSignedIn": "未サインイン：このデバイスのローカルのプロフィール",
+      "fallbackName": "あなたのアカウント"
+    },
+    "errors": {
+      "createFailed": "保管庫を作成できませんでした。もう一度お試しください。",
+      "wrongPassphrase": "パスフレーズが正しくありません。",
+      "wrongClaimPassphrase": "それらのプロフィールのパスフレーズが正しくありません。"
+    }
+  }
+}

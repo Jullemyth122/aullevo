@@ -1,0 +1,687 @@
+{
+  "autofill": {
+    "detection": {
+      "title": "Phát hiện biểu mẫu",
+      "sub": "Các trường trên tab hiện tại",
+      "highlightTitle": "Kiểm tra và đánh dấu các trường trên trang",
+      "clear": "Xóa",
+      "highlight": "Đánh dấu",
+      "rescanTitle": "Quét lại trang",
+      "rescan": "Quét lại"
+    },
+    "fill": {
+      "injecting": "Đang điền...",
+      "disabled": "{type} đã tắt",
+      "withAi": "Điền biểu mẫu bằng AI ({type})",
+      "standard": "Điền biểu mẫu ({type})",
+      "autoPaginate": "Tự động chuyển trang đang bật: điền mọi trang rồi gửi"
+    },
+    "activeProfile": {
+      "title": "Hồ sơ đang dùng",
+      "summary": "{fields} • {docs} sẵn sàng",
+      "fieldCount": {
+        "other": "{count} trường"
+      },
+      "docCount": {
+        "other": "{count} tài liệu"
+      },
+      "ready": "SẴN SÀNG",
+      "disabled": "ĐÃ TẮT"
+    },
+    "shortcuts": {
+      "title": "Phím tắt",
+      "toggleSidePanel": "Bật/tắt bảng bên",
+      "formFill": "Điền biểu mẫu bằng AI / từ khóa",
+      "batchFill": "Điền hàng loạt nhiều liên kết"
+    }
+  },
+  "content": {
+    "openSidebar": "Mở bảng bên Aullevo",
+    "filled": "ĐÃ ĐIỀN",
+    "file": "Tệp: {name}",
+    "files": {
+      "other": "Đã đính kèm {count} tệp"
+    },
+    "matched": "Đã khớp: {name}",
+    "ranked": "Xếp hạng: {value}",
+    "ai": "[AI] {text}",
+    "aiGenerated": "[AI] Đã tạo",
+    "fixed": "Đã sửa: {value}"
+  },
+  "header": {
+    "versionLine": "v{version} • Tự động điền",
+    "lightTheme": "Giao diện sáng",
+    "darkTheme": "Giao diện tối",
+    "jsonConfig": "Cấu hình JSON",
+    "openFullPage": "Mở toàn trang",
+    "closeSidePanel": "Đóng bảng bên",
+    "footer": {
+      "engine": "Công cụ tự động điền Aullevo",
+      "ready": "Sẵn sàng"
+    }
+  },
+  "json": {
+    "title": "Cấu hình JSON",
+    "badge": {
+      "fields": {
+        "other": "✓ {count} trường"
+      },
+      "invalid": "JSON không hợp lệ"
+    },
+    "actions": {
+      "format": "Định dạng / Làm đẹp JSON",
+      "fullscreen": "Toàn màn hình",
+      "exitFullscreen": "Thoát toàn màn hình",
+      "close": "Đóng",
+      "download": "Tải xuống",
+      "copy": "Sao chép JSON",
+      "copied": "Đã sao chép",
+      "upload": "Tải tệp lên",
+      "import": "Nhập"
+    },
+    "quota": {
+      "downloadPro": "Tải xuống (xuất) là tính năng Pro."
+    },
+    "errors": {
+      "noFields": "Không tìm thấy trường hợp lệ nào trong JSON đã cung cấp.",
+      "invalidFormat": "Định dạng JSON không hợp lệ: {error}"
+    }
+  },
+  "language": {
+    "title": "Ngôn ngữ",
+    "button": "Ngôn ngữ: {name}",
+    "search": "Tìm ngôn ngữ",
+    "auto": "Tự động: {name}",
+    "autoHint": "Theo ngôn ngữ của trình duyệt",
+    "backToEnglish": "Quay lại tiếng Anh",
+    "changed": "Đã chuyển ngôn ngữ sang {name}.",
+    "switchBack": "Chuyển lại sang {name}",
+    "keep": "Giữ nguyên",
+    "noResults": "Không tìm thấy ngôn ngữ",
+    "settingsHint": "Thay đổi mọi màn hình của Aullevo, kể cả phần hướng dẫn."
+  },
+  "manifest": {
+    "appName": "Aullevo - Tự động điền biểu mẫu & đơn ứng tuyển bằng AI",
+    "appDescription": "Điền biểu mẫu bằng AI cho đơn ứng tuyển, khảo sát và mọi biểu mẫu web. Lưu hồ sơ, tải CV lên và tự động điền thông minh.",
+    "actionTitle": "Mở bảng bên Aullevo",
+    "commandTogglePanel": "Bật/tắt bảng bên Aullevo",
+    "commandFill": "Tự động điền biểu mẫu trên trang bằng AI hoặc từ khóa",
+    "commandBatchFill": "Tự động điền hàng loạt biểu mẫu từ nhiều liên kết"
+  },
+  "multilink": {
+    "batch": {
+      "title": "Hàng đợi điền hàng loạt",
+      "activeCount": "{enabled}/{total} đang bật",
+      "description": "Tự động mở và điền biểu mẫu trên nhiều tab bằng hồ sơ <b>{type}</b> đang dùng của bạn.",
+      "running": "Đang điền hàng loạt...",
+      "start": {
+        "other": "Điền hàng loạt {count} biểu mẫu"
+      }
+    },
+    "add": {
+      "title": "Thêm liên kết biểu mẫu / việc làm"
+    },
+    "saved": {
+      "title": "Liên kết đã lưu ({count})",
+      "clearAll": "Xóa tất cả",
+      "empty": "Chưa có liên kết nào. Dán URL biểu mẫu ở trên để bắt đầu.",
+      "open": "Mở liên kết",
+      "remove": "Xóa liên kết"
+    }
+  },
+  "nav": {
+    "autofill": "Tự động điền",
+    "profiles": "Hồ sơ ({count})",
+    "multiLink": "Nhiều liên kết",
+    "settings": "Cài đặt"
+  },
+  "profiles": {
+    "types": {
+      "job": "Việc làm",
+      "medical": "Y tế",
+      "government": "Chính phủ",
+      "survey": "Khảo sát",
+      "academic": "Học thuật",
+      "financial": "Tài chính",
+      "custom": "Tùy chỉnh"
+    },
+    "badges": {
+      "on": "BẬT",
+      "off": "TẮT",
+      "disabled": "ĐÃ TẮT",
+      "sensitive": "NHẠY CẢM",
+      "aiSafe": "AN TOÀN AI"
+    },
+    "save": {
+      "button": "Lưu hồ sơ {type}",
+      "saved": "Đã lưu ✓"
+    },
+    "dropdown": {
+      "newProfilePlaceholder": "Tên hồ sơ mới...",
+      "add": "Thêm"
+    },
+    "config": {
+      "title": "Cấu hình hồ sơ",
+      "on": "HỒ SƠ BẬT",
+      "off": "HỒ SƠ TẮT",
+      "activeTooltip": "Hồ sơ {type} đang bật",
+      "disabledTooltip": "Hồ sơ {type} đã tắt",
+      "namePlaceholder": "Tên hồ sơ"
+    },
+    "identity": {
+      "title": "Danh tính & liên hệ",
+      "firstName": "Tên",
+      "lastName": "Họ",
+      "email": "Địa chỉ email",
+      "phone": "Số điện thoại",
+      "address": "Địa chỉ cư trú"
+    },
+    "attributes": {
+      "title": "Thuộc tính {type}",
+      "customHint": "Thêm trường của riêng bạn bên dưới hoặc nhập qua JSON.",
+      "job": {
+        "headline": "Tiêu đề / Chức danh",
+        "linkedin": "LinkedIn",
+        "github": "GitHub",
+        "portfolio": "Portfolio",
+        "skills": "Kỹ năng",
+        "education": "Học vấn / Bằng cấp",
+        "certifications": "Chứng chỉ"
+      },
+      "medical": {
+        "bloodType": "Nhóm máu",
+        "allergies": "Dị ứng",
+        "emergencyContact": "Liên hệ khẩn cấp",
+        "insuranceProvider": "Nhà cung cấp bảo hiểm"
+      },
+      "government": {
+        "nationalId": "Số CCCD / SSN",
+        "citizenship": "Quốc tịch",
+        "passport": "Số hộ chiếu",
+        "driversLicense": "Giấy phép lái xe"
+      },
+      "survey": {
+        "ageRange": "Độ tuổi",
+        "income": "Thu nhập",
+        "education": "Học vấn",
+        "employment": "Việc làm"
+      },
+      "academic": {
+        "institution": "Cơ sở đào tạo",
+        "major": "Chuyên ngành / Lĩnh vực",
+        "gpa": "GPA",
+        "gradYear": "Năm tốt nghiệp",
+        "testScores": "Điểm thi"
+      },
+      "financial": {
+        "billingAddress": "Địa chỉ thanh toán",
+        "payment": "Thanh toán",
+        "cardholder": "Chủ thẻ"
+      }
+    },
+    "field": {
+      "sensitiveTooltip": "Nhạy cảm: Giá trị được ẩn khỏi AI (Zero-Knowledge)",
+      "aiSafeTooltip": "An toàn AI: Giá trị được chia sẻ với AI để chọn đáp án thông minh"
+    },
+    "context": {
+      "buttonTitle": "Ngữ cảnh AI cho {label}",
+      "title": "Ngữ cảnh AI: {label}",
+      "placeholder": "Gợi ý ngữ cảnh cho AI (vd: 'Tên pháp lý trên hộ chiếu')",
+      "hint": "AI dùng gợi ý này để nhận diện các trường biểu mẫu không rõ nghĩa trên trang web."
+    },
+    "custom": {
+      "title": "Trường tùy chỉnh",
+      "labelPlaceholder": "Nhãn trường",
+      "valuePlaceholder": "Giá trị trường",
+      "sensitiveTooltip": "Nhạy cảm: Giá trị được ẩn khỏi AI",
+      "aiSafeTooltip": "An toàn AI: Giá trị được chia sẻ với AI",
+      "enabledTooltip": "Trường đang bật",
+      "disabledTooltip": "Trường đã tắt",
+      "delete": "Xóa trường",
+      "pagination": {
+        "other": "Trang {page}/{total} ({count} mục)"
+      },
+      "newLabelPlaceholder": "Nhãn",
+      "newValuePlaceholder": "Giá trị",
+      "add": "Thêm trường tùy chỉnh"
+    },
+    "documents": {
+      "title": "Tài liệu đính kèm",
+      "labelPlaceholder": "Nhãn tài liệu",
+      "labelTooltip": "Nhấp để sửa nhãn tài liệu",
+      "remove": "Xóa tệp",
+      "pagination": "Trang {page}/{total}",
+      "categories": {
+        "resume": "CV / Sơ yếu lý lịch",
+        "coverLetter": "Thư xin việc",
+        "identity": "Giấy tờ tùy thân",
+        "academic": "Học bạ / Bảng điểm",
+        "portfolio": "Portfolio",
+        "other": "Tài liệu khác"
+      },
+      "upload": {
+        "resume": "Tải CV lên",
+        "coverLetter": "Tải thư xin việc lên",
+        "identity": "Tải giấy tờ tùy thân lên",
+        "academic": "Tải bảng điểm lên",
+        "portfolio": "Tải portfolio lên",
+        "other": "Tải tài liệu lên"
+      },
+      "size": {
+        "bytes": "{size} B",
+        "kilobytes": "{size} KB",
+        "megabytes": "{size} MB"
+      }
+    }
+  },
+  "settings": {
+    "account": {
+      "title": "Tài khoản",
+      "proUntil": "Pro đến {date}",
+      "proLifetime": "Pro · Trọn đời",
+      "disconnect": "Ngắt kết nối tài khoản",
+      "waiting": "Đang chờ đăng nhập…",
+      "connect": "Kết nối với Aullevo Web",
+      "renew": "Pro đã hết hạn · Gia hạn",
+      "upgrade": "Nâng cấp lên Pro"
+    },
+    "theme": {
+      "title": "Giao diện",
+      "dark": "Giao diện tối",
+      "description": "Chuyển đổi giữa giao diện Dark Slate và Sáng"
+    },
+    "mode": {
+      "title": "Chế độ công cụ tự động điền",
+      "aiActive": "Điền thông minh bằng AI (Đang bật)",
+      "standard": "Điền tiêu chuẩn (Không dùng AI)",
+      "aiDescription": "Dùng khả năng suy luận của AI để hiểu câu hỏi & khớp các trường phức tạp",
+      "standardDescription": "Khớp trực tiếp thuộc tính hồ sơ mà không gọi AI",
+      "toggle": "Bật/tắt chế độ điền bằng AI"
+    },
+    "ai": {
+      "title": "Công cụ AI",
+      "unlimited": "Truy cập không giới hạn",
+      "keyRequired": "Cần khóa API",
+      "freeUsage": "Free: {used}/{limit} tuần này",
+      "privacy": "<b>Quyền riêng tư:</b> Các trường được đánh dấu NHẠY CẢM không bao giờ được gửi tới AI, chỉ gửi nhãn của chúng. Giá trị của các trường AN TOÀN AI và câu hỏi của biểu mẫu được gửi tới {provider}.",
+      "provider": "Nhà cung cấp AI",
+      "customProvider": "Tùy chỉnh (tương thích OpenAI)",
+      "baseUrl": "URL máy chủ",
+      "customHint": "Dùng được với mọi máy chủ hỗ trợ API trò chuyện của OpenAI, như OpenRouter, Groq, Mistral, Ollama hoặc LM Studio. Máy chủ cục bộ không cần khóa.",
+      "model": "Mô hình AI",
+      "modelOption": "{name} ({description})",
+      "models": {
+        "fastest": "Nhanh nhất & Siêu tiết kiệm",
+        "balanced": "Suy luận cân bằng",
+        "capable": "Nhanh & Mạnh mẽ",
+        "smartest": "Thông minh nhất",
+        "legacy": "Nhanh (Bản cũ)"
+      },
+      "otherModel": "Mô hình khác (nhập ID của nó)",
+      "modelIdPlaceholder": "ID mô hình chính xác, vd. {example}",
+      "apiKey": "Khóa API {provider}",
+      "getKey": "Lấy khóa API",
+      "keyPlaceholder": "Dán khóa API {provider} của bạn",
+      "hideKey": "Ẩn khóa",
+      "showKey": "Hiện khóa",
+      "addKeyHint": "Thêm khóa API {provider} của bạn để dùng Điền thông minh bằng AI.",
+      "proHint": "Pro: điền bằng AI không giới hạn. Khóa của bạn chỉ lưu trong trình duyệt này.",
+      "freeHint": "Gói Free: {limit} lượt điền bằng AI mỗi tuần. Nâng cấp lên Pro để dùng không giới hạn."
+    },
+    "paginate": {
+      "title": "Tự động chuyển trang",
+      "toggleTitle": "Điền biểu mẫu nhiều trang",
+      "description": "Điền từng trang, nhấp Tiếp / Tiếp tục và nhấn Gửi ở cuối. Tự sửa các câu trả lời bị biểu mẫu từ chối; tạm dừng nếu không sửa được.",
+      "toggle": "Bật/tắt Tự động chuyển trang",
+      "proFeature": "Tính năng Pro",
+      "upgrade": "Nâng cấp lên Pro để dùng Tự động chuyển trang"
+    },
+    "floating": {
+      "title": "Biểu tượng nổi trên trang web",
+      "toggleTitle": "Hiện nút nổi",
+      "description": "Hiển thị thẻ truy cập nhanh Aullevo gắn ở cạnh trang web",
+      "toggle": "Bật/tắt nút nổi trên trang web"
+    },
+    "typing": {
+      "title": "Tốc độ gõ như người thật",
+      "instant": "Tức thì ({ms}ms)",
+      "natural": "Tự nhiên ({ms}ms)",
+      "slow": "Chậm ({ms}ms)",
+      "custom": "Tùy chỉnh ({ms}ms)",
+      "naturalFree": "Tự nhiên ({ms}ms) · Gói Free",
+      "description": "Gõ từng ký tự một với tốc độ như người thật, dành cho các trang yêu cầu thao tác gõ phím thực.",
+      "proFeature": "Tính năng Pro",
+      "customDelay": "Độ trễ tùy chỉnh:",
+      "customProFeature": "Độ trễ tùy chỉnh là tính năng Pro",
+      "unitMs": "ms"
+    },
+    "tour": {
+      "title": "Hướng dẫn sử dụng",
+      "toggleTitle": "Xem lại phần hướng dẫn",
+      "description": "Đi qua lại từng tab, từng bước một",
+      "replay": "Xem lại"
+    },
+    "security": {
+      "title": "Mã hóa cục bộ"
+    },
+    "memories": {
+      "title": "Ghi nhớ AI",
+      "count": "({enabled}/{total} đang bật)",
+      "descriptionAiOn": "Thông tin về bạn mà AI có thể dùng để trả lời câu hỏi mở (vd: \"Phong cách làm việc: chỉ làm từ xa\"). Các ghi nhớ đang bật được gửi tới {provider} và lưu không mã hóa trong trình duyệt này, vì vậy đừng thêm mật khẩu hay số giấy tờ tùy thân.",
+      "descriptionAiOff": "Thông tin về bạn mà AI có thể dùng để trả lời câu hỏi mở (vd: \"Phong cách làm việc: chỉ làm từ xa\"). Chỉ được dùng khi Điền thông minh bằng AI đang bật. Các ghi nhớ đang bật được gửi tới {provider} và lưu không mã hóa trong trình duyệt này, vì vậy đừng thêm mật khẩu hay số giấy tờ tùy thân.",
+      "titlePlaceholder": "Tiêu đề",
+      "contentPlaceholder": "Điều AI cần biết",
+      "enabledTitle": "Ghi nhớ được gửi tới AI",
+      "disabledTitle": "Ghi nhớ không được dùng",
+      "on": "BẬT",
+      "off": "TẮT",
+      "delete": "Xóa ghi nhớ",
+      "newTitlePlaceholder": "Tiêu đề (vd: Phong cách làm việc)",
+      "newContentPlaceholder": "Nội dung (vd: Ưu tiên vị trí làm từ xa hoàn toàn, sẵn sàng làm theo hợp đồng)",
+      "add": "Thêm ghi nhớ"
+    },
+    "deviceData": {
+      "title": "Dữ liệu trên thiết bị này",
+      "total": "Tổng {size}",
+      "description": "Mỗi tài khoản có kho mã hóa riêng tại đây. Các tài khoản không bao giờ thấy hồ sơ, tài liệu, khóa API, ghi nhớ hay liên kết của nhau.",
+      "empty": "Chưa có dữ liệu nào được lưu.",
+      "localOwner": "Chưa đăng nhập (hồ sơ cục bộ)",
+      "anotherAccount": "Tài khoản khác",
+      "inUse": "{size} · đang sử dụng",
+      "deleteTitle": "Xóa dữ liệu của tài khoản này khỏi thiết bị này",
+      "delete": "Xóa",
+      "confirmDelete": "Xóa dữ liệu Aullevo của \"{name}\" khỏi thiết bị này?\n\nThao tác này sẽ xóa vĩnh viễn hồ sơ đã mã hóa, tài liệu, khóa API, ghi nhớ AI và hàng đợi liên kết của tài khoản đó. Không thể hoàn tác.",
+      "bytes": "{size} B",
+      "kilobytes": "{size} KB",
+      "megabytes": "{size} MB"
+    }
+  },
+  "status": {
+    "plan": {
+      "profileLimit": "Gói Free cho phép {max} hồ sơ đang bật. Hãy chuyển các hồ sơ thừa sang TẮT hoặc nâng cấp lên Pro.",
+      "activeLimit": "Gói Free cho phép {max} hồ sơ đang bật. Hãy chuyển một hồ sơ sang TẮT hoặc nâng cấp lên Pro.",
+      "createdOff": "Hồ sơ đã được tạo ở trạng thái TẮT. Gói Free cho phép {max} hồ sơ đang bật. Hãy chuyển một hồ sơ sang TẮT hoặc nâng cấp lên Pro.",
+      "autoPaginatePro": "Tự động chuyển trang là tính năng Pro. Nâng cấp lên Pro để điền biểu mẫu nhiều trang.",
+      "jsonImportLimit": "Bạn đã dùng hết {limit} lượt nhập JSON miễn phí của 2 tuần này. Số lượt sẽ được đặt lại vào ngày {date}, hoặc nâng cấp lên Pro để nhập không giới hạn.",
+      "documentsSkipped": {
+        "other": "{count} tài liệu chưa được đính kèm: tải tệp lên biểu mẫu là tính năng Pro."
+      }
+    },
+    "batch": {
+      "starting": {
+        "other": "Bắt đầu điền hàng loạt {count} biểu mẫu..."
+      },
+      "progress": "Đang điền {current}/{total}: {host}",
+      "progressNoHost": "Đang điền {current}/{total}...",
+      "complete": {
+        "other": "Đã điền hàng loạt xong {count} biểu mẫu!"
+      }
+    },
+    "save": {
+      "success": "Đã lưu hồ sơ {type} thành công!",
+      "failed": "Lưu thất bại: {error}",
+      "noProfile": "Chưa chọn hồ sơ",
+      "unknownError": "Lưu thất bại"
+    },
+    "profile": {
+      "nameExists": "Đã có hồ sơ với tên này!",
+      "disabled": "{type} đang tắt. Hãy chuyển sang BẬT để tự động điền.",
+      "defaultType": "HỒ SƠ",
+      "imported": {
+        "other": "Đã nhập thành công {count} trường vào {type}!"
+      }
+    },
+    "highlight": {
+      "noActiveTab": "Không tìm thấy tab đang mở.",
+      "refreshToConnect": "Tải lại trang để kết nối tính năng đánh dấu.",
+      "on": {
+        "other": "Đã đánh dấu {count} trường trên trang!"
+      },
+      "cleared": "Đã xóa đánh dấu."
+    },
+    "fill": {
+      "injectingAi": "Đang điền các trường bằng AI ({type})...",
+      "injecting": "Đang điền các trường ({type})...",
+      "noTab": "Không thể truy cập tab hiện tại.",
+      "refreshToConnect": "Tải lại tab để kết nối tính năng tự động điền.",
+      "cannotConnect": "Không thể kết nối với trang. Hãy tải lại tab.",
+      "aiPartlySkipped": {
+        "other": "Đã điền {count} ô nhập (bỏ qua AI một phần)."
+      },
+      "keywordMode": {
+        "other": "Đã điền {count} ô nhập (chế độ từ khóa)."
+      },
+      "withAi": {
+        "other": "Đã điền biểu mẫu bằng AI (khớp {count} ô nhập)."
+      },
+      "withoutAi": {
+        "other": "Đã điền biểu mẫu không dùng AI (khớp {count} ô nhập)."
+      },
+      "error": "Lỗi khi điền: {error}",
+      "injected": {
+        "other": "Đã điền {count} trường vào trang."
+      }
+    },
+    "pagination": {
+      "progress": "Tự động chuyển trang: đang điền trang {page}...",
+      "lostConnection": "Tự động chuyển trang đã dừng: mất kết nối với tiện ích.",
+      "filled": {
+        "other": "Đã điền {filled} ô nhập trên {count} trang."
+      },
+      "corrected": {
+        "other": "Đã sửa {count} câu trả lời bị biểu mẫu từ chối."
+      },
+      "field": "\"{name}\"",
+      "fieldAndMore": {
+        "other": "\"{name}\" (+{count} trường khác)"
+      },
+      "aField": "một trường",
+      "nextButton": "Tiếp",
+      "submitted": "Đã gửi!",
+      "noNext": "Không tìm thấy nút Tiếp / Tiếp tục.",
+      "stillEmpty": "{field} vẫn còn trống.",
+      "check": "Kiểm tra {field}.",
+      "blocked": "Tạm dừng ở trang {page}: {field} là bắt buộc nhưng đang trống. Hãy điền rồi chạy lại.",
+      "nextDisabled": "Tạm dừng ở trang {page}: nút \"{button}\" đang bị vô hiệu hóa. Hãy kiểm tra trang rồi chạy lại.",
+      "validationError": "Tạm dừng ở trang {page}: biểu mẫu báo lỗi \"{error}\".",
+      "validationErrorUnknown": "Tạm dừng ở trang {page}: biểu mẫu báo có lỗi.",
+      "correctionTried": "(đã thử tự động sửa)",
+      "stuck": "Tạm dừng ở trang {page}: đã nhấp \"{button}\" nhưng biểu mẫu không chuyển tiếp.",
+      "maxPages": "Đã dừng ở giới hạn an toàn {max} trang.",
+      "noForm": "Không tìm thấy biểu mẫu trên trang này (hoặc Aullevo không thể chạy ở đây).",
+      "stopped": "Tự động chuyển trang đã dừng: {error}",
+      "unknownError": "lỗi không xác định"
+    }
+  },
+  "tour": {
+    "card": {
+      "progress": "{section} · {current}/{total}",
+      "skip": "Bỏ qua hướng dẫn",
+      "dontShowAgain": "Không hiện lại",
+      "back": "Quay lại",
+      "next": "Tiếp",
+      "done": "Xong"
+    },
+    "shortcuts": {
+      "allActive": "Cả 3 phím tắt đều đang hoạt động trên trình duyệt này.",
+      "notSet": "Chưa được đặt trên trình duyệt này: {list}. Hãy tự đặt trong phần cài đặt phím tắt của Chrome.",
+      "openSettings": "Mở cài đặt phím tắt của Chrome",
+      "toggleSidePanel": "Bật/tắt bảng bên",
+      "fallbackName": "Phím tắt"
+    },
+    "sections": {
+      "autofill": "Tự động điền",
+      "header": "Các nút phía trên",
+      "profiles": "Hồ sơ",
+      "multilink": "Nhiều liên kết",
+      "settings": "Cài đặt"
+    },
+    "autofill": {
+      "detection": {
+        "title": "Phát hiện biểu mẫu",
+        "body": "Aullevo đếm số trường có thể điền trên trang ở tab hiện tại của bạn. Mở một biểu mẫu và con số này sẽ được cập nhật."
+      },
+      "highlight": {
+        "title": "Đánh dấu các trường",
+        "body": "Viền quanh mọi trường Aullevo tìm thấy trên trang, để bạn biết những gì sẽ được điền trước khi điền. Nhấp lần nữa để xóa viền."
+      },
+      "rescan": {
+        "title": "Quét lại",
+        "body": "Một số biểu mẫu thêm trường sau khi trang đã tải, như biểu mẫu nhiều bước hoặc cửa sổ bật lên. Quét lại sẽ đếm lại các trường."
+      },
+      "fill": {
+        "title": "Điền biểu mẫu",
+        "body": "Điền trang bằng hồ sơ đang dùng của bạn. Khi bật điền bằng AI (trong Cài đặt), câu hỏi được khớp với câu trả lời của bạn ngay cả khi cách diễn đạt khác nhau. Khi tắt, các trường được khớp theo từ khóa."
+      },
+      "activeProfile": {
+        "title": "Hồ sơ đang dùng",
+        "body": "Hồ sơ dùng để điền, kèm số trường và tài liệu đang bật. Chuyển hồ sơ hoặc sửa câu trả lời trong tab <b>Hồ sơ</b>."
+      },
+      "shortcuts": {
+        "title": "Phím tắt",
+        "body": "Chrome đặt các phím này khi cài Aullevo, nhưng bỏ qua những phím mà Chrome hoặc tiện ích khác đã dùng. Bạn có thể thay đổi chúng bất cứ lúc nào."
+      }
+    },
+    "header": {
+      "voice": {
+        "title": "Chế độ giọng nói",
+        "body": "Nói chuyện với Aullevo thay vì nhấp chuột. Nút này chuyển bảng điều khiển sang trợ lý giọng nói: hãy nói \"fill this page\", \"fill the email\" hoặc \"fill the first question\", và trợ lý sẽ trả lời thành tiếng. Nhấp lại để quay về giao diện này.",
+        "note": "Tính năng Pro. Cần khóa API ElevenLabs của riêng bạn, thêm trong Voice settings. Lệnh giọng nói hoạt động bằng tiếng Anh và tiếng Tagalog."
+      },
+      "language": {
+        "title": "Ngôn ngữ",
+        "body": "Chọn ngôn ngữ cho toàn bộ Aullevo. Tiếng Anh luôn ở đầu danh sách, nên bạn có thể chuyển lại bất cứ lúc nào."
+      },
+      "theme": {
+        "title": "Giao diện sáng hoặc tối",
+        "body": "Chuyển bảng điều khiển giữa chế độ sáng và tối."
+      },
+      "json": {
+        "title": "Thiết lập nhanh bằng JSON",
+        "intro": "Hồ sơ của bạn dưới dạng JSON. Cách nhanh nhất để thiết lập hồ sơ:",
+        "step1": "Sao chép JSON từ đây.",
+        "step2": "Đưa cho Gemini, Claude hoặc ChatGPT cùng với CV hoặc bất kỳ tài liệu nào khác của bạn.",
+        "step3": "Yêu cầu AI điền các giá trị và giữ nguyên cấu trúc.",
+        "step4": "Dán kết quả trở lại đây và nhấp <b>Nhập</b>."
+      },
+      "fullPage": {
+        "title": "Mở toàn trang",
+        "body": "Mở Aullevo trong một tab trình duyệt với nhiều không gian hơn để sửa hồ sơ. Việc điền vẫn được thực hiện từ bảng bên này."
+      },
+      "close": {
+        "title": "Đóng bảng bên",
+        "body": "Đóng bảng bên. Mở lại bằng <b>Alt+Q</b> (<b>Option+Q</b> trên Mac) hoặc nhấp vào biểu tượng Aullevo trên thanh công cụ."
+      }
+    },
+    "profiles": {
+      "switcher": {
+        "title": "Chuyển hồ sơ",
+        "body1": "Mỗi hồ sơ (Việc làm, Học thuật, Tài chính hoặc hồ sơ của riêng bạn) lưu một bộ câu trả lời riêng. Chọn hồ sơ bạn muốn sửa và dùng để điền.",
+        "body2": "Mở danh sách để xem hồ sơ nào đang BẬT hoặc TẮT, và tạo hồ sơ mới ở cuối danh sách.",
+        "note": "Gói Free: tối đa 2 hồ sơ được BẬT cùng lúc."
+      },
+      "config": {
+        "title": "Tên và công tắc bật/tắt",
+        "body": "Đổi tên hồ sơ tại đây. <b>HỒ SƠ BẬT</b> bật hoặc tắt toàn bộ hồ sơ. Khi tắt, hồ sơ không được dùng để điền."
+      },
+      "identity": {
+        "title": "Danh tính & liên hệ",
+        "body": "Tên, email, số điện thoại và địa chỉ của bạn. Nhấp vào tiêu đề của bất kỳ phần nào để thu gọn hoặc mở rộng. Mỗi trường có ba nút điều khiển nhỏ, được giới thiệu ngay sau đây."
+      },
+      "fieldContext": {
+        "title": "Gợi ý ngữ cảnh AI",
+        "body": "Nút ✨ thêm gợi ý cho AI biết ý nghĩa của trường này, như \"Tên pháp lý trên hộ chiếu\". Gợi ý hữu ích khi câu hỏi của biểu mẫu diễn đạt không rõ ràng. Dấu chấm cho biết đã có gợi ý."
+      },
+      "fieldPrivacy": {
+        "title": "An toàn AI hoặc Nhạy cảm",
+        "safe": "<b>An toàn AI</b>: giá trị được chia sẻ với AI để AI chọn đúng đáp án trong danh sách thả xuống và câu hỏi trắc nghiệm.",
+        "sensitive": "<b>Nhạy cảm</b>: AI chỉ thấy tên và gợi ý của trường, không bao giờ thấy giá trị. Aullevo vẫn điền giá trị ngay trên thiết bị của bạn.",
+        "toggle": "Nhấp vào để chuyển đổi."
+      },
+      "fieldToggle": {
+        "title": "Bật hoặc tắt một trường",
+        "body": "Chuyển một trường sang TẮT để bỏ qua khi điền, mà không xóa nội dung bạn đã nhập."
+      },
+      "documents": {
+        "title": "Đính kèm tài liệu",
+        "body": "Chọn loại tài liệu, rồi tải lên CV, thư xin việc, giấy tờ tùy thân và nhiều loại khác. Khi biểu mẫu có câu hỏi tải tệp lên, Aullevo sẽ đính kèm các tài liệu đang BẬT của bạn.",
+        "note": "Đính kèm tài liệu vào biểu mẫu là tính năng Pro."
+      },
+      "attributes": {
+        "title": "Trường riêng của hồ sơ",
+        "body": "Các trường thuộc về loại hồ sơ này. Hồ sơ Việc làm có tiêu đề, LinkedIn, kỹ năng và học vấn. Học thuật, Y tế và các loại khác có trường riêng."
+      },
+      "customFields": {
+        "title": "Thêm trường của riêng bạn",
+        "body": "Dành cho những gì các trường tiêu chuẩn không có, như \"Mức lương mong muốn\" hoặc \"Vì sao bạn muốn công việc này?\". Nhập nhãn và giá trị, rồi nhấp <b>+</b>. Dùng đúng câu chữ của câu hỏi làm nhãn sẽ cho kết quả tốt."
+      },
+      "save": {
+        "title": "Lưu",
+        "body": "Thay đổi được lưu tự động khi bạn nhập. Nút này lưu ngay lập tức, tiện dùng ngay trước khi bạn đóng bảng bên."
+      }
+    },
+    "multilink": {
+      "addLink": {
+        "title": "Thêm liên kết biểu mẫu",
+        "body": "Dán liên kết đầy đủ tới biểu mẫu hoặc đơn ứng tuyển (bắt đầu bằng https://) rồi nhấp <b>+</b>. Thêm bao nhiêu tùy thích."
+      },
+      "savedLinks": {
+        "title": "Hàng đợi liên kết của bạn",
+        "body": "Mọi liên kết bạn thêm đều hiện ở đây. Đánh dấu chọn một liên kết để đưa vào lượt hàng loạt tiếp theo, hoặc bỏ chọn để bỏ qua. Biểu tượng mũi tên mở liên kết, biểu tượng thùng rác xóa liên kết."
+      },
+      "batchRun": {
+        "title": "Điền tất cả cùng lúc",
+        "body1": "Lần lượt mở từng liên kết đã chọn trong tab nền và điền bằng hồ sơ đang dùng của bạn. Tiến trình hiển thị ở đầu bảng bên.",
+        "note": "Phím tắt: Alt+Shift+B (Option+Shift+B trên Mac)."
+      }
+    },
+    "settings": {
+      "account": {
+        "title": "Tài khoản của bạn",
+        "body": "Kết nối tài khoản Aullevo Web để gói của bạn (Free hoặc Pro) được áp dụng tại đây. Hồ sơ của bạn vẫn được mã hóa trên thiết bị này và không bị tải lên."
+      },
+      "aiMode": {
+        "title": "Điền thông minh bằng AI hoặc Điền tiêu chuẩn",
+        "standard": "<b>Điền tiêu chuẩn</b> khớp các trường theo tên, không dùng AI.",
+        "smart": "<b>Điền thông minh bằng AI</b> hiểu các câu hỏi được diễn đạt khác nhau và chọn đáp án trong danh sách thả xuống và câu hỏi trắc nghiệm."
+      },
+      "aiEngine": {
+        "title": "Nhà cung cấp AI, mô hình và khóa API"
+      },
+      "memories": {
+        "title": "Ghi nhớ AI",
+        "body": "Những thông tin ngắn AI có thể dùng cho câu hỏi mở, như \"Phong cách làm việc: chỉ làm từ xa\". Chúng được gửi tới nhà cung cấp AI bạn đã chọn và không được mã hóa, vì vậy đừng bao giờ thêm mật khẩu hay số giấy tờ tùy thân."
+      },
+      "autoPaginate": {},
+      "floatingIcon": {
+        "title": "Nút nổi",
+        "body": "Một thẻ Aullevo nhỏ ở cạnh trang web để truy cập nhanh. Hãy tắt nếu nó gây vướng."
+      },
+      "typingSpeed": {
+        "title": "Tốc độ gõ",
+        "body": "Tốc độ Aullevo gõ vào các trường. <b>Tự nhiên</b> trông giống người thật đang gõ, còn <b>Tức thì</b> là nhanh nhất. Tốc độ chậm và tùy chỉnh là tính năng Pro."
+      },
+      "replayTour": {
+        "title": "Xem lại hướng dẫn này",
+        "body": "Quên điều gì đó? Nhấp <b>Xem lại</b> để đi qua toàn bộ hướng dẫn này một lần nữa."
+      },
+      "deviceData": {
+        "title": "Dữ liệu trên thiết bị này",
+        "body": "Mỗi tài khoản có kho mã hóa riêng trong trình duyệt này. Hãy xóa dữ liệu của những tài khoản bạn không còn dùng."
+      }
+    }
+  },
+  "vault": {
+    "loading": "Đang tải…",
+    "account": {
+      "signedInAs": "Đã đăng nhập với tên <b>{account}</b>",
+      "notSignedIn": "Chưa đăng nhập: hồ sơ cục bộ trên thiết bị này",
+      "fallbackName": "tài khoản của bạn"
+    },
+    "errors": {
+      "createFailed": "Không thể tạo kho. Vui lòng thử lại.",
+      "wrongPassphrase": "Sai cụm mật khẩu.",
+      "wrongClaimPassphrase": "Sai cụm mật khẩu của các hồ sơ đó."
+    }
+  }
+}

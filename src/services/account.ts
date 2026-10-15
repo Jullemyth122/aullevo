@@ -10,16 +10,20 @@
 //
 // No Firebase SDK in the extension: no remote scripts (MV3-safe), no OAuth client setup.
 
-import { ACCOUNT_STORAGE_KEY, type AccountInfo } from './tier';
+import { ACCOUNT_STORAGE_KEY, getStoredAccount, type AccountInfo } from './tier';
+import { VAULT_SESSION_KEY } from './vault';
+import { clearRewards } from './rewards';
 
-export const AULLEVO_WEB_URL = 'https://aullevo-web.vercel.app';
+export const AULLEVO_WEB_URL = 'https://aullevo.com';
+// The old address (and www) still hand over sign-ins: links and bookmarks from before the move keep working
+const LIVE_WEB_ORIGINS = [AULLEVO_WEB_URL, 'https://www.aullevo.com', 'https://aullevo-web.vercel.app'];
 export const AULLEVO_WEB_LOGIN_URL = `${AULLEVO_WEB_URL}/login?source=extension`;
 
 // Origins allowed to hand a sign-in token to the extension.
 // Local aullevo-web dev servers are only trusted in `npm run build:dev` builds, never in release.
 export const TRUSTED_WEB_ORIGINS = import.meta.env.MODE === 'development'
-    ? [AULLEVO_WEB_URL, 'http://localhost:5173', 'http://127.0.0.1:5173']
-    : [AULLEVO_WEB_URL];
+    ? [...LIVE_WEB_ORIGINS, 'http://localhost:5173', 'http://127.0.0.1:5173']
+    : LIVE_WEB_ORIGINS;
 
 const FIREBASE_PROJECT_ID: string = (import.meta.env.VITE_FIREBASE_PROJECT_ID ?? 'aullevo-data').trim();
 
@@ -81,10 +85,18 @@ export async function verifyAndSyncAccount(idToken: string): Promise<AccountInfo
         proExpiresAt: readString(fields.proExpiresAt) || null,
         syncedAt: Date.now()
     };
+    // A different account now owns this browser's Aullevo data: lock whatever was unlocked
+    // (each account has its own vault, see owner.ts)
+    const previous = await getStoredAccount();
+    if (previous?.uid !== uid) await chrome.storage.session.remove(VAULT_SESSION_KEY);
+
     await chrome.storage.local.set({ [ACCOUNT_STORAGE_KEY]: account });
     return account;
 }
 
+/** Disconnect: forget the account locally and lock its vault (its data stays on this device, encrypted). */
 export async function clearAccount(): Promise<void> {
+    await chrome.storage.session.remove(VAULT_SESSION_KEY);
     await chrome.storage.local.remove(ACCOUNT_STORAGE_KEY);
+    await clearRewards(); // the ad-unlock token and copy belong to that account
 }

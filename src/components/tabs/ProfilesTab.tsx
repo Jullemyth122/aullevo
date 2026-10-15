@@ -7,6 +7,10 @@ import { DomainAttributesCard } from './profiles/DomainAttributesCard';
 import { CustomFieldsCard } from './profiles/CustomFieldCard';
 import { useState } from 'react';
 import { FilesCard } from './profiles/FilesCard';
+import { useT } from '../../i18n';
+import { usePlanRewards } from '../../hooks/useRewards';
+import { PlanUnlock } from '../UnlockCard';
+import { countActiveProfiles, pausedProfileKeys, FREE_MAX_ACTIVE_PROFILES, UNLOCKED_MAX_ACTIVE_PROFILES } from '../../services/tier';
 
 interface ProfilesTabProps {
     profiles: Record<string, UserData>;
@@ -55,6 +59,8 @@ export function ProfilesTab({
     onRemoveCustomField,
     onSaveProfile
 }: ProfilesTabProps) {
+    const { t } = useT();
+    const plan = usePlanRewards();
     const [isSaved, setIsSaved] = useState(false);
 
     const handleSaveClick = () => {
@@ -75,6 +81,13 @@ export function ProfilesTab({
                 onCreateProfile={onCreateProfile}
             />
 
+            {/* Free plan: a 4th active profile needs a short ad; profiles ON beyond the limit are paused, not deleted */}
+            {!plan.isPro && (countActiveProfiles(profiles) >= FREE_MAX_ACTIVE_PROFILES || plan.access.profiles) && (
+                <PlanUnlock feature="profiles" reason={pausedProfileKeys(profiles, plan.access.profileLimit).length > 0
+                    ? t('rewards.status.profilesPausedSome', { count: pausedProfileKeys(profiles, plan.access.profileLimit).length, max: plan.access.profileLimit })
+                    : t('rewards.status.profilesLocked', { max: FREE_MAX_ACTIVE_PROFILES, unlocked: UNLOCKED_MAX_ACTIVE_PROFILES })} />
+            )}
+
             <ProfileConfigCard
                 currentProfile={currentProfile}
                 selectedProfileType={selectedProfileType}
@@ -85,8 +98,6 @@ export function ProfilesTab({
                 currentProfile={currentProfile}
                 onUpdateField={onUpdateField}
                 onToggleField={onToggleField}
-                onUpdateCustomField={onUpdateCustomField}
-                onToggleCustomField={onToggleCustomField}
             />
 
             <FilesCard currentProfile={currentProfile} onUpdateProfile={onUpdateProfile} />
@@ -98,13 +109,10 @@ export function ProfilesTab({
                 onToggleField={onToggleField}
                 onUpdateJobSkills={onUpdateJobSkills}
                 onUpdateMedicalAllergies={onUpdateMedicalAllergies}
-                onUpdateCustomField={onUpdateCustomField}
-                onToggleCustomField={onToggleCustomField}
             />
 
             <CustomFieldsCard
                 currentProfile={currentProfile}
-                selectedProfileType={selectedProfileType}
                 newFieldLabel={newFieldLabel}
                 onChangeNewFieldLabel={onChangeNewFieldLabel}
                 newFieldValue={newFieldValue}
@@ -119,9 +127,10 @@ export function ProfilesTab({
             <button
                 className={`av-save-btn ${isSaved ? 'av-save-btn--saved' : ''}`}
                 onClick={handleSaveClick}
+                data-tour="save-profile"
             >
                 <Save size={14} />
-                <span>{isSaved ? 'Saved ✓' : `Save ${selectedProfileType.toUpperCase()} Profile`}</span>
+                <span>{isSaved ? t('profiles.save.saved') : t('profiles.save.button', { type: selectedProfileType.toUpperCase() })}</span>
             </button>
         </>
     );

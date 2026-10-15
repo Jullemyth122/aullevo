@@ -1,0 +1,687 @@
+{
+  "autofill": {
+    "detection": {
+      "title": "양식 감지",
+      "sub": "활성 탭의 필드",
+      "highlightTitle": "페이지의 필드 검사 및 강조 표시",
+      "clear": "지우기",
+      "highlight": "강조 표시",
+      "rescanTitle": "페이지 다시 스캔",
+      "rescan": "다시 스캔"
+    },
+    "fill": {
+      "injecting": "입력 중...",
+      "disabled": "{type} 비활성",
+      "withAi": "AI로 양식 채우기({type})",
+      "standard": "양식 채우기({type})",
+      "autoPaginate": "자동 페이지 넘김 켜짐: 모든 페이지를 채운 뒤 제출해요"
+    },
+    "activeProfile": {
+      "title": "활성 프로필",
+      "summary": "{fields} • {docs} 준비됨",
+      "fieldCount": {
+        "other": "필드 {count}개"
+      },
+      "docCount": {
+        "other": "문서 {count}개"
+      },
+      "ready": "준비됨",
+      "disabled": "비활성"
+    },
+    "shortcuts": {
+      "title": "키보드 단축키",
+      "toggleSidePanel": "사이드 패널 열기/닫기",
+      "formFill": "AI / 키워드 양식 채우기",
+      "batchFill": "멀티 링크 일괄 채우기"
+    }
+  },
+  "content": {
+    "openSidebar": "Aullevo 사이드 패널 열기",
+    "filled": "입력됨",
+    "file": "파일: {name}",
+    "files": {
+      "other": "파일 {count}개 첨부됨"
+    },
+    "matched": "일치: {name}",
+    "ranked": "순위 지정: {value}",
+    "ai": "[AI] {text}",
+    "aiGenerated": "[AI] 생성됨",
+    "fixed": "수정됨: {value}"
+  },
+  "header": {
+    "versionLine": "v{version} • 자동 입력",
+    "lightTheme": "라이트 테마",
+    "darkTheme": "다크 테마",
+    "jsonConfig": "JSON 구성",
+    "openFullPage": "전체 페이지로 열기",
+    "closeSidePanel": "사이드 패널 닫기",
+    "footer": {
+      "engine": "Aullevo 자동 입력 엔진",
+      "ready": "준비됨"
+    }
+  },
+  "json": {
+    "title": "JSON 구성",
+    "badge": {
+      "fields": {
+        "other": "✓ 필드 {count}개"
+      },
+      "invalid": "잘못된 JSON"
+    },
+    "actions": {
+      "format": "JSON 서식 정리",
+      "fullscreen": "전체 화면",
+      "exitFullscreen": "전체 화면 종료",
+      "close": "닫기",
+      "download": "다운로드",
+      "copy": "JSON 복사",
+      "copied": "복사됨",
+      "upload": "파일 업로드",
+      "import": "가져오기"
+    },
+    "quota": {
+      "downloadPro": "다운로드(내보내기)는 Pro 기능이에요."
+    },
+    "errors": {
+      "noFields": "입력한 JSON에서 유효한 필드를 찾지 못했어요.",
+      "invalidFormat": "잘못된 JSON 형식: {error}"
+    }
+  },
+  "language": {
+    "title": "언어",
+    "button": "언어: {name}",
+    "search": "언어 검색",
+    "auto": "자동: {name}",
+    "autoHint": "브라우저 언어를 따라요",
+    "backToEnglish": "영어로 돌아가기",
+    "changed": "언어가 {name}(으)로 변경되었어요.",
+    "switchBack": "{name}(으)로 되돌리기",
+    "keep": "유지",
+    "noResults": "언어를 찾을 수 없어요",
+    "settingsHint": "가이드 투어를 포함해 Aullevo의 모든 화면 언어가 바뀌어요."
+  },
+  "manifest": {
+    "appName": "Aullevo - AI 양식 자동 입력 및 입사 지원서 작성 도우미",
+    "appDescription": "입사 지원서, 설문조사 등 모든 웹 양식을 채워 주는 AI 도구. 프로필 저장, 이력서 업로드, 스마트 자동 입력을 지원합니다.",
+    "actionTitle": "Aullevo 사이드 패널 열기",
+    "commandTogglePanel": "Aullevo 사이드 패널 열기/닫기",
+    "commandFill": "페이지에서 AI 또는 키워드 양식 자동 입력 실행",
+    "commandBatchFill": "멀티 링크 일괄 양식 자동 입력 실행"
+  },
+  "multilink": {
+    "batch": {
+      "title": "일괄 자동 입력 대기열",
+      "activeCount": "{total}개 중 {enabled}개 활성",
+      "description": "활성 <b>{type}</b> 프로필로 여러 탭에서 양식을 열고 채우는 작업을 자동화해요.",
+      "running": "일괄 자동 입력 진행 중...",
+      "start": {
+        "other": "양식 {count}개 일괄 채우기"
+      }
+    },
+    "add": {
+      "title": "양식 / 채용 공고 링크 추가"
+    },
+    "saved": {
+      "title": "저장된 링크({count})",
+      "clearAll": "모두 지우기",
+      "empty": "아직 추가된 링크가 없어요. 위에 양식 URL을 붙여넣어 시작하세요.",
+      "open": "링크 열기",
+      "remove": "링크 삭제"
+    }
+  },
+  "nav": {
+    "autofill": "자동 입력",
+    "profiles": "프로필({count})",
+    "multiLink": "멀티 링크",
+    "settings": "설정"
+  },
+  "profiles": {
+    "types": {
+      "job": "구직",
+      "medical": "의료",
+      "government": "행정",
+      "survey": "설문",
+      "academic": "학업",
+      "financial": "금융",
+      "custom": "사용자 지정"
+    },
+    "badges": {
+      "on": "켜짐",
+      "off": "꺼짐",
+      "disabled": "비활성",
+      "sensitive": "민감",
+      "aiSafe": "AI 공유"
+    },
+    "save": {
+      "button": "{type} 프로필 저장",
+      "saved": "저장됨 ✓"
+    },
+    "dropdown": {
+      "newProfilePlaceholder": "새 프로필 이름...",
+      "add": "추가"
+    },
+    "config": {
+      "title": "프로필 구성",
+      "on": "프로필 켜짐",
+      "off": "프로필 꺼짐",
+      "activeTooltip": "{type} 프로필이 활성 상태예요",
+      "disabledTooltip": "{type} 프로필이 비활성 상태예요",
+      "namePlaceholder": "프로필 이름"
+    },
+    "identity": {
+      "title": "신원 및 연락처",
+      "firstName": "이름",
+      "lastName": "성",
+      "email": "이메일 주소",
+      "phone": "전화번호",
+      "address": "거주지 주소"
+    },
+    "attributes": {
+      "title": "{type} 항목",
+      "customHint": "아래에 직접 필드를 추가하거나 JSON으로 가져오세요.",
+      "job": {
+        "headline": "헤드라인 / 직함",
+        "linkedin": "LinkedIn",
+        "github": "GitHub",
+        "portfolio": "포트폴리오",
+        "skills": "기술",
+        "education": "학력 / 학위",
+        "certifications": "자격증"
+      },
+      "medical": {
+        "bloodType": "혈액형",
+        "allergies": "알레르기",
+        "emergencyContact": "비상 연락처",
+        "insuranceProvider": "보험사"
+      },
+      "government": {
+        "nationalId": "주민등록번호 / SSN",
+        "citizenship": "국적",
+        "passport": "여권 번호",
+        "driversLicense": "운전면허증"
+      },
+      "survey": {
+        "ageRange": "연령대",
+        "income": "소득",
+        "education": "학력",
+        "employment": "고용 상태"
+      },
+      "academic": {
+        "institution": "학교",
+        "major": "전공 / 연구 분야",
+        "gpa": "GPA",
+        "gradYear": "졸업 연도",
+        "testScores": "시험 점수"
+      },
+      "financial": {
+        "billingAddress": "청구지 주소",
+        "payment": "결제 수단",
+        "cardholder": "카드 소유자"
+      }
+    },
+    "field": {
+      "sensitiveTooltip": "민감: 값이 AI에 공개되지 않아요(영지식)",
+      "aiSafeTooltip": "AI 공유: 선택지를 똑똑하게 고르도록 값을 AI와 공유해요"
+    },
+    "context": {
+      "buttonTitle": "{label}의 AI 컨텍스트",
+      "title": "AI 컨텍스트: {label}",
+      "placeholder": "AI를 위한 힌트(예: '여권상 법적 이름')",
+      "hint": "AI는 이 힌트로 웹사이트의 모호한 양식 필드를 파악해요."
+    },
+    "custom": {
+      "title": "사용자 지정 필드",
+      "labelPlaceholder": "필드 레이블",
+      "valuePlaceholder": "필드 값",
+      "sensitiveTooltip": "민감: 값이 AI에 공개되지 않아요",
+      "aiSafeTooltip": "AI 공유: 값을 AI와 공유해요",
+      "enabledTooltip": "필드 활성",
+      "disabledTooltip": "필드 비활성",
+      "delete": "필드 삭제",
+      "pagination": {
+        "other": "{page}/{total} 페이지(항목 {count}개)"
+      },
+      "newLabelPlaceholder": "레이블",
+      "newValuePlaceholder": "값",
+      "add": "사용자 지정 필드 추가"
+    },
+    "documents": {
+      "title": "첨부 문서",
+      "labelPlaceholder": "문서 레이블",
+      "labelTooltip": "클릭하여 문서 레이블 편집",
+      "remove": "파일 삭제",
+      "pagination": "{page}/{total} 페이지",
+      "categories": {
+        "resume": "이력서 / CV",
+        "coverLetter": "자기소개서",
+        "identity": "신분증",
+        "academic": "성적 증명서",
+        "portfolio": "포트폴리오",
+        "other": "기타 문서"
+      },
+      "upload": {
+        "resume": "이력서 업로드",
+        "coverLetter": "자기소개서 업로드",
+        "identity": "신분증 업로드",
+        "academic": "성적 증명서 업로드",
+        "portfolio": "포트폴리오 업로드",
+        "other": "문서 업로드"
+      },
+      "size": {
+        "bytes": "{size} B",
+        "kilobytes": "{size} KB",
+        "megabytes": "{size} MB"
+      }
+    }
+  },
+  "settings": {
+    "account": {
+      "title": "계정",
+      "proUntil": "Pro({date}까지)",
+      "proLifetime": "Pro · 평생",
+      "disconnect": "계정 연결 해제",
+      "waiting": "로그인 기다리는 중…",
+      "connect": "Aullevo Web으로 연결",
+      "renew": "Pro 만료됨 · 갱신",
+      "upgrade": "Pro로 업그레이드"
+    },
+    "theme": {
+      "title": "테마",
+      "dark": "다크 테마",
+      "description": "다크 슬레이트와 라이트 테마 간에 전환해요"
+    },
+    "mode": {
+      "title": "자동 입력 엔진 모드",
+      "aiActive": "AI 스마트 입력(활성)",
+      "standard": "표준 입력(AI 없음)",
+      "aiDescription": "AI 추론으로 질문을 해석하고 복잡한 필드를 일치시켜요",
+      "standardDescription": "AI 호출 없이 프로필 항목을 직접 일치시켜요",
+      "toggle": "AI 입력 모드 전환"
+    },
+    "ai": {
+      "title": "AI 엔진",
+      "unlimited": "무제한 이용",
+      "keyRequired": "API 키 필요",
+      "freeUsage": "Free: 이번 주 {used}/{limit}회",
+      "privacy": "<b>개인정보 보호:</b> 민감으로 표시된 필드는 레이블만 전송되고 값은 AI에 절대 전송되지 않아요. AI 공유 필드의 값과 양식의 질문은 {provider}로 전송돼요.",
+      "provider": "AI 제공업체",
+      "customProvider": "사용자 지정(OpenAI 호환)",
+      "baseUrl": "서버 URL",
+      "customHint": "OpenRouter, Groq, Mistral, Ollama, LM Studio 등 OpenAI 채팅 API를 지원하는 모든 서버에서 작동해요. 로컬 서버는 키가 필요 없어요.",
+      "model": "AI 모델",
+      "modelOption": "{name}({description})",
+      "models": {
+        "fastest": "가장 빠르고 매우 저렴",
+        "balanced": "균형 잡힌 추론",
+        "capable": "빠르고 유능함",
+        "smartest": "최고 수준의 지능",
+        "legacy": "이전 세대 고속 모델"
+      },
+      "otherModel": "다른 모델(ID 입력)",
+      "modelIdPlaceholder": "정확한 모델 ID(예: {example})",
+      "apiKey": "{provider} API 키",
+      "getKey": "API 키 받기",
+      "keyPlaceholder": "{provider} API 키 붙여넣기",
+      "hideKey": "키 숨기기",
+      "showKey": "키 표시",
+      "addKeyHint": "AI 스마트 입력을 사용하려면 {provider} API 키를 추가하세요.",
+      "proHint": "Pro: AI 입력 무제한. 키는 이 브라우저에만 저장돼요.",
+      "freeHint": "Free 요금제: 주당 AI 입력 {limit}회. Pro로 업그레이드하면 무제한이에요."
+    },
+    "paginate": {
+      "title": "자동 페이지 넘김",
+      "toggleTitle": "여러 페이지 양식 채우기",
+      "description": "각 페이지를 채우고 다음/계속을 클릭한 뒤 마지막에 제출을 눌러요. 양식이 거부한 답변은 수정하고, 수정할 수 없으면 일시 중지해요.",
+      "toggle": "자동 페이지 넘김 전환",
+      "proFeature": "Pro 기능",
+      "upgrade": "자동 페이지 넘김을 사용하려면 Pro로 업그레이드하세요"
+    },
+    "floating": {
+      "title": "웹페이지 플로팅 아이콘",
+      "toggleTitle": "플로팅 버튼 표시",
+      "description": "웹페이지 가장자리에 빠른 실행용 Aullevo 탭을 표시해요",
+      "toggle": "웹페이지 플로팅 버튼 전환"
+    },
+    "typing": {
+      "title": "사람 같은 입력 속도",
+      "instant": "즉시({ms}ms)",
+      "natural": "자연스럽게({ms}ms)",
+      "slow": "느리게({ms}ms)",
+      "custom": "사용자 지정({ms}ms)",
+      "naturalFree": "자연스럽게({ms}ms) · Free 요금제",
+      "description": "실제 키 입력을 기대하는 사이트를 위해 사람 속도로 한 글자씩 입력해요.",
+      "proFeature": "Pro 기능",
+      "customDelay": "사용자 지정 지연:",
+      "customProFeature": "사용자 지정 지연은 Pro 기능이에요",
+      "unitMs": "ms"
+    },
+    "tour": {
+      "title": "가이드 투어",
+      "toggleTitle": "안내 다시 보기",
+      "description": "모든 탭을 한 단계씩 다시 안내해요",
+      "replay": "다시 보기"
+    },
+    "security": {
+      "title": "로컬 암호화"
+    },
+    "memories": {
+      "title": "AI 메모리",
+      "count": "({enabled}/{total} 켜짐)",
+      "descriptionAiOn": "AI가 주관식 질문에 답할 때 쓸 수 있는 내 정보예요(예: \"근무 방식: 원격만\"). 켜진 메모리는 {provider}로 전송되고 이 브라우저에 암호화되지 않은 채 저장되므로 비밀번호나 신분증 번호는 추가하지 마세요.",
+      "descriptionAiOff": "AI가 주관식 질문에 답할 때 쓸 수 있는 내 정보예요(예: \"근무 방식: 원격만\"). AI 스마트 입력이 켜져 있을 때만 사용돼요. 켜진 메모리는 {provider}로 전송되고 이 브라우저에 암호화되지 않은 채 저장되므로 비밀번호나 신분증 번호는 추가하지 마세요.",
+      "titlePlaceholder": "제목",
+      "contentPlaceholder": "AI가 알아야 할 내용",
+      "enabledTitle": "메모리가 AI로 전송돼요",
+      "disabledTitle": "메모리가 사용되지 않아요",
+      "on": "켜짐",
+      "off": "꺼짐",
+      "delete": "메모리 삭제",
+      "newTitlePlaceholder": "제목(예: 근무 방식)",
+      "newContentPlaceholder": "내용(예: 완전 원격 근무 선호, 계약직 가능)",
+      "add": "메모리 추가"
+    },
+    "deviceData": {
+      "title": "이 기기의 데이터",
+      "total": "총 {size}",
+      "description": "계정마다 이곳에 별도의 암호화된 보관함이 있어요. 다른 계정의 프로필, 문서, API 키, 메모리, 링크는 서로 볼 수 없어요.",
+      "empty": "아직 저장된 데이터가 없어요.",
+      "localOwner": "로그인 안 함(로컬 프로필)",
+      "anotherAccount": "다른 계정",
+      "inUse": "{size} · 현재 사용 중",
+      "deleteTitle": "이 기기에서 이 계정의 데이터 삭제",
+      "delete": "삭제",
+      "confirmDelete": "이 기기에서 \"{name}\"의 Aullevo 데이터를 삭제할까요?\n\n암호화된 프로필, 문서, API 키, AI 메모리, 링크 대기열이 영구적으로 삭제돼요. 이 작업은 되돌릴 수 없어요.",
+      "bytes": "{size} B",
+      "kilobytes": "{size} KB",
+      "megabytes": "{size} MB"
+    }
+  },
+  "status": {
+    "plan": {
+      "profileLimit": "Free 요금제에서는 프로필을 {max}개까지 활성화할 수 있어요. 추가 프로필을 끄거나 Pro로 업그레이드하세요.",
+      "activeLimit": "Free 요금제에서는 프로필을 {max}개까지 활성화할 수 있어요. 하나를 끄거나 Pro로 업그레이드하세요.",
+      "createdOff": "프로필이 꺼진 상태로 생성되었어요. Free 요금제에서는 프로필을 {max}개까지 활성화할 수 있어요. 하나를 끄거나 Pro로 업그레이드하세요.",
+      "autoPaginatePro": "자동 페이지 넘김은 Pro 기능이에요. 여러 페이지 양식을 채우려면 Pro로 업그레이드하세요.",
+      "jsonImportLimit": "이번 2주 동안의 무료 JSON 가져오기 {limit}회를 모두 사용했어요. {date}에 초기화되며, Pro로 업그레이드하면 무제한으로 가져올 수 있어요.",
+      "documentsSkipped": {
+        "other": "문서 {count}개가 첨부되지 않았어요. 양식에 업로드하는 기능은 Pro 기능이에요."
+      }
+    },
+    "batch": {
+      "starting": {
+        "other": "양식 {count}개의 일괄 채우기를 시작하는 중..."
+      },
+      "progress": "{total}개 중 {current}번째 채우는 중: {host}",
+      "progressNoHost": "{total}개 중 {current}번째 채우는 중...",
+      "complete": {
+        "other": "양식 {count}개의 일괄 채우기를 완료했어요!"
+      }
+    },
+    "save": {
+      "success": "{type} 프로필을 저장했어요!",
+      "failed": "저장 실패: {error}",
+      "noProfile": "선택된 프로필이 없어요",
+      "unknownError": "저장 실패"
+    },
+    "profile": {
+      "nameExists": "같은 이름의 프로필이 이미 있어요!",
+      "disabled": "{type}이(가) 비활성 상태예요. 자동 입력하려면 켜세요.",
+      "defaultType": "프로필",
+      "imported": {
+        "other": "{type}에 필드 {count}개를 가져왔어요!"
+      }
+    },
+    "highlight": {
+      "noActiveTab": "활성 탭을 찾을 수 없어요.",
+      "refreshToConnect": "강조 표시를 연결하려면 페이지를 새로고침하세요.",
+      "on": {
+        "other": "페이지의 필드 {count}개를 강조 표시했어요!"
+      },
+      "cleared": "강조 표시를 지웠어요."
+    },
+    "fill": {
+      "injectingAi": "AI로 필드 입력 중({type})...",
+      "injecting": "필드 입력 중({type})...",
+      "noTab": "활성 탭에 연결할 수 없었어요.",
+      "refreshToConnect": "자동 입력을 연결하려면 탭을 새로고침하세요.",
+      "cannotConnect": "페이지에 연결할 수 없었어요. 탭을 새로고침하세요.",
+      "aiPartlySkipped": {
+        "other": "입력란 {count}개를 채웠어요(AI 일부 건너뜀)."
+      },
+      "keywordMode": {
+        "other": "입력란 {count}개를 채웠어요(키워드 모드)."
+      },
+      "withAi": {
+        "other": "AI로 양식을 채웠어요(입력란 {count}개 일치)."
+      },
+      "withoutAi": {
+        "other": "AI 없이 양식을 채웠어요(입력란 {count}개 일치)."
+      },
+      "error": "입력 오류: {error}",
+      "injected": {
+        "other": "페이지에 필드 {count}개를 입력했어요."
+      }
+    },
+    "pagination": {
+      "progress": "자동 페이지 넘김: {page}페이지 채우는 중...",
+      "lostConnection": "자동 페이지 넘김 중지됨: 확장 프로그램과의 연결이 끊겼어요.",
+      "filled": {
+        "other": "{count}페이지에 걸쳐 입력란 {filled}개를 채웠어요."
+      },
+      "corrected": {
+        "other": "양식이 거부한 답변 {count}개를 수정했어요."
+      },
+      "field": "\"{name}\"",
+      "fieldAndMore": {
+        "other": "\"{name}\"(외 {count}개)"
+      },
+      "aField": "필드 하나",
+      "nextButton": "다음",
+      "submitted": "제출했어요!",
+      "noNext": "다음/계속 버튼을 찾을 수 없어요.",
+      "stillEmpty": "{field}이(가) 아직 비어 있어요.",
+      "check": "{field}을(를) 확인하세요.",
+      "blocked": "{page}페이지에서 일시 중지됨: {field}은(는) 필수인데 비어 있어요. 채운 뒤 다시 실행하세요.",
+      "nextDisabled": "{page}페이지에서 일시 중지됨: \"{button}\" 버튼이 비활성화되어 있어요. 페이지를 확인한 뒤 다시 실행하세요.",
+      "validationError": "{page}페이지에서 일시 중지됨: 양식에서 \"{error}\" 오류를 표시했어요.",
+      "validationErrorUnknown": "{page}페이지에서 일시 중지됨: 양식에서 오류를 표시했어요.",
+      "correctionTried": "(자동 수정을 시도했어요)",
+      "stuck": "{page}페이지에서 일시 중지됨: \"{button}\"을(를) 클릭했지만 양식이 넘어가지 않았어요.",
+      "maxPages": "안전 한도인 {max}페이지에서 중지했어요.",
+      "noForm": "이 페이지에서 양식을 찾을 수 없어요(또는 여기서는 Aullevo를 실행할 수 없어요).",
+      "stopped": "자동 페이지 넘김 중지됨: {error}",
+      "unknownError": "알 수 없는 오류"
+    }
+  },
+  "tour": {
+    "card": {
+      "progress": "{section} · {current}/{total}",
+      "skip": "투어 건너뛰기",
+      "dontShowAgain": "다시 보지 않기",
+      "back": "이전",
+      "next": "다음",
+      "done": "완료"
+    },
+    "shortcuts": {
+      "allActive": "단축키 3개가 모두 이 브라우저에서 활성화되어 있어요.",
+      "notSet": "이 브라우저에서 설정되지 않음: {list}. Chrome 단축키 설정에서 직접 설정하세요.",
+      "openSettings": "Chrome 단축키 설정 열기",
+      "toggleSidePanel": "사이드 패널 열기/닫기",
+      "fallbackName": "단축키"
+    },
+    "sections": {
+      "autofill": "자동 입력",
+      "header": "상단 버튼",
+      "profiles": "프로필",
+      "multilink": "멀티 링크",
+      "settings": "설정"
+    },
+    "autofill": {
+      "detection": {
+        "title": "양식 감지",
+        "body": "Aullevo가 현재 탭의 페이지에서 채울 수 있는 필드를 세요. 양식을 열면 이 숫자가 업데이트돼요."
+      },
+      "highlight": {
+        "title": "필드 강조 표시",
+        "body": "Aullevo가 페이지에서 찾은 모든 필드에 테두리를 표시해서 채우기 전에 무엇이 채워질지 확인할 수 있어요. 다시 클릭하면 테두리가 지워져요."
+      },
+      "rescan": {
+        "title": "다시 스캔",
+        "body": "여러 단계로 된 양식이나 팝업처럼 페이지가 로드된 뒤에 필드가 추가되는 양식도 있어요. 다시 스캔하면 필드를 다시 세요."
+      },
+      "fill": {
+        "title": "양식 채우기",
+        "body": "활성 프로필로 페이지를 채워요. AI 입력이 켜져 있으면(설정에서 변경) 질문의 표현이 달라도 답변과 일치시켜요. 꺼져 있으면 키워드로 필드를 일치시켜요."
+      },
+      "activeProfile": {
+        "title": "활성 프로필",
+        "body": "입력에 사용되는 프로필과 켜져 있는 필드 및 문서 수예요. 프로필을 바꾸거나 답변을 편집하려면 <b>프로필</b> 탭으로 가세요."
+      },
+      "shortcuts": {
+        "title": "키보드 단축키",
+        "body": "Aullevo를 설치하면 Chrome이 이 키를 설정하지만, Chrome이나 다른 확장 프로그램이 이미 사용 중인 키는 건너뛰어요. 언제든지 변경할 수 있어요."
+      }
+    },
+    "header": {
+      "voice": {
+        "title": "음성 모드",
+        "body": "클릭하는 대신 Aullevo와 대화해 보세요. 이 버튼을 누르면 패널이 음성 에이전트로 바뀌어요. \"fill this page\", \"fill the email\", \"fill the first question\"처럼 말하면 소리 내어 답해요. 다시 클릭하면 이 화면으로 돌아와요.",
+        "note": "Pro 기능이에요. 본인의 ElevenLabs API 키가 필요하며, Voice settings에서 추가할 수 있어요. 음성 명령은 영어와 타갈로그어로 작동해요."
+      },
+      "language": {
+        "title": "언어",
+        "body": "Aullevo 전체의 언어를 선택해요. 영어는 항상 목록 맨 위에 있으니 언제든지 되돌릴 수 있어요."
+      },
+      "theme": {
+        "title": "라이트 또는 다크 테마",
+        "body": "패널을 라이트 모드와 다크 모드 간에 전환해요."
+      },
+      "json": {
+        "title": "JSON 빠른 설정",
+        "intro": "JSON 형식의 내 프로필이에요. 프로필을 가장 빠르게 설정하는 방법:",
+        "step1": "여기서 JSON을 복사하세요.",
+        "step2": "이력서나 다른 문서와 함께 Gemini, Claude 또는 ChatGPT에 전달하세요.",
+        "step3": "같은 구조를 유지하면서 값을 채워 달라고 AI에 요청하세요.",
+        "step4": "결과를 여기에 다시 붙여넣고 <b>가져오기</b>를 클릭하세요."
+      },
+      "fullPage": {
+        "title": "전체 페이지로 열기",
+        "body": "Aullevo를 브라우저 탭에서 열어 더 넓은 화면에서 프로필을 편집할 수 있어요. 입력은 계속 이 사이드 패널에서 해요."
+      },
+      "close": {
+        "title": "패널 닫기",
+        "body": "사이드 패널을 닫아요. <b>Alt+Q</b>(Mac에서는 <b>Option+Q</b>)를 누르거나 툴바의 Aullevo 아이콘을 클릭하면 다시 열려요."
+      }
+    },
+    "profiles": {
+      "switcher": {
+        "title": "프로필 전환",
+        "body1": "프로필(구직, 학업, 금융 또는 직접 만든 프로필)마다 별도의 답변을 저장해요. 편집하고 입력에 사용할 프로필을 선택하세요.",
+        "body2": "목록을 열면 어떤 프로필이 켜짐 또는 꺼짐인지 확인할 수 있고, 맨 아래에서 새 프로필을 만들 수 있어요.",
+        "note": "Free 요금제: 한 번에 최대 2개의 프로필을 켤 수 있어요."
+      },
+      "config": {
+        "title": "이름 및 켜기/끄기 스위치",
+        "body": "여기서 프로필 이름을 바꿀 수 있어요. <b>프로필 켜짐</b>은 프로필 전체를 켜거나 꺼요. 꺼져 있으면 입력에 사용되지 않아요."
+      },
+      "identity": {
+        "title": "신원 및 연락처",
+        "body": "이름, 이메일, 전화번호, 주소예요. 섹션 제목을 클릭하면 접거나 펼칠 수 있어요. 모든 필드에는 작은 컨트롤 3개가 있는데, 다음에 설명할게요."
+      },
+      "fieldContext": {
+        "title": "AI 컨텍스트 힌트",
+        "body": "✨ 버튼으로 이 필드의 의미를 AI에 알려 주는 힌트(예: \"여권상 법적 이름\")를 추가해요. 양식의 질문이 모호할 때 도움이 돼요. 점이 표시되면 힌트가 설정된 거예요."
+      },
+      "fieldPrivacy": {
+        "title": "AI 공유 또는 민감",
+        "safe": "<b>AI 공유</b>: 값을 AI와 공유해서 드롭다운과 객관식 질문에서 알맞은 답을 고를 수 있게 해요.",
+        "sensitive": "<b>민감</b>: AI는 필드 이름과 힌트만 보고 값은 절대 보지 못해요. 값은 Aullevo가 내 기기에서 직접 입력해요.",
+        "toggle": "클릭하면 전환돼요."
+      },
+      "fieldToggle": {
+        "title": "필드 켜기/끄기",
+        "body": "필드를 꺼짐으로 바꾸면 입력한 내용을 삭제하지 않고 입력할 때 건너뛰어요."
+      },
+      "documents": {
+        "title": "문서 첨부",
+        "body": "문서 유형을 선택한 뒤 이력서, 자기소개서, 신분증 등을 업로드하세요. 양식에 파일 업로드 질문이 있으면 Aullevo가 켜져 있는 문서를 첨부해요.",
+        "note": "양식에 문서를 첨부하는 기능은 Pro 기능이에요."
+      },
+      "attributes": {
+        "title": "프로필별 필드",
+        "body": "이 프로필 유형에 속한 필드예요. 구직 프로필에는 헤드라인, LinkedIn, 기술, 학력이 있고, 학업, 의료 등 다른 프로필에도 각각 고유한 필드가 있어요."
+      },
+      "customFields": {
+        "title": "직접 필드 추가",
+        "body": "\"희망 연봉\"이나 \"이 직무에 지원한 이유는?\"처럼 기본 필드에 없는 항목에 사용해요. 레이블과 값을 입력하고 <b>+</b>를 클릭하세요. 질문 문구를 그대로 레이블로 쓰면 잘 작동해요."
+      },
+      "save": {
+        "title": "저장",
+        "body": "입력하는 대로 변경 사항이 자동 저장돼요. 이 버튼은 즉시 저장하므로 패널을 닫기 직전에 유용해요."
+      }
+    },
+    "multilink": {
+      "addLink": {
+        "title": "양식 링크 추가",
+        "body": "양식이나 입사 지원서의 전체 링크(https://로 시작)를 붙여넣고 <b>+</b>를 클릭하세요. 원하는 만큼 추가할 수 있어요."
+      },
+      "savedLinks": {
+        "title": "링크 대기열",
+        "body": "추가한 모든 링크가 여기에 표시돼요. 다음 일괄 작업에 포함할 링크는 체크하고, 건너뛸 링크는 체크를 해제하세요. 화살표 아이콘은 링크를 열고 휴지통 아이콘은 삭제해요."
+      },
+      "batchRun": {
+        "title": "한 번에 모두 채우기",
+        "body1": "체크한 링크를 하나씩 백그라운드 탭에서 열고 활성 프로필로 채워요. 진행 상황은 패널 상단에 표시돼요.",
+        "note": "단축키: Alt+Shift+B(Mac에서는 Option+Shift+B)."
+      }
+    },
+    "settings": {
+      "account": {
+        "title": "내 계정",
+        "body": "Aullevo Web 계정을 연결하면 요금제(Free 또는 Pro)가 여기에도 적용돼요. 프로필은 이 기기에 암호화된 상태로 유지되며 업로드되지 않아요."
+      },
+      "aiMode": {
+        "title": "AI 스마트 입력 또는 표준 입력",
+        "standard": "<b>표준 입력</b>은 AI 없이 이름으로 필드를 일치시켜요.",
+        "smart": "<b>AI 스마트 입력</b>은 표현이 다른 질문도 이해하고 드롭다운과 객관식 질문에서 답을 골라요."
+      },
+      "aiEngine": {
+        "title": "AI 제공업체, 모델 및 API 키"
+      },
+      "memories": {
+        "title": "AI 메모리",
+        "body": "AI가 주관식 질문에 쓸 수 있는 짧은 정보예요(예: \"근무 방식: 원격만\"). 선택한 AI 제공업체로 전송되고 암호화되지 않으니 비밀번호나 신분증 번호는 절대 추가하지 마세요."
+      },
+      "autoPaginate": {},
+      "floatingIcon": {
+        "title": "플로팅 버튼",
+        "body": "웹페이지 가장자리에 있는 작은 Aullevo 탭으로 빠르게 접근할 수 있어요. 방해가 되면 끄세요."
+      },
+      "typingSpeed": {
+        "title": "입력 속도",
+        "body": "Aullevo가 필드에 입력하는 속도예요. <b>자연스럽게</b>는 사람이 입력하는 것처럼 보이고, <b>즉시</b>가 가장 빨라요. 느리게와 사용자 지정 속도는 Pro 기능이에요."
+      },
+      "replayTour": {
+        "title": "이 가이드 다시 보기",
+        "body": "잊어버린 게 있나요? <b>다시 보기</b>를 클릭하면 이 가이드를 처음부터 다시 볼 수 있어요."
+      },
+      "deviceData": {
+        "title": "이 기기의 데이터",
+        "body": "계정마다 이 브라우저에 별도의 암호화된 보관함이 있어요. 더 이상 사용하지 않는 계정의 데이터는 삭제하세요."
+      }
+    }
+  },
+  "vault": {
+    "loading": "불러오는 중…",
+    "account": {
+      "signedInAs": "<b>{account}</b>(으)로 로그인됨",
+      "notSignedIn": "로그인 안 함: 이 기기의 로컬 프로필",
+      "fallbackName": "내 계정"
+    },
+    "errors": {
+      "createFailed": "보관함을 만들 수 없었어요. 다시 시도하세요.",
+      "wrongPassphrase": "암호 문구가 올바르지 않아요.",
+      "wrongClaimPassphrase": "해당 프로필의 암호 문구가 올바르지 않아요."
+    }
+  }
+}

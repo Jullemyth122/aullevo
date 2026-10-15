@@ -1,0 +1,22 @@
+{
+    "batch": {
+        "title": "Batch Autofill Queue",
+        "activeCount": "{enabled} of {total} active",
+        "description": "Automate opening and filling forms across multiple tabs using your active <b>{type}</b> profile.",
+        "running": "Batch Autofilling in Progress...",
+        "start": {
+            "one": "Fill {count} Form in Batch",
+            "other": "Fill {count} Forms in Batch"
+        }
+    },
+    "add": {
+        "title": "Add Form / Job Link"
+    },
+    "saved": {
+        "title": "Saved Links ({count})",
+        "clearAll": "Clear All",
+        "empty": "No links added yet. Paste a form URL above to start.",
+        "open": "Open link",
+        "remove": "Remove link"
+    }
+}

@@ -1,0 +1,20 @@
+{
+  "appName": {
+    "message": "Aullevo - Isi Auto Borang dengan AI & Pengisi Permohonan Kerja"
+  },
+  "appDescription": {
+    "message": "Pengisi borang AI untuk permohonan kerja, tinjauan dan sebarang borang web. Profil tersimpan, muat naik resume, isian auto pintar."
+  },
+  "actionTitle": {
+    "message": "Buka Panel Sisi Aullevo"
+  },
+  "commandTogglePanel": {
+    "message": "Togol Panel Sisi Aullevo"
+  },
+  "commandFill": {
+    "message": "Cetuskan Isian Auto Borang AI atau Kata Kunci pada Halaman"
+  },
+  "commandBatchFill": {
+    "message": "Cetuskan Isian Auto Borang Berkelompok Pelbagai Pautan"
+  }
+}

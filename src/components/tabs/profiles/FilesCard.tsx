@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { Upload, FileText, Trash2, Check, X, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { ProfileFile, UserData } from '../../../types';
+import { useT } from '../../../i18n';
 
 interface FilesCardProps {
     currentProfile: UserData;
@@ -12,6 +13,7 @@ const ITEMS_PER_PAGE = 10;
 export type DocCategory = 'Resume / CV' | 'Cover Letter' | 'Identity / ID' | 'Academic Record' | 'Portfolio' | 'Other';
 
 export function FilesCard({ currentProfile, onUpdateProfile }: FilesCardProps) {
+    const { t } = useT();
     const [isOpen, setIsOpen] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -79,9 +81,19 @@ export function FilesCard({ currentProfile, onUpdateProfile }: FilesCardProps) {
     };
 
     const formatSize = (bytes: number) => {
-        if (bytes < 1024) return `${bytes} B`;
-        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-        return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+        if (bytes < 1024) return t('profiles.documents.size.bytes', { size: bytes });
+        if (bytes < 1024 * 1024) return t('profiles.documents.size.kilobytes', { size: Number((bytes / 1024).toFixed(1)) });
+        return t('profiles.documents.size.megabytes', { size: Number((bytes / (1024 * 1024)).toFixed(1)) });
+    };
+
+    // Categories are stored in English (they become the file's label); only their display is translated
+    const categoryText: Record<DocCategory, { option: string; upload: string }> = {
+        'Resume / CV': { option: t('profiles.documents.categories.resume'), upload: t('profiles.documents.upload.resume') },
+        'Cover Letter': { option: t('profiles.documents.categories.coverLetter'), upload: t('profiles.documents.upload.coverLetter') },
+        'Identity / ID': { option: t('profiles.documents.categories.identity'), upload: t('profiles.documents.upload.identity') },
+        'Academic Record': { option: t('profiles.documents.categories.academic'), upload: t('profiles.documents.upload.academic') },
+        'Portfolio': { option: t('profiles.documents.categories.portfolio'), upload: t('profiles.documents.upload.portfolio') },
+        'Other': { option: t('profiles.documents.categories.other'), upload: t('profiles.documents.upload.other') }
     };
 
     return (
@@ -99,7 +111,7 @@ export function FilesCard({ currentProfile, onUpdateProfile }: FilesCardProps) {
                 onClick={() => setIsOpen(!isOpen)}
             >
                 <div className="av-label" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span>Attached Documents</span>
+                    <span>{t('profiles.documents.title')}</span>
                     <span style={{ fontSize: 10, opacity: 0.7 }}>({files.length})</span>
                 </div>
                 <ChevronDown
@@ -116,7 +128,7 @@ export function FilesCard({ currentProfile, onUpdateProfile }: FilesCardProps) {
                 <>
                     {paginatedFiles.map((file) => (
                         <div key={file.id} className={`av-cf-card-${file.enabled ? 'active' : 'disabled'}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 10px', marginBottom: 6 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, overflow: 'hidden', flex: 1, marginRight: 8 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, overflow: 'hidden', flex: 1, marginInlineEnd: 8 }}>
                                 <FileText size={16} color="var(--av-accent, #6366f1)" style={{ flexShrink: 0 }} />
                                 <div style={{ overflow: 'hidden', flex: 1 }}>
                                     {/* Editable Document Label Input (like CM fields!) */}
@@ -135,11 +147,11 @@ export function FilesCard({ currentProfile, onUpdateProfile }: FilesCardProps) {
                                         }}
                                         value={file.label}
                                         onChange={(e) => updateFileLabel(file.id, e.target.value)}
-                                        placeholder="Document Label"
-                                        title="Click to edit document label"
+                                        placeholder={t('profiles.documents.labelPlaceholder')}
+                                        title={t('profiles.documents.labelTooltip')}
                                     />
                                     {/* Read-only Filename & Size */}
-                                    <div style={{ fontSize: 10, color: 'var(--av-text-muted)', textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden', paddingLeft: 2 }}>
+                                    <div style={{ fontSize: 10, color: 'var(--av-text-muted)', textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden', paddingInlineStart: 2 }}>
                                         {file.fileName} ({formatSize(file.fileSize)})
                                     </div>
                                 </div>
@@ -152,9 +164,9 @@ export function FilesCard({ currentProfile, onUpdateProfile }: FilesCardProps) {
                                     onClick={() => toggleFile(file.id)}
                                 >
                                     {file.enabled ? <Check size={9} /> : <X size={9} />}
-                                    <span>{file.enabled ? 'ON' : 'OFF'}</span>
+                                    <span>{file.enabled ? t('profiles.badges.on') : t('profiles.badges.off')}</span>
                                 </button>
-                                <button className="av-cf-card__remove" onClick={() => removeFile(file.id)} title="Remove file">
+                                <button className="av-cf-card__remove" onClick={() => removeFile(file.id)} title={t('profiles.documents.remove')}>
                                     <Trash2 size={13} />
                                 </button>
                             </div>
@@ -164,7 +176,7 @@ export function FilesCard({ currentProfile, onUpdateProfile }: FilesCardProps) {
                     {/* Pagination if files > 10 */}
                     {totalPages > 1 && (
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px', fontSize: 11, color: 'var(--av-text-muted)' }}>
-                            <span>Page {safeCurrentPage} of {totalPages}</span>
+                            <span>{t('profiles.documents.pagination', { page: safeCurrentPage, total: totalPages })}</span>
                             <div style={{ display: 'flex', gap: 4 }}>
                                 <button type="button" className="av-pill" disabled={safeCurrentPage === 1} onClick={() => setCurrentPage(p => Math.max(1, p - 1))}>
                                     <ChevronLeft size={12} />
@@ -177,19 +189,16 @@ export function FilesCard({ currentProfile, onUpdateProfile }: FilesCardProps) {
                     )}
 
                     {/* Upload Document Controls */}
-                    <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+                    <div style={{ display: 'flex', gap: 6, marginTop: 8 }} data-tour="documents">
                         <select
                             className="av-input"
                             style={{ width: '130px', fontSize: 11 }}
                             value={fileLabel}
                             onChange={(e) => setFileLabel(e.target.value as DocCategory)}
                         >
-                            <option value="Resume / CV">Resume / CV</option>
-                            <option value="Cover Letter">Cover Letter</option>
-                            <option value="Identity / ID">Identity / ID</option>
-                            <option value="Academic Record">Academic Record</option>
-                            <option value="Portfolio">Portfolio</option>
-                            <option value="Other">Other Document</option>
+                            {(Object.keys(categoryText) as DocCategory[]).map((category) => (
+                                <option key={category} value={category}>{categoryText[category].option}</option>
+                            ))}
                         </select>
 
                         <input
@@ -207,7 +216,7 @@ export function FilesCard({ currentProfile, onUpdateProfile }: FilesCardProps) {
                             onClick={() => fileInputRef.current?.click()}
                         >
                             <Upload size={12} />
-                            <span>Upload {fileLabel.split(' ')[0]}</span>
+                            <span>{categoryText[fileLabel].upload}</span>
                         </button>
                     </div>
                 </>

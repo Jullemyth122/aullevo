@@ -1,0 +1,20 @@
+{
+  "appName": {
+    "message": "Aullevo - Autouzupełnianie formularzy AI i aplikacji o pracę"
+  },
+  "appDescription": {
+    "message": "Wypełnianie z AI aplikacji o pracę, ankiet i formularzy www. Zapisane profile, przesyłanie CV i inteligentne autouzupełnianie."
+  },
+  "actionTitle": {
+    "message": "Otwórz panel boczny Aullevo"
+  },
+  "commandTogglePanel": {
+    "message": "Pokaż/ukryj panel boczny Aullevo"
+  },
+  "commandFill": {
+    "message": "Uruchom autouzupełnianie formularza na stronie (AI lub słowa kluczowe)"
+  },
+  "commandBatchFill": {
+    "message": "Uruchom wsadowe autouzupełnianie formularzy z wielu linków"
+  }
+}

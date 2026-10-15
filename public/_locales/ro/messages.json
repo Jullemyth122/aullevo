@@ -1,0 +1,20 @@
+{
+  "appName": {
+    "message": "Aullevo - Completare formulare și aplicații la joburi cu AI"
+  },
+  "appDescription": {
+    "message": "Completare cu AI pentru aplicații la joburi, sondaje și orice formular web. Profiluri salvate, încărcare CV, completare inteligentă."
+  },
+  "actionTitle": {
+    "message": "Deschide panoul lateral Aullevo"
+  },
+  "commandTogglePanel": {
+    "message": "Afișează/ascunde panoul lateral Aullevo"
+  },
+  "commandFill": {
+    "message": "Completează formularul din pagină cu AI sau cuvinte cheie"
+  },
+  "commandBatchFill": {
+    "message": "Pornește completarea în lot Multi-link"
+  }
+}

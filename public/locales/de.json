@@ -1,0 +1,706 @@
+{
+  "autofill": {
+    "detection": {
+      "title": "Formularerkennung",
+      "sub": "Felder im aktiven Tab",
+      "highlightTitle": "Felder auf der Seite prüfen und markieren",
+      "clear": "Löschen",
+      "highlight": "Markieren",
+      "rescanTitle": "Seite neu scannen",
+      "rescan": "Neu scannen"
+    },
+    "fill": {
+      "injecting": "Wird eingefügt…",
+      "disabled": "{type} deaktiviert",
+      "withAi": "Formular mit KI ausfüllen ({type})",
+      "standard": "Formular ausfüllen ({type})",
+      "autoPaginate": "Auto-Paginierung an: füllt jede Seite aus und sendet dann ab"
+    },
+    "activeProfile": {
+      "title": "Aktives Profil",
+      "summary": "{fields} • {docs} bereit",
+      "fieldCount": {
+        "one": "{count} Feld",
+        "other": "{count} Felder"
+      },
+      "docCount": {
+        "one": "{count} Dokument",
+        "other": "{count} Dokumente"
+      },
+      "ready": "BEREIT",
+      "disabled": "DEAKTIVIERT"
+    },
+    "shortcuts": {
+      "title": "Tastenkürzel",
+      "toggleSidePanel": "Seitenleiste ein-/ausblenden",
+      "formFill": "Ausfüllen mit KI / Stichwörtern",
+      "batchFill": "Multi-Link-Stapelausfüllung"
+    }
+  },
+  "content": {
+    "openSidebar": "Aullevo-Seitenleiste öffnen",
+    "filled": "AUSGEFÜLLT",
+    "file": "Datei: {name}",
+    "files": {
+      "one": "{count} Datei angehängt",
+      "other": "{count} Dateien angehängt"
+    },
+    "matched": "Zugeordnet: {name}",
+    "ranked": "Gewählt: {value}",
+    "ai": "[KI] {text}",
+    "aiGenerated": "[KI] Generiert",
+    "fixed": "Korrigiert: {value}"
+  },
+  "header": {
+    "versionLine": "v{version} • Autofill",
+    "lightTheme": "Helles Design",
+    "darkTheme": "Dunkles Design",
+    "jsonConfig": "JSON-Konfiguration",
+    "openFullPage": "Als ganze Seite öffnen",
+    "closeSidePanel": "Seitenleiste schließen",
+    "footer": {
+      "engine": "Aullevo-Autofill-Engine",
+      "ready": "Bereit"
+    }
+  },
+  "json": {
+    "title": "JSON-Konfiguration",
+    "badge": {
+      "fields": {
+        "one": "✓ {count} Feld",
+        "other": "✓ {count} Felder"
+      },
+      "invalid": "Ungültiges JSON"
+    },
+    "actions": {
+      "format": "JSON formatieren",
+      "fullscreen": "Vollbild",
+      "exitFullscreen": "Vollbild beenden",
+      "close": "Schließen",
+      "download": "Herunterladen",
+      "copy": "JSON kopieren",
+      "copied": "Kopiert",
+      "upload": "Datei hochladen",
+      "import": "Importieren"
+    },
+    "quota": {
+      "downloadPro": "Herunterladen (Export) ist eine Pro-Funktion."
+    },
+    "errors": {
+      "noFields": "Im angegebenen JSON wurden keine gültigen Felder gefunden.",
+      "invalidFormat": "Ungültiges JSON-Format: {error}"
+    }
+  },
+  "language": {
+    "title": "Sprache",
+    "button": "Sprache: {name}",
+    "search": "Sprachen suchen",
+    "auto": "Automatisch: {name}",
+    "autoHint": "Folgt der Sprache deines Browsers",
+    "backToEnglish": "Zurück zu Englisch",
+    "changed": "Sprache geändert zu {name}.",
+    "switchBack": "Zurück zu {name}",
+    "keep": "Behalten",
+    "noResults": "Keine Sprachen gefunden",
+    "settingsHint": "Ändert alle Bildschirme von Aullevo, auch die geführte Tour."
+  },
+  "manifest": {
+    "appName": "Aullevo - KI-Formularausfüller für Bewerbungen und Webformulare",
+    "appDescription": "KI-Ausfüllhilfe für Bewerbungen, Umfragen und jedes Webformular. Gespeicherte Profile, Lebenslauf-Upload und smartes Autofill.",
+    "actionTitle": "Aullevo-Seitenleiste öffnen",
+    "commandTogglePanel": "Aullevo-Seitenleiste ein-/ausblenden",
+    "commandFill": "Formular auf der Seite mit KI oder Stichwörtern ausfüllen",
+    "commandBatchFill": "Multi-Link-Stapelausfüllung starten"
+  },
+  "multilink": {
+    "batch": {
+      "title": "Warteschlange für Stapelausfüllung",
+      "activeCount": "{enabled} von {total} aktiv",
+      "description": "Öffne und fülle Formulare in mehreren Tabs automatisch mit deinem aktiven <b>{type}</b>-Profil aus.",
+      "running": "Stapelausfüllung läuft…",
+      "start": {
+        "one": "{count} Formular im Stapel ausfüllen",
+        "other": "{count} Formulare im Stapel ausfüllen"
+      }
+    },
+    "add": {
+      "title": "Formular-/Stellenlink hinzufügen"
+    },
+    "saved": {
+      "title": "Gespeicherte Links ({count})",
+      "clearAll": "Alle löschen",
+      "empty": "Noch keine Links. Füge oben eine Formular-URL ein, um loszulegen.",
+      "open": "Link öffnen",
+      "remove": "Link entfernen"
+    }
+  },
+  "nav": {
+    "autofill": "Ausfüllen",
+    "profiles": "Profile ({count})",
+    "multiLink": "Multi-Link",
+    "settings": "Einstellungen"
+  },
+  "profiles": {
+    "types": {
+      "job": "Job",
+      "medical": "Medizin",
+      "government": "Behörden",
+      "survey": "Umfrage",
+      "academic": "Studium",
+      "financial": "Finanzen",
+      "custom": "Eigenes"
+    },
+    "badges": {
+      "on": "AN",
+      "off": "AUS",
+      "disabled": "DEAKTIVIERT",
+      "sensitive": "SENSIBEL",
+      "aiSafe": "KI-SICHER"
+    },
+    "save": {
+      "button": "{type}-Profil speichern",
+      "saved": "Gespeichert ✓"
+    },
+    "dropdown": {
+      "newProfilePlaceholder": "Name des neuen Profils…",
+      "add": "Hinzufügen"
+    },
+    "config": {
+      "title": "Profilkonfiguration",
+      "on": "PROFIL AN",
+      "off": "PROFIL AUS",
+      "activeTooltip": "{type}-Profil ist aktiv",
+      "disabledTooltip": "{type}-Profil ist deaktiviert",
+      "namePlaceholder": "Profilname"
+    },
+    "identity": {
+      "title": "Identität & Kontakt",
+      "firstName": "Vorname",
+      "lastName": "Nachname",
+      "email": "E-Mail-Adresse",
+      "phone": "Telefonnummer",
+      "address": "Wohnadresse"
+    },
+    "attributes": {
+      "title": "{type}-Angaben",
+      "customHint": "Füge unten eigene Felder hinzu oder importiere sie per JSON.",
+      "job": {
+        "headline": "Headline / Titel",
+        "linkedin": "LinkedIn",
+        "github": "GitHub",
+        "portfolio": "Portfolio",
+        "skills": "Kenntnisse",
+        "education": "Ausbildung / Abschluss",
+        "certifications": "Zertifikate"
+      },
+      "medical": {
+        "bloodType": "Blutgruppe",
+        "allergies": "Allergien",
+        "emergencyContact": "Notfallkontakt",
+        "insuranceProvider": "Krankenversicherung"
+      },
+      "government": {
+        "nationalId": "Ausweis-Nr. / Steuer-ID",
+        "citizenship": "Staatsangehörigkeit",
+        "passport": "Reisepass-Nr.",
+        "driversLicense": "Führerschein"
+      },
+      "survey": {
+        "ageRange": "Altersgruppe",
+        "income": "Einkommen",
+        "education": "Bildungsabschluss",
+        "employment": "Beschäftigung"
+      },
+      "academic": {
+        "institution": "Hochschule",
+        "major": "Hauptfach / Studiengang",
+        "gpa": "Notenschnitt",
+        "gradYear": "Abschlussjahr",
+        "testScores": "Testergebnisse"
+      },
+      "financial": {
+        "billingAddress": "Rechnungsadresse",
+        "payment": "Zahlung",
+        "cardholder": "Karteninhaber"
+      }
+    },
+    "field": {
+      "sensitiveTooltip": "Sensibel: Wert wird vor der KI verborgen (Zero-Knowledge)",
+      "aiSafeTooltip": "KI-sicher: Wert wird für die passende Auswahl mit der KI geteilt"
+    },
+    "context": {
+      "buttonTitle": "KI-Kontext für {label}",
+      "title": "KI-Kontext: {label}",
+      "placeholder": "Hinweis für die KI (z. B. „Amtlicher Vorname laut Reisepass“)",
+      "hint": "Die KI nutzt diesen Hinweis, um mehrdeutige Formularfelder auf Websites zu erkennen."
+    },
+    "custom": {
+      "title": "Eigene Felder",
+      "labelPlaceholder": "Feldbezeichnung",
+      "valuePlaceholder": "Feldwert",
+      "sensitiveTooltip": "Sensibel: Wert wird vor der KI verborgen",
+      "aiSafeTooltip": "KI-sicher: Wert wird mit der KI geteilt",
+      "enabledTooltip": "Feld aktiviert",
+      "disabledTooltip": "Feld deaktiviert",
+      "delete": "Feld löschen",
+      "pagination": {
+        "one": "Seite {page} von {total} ({count} Eintrag)",
+        "other": "Seite {page} von {total} ({count} Einträge)"
+      },
+      "newLabelPlaceholder": "Bezeichnung",
+      "newValuePlaceholder": "Wert",
+      "add": "Eigenes Feld hinzufügen"
+    },
+    "documents": {
+      "title": "Angehängte Dokumente",
+      "labelPlaceholder": "Dokumentbezeichnung",
+      "labelTooltip": "Klicken, um die Dokumentbezeichnung zu bearbeiten",
+      "remove": "Datei entfernen",
+      "pagination": "Seite {page} von {total}",
+      "categories": {
+        "resume": "Lebenslauf",
+        "coverLetter": "Anschreiben",
+        "identity": "Ausweis",
+        "academic": "Zeugnis",
+        "portfolio": "Portfolio",
+        "other": "Sonstiges Dokument"
+      },
+      "upload": {
+        "resume": "Lebenslauf hochladen",
+        "coverLetter": "Anschreiben hochladen",
+        "identity": "Ausweis hochladen",
+        "academic": "Zeugnis hochladen",
+        "portfolio": "Portfolio hochladen",
+        "other": "Dokument hochladen"
+      },
+      "size": {
+        "bytes": "{size} B",
+        "kilobytes": "{size} KB",
+        "megabytes": "{size} MB"
+      }
+    }
+  },
+  "settings": {
+    "account": {
+      "title": "Konto",
+      "proUntil": "Pro bis {date}",
+      "proLifetime": "Pro · Lebenslang",
+      "disconnect": "Konto trennen",
+      "waiting": "Warte auf Anmeldung…",
+      "connect": "Mit Aullevo Web verbinden",
+      "renew": "Pro abgelaufen · Verlängern",
+      "upgrade": "Auf Pro upgraden"
+    },
+    "theme": {
+      "title": "Erscheinungsbild",
+      "dark": "Dunkles Design",
+      "description": "Zwischen dunklem Schiefer- und hellem Design wechseln"
+    },
+    "mode": {
+      "title": "Ausfüllmodus",
+      "aiActive": "Smartes KI-Ausfüllen (aktiv)",
+      "standard": "Standard-Ausfüllen (ohne KI)",
+      "aiDescription": "Nutzt KI, um Fragen zu verstehen und komplexe Felder zuzuordnen",
+      "standardDescription": "Direkte Zuordnung der Profilangaben ohne KI-Aufrufe",
+      "toggle": "KI-Ausfüllmodus umschalten"
+    },
+    "ai": {
+      "title": "KI-Engine",
+      "unlimited": "Unbegrenzter Zugriff",
+      "keyRequired": "API-Schlüssel erforderlich",
+      "freeUsage": "Free: {used}/{limit} diese Woche",
+      "privacy": "<b>Datenschutz:</b> Als SENSIBEL markierte Felder werden nie an die KI gesendet, nur ihre Bezeichnungen. Werte von KI-SICHER-Feldern und die Fragen des Formulars werden an {provider} gesendet.",
+      "provider": "KI-Anbieter",
+      "customProvider": "Benutzerdefiniert (OpenAI-kompatibel)",
+      "baseUrl": "Server-URL",
+      "customHint": "Funktioniert mit jedem Server, der die Chat-API von OpenAI unterstützt, z. B. OpenRouter, Groq, Mistral, Ollama oder LM Studio. Lokale Server brauchen keinen Schlüssel.",
+      "model": "KI-Modell",
+      "modelOption": "{name} ({description})",
+      "models": {
+        "fastest": "Am schnellsten & extrem günstig",
+        "balanced": "Ausgewogenes Denken",
+        "capable": "Schnell & leistungsfähig",
+        "smartest": "Höchste Intelligenz",
+        "legacy": "Älteres schnelles Modell"
+      },
+      "otherModel": "Anderes Modell (ID eingeben)",
+      "modelIdPlaceholder": "Genaue Modell-ID, z. B. {example}",
+      "apiKey": "{provider}-API-Schlüssel",
+      "getKey": "API-Schlüssel holen",
+      "keyPlaceholder": "{provider}-API-Schlüssel einfügen",
+      "hideKey": "Schlüssel verbergen",
+      "showKey": "Schlüssel anzeigen",
+      "addKeyHint": "Füge deinen {provider}-API-Schlüssel hinzu, um Smartes KI-Ausfüllen zu nutzen.",
+      "proHint": "Pro: unbegrenzt mit KI ausfüllen. Dein Schlüssel bleibt in diesem Browser.",
+      "freeHint": "Free-Plan: {limit} KI-Ausfüllungen pro Woche. Upgrade auf Pro für unbegrenzte Nutzung."
+    },
+    "paginate": {
+      "title": "Auto-Paginierung",
+      "toggleTitle": "Mehrseitige Formulare ausfüllen",
+      "description": "Füllt jede Seite aus, klickt auf Weiter / Fortfahren und am Ende auf Absenden. Korrigiert Antworten, die das Formular ablehnt; pausiert, wenn das nicht klappt.",
+      "toggle": "Auto-Paginierung umschalten",
+      "proFeature": "Pro-Funktion",
+      "upgrade": "Upgrade auf Pro, um Auto-Paginierung zu nutzen"
+    },
+    "floating": {
+      "title": "Schwebendes Symbol auf Webseiten",
+      "toggleTitle": "Schwebenden Button anzeigen",
+      "description": "Zeigt den Aullevo-Schnellzugriff am Rand von Webseiten an",
+      "toggle": "Schwebenden Button umschalten"
+    },
+    "typing": {
+      "title": "Menschliche Tippgeschwindigkeit",
+      "instant": "Sofort ({ms} ms)",
+      "natural": "Natürlich ({ms} ms)",
+      "slow": "Langsam ({ms} ms)",
+      "custom": "Eigene ({ms} ms)",
+      "naturalFree": "Natürlich ({ms} ms) · Free-Plan",
+      "description": "Tippt Zeichen für Zeichen in menschlichem Tempo, für Websites, die echte Tastenanschläge erwarten.",
+      "proFeature": "Pro-Funktion",
+      "customDelay": "Eigene Verzögerung:",
+      "customProFeature": "Eigene Verzögerung ist eine Pro-Funktion",
+      "unitMs": "ms"
+    },
+    "tour": {
+      "title": "Geführte Tour",
+      "toggleTitle": "Einführung erneut anzeigen",
+      "description": "Geht alle Tabs noch einmal Schritt für Schritt durch",
+      "replay": "Wiederholen"
+    },
+    "security": {
+      "title": "Lokal verschlüsselt"
+    },
+    "memories": {
+      "title": "KI-Erinnerungen",
+      "count": "({enabled}/{total} an)",
+      "descriptionAiOn": "Fakten über dich, mit denen die KI offene Fragen beantworten kann (z. B. „Arbeitsweise: nur remote“). Aktivierte Erinnerungen werden an {provider} gesendet und unverschlüsselt in diesem Browser gespeichert. Füge also keine Passwörter oder Ausweisnummern hinzu.",
+      "descriptionAiOff": "Fakten über dich, mit denen die KI offene Fragen beantworten kann (z. B. „Arbeitsweise: nur remote“). Werden nur genutzt, wenn Smartes KI-Ausfüllen an ist. Aktivierte Erinnerungen werden an {provider} gesendet und unverschlüsselt in diesem Browser gespeichert. Füge also keine Passwörter oder Ausweisnummern hinzu.",
+      "titlePlaceholder": "Titel",
+      "contentPlaceholder": "Was die KI wissen soll",
+      "enabledTitle": "Erinnerung wird an die KI gesendet",
+      "disabledTitle": "Erinnerung wird nicht genutzt",
+      "on": "AN",
+      "off": "AUS",
+      "delete": "Erinnerung löschen",
+      "newTitlePlaceholder": "Titel (z. B. Arbeitsweise)",
+      "newContentPlaceholder": "Inhalt (z. B. Bevorzugt reine Remote-Stellen, offen für Freelance)",
+      "add": "Erinnerung hinzufügen"
+    },
+    "deviceData": {
+      "title": "Daten auf diesem Gerät",
+      "total": "{size} insgesamt",
+      "description": "Jedes Konto hat hier seinen eigenen verschlüsselten Tresor. Konten sehen nie die Profile, Dokumente, API-Schlüssel, Erinnerungen oder Links anderer Konten.",
+      "empty": "Noch keine gespeicherten Daten.",
+      "localOwner": "Nicht angemeldet (lokale Profile)",
+      "anotherAccount": "Anderes Konto",
+      "inUse": "{size} · gerade in Verwendung",
+      "deleteTitle": "Daten dieses Kontos von diesem Gerät löschen",
+      "delete": "Löschen",
+      "confirmDelete": "Aullevo-Daten von „{name}“ von diesem Gerät löschen?\n\nDadurch werden die verschlüsselten Profile, Dokumente, der API-Schlüssel, die KI-Erinnerungen und die Link-Warteschlange dauerhaft entfernt. Das kann nicht rückgängig gemacht werden.",
+      "bytes": "{size} B",
+      "kilobytes": "{size} KB",
+      "megabytes": "{size} MB"
+    }
+  },
+  "status": {
+    "plan": {
+      "profileLimit": "Im Free-Plan sind {max} aktive Profile erlaubt. Schalte überzählige Profile auf AUS oder upgrade auf Pro.",
+      "activeLimit": "Im Free-Plan sind {max} aktive Profile erlaubt. Schalte eines auf AUS oder upgrade auf Pro.",
+      "createdOff": "Profil wurde mit AUS erstellt. Im Free-Plan sind {max} aktive Profile erlaubt. Schalte eines auf AUS oder upgrade auf Pro.",
+      "autoPaginatePro": "Auto-Paginierung ist eine Pro-Funktion. Upgrade auf Pro, um mehrseitige Formulare auszufüllen.",
+      "jsonImportLimit": "Du hast alle {limit} kostenlosen JSON-Importe für diese 2 Wochen verbraucht. Sie werden am {date} zurückgesetzt, oder upgrade auf Pro für unbegrenzte Importe.",
+      "documentsSkipped": {
+        "one": "{count} Dokument nicht angehängt: Hochladen in Formulare ist eine Pro-Funktion.",
+        "other": "{count} Dokumente nicht angehängt: Hochladen in Formulare ist eine Pro-Funktion."
+      }
+    },
+    "batch": {
+      "starting": {
+        "one": "Stapelausfüllung für {count} Formular wird gestartet…",
+        "other": "Stapelausfüllung für {count} Formulare wird gestartet…"
+      },
+      "progress": "Fülle {current} von {total} aus: {host}",
+      "progressNoHost": "Fülle {current} von {total} aus…",
+      "complete": {
+        "one": "Stapelausfüllung für {count} Formular abgeschlossen!",
+        "other": "Stapelausfüllung für {count} Formulare abgeschlossen!"
+      }
+    },
+    "save": {
+      "success": "{type}-Profil gespeichert!",
+      "failed": "Speichern fehlgeschlagen: {error}",
+      "noProfile": "Kein Profil ausgewählt",
+      "unknownError": "Speichern fehlgeschlagen"
+    },
+    "profile": {
+      "nameExists": "Ein Profil mit diesem Namen existiert bereits!",
+      "disabled": "{type} ist deaktiviert. Schalte es auf AN, um automatisch auszufüllen.",
+      "defaultType": "PROFIL",
+      "imported": {
+        "one": "{count} Feld in {type} importiert!",
+        "other": "{count} Felder in {type} importiert!"
+      }
+    },
+    "highlight": {
+      "noActiveTab": "Kein aktiver Tab gefunden.",
+      "refreshToConnect": "Lade die Seite neu, um Markierungen zu aktivieren.",
+      "on": {
+        "one": "{count} Feld auf der Seite markiert!",
+        "other": "{count} Felder auf der Seite markiert!"
+      },
+      "cleared": "Markierungen entfernt."
+    },
+    "fill": {
+      "injectingAi": "Felder werden mit KI ausgefüllt ({type})…",
+      "injecting": "Felder werden ausgefüllt ({type})…",
+      "noTab": "Aktiver Tab nicht erreichbar.",
+      "refreshToConnect": "Lade den Tab neu, um Autofill zu verbinden.",
+      "cannotConnect": "Keine Verbindung zur Seite möglich. Lade den Tab neu.",
+      "aiPartlySkipped": {
+        "one": "{count} Feld ausgefüllt (KI teilweise übersprungen).",
+        "other": "{count} Felder ausgefüllt (KI teilweise übersprungen)."
+      },
+      "keywordMode": {
+        "one": "{count} Feld ausgefüllt (Stichwortmodus).",
+        "other": "{count} Felder ausgefüllt (Stichwortmodus)."
+      },
+      "withAi": {
+        "one": "Formular mit KI ausgefüllt ({count} Feld zugeordnet).",
+        "other": "Formular mit KI ausgefüllt ({count} Felder zugeordnet)."
+      },
+      "withoutAi": {
+        "one": "Formular ohne KI ausgefüllt ({count} Feld zugeordnet).",
+        "other": "Formular ohne KI ausgefüllt ({count} Felder zugeordnet)."
+      },
+      "error": "Fehler beim Ausfüllen: {error}",
+      "injected": {
+        "one": "{count} Feld in die Seite eingefügt.",
+        "other": "{count} Felder in die Seite eingefügt."
+      }
+    },
+    "pagination": {
+      "progress": "Auto-Paginierung: Seite {page} wird ausgefüllt…",
+      "lostConnection": "Auto-Paginierung gestoppt: Verbindung zur Erweiterung verloren.",
+      "filled": {
+        "one": "{filled} Felder auf {count} Seite ausgefüllt.",
+        "other": "{filled} Felder auf {count} Seiten ausgefüllt."
+      },
+      "corrected": {
+        "one": "{count} vom Formular abgelehnte Antwort korrigiert.",
+        "other": "{count} vom Formular abgelehnte Antworten korrigiert."
+      },
+      "field": "„{name}“",
+      "fieldAndMore": {
+        "one": "„{name}“ (+{count} weiteres)",
+        "other": "„{name}“ (+{count} weitere)"
+      },
+      "aField": "ein Feld",
+      "nextButton": "Weiter",
+      "submitted": "Abgesendet!",
+      "noNext": "Kein Weiter-/Fortfahren-Button gefunden.",
+      "stillEmpty": "{field} ist noch leer.",
+      "check": "Prüfe {field}.",
+      "blocked": "Pausiert auf Seite {page}: {field} ist ein Pflichtfeld und leer. Fülle es aus und starte erneut.",
+      "nextDisabled": "Pausiert auf Seite {page}: Der Button „{button}“ ist deaktiviert. Prüfe die Seite und starte erneut.",
+      "validationError": "Pausiert auf Seite {page}: Das Formular meldet „{error}“.",
+      "validationErrorUnknown": "Pausiert auf Seite {page}: Das Formular meldet einen Fehler.",
+      "correctionTried": "(automatische Korrektur wurde versucht)",
+      "stuck": "Pausiert auf Seite {page}: „{button}“ wurde geklickt, aber das Formular ging nicht weiter.",
+      "maxPages": "Am Sicherheitslimit von {max} Seiten gestoppt.",
+      "noForm": "Kein Formular auf dieser Seite gefunden (oder Aullevo kann hier nicht laufen).",
+      "stopped": "Auto-Paginierung gestoppt: {error}",
+      "unknownError": "unbekannter Fehler"
+    }
+  },
+  "tour": {
+    "card": {
+      "progress": "{section} · {current} von {total}",
+      "skip": "Tour überspringen",
+      "dontShowAgain": "Nicht mehr anzeigen",
+      "back": "Zurück",
+      "next": "Weiter",
+      "done": "Fertig"
+    },
+    "shortcuts": {
+      "allActive": "Alle 3 Tastenkürzel sind in diesem Browser aktiv.",
+      "notSet": "In diesem Browser nicht festgelegt: {list}. Lege sie selbst in den Tastenkürzel-Einstellungen von Chrome fest.",
+      "openSettings": "Tastenkürzel-Einstellungen von Chrome öffnen",
+      "toggleSidePanel": "Seitenleiste ein-/ausblenden",
+      "fallbackName": "Tastenkürzel"
+    },
+    "sections": {
+      "autofill": "Ausfüllen",
+      "header": "Obere Buttons",
+      "profiles": "Profile",
+      "multilink": "Multi-Link",
+      "settings": "Einstellungen"
+    },
+    "autofill": {
+      "detection": {
+        "title": "Formularerkennung",
+        "body": "Aullevo zählt die ausfüllbaren Felder auf der Seite in deinem aktuellen Tab. Öffne ein Formular, und die Zahl wird aktualisiert."
+      },
+      "highlight": {
+        "title": "Felder markieren",
+        "body": "Umrandet jedes Feld, das Aullevo auf der Seite gefunden hat, damit du vorher siehst, was ausgefüllt wird. Klicke erneut, um die Umrandungen zu entfernen."
+      },
+      "rescan": {
+        "title": "Neu scannen",
+        "body": "Manche Formulare fügen Felder erst nach dem Laden der Seite hinzu, etwa mehrstufige Formulare oder Pop-ups. Neu scannen zählt die Felder erneut."
+      },
+      "fill": {
+        "title": "Formular ausfüllen",
+        "body": "Füllt die Seite mit deinem aktiven Profil aus. Mit KI-Ausfüllen (in den Einstellungen) werden Fragen deinen Antworten zugeordnet, auch wenn sie anders formuliert sind. Ohne KI werden Felder per Stichwort zugeordnet."
+      },
+      "activeProfile": {
+        "title": "Aktives Profil",
+        "body": "Das Profil, das zum Ausfüllen genutzt wird, und wie viele Felder und Dokumente aktiviert sind. Wechsle Profile oder bearbeite deine Antworten im Tab <b>Profile</b>."
+      },
+      "shortcuts": {
+        "title": "Tastenkürzel",
+        "body": "Chrome legt diese Tasten bei der Installation von Aullevo fest, überspringt aber alle, die Chrome oder eine andere Erweiterung schon nutzt. Du kannst sie jederzeit ändern."
+      }
+    },
+    "header": {
+      "voice": {
+        "title": "Sprachmodus",
+        "body": "Sprich mit Aullevo, statt zu klicken. Diese Schaltfläche schaltet das Panel auf den Sprachassistenten um: Sag \"fill this page\", \"fill the email\" oder \"fill the first question\", und er antwortet laut. Klicke erneut, um zu dieser Ansicht zurückzukehren.",
+        "note": "Pro-Funktion. Benötigt deinen eigenen ElevenLabs-API-Schlüssel, den du unter Voice settings hinzufügst. Sprachbefehle funktionieren auf Englisch und Tagalog."
+      },
+      "language": {
+        "title": "Sprache",
+        "body": "Wähle die Sprache für ganz Aullevo. Englisch steht immer oben in der Liste, damit du jederzeit zurückwechseln kannst."
+      },
+      "theme": {
+        "title": "Helles oder dunkles Design",
+        "body": "Schaltet die Seitenleiste zwischen hellem und dunklem Modus um."
+      },
+      "json": {
+        "title": "Schnelleinrichtung per JSON",
+        "intro": "Dein Profil als JSON. So richtest du ein Profil am schnellsten ein:",
+        "step1": "Kopiere das JSON von hier.",
+        "step2": "Gib es Gemini, Claude oder ChatGPT zusammen mit deinem Lebenslauf oder einem anderen Dokument.",
+        "step3": "Bitte die KI, die Werte auszufüllen und die Struktur beizubehalten.",
+        "step4": "Füge das Ergebnis hier ein und klicke auf <b>Importieren</b>."
+      },
+      "fullPage": {
+        "title": "Als ganze Seite öffnen",
+        "body": "Öffnet Aullevo in einem Browser-Tab mit mehr Platz zum Bearbeiten von Profilen. Ausgefüllt wird weiterhin über diese Seitenleiste."
+      },
+      "close": {
+        "title": "Seitenleiste schließen",
+        "body": "Schließt die Seitenleiste. Öffne sie wieder mit <b>Alt+Q</b> (<b>Option+Q</b> auf dem Mac) oder über das Aullevo-Symbol in der Symbolleiste."
+      }
+    },
+    "profiles": {
+      "switcher": {
+        "title": "Profile wechseln",
+        "body1": "Jedes Profil (Job, Studium, Finanzen oder ein eigenes) hat seine eigenen Antworten. Wähle das Profil, das du bearbeiten und zum Ausfüllen nutzen möchtest.",
+        "body2": "Öffne die Liste, um zu sehen, welche Profile AN oder AUS sind, und um unten ein neues anzulegen.",
+        "note": "Free-Plan: Bis zu 2 Profile können gleichzeitig AN sein."
+      },
+      "config": {
+        "title": "Name und Ein/Aus-Schalter",
+        "body": "Benenne das Profil hier um. <b>PROFIL AN</b> schaltet das ganze Profil ein oder aus. Ist es aus, wird es nicht zum Ausfüllen genutzt."
+      },
+      "identity": {
+        "title": "Identität & Kontakt",
+        "body": "Dein Name, deine E-Mail, Telefonnummer und Adresse. Klicke auf eine Abschnittsüberschrift, um sie ein- oder auszuklappen. Jedes Feld hat drei kleine Steuerelemente, die als Nächstes gezeigt werden."
+      },
+      "fieldContext": {
+        "title": "KI-Kontexthinweis",
+        "body": "Der ✨-Button fügt einen Hinweis hinzu, der der KI erklärt, was das Feld bedeutet, z. B. „Amtlicher Vorname laut Reisepass“. Das hilft, wenn eine Formularfrage unklar formuliert ist. Ein Punkt zeigt, dass ein Hinweis gesetzt ist."
+      },
+      "fieldPrivacy": {
+        "title": "KI-sicher oder Sensibel",
+        "safe": "<b>KI-sicher</b>: Der Wert wird mit der KI geteilt, damit sie in Dropdowns und Multiple-Choice-Fragen die richtige Antwort wählen kann.",
+        "sensitive": "<b>Sensibel</b>: Die KI sieht nur den Namen und Hinweis des Feldes, nie den Wert. Aullevo trägt den Wert trotzdem auf deinem Gerät ein.",
+        "toggle": "Zum Umschalten anklicken."
+      },
+      "fieldToggle": {
+        "title": "Feld ein- oder ausschalten",
+        "body": "Schalte ein Feld auf AUS, um es beim Ausfüllen zu überspringen, ohne deine Eingabe zu löschen."
+      },
+      "documents": {
+        "title": "Dokumente anhängen",
+        "body": "Wähle den Dokumenttyp und lade dann Lebenslauf, Anschreiben, Ausweis und mehr hoch. Hat ein Formular eine Datei-Upload-Frage, hängt Aullevo deine Dokumente an, die AN sind.",
+        "note": "Dokumente an Formulare anhängen ist eine Pro-Funktion."
+      },
+      "attributes": {
+        "title": "Profilspezifische Felder",
+        "body": "Felder, die zu dieser Profilart gehören. Ein Job-Profil hat Headline, LinkedIn, Kenntnisse und Ausbildung. Studium, Medizin und die anderen haben ihre eigenen."
+      },
+      "customFields": {
+        "title": "Eigene Felder hinzufügen",
+        "body": "Für alles, was die Standardfelder nicht abdecken, z. B. „Gehaltsvorstellung“ oder „Warum möchtest du diesen Job?“. Gib eine Bezeichnung und einen Wert ein und klicke auf <b>+</b>. Den Wortlaut der Frage als Bezeichnung zu nutzen, funktioniert gut."
+      },
+      "save": {
+        "title": "Speichern",
+        "body": "Änderungen werden beim Tippen automatisch gespeichert. Dieser Button speichert sofort, praktisch kurz bevor du die Seitenleiste schließt."
+      }
+    },
+    "multilink": {
+      "addLink": {
+        "title": "Formularlink hinzufügen",
+        "body": "Füge den vollständigen Link zu einem Formular oder einer Bewerbung ein (beginnend mit https://) und klicke auf <b>+</b>. Füge so viele hinzu, wie du willst."
+      },
+      "savedLinks": {
+        "title": "Deine Link-Warteschlange",
+        "body": "Jeder hinzugefügte Link erscheint hier. Hake einen Link an, um ihn in den nächsten Stapel aufzunehmen, oder entferne den Haken, um ihn zu überspringen. Das Pfeilsymbol öffnet den Link, das Papierkorbsymbol entfernt ihn."
+      },
+      "batchRun": {
+        "title": "Alle auf einmal ausfüllen",
+        "body1": "Öffnet jeden angehakten Link nacheinander in einem Hintergrund-Tab und füllt ihn mit deinem aktiven Profil aus. Der Fortschritt wird oben in der Seitenleiste angezeigt.",
+        "note": "Tastenkürzel: Alt+Shift+B (Option+Shift+B auf dem Mac)."
+      }
+    },
+    "settings": {
+      "account": {
+        "title": "Dein Konto",
+        "body": "Verbinde dein Aullevo Web-Konto, damit dein Plan (Free oder Pro) hier gilt. Deine Profile bleiben verschlüsselt auf diesem Gerät und werden nicht hochgeladen."
+      },
+      "aiMode": {
+        "title": "Smartes KI-Ausfüllen oder Standard-Ausfüllen",
+        "standard": "<b>Standard-Ausfüllen</b> ordnet Felder nach Namen zu, ohne KI.",
+        "smart": "<b>Smartes KI-Ausfüllen</b> versteht anders formulierte Fragen und wählt Antworten in Dropdowns und Multiple-Choice-Fragen."
+      },
+      "aiEngine": {
+        "title": "KI-Anbieter, Modell und API-Schlüssel"
+      },
+      "memories": {
+        "title": "KI-Erinnerungen",
+        "body": "Kurze Fakten, die die KI für offene Fragen nutzen kann, z. B. „Arbeitsweise: nur remote“. Sie werden an den gewählten KI-Anbieter gesendet und nicht verschlüsselt, also füge nie Passwörter oder Ausweisnummern hinzu."
+      },
+      "autoPaginate": {},
+      "floatingIcon": {
+        "title": "Schwebender Button",
+        "body": "Ein kleiner Aullevo-Tab am Rand von Webseiten für den Schnellzugriff. Schalte ihn aus, wenn er stört."
+      },
+      "typingSpeed": {
+        "title": "Tippgeschwindigkeit",
+        "body": "Wie schnell Aullevo in Felder tippt. <b>Natürlich</b> wirkt eher wie ein Mensch beim Tippen, <b>Sofort</b> ist am schnellsten. Langsame und eigene Geschwindigkeiten sind Pro."
+      },
+      "replayTour": {
+        "title": "Diese Anleitung wiederholen",
+        "body": "Etwas vergessen? Klicke auf <b>Wiederholen</b>, um die ganze Anleitung noch einmal durchzugehen."
+      },
+      "deviceData": {
+        "title": "Daten auf diesem Gerät",
+        "body": "Jedes Konto hat seinen eigenen verschlüsselten Tresor in diesem Browser. Lösche die Daten von Konten, die du nicht mehr nutzt."
+      }
+    }
+  },
+  "vault": {
+    "loading": "Wird geladen…",
+    "account": {
+      "signedInAs": "Angemeldet als <b>{account}</b>",
+      "notSignedIn": "Nicht angemeldet: lokale Profile auf diesem Gerät",
+      "fallbackName": "dein Konto"
+    },
+    "errors": {
+      "createFailed": "Der Tresor konnte nicht erstellt werden. Bitte versuche es erneut.",
+      "wrongPassphrase": "Falsche Passphrase.",
+      "wrongClaimPassphrase": "Falsche Passphrase für diese Profile."
+    }
+  }
+}

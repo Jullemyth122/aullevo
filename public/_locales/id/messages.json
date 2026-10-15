@@ -1,0 +1,20 @@
+{
+  "appName": {
+    "message": "Aullevo - Isi Otomatis Formulir dengan AI & Pengisi Lamaran Kerja"
+  },
+  "appDescription": {
+    "message": "Pengisi formulir AI untuk lamaran kerja, survei, dan formulir web apa pun. Profil tersimpan, unggah CV, dan isi otomatis cerdas."
+  },
+  "actionTitle": {
+    "message": "Buka Panel Samping Aullevo"
+  },
+  "commandTogglePanel": {
+    "message": "Buka/Tutup Panel Samping Aullevo"
+  },
+  "commandFill": {
+    "message": "Jalankan Isi Otomatis Formulir dengan AI atau Kata Kunci di Halaman"
+  },
+  "commandBatchFill": {
+    "message": "Jalankan Isi Otomatis Formulir Massal Multi-tautan"
+  }
+}

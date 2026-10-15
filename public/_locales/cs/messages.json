@@ -1,0 +1,20 @@
+{
+  "appName": {
+    "message": "Aullevo - AI vyplňování formulářů a žádostí o práci"
+  },
+  "appDescription": {
+    "message": "AI vyplňování žádostí o práci, dotazníků a webových formulářů. Uložené profily, nahrání životopisu a chytré vyplňování."
+  },
+  "actionTitle": {
+    "message": "Otevřít boční panel Aullevo"
+  },
+  "commandTogglePanel": {
+    "message": "Zobrazit/skrýt boční panel Aullevo"
+  },
+  "commandFill": {
+    "message": "Spustit vyplnění formuláře na stránce (AI nebo klíčová slova)"
+  },
+  "commandBatchFill": {
+    "message": "Spustit hromadné vyplnění formulářů z více odkazů"
+  }
+}

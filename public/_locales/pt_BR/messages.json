@@ -1,0 +1,20 @@
+{
+  "appName": {
+    "message": "Aullevo - Preenchimento de formulários e candidaturas com IA"
+  },
+  "appDescription": {
+    "message": "Preencha com IA candidaturas de emprego, pesquisas e qualquer formulário. Perfis salvos, envio de CV e preenchimento inteligente."
+  },
+  "actionTitle": {
+    "message": "Abrir o painel lateral do Aullevo"
+  },
+  "commandTogglePanel": {
+    "message": "Mostrar/ocultar o painel lateral do Aullevo"
+  },
+  "commandFill": {
+    "message": "Preencher o formulário da página com IA ou palavras-chave"
+  },
+  "commandBatchFill": {
+    "message": "Preencher em lote formulários de vários links"
+  }
+}

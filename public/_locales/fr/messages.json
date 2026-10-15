@@ -1,0 +1,20 @@
+{
+  "appName": {
+    "message": "Aullevo - Remplissage IA de formulaires et candidatures"
+  },
+  "appDescription": {
+    "message": "Remplissage par IA des candidatures, sondages et formulaires web. Profils enregistrés, import de CV et saisie auto intelligente."
+  },
+  "actionTitle": {
+    "message": "Ouvrir le panneau latéral Aullevo"
+  },
+  "commandTogglePanel": {
+    "message": "Afficher/masquer le panneau latéral Aullevo"
+  },
+  "commandFill": {
+    "message": "Lancer le remplissage IA ou par mots-clés sur la page"
+  },
+  "commandBatchFill": {
+    "message": "Lancer le remplissage groupé multi-liens"
+  }
+}

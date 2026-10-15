@@ -1,0 +1,744 @@
+{
+  "autofill": {
+    "detection": {
+      "title": "Detekce formulářů",
+      "sub": "Pole na aktivní kartě",
+      "highlightTitle": "Prohlédnout a zvýraznit pole na stránce",
+      "clear": "Vymazat",
+      "highlight": "Zvýraznit",
+      "rescanTitle": "Znovu skenovat stránku",
+      "rescan": "Znovu skenovat"
+    },
+    "fill": {
+      "injecting": "Vkládání...",
+      "disabled": "{type}: vypnuto",
+      "withAi": "Vyplnit formulář s AI ({type})",
+      "standard": "Vyplnit formulář ({type})",
+      "autoPaginate": "Auto-stránkování zapnuto: vyplní všechny stránky a pak odešle"
+    },
+    "activeProfile": {
+      "title": "Aktivní profil",
+      "summary": "{fields} • {docs} připraveno",
+      "fieldCount": {
+        "one": "{count} pole",
+        "few": "{count} pole",
+        "many": "{count} pole",
+        "other": "{count} polí"
+      },
+      "docCount": {
+        "one": "{count} dokument",
+        "few": "{count} dokumenty",
+        "many": "{count} dokumentu",
+        "other": "{count} dokumentů"
+      },
+      "ready": "PŘIPRAVENO",
+      "disabled": "VYPNUTO"
+    },
+    "shortcuts": {
+      "title": "Klávesové zkratky",
+      "toggleSidePanel": "Zobrazit/skrýt boční panel",
+      "formFill": "Vyplnění formuláře: AI / klíčová slova",
+      "batchFill": "Hromadné vyplnění z více odkazů"
+    }
+  },
+  "content": {
+    "openSidebar": "Otevřít boční panel Aullevo",
+    "filled": "VYPLNĚNO",
+    "file": "Soubor: {name}",
+    "files": {
+      "one": "Přiložen {count} soubor",
+      "few": "Přiloženy {count} soubory",
+      "many": "Přiloženo {count} souboru",
+      "other": "Přiloženo {count} souborů"
+    },
+    "matched": "Shoda: {name}",
+    "ranked": "Pořadí: {value}",
+    "ai": "[AI] {text}",
+    "aiGenerated": "[AI] Vygenerováno",
+    "fixed": "Opraveno: {value}"
+  },
+  "header": {
+    "versionLine": "v{version} • Automatické vyplňování",
+    "lightTheme": "Světlý motiv",
+    "darkTheme": "Tmavý motiv",
+    "jsonConfig": "Konfigurace JSON",
+    "openFullPage": "Otevřít celou stránku",
+    "closeSidePanel": "Zavřít boční panel",
+    "footer": {
+      "engine": "Vyplňovací jádro Aullevo",
+      "ready": "Připraveno"
+    }
+  },
+  "json": {
+    "title": "Konfigurace JSON",
+    "badge": {
+      "fields": {
+        "one": "✓ {count} pole",
+        "few": "✓ {count} pole",
+        "many": "✓ {count} pole",
+        "other": "✓ {count} polí"
+      },
+      "invalid": "Neplatný JSON"
+    },
+    "actions": {
+      "format": "Formátovat JSON",
+      "fullscreen": "Celá obrazovka",
+      "exitFullscreen": "Ukončit celou obrazovku",
+      "close": "Zavřít",
+      "download": "Stáhnout",
+      "copy": "Kopírovat JSON",
+      "copied": "Zkopírováno",
+      "upload": "Nahrát soubor",
+      "import": "Importovat"
+    },
+    "quota": {
+      "downloadPro": "Stahování (export) je funkce Pro."
+    },
+    "errors": {
+      "noFields": "V zadaném JSON nebyla nalezena žádná platná pole.",
+      "invalidFormat": "Neplatný formát JSON: {error}"
+    }
+  },
+  "language": {
+    "title": "Jazyk",
+    "button": "Jazyk: {name}",
+    "search": "Hledat jazyky",
+    "auto": "Automaticky: {name}",
+    "autoHint": "Podle jazyka prohlížeče",
+    "backToEnglish": "Zpět na angličtinu",
+    "changed": "Jazyk změněn na: {name}.",
+    "switchBack": "Přepnout zpět na: {name}",
+    "keep": "Ponechat",
+    "noResults": "Žádné jazyky nenalezeny",
+    "settingsHint": "Změní všechny obrazovky Aullevo včetně průvodce."
+  },
+  "manifest": {
+    "appName": "Aullevo - AI vyplňování formulářů a žádostí o práci",
+    "appDescription": "AI vyplňování žádostí o práci, dotazníků a webových formulářů. Uložené profily, nahrání životopisu a chytré vyplňování.",
+    "actionTitle": "Otevřít boční panel Aullevo",
+    "commandTogglePanel": "Zobrazit/skrýt boční panel Aullevo",
+    "commandFill": "Spustit vyplnění formuláře na stránce (AI nebo klíčová slova)",
+    "commandBatchFill": "Spustit hromadné vyplnění formulářů z více odkazů"
+  },
+  "multilink": {
+    "batch": {
+      "title": "Fronta hromadného vyplňování",
+      "activeCount": "Aktivní: {enabled} z {total}",
+      "description": "Automaticky otevírá a vyplňuje formuláře na více kartách pomocí aktivního profilu <b>{type}</b>.",
+      "running": "Probíhá hromadné vyplňování...",
+      "start": {
+        "one": "Hromadně vyplnit {count} formulář",
+        "few": "Hromadně vyplnit {count} formuláře",
+        "many": "Hromadně vyplnit {count} formuláře",
+        "other": "Hromadně vyplnit {count} formulářů"
+      }
+    },
+    "add": {
+      "title": "Přidat odkaz na formulář / nabídku práce"
+    },
+    "saved": {
+      "title": "Uložené odkazy ({count})",
+      "clearAll": "Vymazat vše",
+      "empty": "Zatím žádné odkazy. Začněte vložením URL formuláře výše.",
+      "open": "Otevřít odkaz",
+      "remove": "Odebrat odkaz"
+    }
+  },
+  "nav": {
+    "autofill": "Vyplňování",
+    "profiles": "Profily ({count})",
+    "multiLink": "Více odkazů",
+    "settings": "Nastavení"
+  },
+  "profiles": {
+    "types": {
+      "job": "Práce",
+      "medical": "Zdraví",
+      "government": "Úřady",
+      "survey": "Průzkum",
+      "academic": "Studium",
+      "financial": "Finance",
+      "custom": "Vlastní"
+    },
+    "badges": {
+      "on": "ZAP",
+      "off": "VYP",
+      "disabled": "VYPNUTO",
+      "sensitive": "CITLIVÉ",
+      "aiSafe": "BEZPEČNÉ PRO AI"
+    },
+    "save": {
+      "button": "Uložit profil {type}",
+      "saved": "Uloženo ✓"
+    },
+    "dropdown": {
+      "newProfilePlaceholder": "Název nového profilu...",
+      "add": "Přidat"
+    },
+    "config": {
+      "title": "Konfigurace profilu",
+      "on": "PROFIL ZAP",
+      "off": "PROFIL VYP",
+      "activeTooltip": "Profil {type} je aktivní",
+      "disabledTooltip": "Profil {type} je vypnutý",
+      "namePlaceholder": "Název profilu"
+    },
+    "identity": {
+      "title": "Identita a kontakt",
+      "firstName": "Jméno",
+      "lastName": "Příjmení",
+      "email": "E-mailová adresa",
+      "phone": "Telefonní číslo",
+      "address": "Adresa bydliště"
+    },
+    "attributes": {
+      "title": "Atributy: {type}",
+      "customHint": "Přidejte vlastní pole níže nebo je importujte z JSON.",
+      "job": {
+        "headline": "Titulek / pozice",
+        "linkedin": "LinkedIn",
+        "github": "GitHub",
+        "portfolio": "Portfolio",
+        "skills": "Dovednosti",
+        "education": "Vzdělání / titul",
+        "certifications": "Certifikace"
+      },
+      "medical": {
+        "bloodType": "Krevní skupina",
+        "allergies": "Alergie",
+        "emergencyContact": "Nouzový kontakt",
+        "insuranceProvider": "Pojišťovna"
+      },
+      "government": {
+        "nationalId": "Číslo OP / rodné číslo",
+        "citizenship": "Státní občanství",
+        "passport": "Číslo pasu",
+        "driversLicense": "Řidičský průkaz"
+      },
+      "survey": {
+        "ageRange": "Věková skupina",
+        "income": "Příjem",
+        "education": "Vzdělání",
+        "employment": "Zaměstnání"
+      },
+      "academic": {
+        "institution": "Instituce",
+        "major": "Obor studia",
+        "gpa": "Studijní průměr (GPA)",
+        "gradYear": "Rok absolvování",
+        "testScores": "Výsledky testů"
+      },
+      "financial": {
+        "billingAddress": "Fakturační adresa",
+        "payment": "Platba",
+        "cardholder": "Držitel karty"
+      }
+    },
+    "field": {
+      "sensitiveTooltip": "Citlivé: hodnota je před AI skrytá (zero-knowledge)",
+      "aiSafeTooltip": "Bezpečné pro AI: hodnota se sdílí s AI pro chytrý výběr možností"
+    },
+    "context": {
+      "buttonTitle": "Kontext AI pro: {label}",
+      "title": "Kontext AI: {label}",
+      "placeholder": "Nápověda pro AI (např. „Úřední jméno podle pasu“)",
+      "hint": "AI podle této nápovědy rozpoznává nejednoznačná pole formulářů na webu."
+    },
+    "custom": {
+      "title": "Vlastní pole",
+      "labelPlaceholder": "Popisek pole",
+      "valuePlaceholder": "Hodnota pole",
+      "sensitiveTooltip": "Citlivé: hodnota je před AI skrytá",
+      "aiSafeTooltip": "Bezpečné pro AI: hodnota se sdílí s AI",
+      "enabledTooltip": "Pole zapnuto",
+      "disabledTooltip": "Pole vypnuto",
+      "delete": "Smazat pole",
+      "pagination": {
+        "one": "Stránka {page} z {total} ({count} položka)",
+        "few": "Stránka {page} z {total} ({count} položky)",
+        "many": "Stránka {page} z {total} ({count} položky)",
+        "other": "Stránka {page} z {total} ({count} položek)"
+      },
+      "newLabelPlaceholder": "Popisek",
+      "newValuePlaceholder": "Hodnota",
+      "add": "Přidat vlastní pole"
+    },
+    "documents": {
+      "title": "Přiložené dokumenty",
+      "labelPlaceholder": "Popisek dokumentu",
+      "labelTooltip": "Kliknutím upravíte popisek dokumentu",
+      "remove": "Odebrat soubor",
+      "pagination": "Stránka {page} z {total}",
+      "categories": {
+        "resume": "Životopis / CV",
+        "coverLetter": "Motivační dopis",
+        "identity": "Doklad totožnosti",
+        "academic": "Studijní výpis",
+        "portfolio": "Portfolio",
+        "other": "Jiný dokument"
+      },
+      "upload": {
+        "resume": "Nahrát životopis",
+        "coverLetter": "Nahrát motivační dopis",
+        "identity": "Nahrát doklad",
+        "academic": "Nahrát studijní výpis",
+        "portfolio": "Nahrát portfolio",
+        "other": "Nahrát dokument"
+      },
+      "size": {
+        "bytes": "{size} B",
+        "kilobytes": "{size} KB",
+        "megabytes": "{size} MB"
+      }
+    }
+  },
+  "settings": {
+    "account": {
+      "title": "Účet",
+      "proUntil": "Pro do {date}",
+      "proLifetime": "Pro · Doživotně",
+      "disconnect": "Odpojit účet",
+      "waiting": "Čeká se na přihlášení…",
+      "connect": "Připojit k Aullevo Web",
+      "renew": "Pro vypršelo · Obnovit",
+      "upgrade": "Přejít na Pro"
+    },
+    "theme": {
+      "title": "Vzhled motivu",
+      "dark": "Tmavý motiv",
+      "description": "Přepínání mezi tmavým motivem Slate a světlým motivem"
+    },
+    "mode": {
+      "title": "Režim vyplňování",
+      "aiActive": "Chytré vyplňování AI (aktivní)",
+      "standard": "Standardní vyplňování (bez AI)",
+      "aiDescription": "Pomocí uvažování AI interpretuje otázky a páruje složitá pole",
+      "standardDescription": "Přímé párování atributů profilu bez volání AI",
+      "toggle": "Přepnout režim vyplňování AI"
+    },
+    "ai": {
+      "title": "Jádro AI",
+      "unlimited": "Neomezený přístup",
+      "keyRequired": "Vyžadován klíč API",
+      "freeUsage": "Free: {used}/{limit} tento týden",
+      "privacy": "<b>Soukromí:</b> pole označená jako CITLIVÉ se nikdy neposílají do AI, posílají se jen jejich popisky. Hodnoty polí BEZPEČNÉ PRO AI a otázky formuláře se posílají do {provider}.",
+      "provider": "Poskytovatel AI",
+      "customProvider": "Vlastní (kompatibilní s OpenAI)",
+      "baseUrl": "URL serveru",
+      "customHint": "Funguje s každým serverem, který podporuje chatovací API OpenAI, například OpenRouter, Groq, Mistral, Ollama nebo LM Studio. Místní servery klíč nepotřebují.",
+      "model": "Model AI",
+      "modelOption": "{name} ({description})",
+      "models": {
+        "fastest": "Nejrychlejší a velmi levný",
+        "balanced": "Vyvážené uvažování",
+        "capable": "Rychlý a schopný",
+        "smartest": "Nejvyšší inteligence",
+        "legacy": "Starší, rychlý"
+      },
+      "otherModel": "Jiný model (zadejte jeho ID)",
+      "modelIdPlaceholder": "Přesné ID modelu, např. {example}",
+      "apiKey": "Klíč API {provider}",
+      "getKey": "Získat klíč API",
+      "keyPlaceholder": "Vložte svůj klíč API {provider}",
+      "hideKey": "Skrýt klíč",
+      "showKey": "Zobrazit klíč",
+      "addKeyHint": "Pro použití funkce Chytré vyplňování AI přidejte klíč API pro {provider}.",
+      "proHint": "Pro: neomezené vyplňování s AI. Váš klíč zůstává v tomto prohlížeči.",
+      "freeHint": "Plán Free: {limit} vyplnění s AI týdně. Pro neomezené použití přejděte na Pro."
+    },
+    "paginate": {
+      "title": "Auto-stránkování",
+      "toggleTitle": "Vyplňovat vícestránkové formuláře",
+      "description": "Vyplní každou stránku, klikne na Další / Pokračovat a na konci stiskne Odeslat. Opraví odpovědi, které formulář odmítne; když to nejde, pozastaví se.",
+      "toggle": "Přepnout Auto-stránkování",
+      "proFeature": "Funkce Pro",
+      "upgrade": "Pro použití Auto-stránkování přejděte na Pro"
+    },
+    "floating": {
+      "title": "Plovoucí ikona na webu",
+      "toggleTitle": "Zobrazit plovoucí tlačítko",
+      "description": "Zobrazí záložku Aullevo pro rychlý přístup u okraje webových stránek",
+      "toggle": "Přepnout plovoucí tlačítko na webu"
+    },
+    "typing": {
+      "title": "Lidská rychlost psaní",
+      "instant": "Okamžitá ({ms}ms)",
+      "natural": "Přirozená ({ms}ms)",
+      "slow": "Pomalá ({ms}ms)",
+      "custom": "Vlastní ({ms}ms)",
+      "naturalFree": "Přirozená ({ms}ms) · Plán Free",
+      "description": "Píše po jednom znaku lidským tempem pro weby, které očekávají skutečné stisky kláves.",
+      "proFeature": "Funkce Pro",
+      "customDelay": "Vlastní prodleva:",
+      "customProFeature": "Vlastní prodleva je funkce Pro",
+      "unitMs": "ms"
+    },
+    "tour": {
+      "title": "Průvodce",
+      "toggleTitle": "Zobrazit průvodce znovu",
+      "description": "Znovu vás krok za krokem provede všemi kartami",
+      "replay": "Spustit znovu"
+    },
+    "security": {
+      "title": "Šifrováno lokálně"
+    },
+    "memories": {
+      "title": "Paměť AI",
+      "count": "({enabled}/{total} zap.)",
+      "descriptionAiOn": "Fakta o vás, která může AI použít k odpovědím na otevřené otázky (např. „Styl práce: pouze na dálku“). Zapnuté záznamy se posílají do {provider} a ukládají se v tomto prohlížeči nešifrovaně, proto nepřidávejte hesla ani čísla dokladů.",
+      "descriptionAiOff": "Fakta o vás, která může AI použít k odpovědím na otevřené otázky (např. „Styl práce: pouze na dálku“). Používá se jen při zapnutém Chytrém vyplňování AI. Zapnuté záznamy se posílají do {provider} a ukládají se v tomto prohlížeči nešifrovaně, proto nepřidávejte hesla ani čísla dokladů.",
+      "titlePlaceholder": "Název",
+      "contentPlaceholder": "Co by AI měla vědět",
+      "enabledTitle": "Záznam se posílá do AI",
+      "disabledTitle": "Záznam se nepoužívá",
+      "on": "ZAP",
+      "off": "VYP",
+      "delete": "Smazat záznam",
+      "newTitlePlaceholder": "Název (např. Styl práce)",
+      "newContentPlaceholder": "Obsah (např. Preferuje plně vzdálené pozice, otevřen i smluvní spolupráci)",
+      "add": "Přidat záznam"
+    },
+    "deviceData": {
+      "title": "Data v tomto zařízení",
+      "total": "Celkem {size}",
+      "description": "Každý účet tu má vlastní šifrovaný trezor. Účty nikdy nevidí profily, dokumenty, klíč API, paměť AI ani odkazy jiných účtů.",
+      "empty": "Zatím žádná uložená data.",
+      "localOwner": "Nepřihlášeno (místní profily)",
+      "anotherAccount": "Jiný účet",
+      "inUse": "{size} · právě používáno",
+      "deleteTitle": "Smazat data tohoto účtu z tohoto zařízení",
+      "delete": "Smazat",
+      "confirmDelete": "Smazat data Aullevo pro „{name}“ z tohoto zařízení?\n\nTím trvale odstraníte jeho šifrované profily, dokumenty, klíč API, paměť AI a frontu odkazů. Tuto akci nelze vrátit.",
+      "bytes": "{size} B",
+      "kilobytes": "{size} KB",
+      "megabytes": "{size} MB"
+    }
+  },
+  "status": {
+    "plan": {
+      "profileLimit": "Plán Free umožňuje {max} aktivní profily. Přepněte nadbytečné profily na VYP nebo přejděte na Pro.",
+      "activeLimit": "Plán Free umožňuje {max} aktivní profily. Přepněte jeden na VYP nebo přejděte na Pro.",
+      "createdOff": "Profil byl vytvořen jako VYP. Plán Free umožňuje {max} aktivní profily. Přepněte jeden na VYP nebo přejděte na Pro.",
+      "autoPaginatePro": "Auto-stránkování je funkce Pro. Pro vyplňování vícestránkových formulářů přejděte na Pro.",
+      "jsonImportLimit": "Za tyto 2 týdny jste vyčerpali limit bezplatných importů JSON ({limit}). Obnoví se {date}, nebo přejděte na Pro pro neomezené importy.",
+      "documentsSkipped": {
+        "one": "{count} dokument nebyl přiložen: nahrávání do formulářů je funkce Pro.",
+        "few": "{count} dokumenty nebyly přiloženy: nahrávání do formulářů je funkce Pro.",
+        "many": "{count} dokumentu nebylo přiloženo: nahrávání do formulářů je funkce Pro.",
+        "other": "{count} dokumentů nebylo přiloženo: nahrávání do formulářů je funkce Pro."
+      }
+    },
+    "batch": {
+      "starting": {
+        "one": "Spouští se hromadné vyplnění {count} formuláře...",
+        "few": "Spouští se hromadné vyplnění {count} formulářů...",
+        "many": "Spouští se hromadné vyplnění {count} formuláře...",
+        "other": "Spouští se hromadné vyplnění {count} formulářů..."
+      },
+      "progress": "Vyplňování {current} z {total}: {host}",
+      "progressNoHost": "Vyplňování {current} z {total}...",
+      "complete": {
+        "one": "Hromadné vyplnění dokončeno: {count} formulář!",
+        "few": "Hromadné vyplnění dokončeno: {count} formuláře!",
+        "many": "Hromadné vyplnění dokončeno: {count} formuláře!",
+        "other": "Hromadné vyplnění dokončeno: {count} formulářů!"
+      }
+    },
+    "save": {
+      "success": "Profil {type} byl úspěšně uložen!",
+      "failed": "Uložení se nezdařilo: {error}",
+      "noProfile": "Není vybrán žádný profil",
+      "unknownError": "Uložení se nezdařilo"
+    },
+    "profile": {
+      "nameExists": "Profil s tímto názvem už existuje!",
+      "disabled": "{type}: profil je vypnutý. Pro automatické vyplňování ho přepněte na ZAP.",
+      "defaultType": "PROFIL",
+      "imported": {
+        "one": "Úspěšně importováno {count} pole do: {type}!",
+        "few": "Úspěšně importována {count} pole do: {type}!",
+        "many": "Úspěšně importováno {count} pole do: {type}!",
+        "other": "Úspěšně importováno {count} polí do: {type}!"
+      }
+    },
+    "highlight": {
+      "noActiveTab": "Nebyla nalezena žádná aktivní karta.",
+      "refreshToConnect": "Pro připojení zvýraznění obnovte stránku.",
+      "on": {
+        "one": "Na stránce bylo zvýrazněno {count} pole!",
+        "few": "Na stránce byla zvýrazněna {count} pole!",
+        "many": "Na stránce bylo zvýrazněno {count} pole!",
+        "other": "Na stránce bylo zvýrazněno {count} polí!"
+      },
+      "cleared": "Zvýraznění vymazáno."
+    },
+    "fill": {
+      "injectingAi": "Vkládání polí s AI ({type})...",
+      "injecting": "Vkládání polí ({type})...",
+      "noTab": "Nelze se spojit s aktivní kartou.",
+      "refreshToConnect": "Pro připojení automatického vyplňování obnovte kartu.",
+      "cannotConnect": "Nelze se připojit ke stránce. Obnovte kartu.",
+      "aiPartlySkipped": {
+        "one": "Vyplněno {count} pole (AI částečně přeskočena).",
+        "few": "Vyplněna {count} pole (AI částečně přeskočena).",
+        "many": "Vyplněno {count} pole (AI částečně přeskočena).",
+        "other": "Vyplněno {count} polí (AI částečně přeskočena)."
+      },
+      "keywordMode": {
+        "one": "Vyplněno {count} pole (režim klíčových slov).",
+        "few": "Vyplněna {count} pole (režim klíčových slov).",
+        "many": "Vyplněno {count} pole (režim klíčových slov).",
+        "other": "Vyplněno {count} polí (režim klíčových slov)."
+      },
+      "withAi": {
+        "one": "Formulář vyplněn s AI (spárováno {count} pole).",
+        "few": "Formulář vyplněn s AI (spárována {count} pole).",
+        "many": "Formulář vyplněn s AI (spárováno {count} pole).",
+        "other": "Formulář vyplněn s AI (spárováno {count} polí)."
+      },
+      "withoutAi": {
+        "one": "Formulář vyplněn bez AI (spárováno {count} pole).",
+        "few": "Formulář vyplněn bez AI (spárována {count} pole).",
+        "many": "Formulář vyplněn bez AI (spárováno {count} pole).",
+        "other": "Formulář vyplněn bez AI (spárováno {count} polí)."
+      },
+      "error": "Chyba vyplňování: {error}",
+      "injected": {
+        "one": "Do stránky bylo vloženo {count} pole.",
+        "few": "Do stránky byla vložena {count} pole.",
+        "many": "Do stránky bylo vloženo {count} pole.",
+        "other": "Do stránky bylo vloženo {count} polí."
+      }
+    },
+    "pagination": {
+      "progress": "Auto-stránkování: vyplňuje se stránka {page}...",
+      "lostConnection": "Auto-stránkování zastaveno: ztraceno spojení s rozšířením.",
+      "filled": {
+        "one": "Vyplněná pole: {filled} na {count} stránce.",
+        "few": "Vyplněná pole: {filled} na {count} stránkách.",
+        "many": "Vyplněná pole: {filled} na {count} stránky.",
+        "other": "Vyplněná pole: {filled} na {count} stránkách."
+      },
+      "corrected": {
+        "one": "Opravena {count} odpověď, kterou formulář odmítl.",
+        "few": "Opraveny {count} odpovědi, které formulář odmítl.",
+        "many": "Opraveno {count} odpovědi, které formulář odmítl.",
+        "other": "Opraveno {count} odpovědí, které formulář odmítl."
+      },
+      "field": "„{name}“",
+      "fieldAndMore": {
+        "one": "„{name}“ (+{count} další)",
+        "few": "„{name}“ (+{count} další)",
+        "many": "„{name}“ (+{count} dalšího)",
+        "other": "„{name}“ (+{count} dalších)"
+      },
+      "aField": "pole",
+      "nextButton": "Další",
+      "submitted": "Odesláno!",
+      "noNext": "Tlačítko Další / Pokračovat nebylo nalezeno.",
+      "stillEmpty": "{field} je stále prázdné.",
+      "check": "Zkontrolujte {field}.",
+      "blocked": "Pozastaveno na stránce {page}: {field} je povinné a prázdné. Vyplňte ho a spusťte znovu.",
+      "nextDisabled": "Pozastaveno na stránce {page}: tlačítko „{button}“ je neaktivní. Zkontrolujte stránku a spusťte znovu.",
+      "validationError": "Pozastaveno na stránce {page}: formulář hlásí „{error}“.",
+      "validationErrorUnknown": "Pozastaveno na stránce {page}: formulář hlásí chybu.",
+      "correctionTried": "(byla zkoušena automatická oprava)",
+      "stuck": "Pozastaveno na stránce {page}: kliknuto na „{button}“, ale formulář nepokročil dál.",
+      "maxPages": "Zastaveno na bezpečnostním limitu {max} stránek.",
+      "noForm": "Na této stránce nebyl nalezen žádný formulář (nebo zde Aullevo nemůže běžet).",
+      "stopped": "Auto-stránkování zastaveno: {error}",
+      "unknownError": "neznámá chyba"
+    }
+  },
+  "tour": {
+    "card": {
+      "progress": "{section} · {current} z {total}",
+      "skip": "Přeskočit průvodce",
+      "dontShowAgain": "Už nezobrazovat",
+      "back": "Zpět",
+      "next": "Další",
+      "done": "Hotovo"
+    },
+    "shortcuts": {
+      "allActive": "Všechny 3 zkratky jsou v tomto prohlížeči aktivní.",
+      "notSet": "V tomto prohlížeči nenastaveno: {list}. Nastavte je sami v nastavení zkratek Chrome.",
+      "openSettings": "Otevřít nastavení zkratek Chrome",
+      "toggleSidePanel": "Zobrazit/skrýt boční panel",
+      "fallbackName": "Zkratka"
+    },
+    "sections": {
+      "autofill": "Vyplňování",
+      "header": "Horní tlačítka",
+      "profiles": "Profily",
+      "multilink": "Více odkazů",
+      "settings": "Nastavení"
+    },
+    "autofill": {
+      "detection": {
+        "title": "Detekce formulářů",
+        "body": "Aullevo počítá vyplnitelná pole na stránce v aktuální kartě. Otevřete formulář a číslo se aktualizuje."
+      },
+      "highlight": {
+        "title": "Zvýraznit pole",
+        "body": "Ohraničí každé pole, které Aullevo na stránce našlo, takže před vyplněním vidíte, co se vyplní. Dalším kliknutím ohraničení odstraníte."
+      },
+      "rescan": {
+        "title": "Znovu skenovat",
+        "body": "Některé formuláře přidávají pole až po načtení stránky, třeba vícekrokové formuláře nebo vyskakovací okna. Znovu skenovat pole spočítá znovu."
+      },
+      "fill": {
+        "title": "Vyplnit formulář",
+        "body": "Vyplní stránku podle aktivního profilu. Se zapnutým vyplňováním AI (v Nastavení) se otázky spárují s vašimi odpovědmi, i když jsou formulované jinak. Když je vypnuté, pole se párují podle klíčových slov."
+      },
+      "activeProfile": {
+        "title": "Aktivní profil",
+        "body": "Profil použitý k vyplňování a počet zapnutých polí a dokumentů. Profily přepnete nebo odpovědi upravíte na kartě <b>Profily</b>."
+      },
+      "shortcuts": {
+        "title": "Klávesové zkratky",
+        "body": "Chrome tyto klávesy nastaví při instalaci Aullevo, ale vynechá ty, které už používá Chrome nebo jiné rozšíření. Kdykoli je můžete změnit."
+      }
+    },
+    "header": {
+      "voice": {
+        "title": "Hlasový režim",
+        "body": "Mluvte s Aullevo místo klikání. Toto tlačítko přepne panel na hlasového asistenta: řekněte \"fill this page\", \"fill the email\" nebo \"fill the first question\" a odpoví vám nahlas. Dalším kliknutím se vrátíte k tomuto zobrazení.",
+        "note": "Funkce Pro. Vyžaduje vlastní API klíč ElevenLabs, který přidáte ve Voice settings. Hlasové příkazy fungují v angličtině a tagalštině."
+      },
+      "language": {
+        "title": "Jazyk",
+        "body": "Vyberte jazyk pro celé Aullevo. Angličtina je vždy na začátku seznamu, takže se k ní můžete kdykoli vrátit."
+      },
+      "theme": {
+        "title": "Světlý nebo tmavý motiv",
+        "body": "Přepíná panel mezi světlým a tmavým režimem."
+      },
+      "json": {
+        "title": "Rychlé nastavení přes JSON",
+        "intro": "Váš profil ve formátu JSON. Nejrychlejší způsob, jak profil nastavit:",
+        "step1": "Zkopírujte odsud JSON.",
+        "step2": "Předejte ho Gemini, Claude nebo ChatGPT spolu se životopisem nebo jiným dokumentem.",
+        "step3": "Požádejte AI, aby doplnila hodnoty a zachovala stejnou strukturu.",
+        "step4": "Vložte výsledek sem a klikněte na <b>Importovat</b>."
+      },
+      "fullPage": {
+        "title": "Otevřít celou stránku",
+        "body": "Otevře Aullevo v kartě prohlížeče s více místem pro úpravu profilů. Vyplňování dál probíhá z tohoto bočního panelu."
+      },
+      "close": {
+        "title": "Zavřít panel",
+        "body": "Zavře boční panel. Znovu ho otevřete zkratkou <b>Alt+Q</b> (<b>Option+Q</b> na Macu) nebo kliknutím na ikonu Aullevo na liště nástrojů."
+      }
+    },
+    "profiles": {
+      "switcher": {
+        "title": "Přepínání profilů",
+        "body1": "Každý profil (Práce, Studium, Finance nebo vlastní) má svou sadu odpovědí. Vyberte ten, který chcete upravovat a používat k vyplňování.",
+        "body2": "Otevřete seznam, abyste viděli, které profily jsou ZAP a které VYP, a dole můžete vytvořit nový.",
+        "note": "Plán Free: najednou mohou být ZAP nejvýše 2 profily."
+      },
+      "config": {
+        "title": "Název a vypínač",
+        "body": "Zde profil přejmenujete. <b>PROFIL ZAP</b> zapíná nebo vypíná celý profil. Když je vypnutý, k vyplňování se nepoužívá."
+      },
+      "identity": {
+        "title": "Identita a kontakt",
+        "body": "Vaše jméno, e-mail, telefon a adresa. Kliknutím na záhlaví sekce ji sbalíte nebo rozbalíte. Každé pole má tři malé ovládací prvky, popsané dále."
+      },
+      "fieldContext": {
+        "title": "Nápověda kontextu pro AI",
+        "body": "Tlačítko ✨ přidá nápovědu, která AI řekne, co pole znamená, např. „Úřední jméno podle pasu“. Pomáhá, když je otázka ve formuláři formulovaná nejasně. Tečka znamená, že je nápověda nastavená."
+      },
+      "fieldPrivacy": {
+        "title": "Bezpečné pro AI, nebo Citlivé",
+        "safe": "<b>Bezpečné pro AI</b>: hodnota se sdílí s AI, aby mohla vybrat správnou odpověď v rozbalovacích seznamech a otázkách s výběrem možností.",
+        "sensitive": "<b>Citlivé</b>: AI vidí jen název pole a nápovědu, nikdy hodnotu. Aullevo hodnotu přesto vepíše ve vašem zařízení.",
+        "toggle": "Kliknutím přepnete."
+      },
+      "fieldToggle": {
+        "title": "Zapnutí a vypnutí pole",
+        "body": "Přepněte pole na VYP, aby se při vyplňování přeskočilo, aniž byste smazali, co jste napsali."
+      },
+      "documents": {
+        "title": "Přiložení dokumentů",
+        "body": "Vyberte typ dokumentu a nahrajte životopis, motivační dopis, doklad a další. Když má formulář otázku s nahráním souboru, Aullevo přiloží vaše dokumenty, které jsou ZAP.",
+        "note": "Přikládání dokumentů do formulářů je funkce Pro."
+      },
+      "attributes": {
+        "title": "Pole podle typu profilu",
+        "body": "Pole, která patří k danému typu profilu. Profil Práce má titulek, LinkedIn, dovednosti a vzdělání. Studium, Zdraví a ostatní mají svá vlastní."
+      },
+      "customFields": {
+        "title": "Přidání vlastních polí",
+        "body": "Pro vše, co standardní pole nepokrývají, třeba „Očekávaná mzda“ nebo „Proč chcete tuto práci?“. Napište popisek a hodnotu a klikněte na <b>+</b>. Jako popisek se osvědčuje znění otázky."
+      },
+      "save": {
+        "title": "Ukládání",
+        "body": "Změny se ukládají automaticky při psaní. Toto tlačítko uloží okamžitě, což se hodí těsně před zavřením panelu."
+      }
+    },
+    "multilink": {
+      "addLink": {
+        "title": "Přidání odkazu na formulář",
+        "body": "Vložte celý odkaz na formulář nebo žádost o práci (začínající https://) a klikněte na <b>+</b>. Přidejte jich, kolik chcete."
+      },
+      "savedLinks": {
+        "title": "Vaše fronta odkazů",
+        "body": "Každý přidaný odkaz se zobrazí zde. Zaškrtnutím odkaz zahrnete do další dávky, zrušením zaškrtnutí ho přeskočíte. Ikona šipky odkaz otevře, ikona koše ho odebere."
+      },
+      "batchRun": {
+        "title": "Vyplnit všechny najednou",
+        "body1": "Otevře každý zaškrtnutý odkaz v kartě na pozadí, jeden po druhém, a vyplní ho podle aktivního profilu. Průběh se zobrazuje v horní části panelu.",
+        "note": "Zkratka: Alt+Shift+B (Option+Shift+B na Macu)."
+      }
+    },
+    "settings": {
+      "account": {
+        "title": "Váš účet",
+        "body": "Připojte svůj účet Aullevo Web, aby se zde uplatnil váš plán (Free nebo Pro). Vaše profily zůstávají šifrované v tomto zařízení a nenahrávají se."
+      },
+      "aiMode": {
+        "title": "Chytré vyplňování AI, nebo Standardní vyplňování",
+        "standard": "<b>Standardní vyplňování</b> páruje pole podle názvu, bez AI.",
+        "smart": "<b>Chytré vyplňování AI</b> rozumí jinak formulovaným otázkám a vybírá odpovědi v rozbalovacích seznamech a otázkách s výběrem možností."
+      },
+      "aiEngine": {
+        "title": "Poskytovatel AI, model a klíč API"
+      },
+      "memories": {
+        "title": "Paměť AI",
+        "body": "Krátká fakta, která AI může použít u otevřených otázek, např. „Styl práce: pouze na dálku“. Posílají se zvolenému poskytovateli AI a nejsou šifrovaná, proto nikdy nepřidávejte hesla ani čísla dokladů."
+      },
+      "autoPaginate": {},
+      "floatingIcon": {
+        "title": "Plovoucí tlačítko",
+        "body": "Malá záložka Aullevo na okraji webových stránek pro rychlý přístup. Pokud překáží, vypněte ji."
+      },
+      "typingSpeed": {
+        "title": "Rychlost psaní",
+        "body": "Jak rychle Aullevo píše do polí. <b>Přirozená</b> víc připomíná psaní člověka, <b>Okamžitá</b> je nejrychlejší. Pomalá a vlastní rychlost jsou ve verzi Pro."
+      },
+      "replayTour": {
+        "title": "Spustit průvodce znovu",
+        "body": "Něco jste zapomněli? Klikněte na <b>Spustit znovu</b> a projděte celého průvodce ještě jednou."
+      },
+      "deviceData": {
+        "title": "Data v tomto zařízení",
+        "body": "Každý účet má v tomto prohlížeči vlastní šifrovaný trezor. Smažte data účtů, které už nepoužíváte."
+      }
+    }
+  },
+  "vault": {
+    "loading": "Načítání…",
+    "account": {
+      "signedInAs": "Přihlášeno jako <b>{account}</b>",
+      "notSignedIn": "Nepřihlášeno: místní profily v tomto zařízení",
+      "fallbackName": "váš účet"
+    },
+    "errors": {
+      "createFailed": "Trezor se nepodařilo vytvořit. Zkuste to prosím znovu.",
+      "wrongPassphrase": "Nesprávné heslo.",
+      "wrongClaimPassphrase": "Nesprávné heslo pro tyto profily."
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+    "title": "Language",
+    "button": "Language: {name}",
+    "search": "Search languages",
+    "auto": "Automatic: {name}",
+    "autoHint": "Follows your browser's language",
+    "backToEnglish": "Back to English",
+    "changed": "Language changed to {name}.",
+    "switchBack": "Switch back to {name}",
+    "keep": "Keep",
+    "noResults": "No languages found",
+    "settingsHint": "Changes every screen of Aullevo, including the guided tour."
+}

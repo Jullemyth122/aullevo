@@ -1,0 +1,35 @@
+{
+    "loading": "Loading…",
+    "account": {
+        "signedInAs": "Signed in as <b>{account}</b>",
+        "notSignedIn": "Not signed in: local profiles on this device",
+        "fallbackName": "your account",
+        "guestName": "this browser (guest)"
+    },
+    "guest": {
+        "title": "Profiles Saved as a Guest",
+        "description": "This browser has profiles that were saved without an account. If they are yours, use them for this account. If they belong to someone else, start fresh: they stay with the guest.",
+        "passphraseNote": "They were saved with a passphrase. Enter it once to move them (Aullevo won't ask for it again).",
+        "placeholder": "Passphrase of those profiles",
+        "use": "Yes, use them for this account",
+        "working": "Moving…",
+        "fresh": "No, start fresh",
+        "freshNote": "Each account and the guest keep their own profiles. Nothing is shared between them."
+    },
+    "upgrade": {
+        "title": "Enter Your Passphrase One Last Time",
+        "description": "Aullevo no longer uses a passphrase. Enter yours once more to open your profiles; after that, Aullevo opens straight away and never asks again.",
+        "placeholder": "Passphrase",
+        "submit": "Open my profiles",
+        "working": "Opening…",
+        "forgot": "Forgot it? Start over (deletes these profiles)"
+    },
+    "reset": {
+        "confirm": "Start over?\n\nThis deletes the profiles, documents, AI memories, link queue and API keys saved for {account} on this device. It cannot be undone. Other accounts are not affected."
+    },
+    "errors": {
+        "createFailed": "Could not create the vault. Please try again.",
+        "wrongPassphrase": "Wrong passphrase.",
+        "wrongClaimPassphrase": "Wrong passphrase for those profiles."
+    }
+}

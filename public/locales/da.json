@@ -1,0 +1,706 @@
+{
+  "autofill": {
+    "detection": {
+      "title": "Formularregistrering",
+      "sub": "Felter på aktiv fane",
+      "highlightTitle": "Undersøg og fremhæv felter på siden",
+      "clear": "Ryd",
+      "highlight": "Fremhæv",
+      "rescanTitle": "Scan siden igen",
+      "rescan": "Scan igen"
+    },
+    "fill": {
+      "injecting": "Udfylder...",
+      "disabled": "{type} deaktiveret",
+      "withAi": "Udfyld formular med AI ({type})",
+      "standard": "Udfyld formular ({type})",
+      "autoPaginate": "Automatisk sideskift til: udfylder hver side og sender derefter"
+    },
+    "activeProfile": {
+      "title": "Aktiv profil",
+      "summary": "{fields} • {docs} klar",
+      "fieldCount": {
+        "one": "{count} felt",
+        "other": "{count} felter"
+      },
+      "docCount": {
+        "one": "{count} dokument",
+        "other": "{count} dokumenter"
+      },
+      "ready": "KLAR",
+      "disabled": "DEAKTIVERET"
+    },
+    "shortcuts": {
+      "title": "Tastaturgenveje",
+      "toggleSidePanel": "Vis/skjul sidepanel",
+      "formFill": "Formularudfyldning med AI / nøgleord",
+      "batchFill": "Masseudfyldning via flere links"
+    }
+  },
+  "content": {
+    "openSidebar": "Åbn Aullevos sidepanel",
+    "filled": "UDFYLDT",
+    "file": "Fil: {name}",
+    "files": {
+      "one": "{count} fil vedhæftet",
+      "other": "{count} filer vedhæftet"
+    },
+    "matched": "Matchet: {name}",
+    "ranked": "Rangeret: {value}",
+    "ai": "[AI] {text}",
+    "aiGenerated": "[AI] Genereret",
+    "fixed": "Rettet: {value}"
+  },
+  "header": {
+    "versionLine": "v{version} • Autoudfyld",
+    "lightTheme": "Lyst tema",
+    "darkTheme": "Mørkt tema",
+    "jsonConfig": "JSON-konfiguration",
+    "openFullPage": "Åbn helside",
+    "closeSidePanel": "Luk sidepanel",
+    "footer": {
+      "engine": "Aullevos autoudfyldningsmotor",
+      "ready": "Klar"
+    }
+  },
+  "json": {
+    "title": "JSON-konfiguration",
+    "badge": {
+      "fields": {
+        "one": "✓ {count} felt",
+        "other": "✓ {count} felter"
+      },
+      "invalid": "Ugyldig JSON"
+    },
+    "actions": {
+      "format": "Formatér / forskøn JSON",
+      "fullscreen": "Fuld skærm",
+      "exitFullscreen": "Afslut fuld skærm",
+      "close": "Luk",
+      "download": "Download",
+      "copy": "Kopiér JSON",
+      "copied": "Kopieret",
+      "upload": "Upload fil",
+      "import": "Importér"
+    },
+    "quota": {
+      "downloadPro": "Download (eksport) er en Pro-funktion."
+    },
+    "errors": {
+      "noFields": "Der blev ikke fundet gyldige felter i den angivne JSON.",
+      "invalidFormat": "Ugyldigt JSON-format: {error}"
+    }
+  },
+  "language": {
+    "title": "Sprog",
+    "button": "Sprog: {name}",
+    "search": "Søg efter sprog",
+    "auto": "Automatisk: {name}",
+    "autoHint": "Følger din browsers sprog",
+    "backToEnglish": "Tilbage til engelsk",
+    "changed": "Sproget er ændret til {name}.",
+    "switchBack": "Skift tilbage til {name}",
+    "keep": "Behold",
+    "noResults": "Ingen sprog fundet",
+    "settingsHint": "Ændrer alle skærme i Aullevo, inklusive den guidede rundvisning."
+  },
+  "manifest": {
+    "appName": "Aullevo - AI-autoudfyldning af formularer og jobansøgninger",
+    "appDescription": "AI-udfylder til jobansøgninger, undersøgelser og alle webformularer. Gemte profiler, CV-upload og smart autoudfyldning.",
+    "actionTitle": "Åbn Aullevos sidepanel",
+    "commandTogglePanel": "Vis/skjul Aullevos sidepanel",
+    "commandFill": "Start autoudfyldning med AI eller nøgleord på siden",
+    "commandBatchFill": "Start masseudfyldning via flere links"
+  },
+  "multilink": {
+    "batch": {
+      "title": "Kø til masseudfyldning",
+      "activeCount": "{enabled} af {total} aktive",
+      "description": "Åbn og udfyld formularer automatisk i flere faner med din aktive <b>{type}</b>-profil.",
+      "running": "Masseudfyldning i gang...",
+      "start": {
+        "one": "Udfyld {count} formular samlet",
+        "other": "Udfyld {count} formularer samlet"
+      }
+    },
+    "add": {
+      "title": "Tilføj formular-/joblink"
+    },
+    "saved": {
+      "title": "Gemte links ({count})",
+      "clearAll": "Ryd alle",
+      "empty": "Ingen links endnu. Indsæt en formular-URL ovenfor for at starte.",
+      "open": "Åbn link",
+      "remove": "Fjern link"
+    }
+  },
+  "nav": {
+    "autofill": "Autoudfyld",
+    "profiles": "Profiler ({count})",
+    "multiLink": "Multilink",
+    "settings": "Indstillinger"
+  },
+  "profiles": {
+    "types": {
+      "job": "Job",
+      "medical": "Medicinsk",
+      "government": "Offentlig",
+      "survey": "Undersøgelse",
+      "academic": "Akademisk",
+      "financial": "Økonomi",
+      "custom": "Tilpasset"
+    },
+    "badges": {
+      "on": "TIL",
+      "off": "FRA",
+      "disabled": "DEAKTIVERET",
+      "sensitive": "FØLSOM",
+      "aiSafe": "AI-SIKKER"
+    },
+    "save": {
+      "button": "Gem {type}-profil",
+      "saved": "Gemt ✓"
+    },
+    "dropdown": {
+      "newProfilePlaceholder": "Navn på ny profil...",
+      "add": "Tilføj"
+    },
+    "config": {
+      "title": "Profilkonfiguration",
+      "on": "PROFIL TIL",
+      "off": "PROFIL FRA",
+      "activeTooltip": "{type}-profilen er aktiv",
+      "disabledTooltip": "{type}-profilen er deaktiveret",
+      "namePlaceholder": "Profilnavn"
+    },
+    "identity": {
+      "title": "Identitet og kontakt",
+      "firstName": "Fornavn",
+      "lastName": "Efternavn",
+      "email": "E-mailadresse",
+      "phone": "Telefonnummer",
+      "address": "Bopælsadresse"
+    },
+    "attributes": {
+      "title": "{type}-attributter",
+      "customHint": "Tilføj dine egne felter nedenfor, eller importér via JSON.",
+      "job": {
+        "headline": "Overskrift / titel",
+        "linkedin": "LinkedIn",
+        "github": "GitHub",
+        "portfolio": "Portfolio",
+        "skills": "Kompetencer",
+        "education": "Uddannelse / grad",
+        "certifications": "Certificeringer"
+      },
+      "medical": {
+        "bloodType": "Blodtype",
+        "allergies": "Allergier",
+        "emergencyContact": "Nødkontakt",
+        "insuranceProvider": "Forsikringsselskab"
+      },
+      "government": {
+        "nationalId": "CPR-nummer / ID-nummer",
+        "citizenship": "Statsborgerskab",
+        "passport": "Pasnummer",
+        "driversLicense": "Kørekort"
+      },
+      "survey": {
+        "ageRange": "Aldersgruppe",
+        "income": "Indkomst",
+        "education": "Uddannelse",
+        "employment": "Beskæftigelse"
+      },
+      "academic": {
+        "institution": "Uddannelsessted",
+        "major": "Hovedfag / studieretning",
+        "gpa": "Karaktergennemsnit (GPA)",
+        "gradYear": "Dimissionsår",
+        "testScores": "Testresultater"
+      },
+      "financial": {
+        "billingAddress": "Faktureringsadresse",
+        "payment": "Betaling",
+        "cardholder": "Kortholder"
+      }
+    },
+    "field": {
+      "sensitiveTooltip": "Følsom: værdien skjules for AI (Zero-Knowledge)",
+      "aiSafeTooltip": "AI-sikker: værdien deles med AI til smart valg af svar"
+    },
+    "context": {
+      "buttonTitle": "AI-kontekst for {label}",
+      "title": "AI-kontekst: {label}",
+      "placeholder": "Ledetråd til AI (f.eks. \"Juridisk fornavn i passet\")",
+      "hint": "AI bruger denne ledetråd til at identificere tvetydige formularfelter på websites."
+    },
+    "custom": {
+      "title": "Egne felter",
+      "labelPlaceholder": "Feltetiket",
+      "valuePlaceholder": "Feltværdi",
+      "sensitiveTooltip": "Følsom: værdien skjules for AI",
+      "aiSafeTooltip": "AI-sikker: værdien deles med AI",
+      "enabledTooltip": "Feltet er aktiveret",
+      "disabledTooltip": "Feltet er deaktiveret",
+      "delete": "Slet felt",
+      "pagination": {
+        "one": "Side {page} af {total} ({count} element)",
+        "other": "Side {page} af {total} ({count} elementer)"
+      },
+      "newLabelPlaceholder": "Etiket",
+      "newValuePlaceholder": "Værdi",
+      "add": "Tilføj eget felt"
+    },
+    "documents": {
+      "title": "Vedhæftede dokumenter",
+      "labelPlaceholder": "Dokumentetiket",
+      "labelTooltip": "Klik for at redigere dokumentetiketten",
+      "remove": "Fjern fil",
+      "pagination": "Side {page} af {total}",
+      "categories": {
+        "resume": "CV",
+        "coverLetter": "Ansøgning",
+        "identity": "Identitet / ID",
+        "academic": "Eksamensbevis",
+        "portfolio": "Portfolio",
+        "other": "Andet dokument"
+      },
+      "upload": {
+        "resume": "Upload CV",
+        "coverLetter": "Upload ansøgning",
+        "identity": "Upload ID",
+        "academic": "Upload eksamensbevis",
+        "portfolio": "Upload portfolio",
+        "other": "Upload dokument"
+      },
+      "size": {
+        "bytes": "{size} B",
+        "kilobytes": "{size} KB",
+        "megabytes": "{size} MB"
+      }
+    }
+  },
+  "settings": {
+    "account": {
+      "title": "Konto",
+      "proUntil": "Pro indtil {date}",
+      "proLifetime": "Pro · Livstid",
+      "disconnect": "Afbryd forbindelse til konto",
+      "waiting": "Venter på login…",
+      "connect": "Forbind med Aullevo Web",
+      "renew": "Pro er udløbet · Forny",
+      "upgrade": "Opgradér til Pro"
+    },
+    "theme": {
+      "title": "Tema",
+      "dark": "Mørkt tema",
+      "description": "Skift mellem mørkt skifer og lyst tema"
+    },
+    "mode": {
+      "title": "Tilstand for autoudfyldning",
+      "aiActive": "AI-smartudfyldning (aktiv)",
+      "standard": "Standardudfyldning (uden AI)",
+      "aiDescription": "Bruger AI til at fortolke spørgsmål og matche komplekse felter",
+      "standardDescription": "Matcher profilattributter direkte uden AI-kald",
+      "toggle": "Slå AI-udfyldning til/fra"
+    },
+    "ai": {
+      "title": "AI-motor",
+      "unlimited": "Ubegrænset adgang",
+      "keyRequired": "API-nøgle påkrævet",
+      "freeUsage": "Free: {used}/{limit} denne uge",
+      "privacy": "<b>Privatliv:</b> Felter markeret som FØLSOM sendes aldrig til AI, kun deres etiketter. Værdier i AI-SIKKER-felter og formularens spørgsmål sendes til {provider}.",
+      "provider": "AI-udbyder",
+      "customProvider": "Brugerdefineret (OpenAI-kompatibel)",
+      "baseUrl": "Server-URL",
+      "customHint": "Virker med alle servere, der understøtter OpenAI's chat-API, f.eks. OpenRouter, Groq, Mistral, Ollama eller LM Studio. Lokale servere kræver ingen nøgle.",
+      "model": "AI-model",
+      "modelOption": "{name} ({description})",
+      "models": {
+        "fastest": "Hurtigst og billigst",
+        "balanced": "Afbalanceret ræsonnement",
+        "capable": "Hurtig og kompetent",
+        "smartest": "Højeste intelligens",
+        "legacy": "Ældre, hurtig"
+      },
+      "otherModel": "Anden model (skriv dens ID)",
+      "modelIdPlaceholder": "Præcist model-ID, f.eks. {example}",
+      "apiKey": "{provider} API-nøgle",
+      "getKey": "Få API-nøgle",
+      "keyPlaceholder": "Indsæt din {provider} API-nøgle",
+      "hideKey": "Skjul nøgle",
+      "showKey": "Vis nøgle",
+      "addKeyHint": "Tilføj din {provider} API-nøgle for at bruge AI-smartudfyldning.",
+      "proHint": "Pro: ubegrænsede AI-udfyldninger. Din nøgle bliver i denne browser.",
+      "freeHint": "Free-plan: {limit} AI-udfyldninger om ugen. Opgradér til Pro for ubegrænset."
+    },
+    "paginate": {
+      "title": "Automatisk sideskift",
+      "toggleTitle": "Udfyld formularer med flere sider",
+      "description": "Udfylder hver side, klikker på Næste / Fortsæt og trykker på Send til sidst. Retter svar, som formularen afviser, og holder pause, når det ikke kan lade sig gøre.",
+      "toggle": "Slå automatisk sideskift til/fra",
+      "proFeature": "Pro-funktion",
+      "upgrade": "Opgradér til Pro for at bruge automatisk sideskift"
+    },
+    "floating": {
+      "title": "Svævende ikon på websider",
+      "toggleTitle": "Vis svævende knap",
+      "description": "Vis Aullevos hurtigfane fastgjort i kanten af websider",
+      "toggle": "Slå svævende knap på websider til/fra"
+    },
+    "typing": {
+      "title": "Menneskelig skrivehastighed",
+      "instant": "Øjeblikkelig ({ms} ms)",
+      "natural": "Naturlig ({ms} ms)",
+      "slow": "Langsom ({ms} ms)",
+      "custom": "Brugerdefineret ({ms} ms)",
+      "naturalFree": "Naturlig ({ms} ms) · Free-plan",
+      "description": "Skriver ét tegn ad gangen i menneskeligt tempo til websites, der forventer rigtige tastetryk.",
+      "proFeature": "Pro-funktion",
+      "customDelay": "Brugerdefineret forsinkelse:",
+      "customProFeature": "Brugerdefineret forsinkelse er en Pro-funktion",
+      "unitMs": "ms"
+    },
+    "tour": {
+      "title": "Guidet rundvisning",
+      "toggleTitle": "Vis gennemgangen igen",
+      "description": "Gennemgår alle faner igen, trin for trin",
+      "replay": "Vis igen"
+    },
+    "security": {
+      "title": "Krypteret lokalt"
+    },
+    "memories": {
+      "title": "AI-hukommelse",
+      "count": "({enabled}/{total} til)",
+      "descriptionAiOn": "Fakta om dig, som AI kan bruge til at besvare åbne spørgsmål (f.eks. \"Arbejdsform: kun remote\"). Aktiverede fakta sendes til {provider} og gemmes ukrypteret i denne browser, så tilføj ikke adgangskoder eller ID-numre.",
+      "descriptionAiOff": "Fakta om dig, som AI kan bruge til at besvare åbne spørgsmål (f.eks. \"Arbejdsform: kun remote\"). Bruges kun, når AI-smartudfyldning er slået til. Aktiverede fakta sendes til {provider} og gemmes ukrypteret i denne browser, så tilføj ikke adgangskoder eller ID-numre.",
+      "titlePlaceholder": "Titel",
+      "contentPlaceholder": "Hvad AI skal vide",
+      "enabledTitle": "Hukommelsen sendes til AI",
+      "disabledTitle": "Hukommelsen bruges ikke",
+      "on": "TIL",
+      "off": "FRA",
+      "delete": "Slet hukommelse",
+      "newTitlePlaceholder": "Titel (f.eks. Arbejdsform)",
+      "newContentPlaceholder": "Indhold (f.eks. Foretrækker fuldt remote stillinger, åben for kontraktarbejde)",
+      "add": "Tilføj hukommelse"
+    },
+    "deviceData": {
+      "title": "Data på denne enhed",
+      "total": "{size} i alt",
+      "description": "Hver konto har sin egen krypterede boks her. Konti ser aldrig hinandens profiler, dokumenter, API-nøgle, hukommelse eller links.",
+      "empty": "Ingen gemte data endnu.",
+      "localOwner": "Ikke logget ind (lokale profiler)",
+      "anotherAccount": "En anden konto",
+      "inUse": "{size} · i brug nu",
+      "deleteTitle": "Slet kontoens data fra denne enhed",
+      "delete": "Slet",
+      "confirmDelete": "Vil du slette Aullevo-data for \"{name}\" fra denne enhed?\n\nDette fjerner permanent kontoens krypterede profiler, dokumenter, API-nøgle, AI-hukommelse og linkkø. Det kan ikke fortrydes.",
+      "bytes": "{size} B",
+      "kilobytes": "{size} KB",
+      "megabytes": "{size} MB"
+    }
+  },
+  "status": {
+    "plan": {
+      "profileLimit": "Free-planen tillader {max} aktive profiler. Slå ekstra profiler FRA, eller opgradér til Pro.",
+      "activeLimit": "Free-planen tillader {max} aktive profiler. Slå én FRA, eller opgradér til Pro.",
+      "createdOff": "Profilen blev oprettet som FRA. Free-planen tillader {max} aktive profiler. Slå én FRA, eller opgradér til Pro.",
+      "autoPaginatePro": "Automatisk sideskift er en Pro-funktion. Opgradér til Pro for at udfylde formularer med flere sider.",
+      "jsonImportLimit": "Du har brugt alle {limit} gratis JSON-importer for disse 2 uger. De nulstilles den {date}, eller opgradér til Pro for ubegrænset import.",
+      "documentsSkipped": {
+        "one": "{count} dokument blev ikke vedhæftet: upload til formularer er en Pro-funktion.",
+        "other": "{count} dokumenter blev ikke vedhæftet: upload til formularer er en Pro-funktion."
+      }
+    },
+    "batch": {
+      "starting": {
+        "one": "Starter masseudfyldning af {count} formular...",
+        "other": "Starter masseudfyldning af {count} formularer..."
+      },
+      "progress": "Udfylder {current} af {total}: {host}",
+      "progressNoHost": "Udfylder {current} af {total}...",
+      "complete": {
+        "one": "Masseudfyldning fuldført for {count} formular!",
+        "other": "Masseudfyldning fuldført for {count} formularer!"
+      }
+    },
+    "save": {
+      "success": "{type}-profilen er gemt!",
+      "failed": "Kunne ikke gemme: {error}",
+      "noProfile": "Ingen profil valgt",
+      "unknownError": "Kunne ikke gemme"
+    },
+    "profile": {
+      "nameExists": "Der findes allerede en profil med dette navn!",
+      "disabled": "{type} er deaktiveret. Slå den TIL for at autoudfylde.",
+      "defaultType": "PROFIL",
+      "imported": {
+        "one": "{count} felt er importeret til {type}!",
+        "other": "{count} felter er importeret til {type}!"
+      }
+    },
+    "highlight": {
+      "noActiveTab": "Ingen aktiv fane fundet.",
+      "refreshToConnect": "Genindlæs siden for at forbinde fremhævninger.",
+      "on": {
+        "one": "Fremhævede {count} felt på siden!",
+        "other": "Fremhævede {count} felter på siden!"
+      },
+      "cleared": "Fremhævninger er ryddet."
+    },
+    "fill": {
+      "injectingAi": "Udfylder felter med AI ({type})...",
+      "injecting": "Udfylder felter ({type})...",
+      "noTab": "Kunne ikke nå den aktive fane.",
+      "refreshToConnect": "Genindlæs fanen for at forbinde autoudfyldning.",
+      "cannotConnect": "Kunne ikke oprette forbindelse til siden. Genindlæs fanen.",
+      "aiPartlySkipped": {
+        "one": "Udfyldte {count} felt (AI delvist sprunget over).",
+        "other": "Udfyldte {count} felter (AI delvist sprunget over)."
+      },
+      "keywordMode": {
+        "one": "Udfyldte {count} felt (nøgleordstilstand).",
+        "other": "Udfyldte {count} felter (nøgleordstilstand)."
+      },
+      "withAi": {
+        "one": "Formularen er udfyldt med AI ({count} felt matchet).",
+        "other": "Formularen er udfyldt med AI ({count} felter matchet)."
+      },
+      "withoutAi": {
+        "one": "Formularen er udfyldt uden AI ({count} felt matchet).",
+        "other": "Formularen er udfyldt uden AI ({count} felter matchet)."
+      },
+      "error": "Fejl ved udfyldning: {error}",
+      "injected": {
+        "one": "Udfyldte {count} felt på siden.",
+        "other": "Udfyldte {count} felter på siden."
+      }
+    },
+    "pagination": {
+      "progress": "Automatisk sideskift: udfylder side {page}...",
+      "lostConnection": "Automatisk sideskift stoppet: mistede forbindelsen til udvidelsen.",
+      "filled": {
+        "one": "Udfyldte {filled} felter på {count} side.",
+        "other": "Udfyldte {filled} felter på {count} sider."
+      },
+      "corrected": {
+        "one": "Rettede {count} svar, som formularen afviste.",
+        "other": "Rettede {count} svar, som formularen afviste."
+      },
+      "field": "\"{name}\"",
+      "fieldAndMore": {
+        "one": "\"{name}\" (+{count} mere)",
+        "other": "\"{name}\" (+{count} mere)"
+      },
+      "aField": "et felt",
+      "nextButton": "Næste",
+      "submitted": "Sendt!",
+      "noNext": "Ingen Næste/Fortsæt-knap fundet.",
+      "stillEmpty": "{field} er stadig tomt.",
+      "check": "Tjek {field}.",
+      "blocked": "Sat på pause på side {page}: {field} er påkrævet og tomt. Udfyld det, og kør igen.",
+      "nextDisabled": "Sat på pause på side {page}: knappen \"{button}\" er deaktiveret. Tjek siden, og kør igen.",
+      "validationError": "Sat på pause på side {page}: formularen meldte \"{error}\".",
+      "validationErrorUnknown": "Sat på pause på side {page}: formularen meldte en fejl.",
+      "correctionTried": "(automatisk rettelse blev forsøgt)",
+      "stuck": "Sat på pause på side {page}: klikkede på \"{button}\", men formularen gik ikke videre.",
+      "maxPages": "Stoppet ved sikkerhedsgrænsen på {max} sider.",
+      "noForm": "Der blev ikke fundet nogen formular på denne side (eller Aullevo kan ikke køre her).",
+      "stopped": "Automatisk sideskift stoppet: {error}",
+      "unknownError": "ukendt fejl"
+    }
+  },
+  "tour": {
+    "card": {
+      "progress": "{section} · {current} af {total}",
+      "skip": "Spring rundvisning over",
+      "dontShowAgain": "Vis ikke igen",
+      "back": "Tilbage",
+      "next": "Næste",
+      "done": "Færdig"
+    },
+    "shortcuts": {
+      "allActive": "Alle 3 genveje er aktive i denne browser.",
+      "notSet": "Ikke angivet i denne browser: {list}. Angiv dem selv i Chromes indstillinger for genveje.",
+      "openSettings": "Åbn Chromes indstillinger for genveje",
+      "toggleSidePanel": "Vis/skjul sidepanel",
+      "fallbackName": "Genvej"
+    },
+    "sections": {
+      "autofill": "Autoudfyld",
+      "header": "Knapper øverst",
+      "profiles": "Profiler",
+      "multilink": "Multilink",
+      "settings": "Indstillinger"
+    },
+    "autofill": {
+      "detection": {
+        "title": "Formularregistrering",
+        "body": "Aullevo tæller de felter, der kan udfyldes, på siden i din aktuelle fane. Åbn en formular, så opdateres tallet."
+      },
+      "highlight": {
+        "title": "Fremhæv felter",
+        "body": "Markerer hvert felt, Aullevo har fundet på siden, så du kan se, hvad der bliver udfyldt, før du udfylder. Klik igen for at fjerne markeringerne."
+      },
+      "rescan": {
+        "title": "Scan igen",
+        "body": "Nogle formularer tilføjer felter, efter siden er indlæst, f.eks. formularer i flere trin eller pop op-vinduer. Scan igen tæller felterne på ny."
+      },
+      "fill": {
+        "title": "Udfyld formularen",
+        "body": "Udfylder siden med din aktive profil. Med AI-udfyldning slået til (i Indstillinger) matches spørgsmål med dine svar, selv når de er formuleret anderledes. Når den er slået fra, matches felter efter nøgleord."
+      },
+      "activeProfile": {
+        "title": "Aktiv profil",
+        "body": "Profilen, der bruges til udfyldning, med antallet af aktiverede felter og dokumenter. Skift profil eller redigér dine svar under fanen <b>Profiler</b>."
+      },
+      "shortcuts": {
+        "title": "Tastaturgenveje",
+        "body": "Chrome angiver disse taster, når Aullevo installeres, men springer dem over, som Chrome eller en anden udvidelse allerede bruger. Du kan ændre dem når som helst."
+      }
+    },
+    "header": {
+      "voice": {
+        "title": "Stemmetilstand",
+        "body": "Tal med Aullevo i stedet for at klikke. Denne knap skifter panelet til stemmeassistenten: sig \"fill this page\", \"fill the email\" eller \"fill the first question\", så svarer den højt. Klik igen for at vende tilbage til denne visning.",
+        "note": "Pro-funktion. Kræver din egen ElevenLabs API-nøgle, som du tilføjer under Voice settings. Stemmekommandoer virker på engelsk og tagalog."
+      },
+      "language": {
+        "title": "Sprog",
+        "body": "Vælg sproget for hele Aullevo. Engelsk står altid øverst på listen, så du altid kan skifte tilbage."
+      },
+      "theme": {
+        "title": "Lyst eller mørkt tema",
+        "body": "Skifter panelet mellem lys og mørk tilstand."
+      },
+      "json": {
+        "title": "Hurtig opsætning med JSON",
+        "intro": "Din profil som JSON. Den hurtigste måde at oprette en profil på:",
+        "step1": "Kopiér JSON herfra.",
+        "step2": "Giv den til Gemini, Claude eller ChatGPT sammen med dit CV eller et andet dokument.",
+        "step3": "Bed AI'en om at udfylde værdierne og bevare samme struktur.",
+        "step4": "Indsæt resultatet her, og klik på <b>Importér</b>."
+      },
+      "fullPage": {
+        "title": "Åbn helside",
+        "body": "Åbner Aullevo i en browserfane med mere plads til at redigere profiler. Udfyldningen sker stadig fra dette sidepanel."
+      },
+      "close": {
+        "title": "Luk panelet",
+        "body": "Lukker sidepanelet. Åbn det igen med <b>Alt+Q</b> (<b>Option+Q</b> på Mac) eller ved at klikke på Aullevo-ikonet på værktøjslinjen."
+      }
+    },
+    "profiles": {
+      "switcher": {
+        "title": "Skift profil",
+        "body1": "Hver profil (Job, Akademisk, Økonomi eller din egen) har sit eget sæt svar. Vælg den, du vil redigere og udfylde med.",
+        "body2": "Åbn listen for at se, hvilke profiler der er TIL eller FRA, og for at oprette en ny nederst.",
+        "note": "Free-plan: op til 2 profiler kan være TIL ad gangen."
+      },
+      "config": {
+        "title": "Navn og til/fra-knap",
+        "body": "Omdøb profilen her. <b>PROFIL TIL</b> slår hele profilen til eller fra. Når den er slået fra, bruges den ikke til udfyldning."
+      },
+      "identity": {
+        "title": "Identitet og kontakt",
+        "body": "Dit navn, din e-mail, telefon og adresse. Klik på en sektionsoverskrift for at skjule eller udvide den. Hvert felt har tre små knapper, som vises herefter."
+      },
+      "fieldContext": {
+        "title": "AI-kontekstledetråd",
+        "body": "Knappen ✨ tilføjer en ledetråd, der fortæller AI, hvad feltet betyder, f.eks. \"Juridisk fornavn i passet\". Det hjælper, når et spørgsmål i en formular er uklart formuleret. En prik betyder, at der er angivet en ledetråd."
+      },
+      "fieldPrivacy": {
+        "title": "AI-sikker eller Følsom",
+        "safe": "<b>AI-sikker</b>: værdien deles med AI, så den kan vælge det rigtige svar i rullelister og multiple choice-spørgsmål.",
+        "sensitive": "<b>Følsom</b>: AI ser kun feltets navn og ledetråd, aldrig værdien. Aullevo indtaster stadig værdien på din enhed.",
+        "toggle": "Klik for at skifte."
+      },
+      "fieldToggle": {
+        "title": "Slå et felt til eller fra",
+        "body": "Slå et felt FRA for at springe det over ved udfyldning uden at slette det, du har skrevet."
+      },
+      "documents": {
+        "title": "Vedhæft dokumenter",
+        "body": "Vælg dokumenttypen, og upload derefter dit CV, din ansøgning, dit ID og meget mere. Når en formular har et spørgsmål med filupload, vedhæfter Aullevo dine dokumenter, der er TIL.",
+        "note": "Vedhæftning af dokumenter i formularer er en Pro-funktion."
+      },
+      "attributes": {
+        "title": "Profilspecifikke felter",
+        "body": "Felter, der hører til denne type profil. En Job-profil har overskrift, LinkedIn, kompetencer og uddannelse. Akademisk, Medicinsk og de andre har deres egne."
+      },
+      "customFields": {
+        "title": "Tilføj dine egne felter",
+        "body": "Til alt det, standardfelterne ikke dækker, f.eks. \"Forventet løn\" eller \"Hvorfor vil du have dette job?\". Skriv en etiket og en værdi, og klik derefter på <b>+</b>. Det fungerer godt at bruge spørgsmålets ordlyd som etiket."
+      },
+      "save": {
+        "title": "Gem",
+        "body": "Ændringer gemmes automatisk, mens du skriver. Denne knap gemmer med det samme, hvilket er praktisk lige før du lukker panelet."
+      }
+    },
+    "multilink": {
+      "addLink": {
+        "title": "Tilføj et formularlink",
+        "body": "Indsæt det fulde link til en formular eller jobansøgning (der starter med https://), og klik på <b>+</b>. Tilføj så mange, du vil."
+      },
+      "savedLinks": {
+        "title": "Din linkkø",
+        "body": "Alle links, du tilføjer, vises her. Markér et link for at tage det med i næste kørsel, eller fjern markeringen for at springe det over. Pilikonet åbner linket, og skraldespandsikonet fjerner det."
+      },
+      "batchRun": {
+        "title": "Udfyld dem alle på én gang",
+        "body1": "Åbner hvert markeret link i en baggrundsfane, ét ad gangen, og udfylder det med din aktive profil. Status vises øverst i panelet.",
+        "note": "Genvej: Alt+Shift+B (Option+Shift+B på Mac)."
+      }
+    },
+    "settings": {
+      "account": {
+        "title": "Din konto",
+        "body": "Forbind din Aullevo Web-konto, så din plan (Free eller Pro) gælder her. Dine profiler forbliver krypterede på denne enhed og uploades ikke."
+      },
+      "aiMode": {
+        "title": "AI-smartudfyldning eller Standardudfyldning",
+        "standard": "<b>Standardudfyldning</b> matcher felter efter navn uden AI.",
+        "smart": "<b>AI-smartudfyldning</b> forstår spørgsmål, der er formuleret anderledes, og vælger svar i rullelister og multiple choice-spørgsmål."
+      },
+      "aiEngine": {
+        "title": "AI-udbyder, model og API-nøgle"
+      },
+      "memories": {
+        "title": "AI-hukommelse",
+        "body": "Korte fakta, som AI kan bruge til åbne spørgsmål, f.eks. \"Arbejdsform: kun remote\". De sendes til den AI-udbyder, du har valgt og krypteres ikke, så tilføj aldrig adgangskoder eller ID-numre."
+      },
+      "autoPaginate": {},
+      "floatingIcon": {
+        "title": "Svævende knap",
+        "body": "En lille Aullevo-fane i kanten af websider for hurtig adgang. Slå den fra, hvis den er i vejen."
+      },
+      "typingSpeed": {
+        "title": "Skrivehastighed",
+        "body": "Hvor hurtigt Aullevo skriver i felter. <b>Naturlig</b> ligner mere en person, der skriver, og <b>Øjeblikkelig</b> er hurtigst. Langsom og brugerdefineret hastighed kræver Pro."
+      },
+      "replayTour": {
+        "title": "Vis guiden igen",
+        "body": "Glemt noget? Klik på <b>Vis igen</b> for at gennemgå hele guiden igen."
+      },
+      "deviceData": {
+        "title": "Data på denne enhed",
+        "body": "Hver konto har sin egen krypterede boks i denne browser. Slet data for konti, du ikke længere bruger."
+      }
+    }
+  },
+  "vault": {
+    "loading": "Indlæser…",
+    "account": {
+      "signedInAs": "Logget ind som <b>{account}</b>",
+      "notSignedIn": "Ikke logget ind: lokale profiler på denne enhed",
+      "fallbackName": "din konto"
+    },
+    "errors": {
+      "createFailed": "Boksen kunne ikke oprettes. Prøv igen.",
+      "wrongPassphrase": "Forkert adgangssætning.",
+      "wrongClaimPassphrase": "Forkert adgangssætning til disse profiler."
+    }
+  }
+}
