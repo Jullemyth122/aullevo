@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import type { ActiveTab } from '../layout/NavTabs';
 import { useT } from '../../i18n';
+import { TOUR_FOCUS_EVENT } from '../CollapsibleCard';
 
 export interface TourStep {
     target: string;   // matches a data-tour="..." attribute
@@ -82,6 +83,9 @@ export function GuidedTour({ steps, activeTab, onSelectTab, onFinish, onDismiss 
             else setIndex(next);
             return;
         }
+
+        // A folded Settings card opens, so the text about what's inside it matches the screen
+        window.dispatchEvent(new CustomEvent(TOUR_FOCUS_EVENT, { detail: target }));
 
         // Re-measured every frame (cheap) so the spotlight follows scrolling, resizing,
         // and layout shifts like the status banner appearing; state only changes on movement

@@ -83,9 +83,6 @@
       "upload": "Ladda upp fil",
       "import": "Importera"
     },
-    "quota": {
-      "downloadPro": "Nedladdning (export) är en Pro-funktion."
-    },
     "errors": {
       "noFields": "Inga giltiga fält hittades i angiven JSON.",
       "invalidFormat": "Ogiltigt JSON-format: {error}"
@@ -358,7 +355,6 @@
       "description": "Skriver ett tecken i taget i mänsklig takt, för webbplatser som förväntar sig riktiga tangenttryckningar.",
       "proFeature": "Pro-funktion",
       "customDelay": "Anpassad fördröjning:",
-      "customProFeature": "Anpassad fördröjning är en Pro-funktion",
       "unitMs": "ms"
     },
     "tour": {
@@ -407,12 +403,7 @@
       "profileLimit": "Free-planen tillåter {max} aktiva profiler. Stäng AV extra profiler eller uppgradera till Pro.",
       "activeLimit": "Free-planen tillåter {max} aktiva profiler. Stäng AV en eller uppgradera till Pro.",
       "createdOff": "Profilen skapades som AV. Free-planen tillåter {max} aktiva profiler. Stäng AV en eller uppgradera till Pro.",
-      "autoPaginatePro": "Automatisk sidbläddring är en Pro-funktion. Uppgradera till Pro för att fylla i formulär med flera sidor.",
-      "jsonImportLimit": "Du har använt alla {limit} gratis JSON-importer för dessa 2 veckor. De återställs den {date}, eller uppgradera till Pro för obegränsade importer.",
-      "documentsSkipped": {
-        "one": "{count} dokument bifogades inte: uppladdning i formulär är en Pro-funktion.",
-        "other": "{count} dokument bifogades inte: uppladdning i formulär är en Pro-funktion."
-      }
+      "jsonImportLimit": "Du har använt alla {limit} gratis JSON-importer för dessa 2 veckor. De återställs den {date}, eller uppgradera till Pro för obegränsade importer."
     },
     "batch": {
       "starting": {
@@ -564,8 +555,7 @@
     "header": {
       "voice": {
         "title": "Röstläge",
-        "body": "Prata med Aullevo i stället för att klicka. Den här knappen växlar panelen till röstassistenten: säg \"fill this page\", \"fill the email\" eller \"fill the first question\" så svarar den högt. Klicka igen för att komma tillbaka till den här vyn.",
-        "note": "Pro-funktion. Kräver en egen API-nyckel från ElevenLabs, som du lägger till under Voice settings. Röstkommandon fungerar på engelska och tagalog."
+        "body": "Prata med Aullevo i stället för att klicka. Den här knappen växlar panelen till röstassistenten: säg \"fill this page\", \"fill the email\" eller \"fill the first question\" så svarar den högt. Klicka igen för att komma tillbaka till den här vyn."
       },
       "language": {
         "title": "Språk",
@@ -623,8 +613,7 @@
       },
       "documents": {
         "title": "Bifoga dokument",
-        "body": "Välj dokumenttyp och ladda sedan upp ditt CV, personliga brev, ID-handling med mera. När ett formulär har en fråga med filuppladdning bifogar Aullevo dina dokument som är PÅ.",
-        "note": "Att bifoga dokument i formulär är en Pro-funktion."
+        "body": "Välj dokumenttyp och ladda sedan upp ditt CV, personliga brev, ID-handling med mera. När ett formulär har en fråga med filuppladdning bifogar Aullevo dina dokument som är PÅ."
       },
       "attributes": {
         "title": "Profilspecifika fält",
@@ -671,7 +660,6 @@
         "title": "AI-minnen",
         "body": "Korta fakta som AI kan använda för öppna frågor, till exempel ”Arbetssätt: endast distans”. De skickas till den AI-leverantör du har valt och krypteras inte, så lägg aldrig till lösenord eller ID-nummer."
       },
-      "autoPaginate": {},
       "floatingIcon": {
         "title": "Flytande knapp",
         "body": "En liten Aullevo-flik vid kanten av webbsidor för snabb åtkomst. Stäng av den om den är i vägen."

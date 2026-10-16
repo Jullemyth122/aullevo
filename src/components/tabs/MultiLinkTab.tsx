@@ -30,7 +30,7 @@ export function MultiLinkTab({
     const { t, tRich } = useT();
     const plan = usePlanRewards();
     const [inputUrl, setInputUrl] = useState('');
-    // Free plan: the batch runs 5 links (10 with the Multi-link ad unlock); Pro: all. Extra links stay saved.
+    // Free plan: the batch runs 5 links (all during a pass); Pro: all. Extra links stay saved.
     const limit = plan.access.linkLimit;
     const enabledCount = Math.min(links.filter(l => l.enabled).length, limit);
     const queueFull = Number.isFinite(limit) && links.length >= limit;
@@ -93,7 +93,7 @@ export function MultiLinkTab({
                 {Number.isFinite(limit) && (
                     <div style={{ fontSize: 10.5, color: queueFull ? 'var(--av-yellow)' : 'var(--av-text-muted)', marginBottom: 6 }}>
                         {t('rewards.links.count', { count: Math.min(links.length, limit), limit })}
-                        {/* Links saved beyond the limit (an ad unlock ended) stay in the queue, paused */}
+                        {/* Links saved beyond the limit (a pass ended) stay in the queue, paused */}
                         {links.length > limit && <> · {t('rewards.links.paused', { count: links.length - limit })}</>}
                     </div>
                 )}

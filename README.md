@@ -12,24 +12,25 @@ AI form autofill for Chrome. Save profiles (identity, job, academic, custom fiel
 - **Multi-link batch fill:** queue several application URLs and fill them in background tabs
 - **JSON quick setup:** copy a profile as JSON, have an AI chatbot fill it from your resume, and import the result
 - **34 languages:** the whole extension (side panel, guided tour, page badges, store listing) follows the browser's language or the one picked from the globe button; English is always one click away
-- **Auto-pagination (Pro, or Free 2 h a day + ads):** fills every page of a multi-step form, clicks Next / Continue, then presses Submit on the last page. It pauses before clicking when a field marked required (`required`, `*`, "required") is empty. Other empty fields are left to the site: if the page does not move on, the run pauses and highlights them. Answers the site pre-filled (including an already uploaded resume) count as filled. When the form rejects an answer (e.g. "must be a valid number"), Aullevo reads the error, corrects the value ("5 years" → `5`, by rule or with AI Smart Fill) and tries again, up to twice
+- **Auto-pagination (Pro, or Free 2 h a day + the 2-ad pass):** fills every page of a multi-step form, clicks Next / Continue, then presses Submit on the last page. It pauses before clicking when a field marked required (`required`, `*`, "required") is empty. Other empty fields are left to the site: if the page does not move on, the run pauses and highlights them. Answers the site pre-filled (including an already uploaded resume) count as filled. When the form rejects an answer (e.g. "must be a valid number"), Aullevo reads the error, corrects the value ("5 years" → `5`, by rule or with AI Smart Fill) and tries again, up to twice
 - **Encrypted vault, no passphrase:** profiles, documents, and AI provider API keys (one per provider) are encrypted locally (AES-256-GCM) with a random key per account and one for guest use, kept on the device; the side panel opens straight to Autofill. Old passphrase vaults ask once more and are converted
 - **One vault per account:** each account signed in on the same browser has its own encrypted profiles, documents, API key, memories, and link queue; switching accounts locks the previous one. Settings → Data on this device removes accounts you no longer use
 - **Free / Pro plans:** Pro is purchased on [Aullevo Web](https://aullevo.com) and synced to the extension by signing in there
 
 | | Free | Pro |
 |---|---|---|
-| Active profiles | 3 (6 for 2 h per 30 s ad) | Unlimited |
-| AI Smart Fill | 6 fills a day (+10 for 2 h per 1-min ad; each AI-filled page = 1) | Unlimited |
-| JSON imports | 4 a day (+10 for 5 h per 1-min ad) | Unlimited |
-| JSON download (export) | No | Yes |
-| Document upload into forms | No | Yes |
-| Typing speed | Instant, Natural; Slow/custom 2 h a day (+4 h per 20 s ad) | Any, including custom |
-| Auto-pagination (multi-page forms) | 2 h a day (+4 h per 1-min ad) | Yes |
-| Voice mode (talk to fill, dictate answers) | 3 sessions a day (+6 for 2 h per 1-min ad) | Yes |
-| Multi-link queue | 5 links (10 for 5 h per 1-min ad) | Unlimited |
+| Active profiles | 3 | Unlimited |
+| AI Smart Fill | 6 fills a day (each AI-filled page = 1) | Unlimited |
+| JSON imports | 4 a day | Unlimited |
+| JSON download (export) | During a pass | Yes |
+| Document upload into forms | During a pass | Yes |
+| Typing speed | Instant, Natural; Slow/custom 2 h a day | Any, including custom |
+| Auto-pagination (multi-page forms) | 2 h a day | Yes |
+| Voice mode (talk to fill, dictate answers) | 3 sessions a day | Yes |
+| Multi-link queue | 5 links | Unlimited |
+| **The pass: 2 short ads** | **Everything above, unlimited, for 5 h** | No ads |
 
-The daily free uses need a connected account and reset at midnight UTC (JSON imports: local midnight); the free hours start at the first use that day. An ad is only offered once a feature's free uses are gone; each extra ad adds its uses and hours to what is running. When an unlock ends nothing is deleted: profiles and links beyond the Free limits are paused, not removed. Ads are watched on Aullevo Web (aullevo.com/rewards), never inside the extension; the website's /api/rewards keeps the counts on the account (a safety net stops bots at 100 ads a day).
+The daily free uses need a connected account and reset at midnight UTC (JSON imports: local midnight); the free hours start at the first use that day. The pass can be watched any time (the second ad within an hour of the first); 2 more ads add 5 more hours. When a pass ends nothing is deleted: profiles and links beyond the Free limits are paused, not removed. Ads are watched on Aullevo Web (aullevo.com/rewards), never inside the extension; the website's /api/rewards keeps the counts on the account (a safety net stops bots at 100 ads a day).
 
 ### Keyboard shortcuts
 

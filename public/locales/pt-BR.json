@@ -87,9 +87,6 @@
       "upload": "Carregar arquivo",
       "import": "Importar"
     },
-    "quota": {
-      "downloadPro": "Baixar (exportar) é um recurso Pro."
-    },
     "errors": {
       "noFields": "Nenhum campo válido encontrado no JSON fornecido.",
       "invalidFormat": "Formato JSON inválido: {error}"
@@ -364,7 +361,6 @@
       "description": "Digita um caractere por vez em ritmo humano, para sites que esperam teclas reais.",
       "proFeature": "Recurso Pro",
       "customDelay": "Atraso personalizado:",
-      "customProFeature": "Atraso personalizado é um recurso Pro",
       "unitMs": "ms"
     },
     "tour": {
@@ -413,13 +409,7 @@
       "profileLimit": "O plano Free permite {max} perfis ativos. Desative os perfis extras ou assine o Pro.",
       "activeLimit": "O plano Free permite {max} perfis ativos. Desative um ou assine o Pro.",
       "createdOff": "Perfil criado como INATIVO. O plano Free permite {max} perfis ativos. Desative um ou assine o Pro.",
-      "autoPaginatePro": "A paginação automática é um recurso Pro. Assine o Pro para preencher formulários de várias páginas.",
-      "jsonImportLimit": "Você usou todas as {limit} importações de JSON gratuitas destas 2 semanas. Elas são renovadas em {date}, ou assine o Pro para ter importações ilimitadas.",
-      "documentsSkipped": {
-        "one": "{count} documento não anexado: enviar arquivos para formulários é um recurso Pro.",
-        "many": "{count} de documentos não anexados: enviar arquivos para formulários é um recurso Pro.",
-        "other": "{count} documentos não anexados: enviar arquivos para formulários é um recurso Pro."
-      }
+      "jsonImportLimit": "Você usou todas as {limit} importações de JSON gratuitas destas 2 semanas. Elas são renovadas em {date}, ou assine o Pro para ter importações ilimitadas."
     },
     "batch": {
       "starting": {
@@ -583,8 +573,7 @@
     "header": {
       "voice": {
         "title": "Modo de voz",
-        "body": "Fale com o Aullevo em vez de clicar. Este botão troca o painel para o assistente de voz: diga \"fill this page\", \"fill the email\" ou \"fill the first question\", e ele responde em voz alta. Clique de novo para voltar a esta visualização.",
-        "note": "Recurso Pro. Requer sua própria chave de API da ElevenLabs, adicionada em Voice settings. Os comandos de voz funcionam em inglês e tagalo."
+        "body": "Fale com o Aullevo em vez de clicar. Este botão troca o painel para o assistente de voz: diga \"fill this page\", \"fill the email\" ou \"fill the first question\", e ele responde em voz alta. Clique de novo para voltar a esta visualização."
       },
       "language": {
         "title": "Idioma",
@@ -642,8 +631,7 @@
       },
       "documents": {
         "title": "Anexar documentos",
-        "body": "Escolha o tipo de documento e carregue seu currículo, carta de apresentação, documento de identidade e mais. Quando um formulário pede o envio de um arquivo, o Aullevo anexa seus documentos que estão ATIVOS.",
-        "note": "Anexar documentos a formulários é um recurso Pro."
+        "body": "Escolha o tipo de documento e carregue seu currículo, carta de apresentação, documento de identidade e mais. Quando um formulário pede o envio de um arquivo, o Aullevo anexa seus documentos que estão ATIVOS."
       },
       "attributes": {
         "title": "Campos específicos do perfil",
@@ -690,7 +678,6 @@
         "title": "Memórias da IA",
         "body": "Fatos curtos que a IA pode usar em perguntas abertas, como \"Modelo de trabalho: só remoto\". Elas são enviadas ao provedor de IA que você escolheu e não são criptografadas, então nunca adicione senhas nem números de documentos."
       },
-      "autoPaginate": {},
       "floatingIcon": {
         "title": "Botão flutuante",
         "body": "Uma pequena aba do Aullevo na borda das páginas web para acesso rápido. Desative se ela atrapalhar."

@@ -18,7 +18,7 @@ export function useExtensionBridge(
     isPro: boolean = false,
     isPage: boolean = false, // full options page: no side-panel port, no active-tab scanning
     autoPaginate: boolean = false,
-    access?: PlanAccess // Free plan: features unlocked with a short ad (rewards.ts)
+    access?: PlanAccess // Free plan: what today's allowance or a pass allows (rewards.ts)
 ) {
     const [detectedFields, setDetectedFields] = useState<string>('0');
     const [isHighlighting, setIsHighlighting] = useState<boolean>(false);
@@ -209,8 +209,8 @@ export function useExtensionBridge(
 
             const fieldsToInject = getProfileCustomFields(currentProfile).filter((f: CM) => f.enabled);
             const enabledFiles = (currentProfile.files || []).filter((f: ProfileFile) => f.enabled);
-            // Plan limits: document injection and Slow/custom speeds are Pro-only
-            const filesToInject = filesAllowedForPlan(enabledFiles, isPro);
+            // Plan limits: document injection needs Pro or a pass (2 ads: everything for 5 hours)
+            const filesToInject = filesAllowedForPlan(enabledFiles, isPro || Boolean(access?.files));
             const skippedFilesNote = enabledFiles.length > filesToInject.length
                 ? ` ${t('status.plan.documentsSkipped', { count: enabledFiles.length })}`
                 : '';

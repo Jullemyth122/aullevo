@@ -1,4 +1,4 @@
-// Free plan: "Watch a short ad to unlock" card, and its unlocked state
+// Free plan: "Watch 2 ads · 5 h of everything" card, and its unlocked state
 .card {
     display: grid;
     gap: 6px;
@@ -132,4 +132,11 @@
         color: var(--av-success, #34d399);
         font-variant-numeric: tabular-nums;
     }
+}
+
+// Settings: "What's free every day", folded under the pass card
+.daily {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid var(--av-border-soft);
 }

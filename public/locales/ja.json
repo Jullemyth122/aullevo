@@ -79,9 +79,6 @@
       "upload": "ファイルをアップロード",
       "import": "インポート"
     },
-    "quota": {
-      "downloadPro": "ダウンロード（エクスポート）は Pro 機能です。"
-    },
     "errors": {
       "noFields": "入力された JSON に有効な項目が見つかりません。",
       "invalidFormat": "JSON の形式が正しくありません：{error}"
@@ -352,7 +349,6 @@
       "description": "実際のキー入力を想定したサイト向けに、人間のペースで 1 文字ずつ入力します。",
       "proFeature": "Pro 機能",
       "customDelay": "カスタム遅延：",
-      "customProFeature": "カスタム遅延は Pro 機能です",
       "unitMs": "ms"
     },
     "tour": {
@@ -401,11 +397,7 @@
       "profileLimit": "Free プランで有効にできるプロフィールは {max} 件までです。余分なプロフィールを OFF にするか、Pro にアップグレードしてください。",
       "activeLimit": "Free プランで有効にできるプロフィールは {max} 件までです。いずれかを OFF にするか、Pro にアップグレードしてください。",
       "createdOff": "プロフィールを OFF の状態で作成しました。Free プランで有効にできるプロフィールは {max} 件までです。いずれかを OFF にするか、Pro にアップグレードしてください。",
-      "autoPaginatePro": "自動ページ送りは Pro 機能です。複数ページのフォームに入力するには Pro にアップグレードしてください。",
-      "jsonImportLimit": "この 2 週間の無料 JSON インポート（{limit} 回）をすべて使いました。{date} にリセットされます。Pro にアップグレードすると無制限にインポートできます。",
-      "documentsSkipped": {
-        "other": "{count} 件の書類は添付されませんでした：フォームへのアップロードは Pro 機能です。"
-      }
+      "jsonImportLimit": "この 2 週間の無料 JSON インポート（{limit} 回）をすべて使いました。{date} にリセットされます。Pro にアップグレードすると無制限にインポートできます。"
     },
     "batch": {
       "starting": {
@@ -545,8 +537,7 @@
     "header": {
       "voice": {
         "title": "音声モード",
-        "body": "クリックする代わりに Aullevo に話しかけられます。このボタンでパネルが音声エージェントに切り替わります。\"fill this page\"、\"fill the email\"、\"fill the first question\" のように話すと、声で応答します。もう一度クリックするとこの表示に戻ります。",
-        "note": "Pro 機能です。ご自身の ElevenLabs API キーが必要です（Voice settings で追加します）。音声コマンドは英語とタガログ語に対応しています。"
+        "body": "クリックする代わりに Aullevo に話しかけられます。このボタンでパネルが音声エージェントに切り替わります。\"fill this page\"、\"fill the email\"、\"fill the first question\" のように話すと、声で応答します。もう一度クリックするとこの表示に戻ります。"
       },
       "language": {
         "title": "言語",
@@ -604,8 +595,7 @@
       },
       "documents": {
         "title": "書類を添付",
-        "body": "書類の種類を選んで、履歴書、カバーレター、身分証明書などをアップロードします。フォームにファイルのアップロード欄があると、Aullevo が ON の書類を添付します。",
-        "note": "フォームへの書類の添付は Pro 機能です。"
+        "body": "書類の種類を選んで、履歴書、カバーレター、身分証明書などをアップロードします。フォームにファイルのアップロード欄があると、Aullevo が ON の書類を添付します。"
       },
       "attributes": {
         "title": "プロフィール別の項目",
@@ -652,7 +642,6 @@
         "title": "AI メモリー",
         "body": "自由回答の質問に AI が使える短い情報です（「働き方：リモートのみ」など）。選択した AI プロバイダーに送信され、暗号化されないため、パスワードや ID 番号は絶対に追加しないでください。"
       },
-      "autoPaginate": {},
       "floatingIcon": {
         "title": "フローティングボタン",
         "body": "Web ページの端に表示される小さな Aullevo タブで、すばやくアクセスできます。邪魔な場合は OFF にしてください。"

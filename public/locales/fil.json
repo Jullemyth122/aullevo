@@ -16,6 +16,7 @@
       "standard": "Punan ang Form ({type})",
       "autoPaginate": "Naka-on ang Auto-Pagination: pupunan ang bawat page, saka isa-submit"
     },
+    "supportAds": "Pakinood po ang aming mga ad kapag lumabas: ito ang nagpapatakbo sa Aullevo. Salamat po!",
     "activeProfile": {
       "title": "Aktibong Profile",
       "summary": "{fields} • {docs} handa na",
@@ -84,9 +85,9 @@
       "import": "I-import"
     },
     "quota": {
-      "downloadPro": "Pro feature ang pag-download (export).",
       "leftToday": "Free plan: {left} sa {limit} JSON import na lang ang natitira ngayong araw. Nare-reset ito pagsapit ng hatinggabi.",
-      "reachedToday": "Nagamit mo na ang {limit} libreng JSON import ngayong araw. Nare-reset ito pagsapit ng hatinggabi; may 10 pa kapag nanood ng maikling ad, o mag-upgrade sa Pro para sa unlimited na import."
+      "reachedToday": "Nagamit mo na ang {limit} libreng JSON import ngayong araw. Babalik ang mga ito sa hatinggabi; ina-unlock ng 2 maikling ad ang lahat sa loob ng 5 oras, o mag-upgrade sa Pro para walang limit.",
+      "downloadPro": "Kailangan ng Pro o ng 5-oras na pass (2 maikling ad) para mag-download (export)."
     },
     "errors": {
       "noFields": "Walang valid na field sa ibinigay na JSON.",
@@ -360,8 +361,8 @@
       "description": "Nagta-type nang isa-isang character sa bilis ng tao, para sa mga site na umaasa ng totoong pag-type.",
       "proFeature": "Pro feature",
       "customDelay": "Custom na Delay:",
-      "customProFeature": "Pro feature ang custom na delay",
-      "unitMs": "ms"
+      "unitMs": "ms",
+      "customProFeature": "Custom na delay: Pro, 2 libreng oras araw-araw, o ang 5-oras na pass (2 maikling ad)"
     },
     "tour": {
       "title": "Guided Tour",
@@ -402,6 +403,13 @@
       "bytes": "{size} B",
       "kilobytes": "{size} KB",
       "megabytes": "{size} MB"
+    },
+    "sections": {
+      "on": "Naka-on",
+      "off": "Naka-off",
+      "dark": "Madilim",
+      "light": "Maliwanag",
+      "notConnected": "Hindi naka-connect"
     }
   },
   "status": {
@@ -409,12 +417,12 @@
       "profileLimit": "Hanggang {max} aktibong profile lang sa Free plan. I-OFF ang mga sobrang profile o mag-upgrade sa Pro.",
       "activeLimit": "Hanggang {max} aktibong profile lang sa Free plan. Mag-OFF ng isa o mag-upgrade sa Pro.",
       "createdOff": "Ginawa ang profile nang naka-OFF. Hanggang {max} aktibong profile lang sa Free plan. Mag-OFF ng isa o mag-upgrade sa Pro.",
-      "autoPaginatePro": "Pro feature ang Auto-Pagination. Mag-upgrade sa Pro para mapunan ang mga form na maraming page.",
       "jsonImportLimit": "Nagamit mo na ang lahat ng {limit} libreng JSON import para sa 2 linggong ito. Mare-reset ito sa {date}, o mag-upgrade sa Pro para sa unlimited na import.",
       "documentsSkipped": {
-        "one": "Hindi na-attach ang {count} dokumento: Pro feature ang pag-upload sa mga form.",
-        "other": "Hindi na-attach ang {count} dokumento: Pro feature ang pag-upload sa mga form."
-      }
+        "one": "{count} dokumento ang hindi na-attach: kailangan ng Pro o ng 5-oras na pass (2 maikling ad) para mag-upload sa form.",
+        "other": "{count} dokumento ang hindi na-attach: kailangan ng Pro o ng 5-oras na pass (2 maikling ad) para mag-upload sa form."
+      },
+      "autoPaginatePro": "Auto-pagination: nagamit na ang 2 libreng oras ngayong araw. Manood ng 2 maikling ad para ma-unlock ang lahat sa loob ng 5 oras, o mag-upgrade sa Pro."
     },
     "batch": {
       "starting": {
@@ -567,7 +575,7 @@
       "voice": {
         "title": "Voice mode",
         "body": "Kausapin ang Aullevo sa halip na mag-click. Inililipat ng button na ito ang panel sa voice agent: sabihin ang \"fill this page\", \"fill the email\", o \"fill the first question\", at sasagot ito nang malakas. I-click ulit para bumalik sa view na ito.",
-        "note": "Pro feature. Kailangan ang sarili mong ElevenLabs API key, na idinadagdag sa Voice settings. Gumagana ang voice commands sa English at Tagalog."
+        "note": "Pro, o sa Free 3 session araw-araw (kahit ilan habang may 2-ad pass). Kailangan ng sarili mong ElevenLabs API key, idagdag sa Voice settings. Gumagana ang voice commands sa English at Tagalog."
       },
       "language": {
         "title": "Wika",
@@ -627,7 +635,7 @@
       "documents": {
         "title": "Mag-attach ng mga dokumento",
         "body": "Piliin ang uri ng dokumento, saka i-upload ang iyong resume, cover letter, ID, at iba pa. Kapag may tanong na file upload ang form, ia-attach ng Aullevo ang mga dokumento mong naka-ON.",
-        "note": "Pro feature ang pag-attach ng dokumento sa mga form."
+        "note": "Kailangan ng Pro o ng 5-oras na pass (2 maikling ad) para mag-attach ng dokumento sa form."
       },
       "attributes": {
         "title": "Mga field para sa profile na ito",
@@ -674,7 +682,6 @@
         "title": "Mga AI memory",
         "body": "Maiikling impormasyon na magagamit ng AI para sa mga open-ended na tanong, tulad ng \"Work style: remote lang\". Ipinapadala ang mga ito sa AI provider na pinili mo at hindi naka-encrypt, kaya huwag kailanman maglagay ng password o ID number."
       },
-      "autoPaginate": {},
       "floatingIcon": {
         "title": "Floating button",
         "body": "Maliit na tab ng Aullevo sa gilid ng mga web page para sa mabilis na access. I-off ito kung nakakaabala."
@@ -690,6 +697,9 @@
       "deviceData": {
         "title": "Data sa device na ito",
         "body": "May sariling naka-encrypt na vault sa browser na ito ang bawat account. Burahin ang data ng mga account na hindi mo na ginagamit."
+      },
+      "autoPaginate": {
+        "body": "Para sa mga form na maraming page: pinupunan ng Aullevo ang bawat page, kini-click ang Next o Continue, at pinipindot ang Submit sa huling page. Free: 2 oras araw-araw (ina-unlock ng 2 maikling ad ang lahat sa loob ng 5 oras). Pro: laging naka-on."
       }
     }
   },
@@ -704,6 +714,53 @@
       "createFailed": "Hindi magawa ang vault. Pakisubukan ulit.",
       "wrongPassphrase": "Maling passphrase.",
       "wrongClaimPassphrase": "Maling passphrase para sa mga profile na iyon."
+    }
+  },
+  "rewards": {
+    "pass": {
+      "title": "{hours}-oras na pass",
+      "gives": "Manood ng {count} maikling ad para ma-unlock ang lahat sa loob ng {hours} oras: walang limit, kasama ang pag-upload ng resume.",
+      "freeUsed": "Nagamit na ang mga libreng gamit ngayong araw. Manood ng {count} maikling ad para ma-unlock ang lahat sa loob ng {hours} oras, o maghintay hanggang {time}.",
+      "running": "Naka-unlock ang lahat nang {time} pa. Dagdag na {count} ad, dagdag na {hours} oras.",
+      "active": "Naka-unlock ang lahat · {time} pa",
+      "watch": "Manood ng {count} ad · {hours} oras ng lahat",
+      "watchNext": "Panoorin ang ad {next} ng {total}",
+      "opened": "Binuksan ang Aullevo Web: panoorin doon ang {count} ad, saka bumalik dito.",
+      "freeEveryDay": "Libre araw-araw: {free}",
+      "extrasTitle": "Pag-upload ng resume · JSON export",
+      "extras": "Gamit ang pass o Pro",
+      "adds": "Bawat {count} ad, dagdag na {hours} oras.",
+      "dailyTitle": "Ano ang libre araw-araw"
+    },
+    "card": {
+      "connectHint": "Naka-save ang pass sa iyong Aullevo account."
+    },
+    "feature": {
+      "profiles": {
+        "title": "Mga aktibong profile"
+      },
+      "typing": {
+        "free": "Mabagal at custom, 2 oras araw-araw"
+      }
+    },
+    "links": {
+      "paused": "{count} pa ang naka-save, naka-pause hanggang may pass o Pro"
+    },
+    "settings": {
+      "intro": "Araw-araw, may libreng bahagi ka ng bawat feature. Kapag gusto mo pa, manood ng 2 maikling ad sa Aullevo Web: naka-unlock ang lahat sa loob ng 5 oras, kasama ang pag-upload ng resume. Walang nabubura kapag natapos ang pass. Ina-unlock ng Pro ang lahat, walang ad.",
+      "aiLocked": "Ubos na ngayong araw: manood ng 2 ad"
+    },
+    "status": {
+      "aiLocked": "AI Smart Fill: nagamit na ang 6 na libreng AI fill ngayong araw. Manood ng 2 maikling ad para ma-unlock ang lahat sa loob ng 5 oras, o mag-upgrade sa Pro.",
+      "paginateLocked": "Auto-pagination: nagamit na ang 2 libreng oras ngayong araw. Manood ng 2 maikling ad para ma-unlock ang lahat sa loob ng 5 oras, o mag-upgrade sa Pro.",
+      "typingLocked": "Mabagal at custom na bilis: nagamit na ang 2 libreng oras ngayong araw. Manood ng 2 maikling ad para ma-unlock ang lahat sa loob ng 5 oras, o mag-upgrade sa Pro.",
+      "linkLimit": "Hanggang {max} link lang ang Free plan. Manood ng 2 maikling ad para makapila ng kahit ilan sa loob ng 5 oras.",
+      "jsonLocked": "Nagamit na ang 4 na libreng JSON import ngayong araw. Manood ng 2 maikling ad para ma-unlock ang lahat sa loob ng 5 oras, o mag-upgrade sa Pro.",
+      "voiceLocked": "Voice mode: nagamit na ang 3 libreng voice session ngayong araw. Manood ng 2 maikling ad para ma-unlock ang lahat sa loob ng 5 oras, o mag-upgrade sa Pro.",
+      "profilesLocked": "Hanggang {max} aktibong profile ang Free plan. Manood ng 2 maikling ad para magamit ang kahit ilan sa loob ng 5 oras, o mag-upgrade sa Pro.",
+      "profilesMax": "Naka-ON ang {max} profile, ang pinakamarami na pinapayagan ng iyong unlock. Mag-OFF muna ng isa, o mag-upgrade sa Pro para walang limit.",
+      "profilePaused": "Naka-pause ang profile na ito: {max} profile lang ang sabay-sabay sa Free plan at lampas na ito. Naka-save pa rin ito. Manood ng 2 maikling ad, mag-OFF ng ibang profile, o mag-upgrade sa Pro.",
+      "profilesPausedSome": "{count} sa iyong mga profile ang naka-pause (naka-save pa rin): {max} lang ang sabay-sabay sa Free. Manood ng 2 maikling ad para magamit lahat sa loob ng 5 oras, o mag-OFF ng ilan."
     }
   }
 }

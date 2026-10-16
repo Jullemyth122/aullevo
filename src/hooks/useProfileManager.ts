@@ -13,8 +13,8 @@ interface UseProfileManagerProps {
     setSelectedProfileType: (key: string) => void;
     currentProfile: UserData | undefined;
     isPro: boolean;
-    profilesUnlocked?: boolean; // Free plan: more than 3 active profiles (2-hour ad unlock)
-    jsonUnlocked?: boolean;     // Free plan: JSON imports from an ad unlock are left
+    profilesUnlocked?: boolean; // Free plan: more than 3 active profiles (a pass)
+    jsonUnlocked?: boolean;     // Free plan: JSON imports beyond the free ones (a pass)
     consumeReward?: (feature: RewardFeature) => Promise<{ ok: boolean; error?: string }>;
     onNotify?: (text: string, type: 'info' | 'success' | 'error', duration?: number) => void;
 }
@@ -36,7 +36,7 @@ export function useProfileManager({
     const [newFieldLabel, setNewFieldLabel] = useState<string>('');
     const [newFieldValue, setNewFieldValue] = useState<string>('');
 
-    // The active-profile limit was reached: Free (3) offers the ad, the ad unlock (6) only Pro
+    // The active-profile limit was reached: Free (3) offers the pass (no limit for 5 hours), else Pro
     const profileLimitText = () => profilesUnlocked
         ? t('rewards.status.profilesMax', { max: UNLOCKED_MAX_ACTIVE_PROFILES })
         : t('rewards.status.profilesLocked', { max: FREE_MAX_ACTIVE_PROFILES, unlocked: UNLOCKED_MAX_ACTIVE_PROFILES });
@@ -66,7 +66,7 @@ export function useProfileManager({
             return { key: existing.profileType, created: false, enabled: existing.enabled };
         }
 
-        // Free plan: new profiles start OFF once the active-profile limit is reached (3, or 6 while the ad unlock runs)
+        // Free plan: new profiles start OFF once the active-profile limit is reached (3; no limit during a pass)
         const canActivate = countActiveProfiles(profiles) < activeProfileLimit(isPro, profilesUnlocked);
         if (!canActivate) onNotify?.(profileLimitText(), 'info', 6000);
 
@@ -279,7 +279,7 @@ export function useProfileManager({
     // -------------------------------------------------------------------
     const handleImportJson = async (importedFields: CM[]) => {
         // Free plan: FREE_JSON_IMPORTS_PER_DAY imports a day (reset at local midnight); after those, each import
-        // uses one of the 10 a short ad unlocks (5 hours). Pro: unlimited.
+        // is allowed during a pass (the server checks it). Pro: unlimited.
         if (!isPro && (await getJsonImportsUsed()) >= FREE_JSON_IMPORTS_PER_DAY) {
             if (!jsonUnlocked || !consumeReward) {
                 onNotify?.(t('rewards.status.jsonLocked'), 'error', 7000);

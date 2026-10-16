@@ -83,9 +83,6 @@
       "upload": "Dosya Yükle",
       "import": "İçe Aktar"
     },
-    "quota": {
-      "downloadPro": "İndirme (dışa aktarma) bir Pro özelliğidir."
-    },
     "errors": {
       "noFields": "Verilen JSON'da geçerli alan bulunamadı.",
       "invalidFormat": "Geçersiz JSON biçimi: {error}"
@@ -358,7 +355,6 @@
       "description": "Gerçek tuş vuruşları bekleyen siteler için karakterleri insan hızında tek tek yazar.",
       "proFeature": "Pro özelliği",
       "customDelay": "Özel Gecikme:",
-      "customProFeature": "Özel gecikme bir Pro özelliğidir",
       "unitMs": "ms"
     },
     "tour": {
@@ -407,12 +403,7 @@
       "profileLimit": "Free plan en fazla {max} etkin profile izin verir. Fazla profilleri KAPALI yapın veya Pro'ya yükseltin.",
       "activeLimit": "Free plan en fazla {max} etkin profile izin verir. Birini KAPALI yapın veya Pro'ya yükseltin.",
       "createdOff": "Profil KAPALI olarak oluşturuldu. Free plan en fazla {max} etkin profile izin verir. Birini KAPALI yapın veya Pro'ya yükseltin.",
-      "autoPaginatePro": "Otomatik Sayfalama bir Pro özelliğidir. Çok sayfalı formları doldurmak için Pro'ya yükseltin.",
-      "jsonImportLimit": "Bu 2 haftalık {limit} ücretsiz JSON içe aktarma hakkınızın tamamını kullandınız. Haklarınız {date} tarihinde yenilenir; dilerseniz sınırsız içe aktarma için Pro'ya yükseltin.",
-      "documentsSkipped": {
-        "one": "{count} belge eklenmedi: formlara yükleme bir Pro özelliğidir.",
-        "other": "{count} belge eklenmedi: formlara yükleme bir Pro özelliğidir."
-      }
+      "jsonImportLimit": "Bu 2 haftalık {limit} ücretsiz JSON içe aktarma hakkınızın tamamını kullandınız. Haklarınız {date} tarihinde yenilenir; dilerseniz sınırsız içe aktarma için Pro'ya yükseltin."
     },
     "batch": {
       "starting": {
@@ -564,8 +555,7 @@
     "header": {
       "voice": {
         "title": "Sesli mod",
-        "body": "Tıklamak yerine Aullevo ile konuşun. Bu düğme paneli sesli asistana geçirir: \"fill this page\", \"fill the email\" veya \"fill the first question\" deyin, sesli yanıt versin. Bu görünüme dönmek için tekrar tıklayın.",
-        "note": "Pro özelliği. Voice settings bölümünden ekleyeceğiniz kendi ElevenLabs API anahtarınız gerekir. Sesli komutlar İngilizce ve Tagalogca çalışır."
+        "body": "Tıklamak yerine Aullevo ile konuşun. Bu düğme paneli sesli asistana geçirir: \"fill this page\", \"fill the email\" veya \"fill the first question\" deyin, sesli yanıt versin. Bu görünüme dönmek için tekrar tıklayın."
       },
       "language": {
         "title": "Dil",
@@ -623,8 +613,7 @@
       },
       "documents": {
         "title": "Belge ekleme",
-        "body": "Belge türünü seçin, ardından özgeçmişinizi, ön yazınızı, kimliğinizi ve diğer belgelerinizi yükleyin. Bir formda dosya yükleme sorusu olduğunda Aullevo, AÇIK olan belgelerinizi ekler.",
-        "note": "Formlara belge eklemek bir Pro özelliğidir."
+        "body": "Belge türünü seçin, ardından özgeçmişinizi, ön yazınızı, kimliğinizi ve diğer belgelerinizi yükleyin. Bir formda dosya yükleme sorusu olduğunda Aullevo, AÇIK olan belgelerinizi ekler."
       },
       "attributes": {
         "title": "Profile özel alanlar",
@@ -671,7 +660,6 @@
         "title": "YZ anıları",
         "body": "Yapay zekanın açık uçlu sorularda kullanabileceği kısa bilgiler; ör. \"Çalışma şekli: yalnızca uzaktan\". Seçtiğiniz yapay zekâ sağlayıcısına gönderilir ve şifrelenmez; bu yüzden asla parola veya kimlik numarası eklemeyin."
       },
-      "autoPaginate": {},
       "floatingIcon": {
         "title": "Kayan düğme",
         "body": "Hızlı erişim için web sayfalarının kenarında küçük bir Aullevo sekmesi. Engel oluyorsa kapatın."

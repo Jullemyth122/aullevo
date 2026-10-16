@@ -198,7 +198,7 @@ export function VoiceView({ profiles, selectedProfileType, currentProfile, isPro
             setKeyDraft(vault?.elevenLabsApiKey || '');
         });
     }, []);
-    // Voice mode: Pro, or Free with voice sessions of 10 minutes: 3 free a day, then 6 per short ad. Locked Free:
+    // Voice mode: Pro, or Free with voice sessions of 10 minutes: 3 free a day, any number during a pass. Locked Free:
     // nothing reaches ElevenLabs (no key is handed to the voice), and listening is refused.
     const plan = usePlanRewards();
     const voiceReady = isPro || voiceSessionActive(plan.cache) || usesLeft(plan.cache, 'voice') + freeLeft(plan.cache, 'voice') > 0;
@@ -731,11 +731,11 @@ export function VoiceView({ profiles, selectedProfileType, currentProfile, isPro
     if (locked) {
         return (
             <div className={styles.view} style={themeVars(theme) as CSSProperties}>
-                <Orb state="idle" caption="Watch a short ad or upgrade to use Voice mode" disabled muted={muted} extra={micButton}
+                <Orb state="idle" caption="Watch 2 short ads or upgrade to use Voice mode" disabled muted={muted} extra={micButton}
                     onToggleMute={() => { setOrbSoundMuted(!muted); setMuted(!muted); }}
                     onActivate={() => undefined} />
-                <section className={`${styles.card} ${styles.proLock}`} aria-label="Voice mode is a Pro feature">
-                    <div className={styles.proBadge}><Crown size={12} /> Pro feature</div>
+                <section className={`${styles.card} ${styles.proLock}`} aria-label="Voice mode: Pro, 3 free sessions a day, or the 5-hour pass">
+                    <div className={styles.proBadge}><Crown size={12} /> Pro or 2 short ads</div>
                     <h3>Talk to Aullevo with Voice mode</h3>
                     <ul>
                         <li>Fill a page, one question, or "the first question" just by saying it</li>
@@ -743,7 +743,7 @@ export function VoiceView({ profiles, selectedProfileType, currentProfile, isPro
                         <li>Hands-free live conversation, in English or Tagalog</li>
                         <li>A natural ElevenLabs voice that tells you what it did</li>
                     </ul>
-                    <PlanUnlock feature="voice" reason="Watch a 1-minute ad for 2 voice sessions (10 minutes each) in the next 2 hours." />
+                    <PlanUnlock feature="voice" reason="Watch 2 short ads to unlock everything for 5 hours, Voice mode included (10-minute sessions, as many as you like)." />
                     <a className={styles.cta} href={AULLEVO_WEB_URL} target="_blank" rel="noreferrer"><Crown size={14} /> Upgrade to Pro for unlimited voice</a>
                     <button className={styles.secondaryAction} onClick={() => actions.open('classic')}>Back to the classic view</button>
                     <p className={styles.hint}>Already Pro? Sign in on Aullevo Web and the extension unlocks Voice mode.</p>
@@ -798,7 +798,7 @@ export function VoiceView({ profiles, selectedProfileType, currentProfile, isPro
                 <div className={styles.chips} role="group" aria-label="Page and fill options">
                     {chip(isHighlighting, <><ScanSearch size={12} /> Highlight</>, 'Show the fields Aullevo found on this page', () => void actions.setHighlight(!isHighlighting))}
                     {chip(false, <><RefreshCw size={12} /> {detectedFields} fields</>, 'Scan the page again', () => void actions.rescan())}
-                    {chip(allPages, <><ChevronsRight size={12} /> Pages</>, (isPro || plan.access.paginate) ? 'Continue through Next pages, then submit' : 'Filling every page needs Pro or a short ad (Settings)', () => setAllPages(!allPages), !(isPro || plan.access.paginate) || isFilling)}
+                    {chip(allPages, <><ChevronsRight size={12} /> Pages</>, (isPro || plan.access.paginate) ? 'Continue through Next pages, then submit' : 'Filling every page needs Pro or 2 short ads (Settings)', () => setAllPages(!allPages), !(isPro || plan.access.paginate) || isFilling)}
                     {chip(useAiFill, <><Sparkles size={12} /> AI</>, 'Use AI for questions your saved answers do not cover', () => actions.setAiFill(!useAiFill), isFilling)}
                 </div>
                 {error && <p className={styles.error} role="alert">{error}</p>}

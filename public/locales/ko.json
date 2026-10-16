@@ -79,9 +79,6 @@
       "upload": "파일 업로드",
       "import": "가져오기"
     },
-    "quota": {
-      "downloadPro": "다운로드(내보내기)는 Pro 기능이에요."
-    },
     "errors": {
       "noFields": "입력한 JSON에서 유효한 필드를 찾지 못했어요.",
       "invalidFormat": "잘못된 JSON 형식: {error}"
@@ -352,7 +349,6 @@
       "description": "실제 키 입력을 기대하는 사이트를 위해 사람 속도로 한 글자씩 입력해요.",
       "proFeature": "Pro 기능",
       "customDelay": "사용자 지정 지연:",
-      "customProFeature": "사용자 지정 지연은 Pro 기능이에요",
       "unitMs": "ms"
     },
     "tour": {
@@ -401,11 +397,7 @@
       "profileLimit": "Free 요금제에서는 프로필을 {max}개까지 활성화할 수 있어요. 추가 프로필을 끄거나 Pro로 업그레이드하세요.",
       "activeLimit": "Free 요금제에서는 프로필을 {max}개까지 활성화할 수 있어요. 하나를 끄거나 Pro로 업그레이드하세요.",
       "createdOff": "프로필이 꺼진 상태로 생성되었어요. Free 요금제에서는 프로필을 {max}개까지 활성화할 수 있어요. 하나를 끄거나 Pro로 업그레이드하세요.",
-      "autoPaginatePro": "자동 페이지 넘김은 Pro 기능이에요. 여러 페이지 양식을 채우려면 Pro로 업그레이드하세요.",
-      "jsonImportLimit": "이번 2주 동안의 무료 JSON 가져오기 {limit}회를 모두 사용했어요. {date}에 초기화되며, Pro로 업그레이드하면 무제한으로 가져올 수 있어요.",
-      "documentsSkipped": {
-        "other": "문서 {count}개가 첨부되지 않았어요. 양식에 업로드하는 기능은 Pro 기능이에요."
-      }
+      "jsonImportLimit": "이번 2주 동안의 무료 JSON 가져오기 {limit}회를 모두 사용했어요. {date}에 초기화되며, Pro로 업그레이드하면 무제한으로 가져올 수 있어요."
     },
     "batch": {
       "starting": {
@@ -545,8 +537,7 @@
     "header": {
       "voice": {
         "title": "음성 모드",
-        "body": "클릭하는 대신 Aullevo와 대화해 보세요. 이 버튼을 누르면 패널이 음성 에이전트로 바뀌어요. \"fill this page\", \"fill the email\", \"fill the first question\"처럼 말하면 소리 내어 답해요. 다시 클릭하면 이 화면으로 돌아와요.",
-        "note": "Pro 기능이에요. 본인의 ElevenLabs API 키가 필요하며, Voice settings에서 추가할 수 있어요. 음성 명령은 영어와 타갈로그어로 작동해요."
+        "body": "클릭하는 대신 Aullevo와 대화해 보세요. 이 버튼을 누르면 패널이 음성 에이전트로 바뀌어요. \"fill this page\", \"fill the email\", \"fill the first question\"처럼 말하면 소리 내어 답해요. 다시 클릭하면 이 화면으로 돌아와요."
       },
       "language": {
         "title": "언어",
@@ -604,8 +595,7 @@
       },
       "documents": {
         "title": "문서 첨부",
-        "body": "문서 유형을 선택한 뒤 이력서, 자기소개서, 신분증 등을 업로드하세요. 양식에 파일 업로드 질문이 있으면 Aullevo가 켜져 있는 문서를 첨부해요.",
-        "note": "양식에 문서를 첨부하는 기능은 Pro 기능이에요."
+        "body": "문서 유형을 선택한 뒤 이력서, 자기소개서, 신분증 등을 업로드하세요. 양식에 파일 업로드 질문이 있으면 Aullevo가 켜져 있는 문서를 첨부해요."
       },
       "attributes": {
         "title": "프로필별 필드",
@@ -652,7 +642,6 @@
         "title": "AI 메모리",
         "body": "AI가 주관식 질문에 쓸 수 있는 짧은 정보예요(예: \"근무 방식: 원격만\"). 선택한 AI 제공업체로 전송되고 암호화되지 않으니 비밀번호나 신분증 번호는 절대 추가하지 마세요."
       },
-      "autoPaginate": {},
       "floatingIcon": {
         "title": "플로팅 버튼",
         "body": "웹페이지 가장자리에 있는 작은 Aullevo 탭으로 빠르게 접근할 수 있어요. 방해가 되면 끄세요."

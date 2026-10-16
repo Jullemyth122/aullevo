@@ -83,9 +83,6 @@
       "upload": "Last opp fil",
       "import": "Importer"
     },
-    "quota": {
-      "downloadPro": "Nedlasting (eksport) er en Pro-funksjon."
-    },
     "errors": {
       "noFields": "Fant ingen gyldige felt i den oppgitte JSON-en.",
       "invalidFormat": "Ugyldig JSON-format: {error}"
@@ -358,7 +355,6 @@
       "description": "Skriver ett tegn om gangen i menneskelig tempo, for nettsteder som forventer ekte tastetrykk.",
       "proFeature": "Pro-funksjon",
       "customDelay": "Egendefinert forsinkelse:",
-      "customProFeature": "Egendefinert forsinkelse er en Pro-funksjon",
       "unitMs": "ms"
     },
     "tour": {
@@ -407,12 +403,7 @@
       "profileLimit": "Free-planen tillater {max} aktive profiler. Slå ekstra profiler AV, eller oppgrader til Pro.",
       "activeLimit": "Free-planen tillater {max} aktive profiler. Slå én AV, eller oppgrader til Pro.",
       "createdOff": "Profilen ble opprettet som AV. Free-planen tillater {max} aktive profiler. Slå én AV, eller oppgrader til Pro.",
-      "autoPaginatePro": "Automatisk sidebytte er en Pro-funksjon. Oppgrader til Pro for å fylle ut skjemaer med flere sider.",
-      "jsonImportLimit": "Du har brukt alle {limit} gratis JSON-importer for disse 2 ukene. De tilbakestilles den {date}, eller oppgrader til Pro for ubegrenset import.",
-      "documentsSkipped": {
-        "one": "{count} dokument ble ikke vedlagt: opplasting i skjemaer er en Pro-funksjon.",
-        "other": "{count} dokumenter ble ikke vedlagt: opplasting i skjemaer er en Pro-funksjon."
-      }
+      "jsonImportLimit": "Du har brukt alle {limit} gratis JSON-importer for disse 2 ukene. De tilbakestilles den {date}, eller oppgrader til Pro for ubegrenset import."
     },
     "batch": {
       "starting": {
@@ -564,8 +555,7 @@
     "header": {
       "voice": {
         "title": "Stemmemodus",
-        "body": "Snakk med Aullevo i stedet for å klikke. Denne knappen bytter panelet til stemmeassistenten: si \"fill this page\", \"fill the email\" eller \"fill the first question\", så svarer den høyt. Klikk igjen for å gå tilbake til denne visningen.",
-        "note": "Pro-funksjon. Krever din egen ElevenLabs API-nøkkel, som du legger til under Voice settings. Stemmekommandoer fungerer på engelsk og tagalog."
+        "body": "Snakk med Aullevo i stedet for å klikke. Denne knappen bytter panelet til stemmeassistenten: si \"fill this page\", \"fill the email\" eller \"fill the first question\", så svarer den høyt. Klikk igjen for å gå tilbake til denne visningen."
       },
       "language": {
         "title": "Språk",
@@ -623,8 +613,7 @@
       },
       "documents": {
         "title": "Legg ved dokumenter",
-        "body": "Velg dokumenttype, og last deretter opp CV, søknadsbrev, ID og mer. Når et skjema har et spørsmål med filopplasting, legger Aullevo ved dokumentene dine som er PÅ.",
-        "note": "Å legge ved dokumenter i skjemaer er en Pro-funksjon."
+        "body": "Velg dokumenttype, og last deretter opp CV, søknadsbrev, ID og mer. Når et skjema har et spørsmål med filopplasting, legger Aullevo ved dokumentene dine som er PÅ."
       },
       "attributes": {
         "title": "Profilspesifikke felt",
@@ -671,7 +660,6 @@
         "title": "AI-minner",
         "body": "Korte fakta som AI kan bruke til åpne spørsmål, for eksempel «Arbeidsform: kun fjernarbeid». De sendes til AI-leverandøren du har valgt og krypteres ikke, så legg aldri til passord eller ID-numre."
       },
-      "autoPaginate": {},
       "floatingIcon": {
         "title": "Flytende knapp",
         "body": "En liten Aullevo-fane i kanten av nettsider for rask tilgang. Slå den av hvis den er i veien."

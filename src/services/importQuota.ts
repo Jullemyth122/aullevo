@@ -1,5 +1,5 @@
 // importQuota.ts - Free plan: a few JSON imports every day, resetting at local midnight. Pro: unlimited.
-// Once they are used, a short ad gives 10 more for 5 hours (the "json" unlock in rewards.ts).
+// Once they are used, a pass (2 short ads) allows any number for 5 hours (rewards.ts).
 // Side panel only (background.ts doesn't import JSON).
 
 export const FREE_JSON_IMPORTS_PER_DAY = 4;

@@ -83,9 +83,6 @@
       "upload": "Bestand uploaden",
       "import": "Importeren"
     },
-    "quota": {
-      "downloadPro": "Downloaden (exporteren) is een Pro-functie."
-    },
     "errors": {
       "noFields": "Geen geldige velden gevonden in de opgegeven JSON.",
       "invalidFormat": "Ongeldige JSON-indeling: {error}"
@@ -358,7 +355,6 @@
       "description": "Typt teken voor teken in een menselijk tempo, voor sites die echte toetsaanslagen verwachten.",
       "proFeature": "Pro-functie",
       "customDelay": "Aangepaste vertraging:",
-      "customProFeature": "Aangepaste vertraging is een Pro-functie",
       "unitMs": "ms"
     },
     "tour": {
@@ -407,12 +403,7 @@
       "profileLimit": "Het Free-abonnement staat {max} actieve profielen toe. Zet extra profielen op UIT of upgrade naar Pro.",
       "activeLimit": "Het Free-abonnement staat {max} actieve profielen toe. Zet er een op UIT of upgrade naar Pro.",
       "createdOff": "Profiel aangemaakt als UIT. Het Free-abonnement staat {max} actieve profielen toe. Zet er een op UIT of upgrade naar Pro.",
-      "autoPaginatePro": "Auto-paginering is een Pro-functie. Upgrade naar Pro om formulieren met meerdere pagina's in te vullen.",
-      "jsonImportLimit": "Je hebt alle {limit} gratis JSON-imports van deze 2 weken gebruikt. Ze worden op {date} gereset, of upgrade naar Pro voor onbeperkt importeren.",
-      "documentsSkipped": {
-        "one": "{count} document niet bijgevoegd: uploaden in formulieren is een Pro-functie.",
-        "other": "{count} documenten niet bijgevoegd: uploaden in formulieren is een Pro-functie."
-      }
+      "jsonImportLimit": "Je hebt alle {limit} gratis JSON-imports van deze 2 weken gebruikt. Ze worden op {date} gereset, of upgrade naar Pro voor onbeperkt importeren."
     },
     "batch": {
       "starting": {
@@ -564,8 +555,7 @@
     "header": {
       "voice": {
         "title": "Spraakmodus",
-        "body": "Praat met Aullevo in plaats van te klikken. Deze knop zet het paneel om naar de spraakassistent: zeg \"fill this page\", \"fill the email\" of \"fill the first question\" en hij antwoordt hardop. Klik nog eens om terug te gaan naar deze weergave.",
-        "note": "Pro-functie. Je hebt een eigen ElevenLabs API-sleutel nodig, die je toevoegt bij Voice settings. Spraakopdrachten werken in het Engels en Tagalog."
+        "body": "Praat met Aullevo in plaats van te klikken. Deze knop zet het paneel om naar de spraakassistent: zeg \"fill this page\", \"fill the email\" of \"fill the first question\" en hij antwoordt hardop. Klik nog eens om terug te gaan naar deze weergave."
       },
       "language": {
         "title": "Taal",
@@ -623,8 +613,7 @@
       },
       "documents": {
         "title": "Documenten bijvoegen",
-        "body": "Kies het documenttype en upload dan je cv, motivatiebrief, ID en meer. Als een formulier om een bestand vraagt, voegt Aullevo je documenten bij die AAN staan.",
-        "note": "Documenten bijvoegen aan formulieren is een Pro-functie."
+        "body": "Kies het documenttype en upload dan je cv, motivatiebrief, ID en meer. Als een formulier om een bestand vraagt, voegt Aullevo je documenten bij die AAN staan."
       },
       "attributes": {
         "title": "Profielspecifieke velden",
@@ -671,7 +660,6 @@
         "title": "AI-herinneringen",
         "body": "Korte feiten die de AI kan gebruiken voor open vragen, zoals \"Werkstijl: alleen remote\". Ze worden naar de AI-aanbieder die je hebt gekozen gestuurd en niet versleuteld, dus voeg nooit wachtwoorden of ID-nummers toe."
       },
-      "autoPaginate": {},
       "floatingIcon": {
         "title": "Zwevende knop",
         "body": "Een klein Aullevo-tabje aan de rand van webpagina's voor snelle toegang. Zet het uit als het in de weg zit."

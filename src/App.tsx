@@ -146,7 +146,7 @@ export default function App({ layout = 'panel' }: AppProps) {
             };
         });
 
-        // Free plan: 5 links, 10 with the Multi-link ad unlock (Pro: no limit)
+        // Free plan: 5 links, no limit during a pass (2 short ads, 5 hours) or with Pro
         const room = Math.max(0, access.linkLimit - savedLinks.length);
         if (newItems.length > room) {
             showStatus(t('rewards.status.linkLimit', { max: FREE_LINK_LIMIT, unlocked: UNLOCKED_LINK_LIMIT }), 'error', 6000);
@@ -447,7 +447,7 @@ export default function App({ layout = 'panel' }: AppProps) {
                         onToggleHighlight={() => { handleToggleHighlight(); }}
                         onRescan={checkActiveTabFields}
                         onFill={() => {
-                            // Free plan: a profile ON beyond the limit (the ad unlock ended) is paused, never deleted
+                            // Free plan: a profile ON beyond the limit (the pass ended) is paused, never deleted
                             if (pausedProfileKeys(profiles, access.profileLimit).includes(selectedProfileType)) {
                                 showStatus(t('rewards.status.profilePaused', { max: access.profileLimit }), 'error', 8000);
                                 return;

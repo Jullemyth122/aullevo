@@ -136,7 +136,7 @@ async function loadFillContext() {
         refreshRewards()
     ]);
     if (!vault) return null;
-    // Free plan: today's free allowance, plus whatever an ad unlocked (rewards.ts)
+    // Free plan: today's free allowance, or everything during a pass (rewards.ts)
     const access = planAccess(isPro, rewards);
 
     const activeProfile: any = vault.activeProfile;
@@ -148,10 +148,10 @@ async function loadFillContext() {
         profileEnabled: Boolean(activeProfile?.enabled),
         profileName: String(activeProfile?.profileName || activeProfile?.profileType || 'Profile'),
         profileLimit: access.profileLimit,
-        // Free plan: ON beyond the active-profile limit (the ad unlock ended): paused, not deleted
+        // Free plan: ON beyond the active-profile limit (the pass ended): paused, not deleted
         overProfileLimit: pausedProfileKeys(vault.userProfiles?.profiles ?? [], access.profileLimit).includes(activeProfile?.profileType),
         fields: rawFields.filter((f: any) => f.enabled && f.value?.trim()),
-        files: filesAllowedForPlan(rawFiles.filter((f: any) => f.enabled), isPro), // Pro-only
+        files: filesAllowedForPlan(rawFiles.filter((f: any) => f.enabled), access.files), // Pro or a pass
         useAi: Boolean(settings?.aullevo_use_ai),
         typingSpeed: await planTypingSpeed(typingDelay),                           // Slow/custom: Pro, free hours or ad
         autoPaginate: Boolean(settings?.[AUTO_PAGINATE_STORAGE_KEY]) && (await paginateAllowed()),
@@ -294,12 +294,12 @@ function shouldCountAiFill(tabId: number | undefined): boolean {
     return true;
 }
 
-// Voice requests: Pro, or a voice session started from an ad unlock (VoiceView spends one per session)
+// Voice requests: Pro, or a running voice session (free ones, or any number during a pass; VoiceView starts them)
 async function voiceAllowed(): Promise<boolean> {
     return (await isProUser()) || voiceSessionActive(await readRewards());
 }
 
-// Auto-pagination: Pro, today's 2 free hours (they start here, on the first use), or the 4-hour ad unlock
+// Auto-pagination: Pro, today's 2 free hours (they start here, on the first use), or a pass
 async function paginateAllowed(): Promise<boolean> {
     return (await isProUser()) || ensureTimeUnlock('paginate');
 }
@@ -579,18 +579,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
         verifyAndSyncAccount(message.idToken)
             .then(async (account) => {
-                // The extension's own token for ad unlocks (aullevo-web /api/rewards); sign-in works without it
+                // The extension's own token for the Free plan's allowance and pass (aullevo-web /api/rewards); sign-in works without it
                 try {
                     await linkExtension(account.uid, message.idToken);
                 } catch (err: any) {
-                    console.warn("[Aullevo:Background] Could not link ad unlocks:", err?.message || err);
+                    console.warn("[Aullevo:Background] Could not link the Free plan (daily uses, pass):", err?.message || err);
                 }
                 sendResponse({ success: true, isPro: account.isPro });
             })
             .catch((err) => sendResponse({ success: false, error: err.message || "Account sync failed." }));
         return true; // Keep channel open for async response
     } else if (message.action === "OPEN_REWARDS") {
-        // 🎬 Free plan: the side panel opens aullevo-web/rewards to watch a short ad for one feature
+        // 🎬 Free plan: the side panel opens aullevo-web/rewards to watch the 2 ads of a pass
         if (!sender.url?.startsWith(chrome.runtime.getURL('')) || !REWARD_FEATURES.includes(message.feature)) {
             return false;
         }
@@ -776,7 +776,7 @@ async function runBatchAutofill(links: Array<{ id: string; url: string }>) {
         return;
     }
     const { fields: fieldsToInject, files: filesToInject, typingSpeed, useAi, autoPaginate } = ctx;
-    // Free: 3 links (10 with the Multi-link ad unlock); the side panel already stops more from being added
+    // Free: 5 links (no limit during a pass); the side panel already stops more from being added
     links = links.slice(0, ctx.linkLimit);
     for (let i = 0; i < links.length; i++) {
         const link = links[i];

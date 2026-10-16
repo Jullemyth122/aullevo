@@ -83,9 +83,6 @@
       "upload": "Fájl feltöltése",
       "import": "Importálás"
     },
-    "quota": {
-      "downloadPro": "A letöltés (exportálás) Pro funkció."
-    },
     "errors": {
       "noFields": "A megadott JSON nem tartalmaz érvényes mezőt.",
       "invalidFormat": "Érvénytelen JSON-formátum: {error}"
@@ -358,7 +355,6 @@
       "description": "Karakterenként, emberi tempóban gépel azokon az oldalakon, amelyek valódi billentyűleütéseket várnak.",
       "proFeature": "Pro funkció",
       "customDelay": "Egyéni késleltetés:",
-      "customProFeature": "Az egyéni késleltetés Pro funkció",
       "unitMs": "ms"
     },
     "tour": {
@@ -407,12 +403,7 @@
       "profileLimit": "A Free csomagban legfeljebb {max} aktív profil lehet. Kapcsold KI a további profilokat, vagy válts Pro-ra.",
       "activeLimit": "A Free csomagban legfeljebb {max} aktív profil lehet. Kapcsolj egyet KI, vagy válts Pro-ra.",
       "createdOff": "A profil KI állapotban jött létre. A Free csomagban legfeljebb {max} aktív profil lehet. Kapcsolj egyet KI, vagy válts Pro-ra.",
-      "autoPaginatePro": "Az Automatikus lapozás Pro funkció. Válts Pro-ra a többoldalas űrlapok kitöltéséhez.",
-      "jsonImportLimit": "Elfogyott a kétheti {limit} ingyenes JSON-importálásod. A keret megújul: {date}, vagy válts Pro-ra a korlátlan importálásért.",
-      "documentsSkipped": {
-        "one": "{count} dokumentum nincs csatolva: az űrlapokba való feltöltés Pro funkció.",
-        "other": "{count} dokumentum nincs csatolva: az űrlapokba való feltöltés Pro funkció."
-      }
+      "jsonImportLimit": "Elfogyott a kétheti {limit} ingyenes JSON-importálásod. A keret megújul: {date}, vagy válts Pro-ra a korlátlan importálásért."
     },
     "batch": {
       "starting": {
@@ -564,8 +555,7 @@
     "header": {
       "voice": {
         "title": "Hangmód",
-        "body": "Kattintás helyett beszélj az Aullevóval. Ez a gomb hangasszisztensre váltja a panelt: mondd, hogy \"fill this page\", \"fill the email\" vagy \"fill the first question\", és hangosan válaszol. Kattints újra, hogy visszatérj ehhez a nézethez.",
-        "note": "Pro funkció. Saját ElevenLabs API-kulcs kell hozzá, amelyet a Voice settings részben adhatsz meg. A hangparancsok angolul és tagalogul működnek."
+        "body": "Kattintás helyett beszélj az Aullevóval. Ez a gomb hangasszisztensre váltja a panelt: mondd, hogy \"fill this page\", \"fill the email\" vagy \"fill the first question\", és hangosan válaszol. Kattints újra, hogy visszatérj ehhez a nézethez."
       },
       "language": {
         "title": "Nyelv",
@@ -623,8 +613,7 @@
       },
       "documents": {
         "title": "Dokumentumok csatolása",
-        "body": "Válaszd ki a dokumentum típusát, majd töltsd fel az önéletrajzodat, a motivációs leveledet, az okmányodat és a többit. Ha egy űrlapon fájlfeltöltős kérdés van, az Aullevo csatolja a BE állapotú dokumentumaidat.",
-        "note": "A dokumentumok űrlapokhoz csatolása Pro funkció."
+        "body": "Válaszd ki a dokumentum típusát, majd töltsd fel az önéletrajzodat, a motivációs leveledet, az okmányodat és a többit. Ha egy űrlapon fájlfeltöltős kérdés van, az Aullevo csatolja a BE állapotú dokumentumaidat."
       },
       "attributes": {
         "title": "Profilspecifikus mezők",
@@ -671,7 +660,6 @@
         "title": "AI-emlékek",
         "body": "Rövid tények, amelyeket az AI nyitott kérdéseknél használhat, például „Munkavégzés: csak távmunka”. A választott AI-szolgáltatóhoz kerülnek, és nincsenek titkosítva, ezért soha ne adj meg jelszót vagy igazolványszámot."
       },
-      "autoPaginate": {},
       "floatingIcon": {
         "title": "Lebegő gomb",
         "body": "Kis Aullevo fül a weboldalak szélén a gyors eléréshez. Kapcsold ki, ha útban van."

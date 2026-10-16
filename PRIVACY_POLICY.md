@@ -1,6 +1,6 @@
 # Aullevo Privacy Policy
 
-**Effective date:** October 15 2026
+**Effective date:** October 16 2026
 **Contact:** mythicalxenon12@gmail.com
 
 Aullevo is a Chrome extension that fills web forms using information you save in it. This policy explains what data Aullevo handles, where it is stored, and when it leaves your device.
@@ -17,7 +17,7 @@ You choose what to enter. Depending on the profiles you use, this may include:
 - AI Memories you add (short notes such as "Work style: remote only" that AI Smart Fill can use)
 - Your own API keys for the AI providers you use with AI Smart Fill (Google Gemini, OpenAI, Anthropic, or an OpenAI-compatible server), and that server's address, if you add them
 - Your own ElevenLabs API key, if you use Voice mode
-- Settings (theme, typing speed, AI mode, Auto-Pagination, floating button preference, Voice mode preferences such as language and chosen voice), a JSON-import counter, and a copy of your account's Free-plan ad unlocks
+- Settings (theme, typing speed, AI mode, Auto-Pagination, floating button preference, Voice mode preferences such as language and chosen voice), a JSON-import counter, and a copy of your account's Free-plan pass and ad unlocks
 
 **All of this is stored only in your browser's local extension storage (`chrome.storage.local`) on your device.** Aullevo does not operate a server that receives, stores, or syncs this data.
 
@@ -27,15 +27,15 @@ Your profiles, custom fields, documents, AI provider API keys, and ElevenLabs AP
 
 ## 2. Optional account connection
 
-Connecting an account is optional. It is needed to unlock a Pro plan purchased on Aullevo Web (aullevo.com), and to use Free-plan ad unlocks. You sign in on the Aullevo Web website, not inside the extension. When you do:
+Connecting an account is optional. It is needed to unlock a Pro plan purchased on Aullevo Web (aullevo.com), and to use the Free plan's daily uses and 5-hour pass. You sign in on the Aullevo Web website, not inside the extension. When you do:
 
 - Aullevo Web passes the extension a short-lived sign-in token (a Firebase ID token issued by Google)
 - The extension uses that token to read your own account record (name, email, profile photo, plan status, and plan expiry) from our Firebase database, operated by Google
 - The extension keeps a copy of that account record in local extension storage so it knows your plan, and re-checks it when you visit Aullevo Web
 
-Aullevo **does not upload your profiles, fields, documents, or API keys** to Firebase or any other Aullevo server. Only your plan status and ad unlocks are synced.
+Aullevo **does not upload your profiles, fields, documents, or API keys** to Firebase or any other Aullevo server. Only your plan status, daily free uses and pass are synced.
 
-**Free-plan daily uses and ad unlocks:** with a connected account, the Free plan includes an allowance every day (6 AI fills, 3 voice sessions, 2 hours of Auto-Pagination, 2 hours of slower typing speeds; 4 JSON imports are counted on your device only). When a feature's free uses are used up, you may choose to watch a short ad on the Aullevo Web website to unlock more for a few hours (also more active profiles and a longer Multi-link queue). Ads are never shown inside the extension. To make this work across your devices, the extension talks to Aullevo's own server (aullevo.com):
+**Free-plan daily uses and ad unlocks:** with a connected account, the Free plan includes an allowance every day (6 AI fills, 3 voice sessions, 2 hours of Auto-Pagination, 2 hours of slower typing speeds; 4 JSON imports are counted on your device only). At any time you may choose to watch 2 short ads on the Aullevo Web website to unlock every feature for 5 hours (a pass, with no limits, including document uploads and JSON export; 2 more ads add 5 more hours). Ads are never shown inside the extension. To make this work across your devices, the extension talks to Aullevo's own server (aullevo.com):
 
 - When you connect your account, it receives a long-lived Aullevo sign-in token for this purpose (stored in local extension storage, removed when you click "Disconnect")
 - It asks the server how many free uses your account has left today, and which features are unlocked and until when
@@ -95,13 +95,13 @@ Requests go directly from your browser to ElevenLabs. ElevenLabs processes this 
 
 When you fill a form, Aullevo types your saved values and attaches your chosen documents into that website's form. Once the form is submitted, that website handles the data under its own privacy policy. Aullevo only fills forms when you trigger it (Fill button, keyboard shortcut, a voice command, or a Multi-link batch you start). In Voice mode, saying "next" or "submit" clicks that button on the form for you.
 
-**Auto-Pagination (Pro, or Free: 2 hours a day plus ad unlocks; off by default):** when you turn it on, Aullevo also clicks the form's Next / Continue buttons and **presses Submit on the last page for you**, which sends your answers to that website. It pauses instead of submitting when a field the form marks as required is still empty, or when the form shows an error it cannot fix. Turn Auto-Pagination off if you want to review and submit every form yourself.
+**Auto-Pagination (Pro, or Free: 2 hours a day, or during the 5-hour pass from 2 short ads; off by default):** when you turn it on, Aullevo also clicks the form's Next / Continue buttons and **presses Submit on the last page for you**, which sends your answers to that website. It pauses instead of submitting when a field the form marks as required is still empty, or when the form shows an error it cannot fix. Turn Auto-Pagination off if you want to review and submit every form yourself.
 
 ## 6. What Aullevo does not do
 
-- No analytics or tracking, and no ads inside the extension (Free users may choose to watch an ad on the Aullevo Web website to unlock features; see Section 2)
+- No analytics or tracking, and no ads inside the extension (Free users may choose to watch 2 short ads on the Aullevo Web website to unlock everything for 5 hours; see Section 2)
 - No selling or renting of user data
-- No transfer of user data to third parties, except Google Firebase for optional account connection and plan status (Section 2), Aullevo's own server for Free-plan ad unlocks (account token and feature use only; Section 2), the AI provider you select when you turn AI Smart Fill on or use Voice mode with it set up (Google Gemini, OpenAI, Anthropic, or a custom server you choose; Section 4), and ElevenLabs when you use Voice mode (Section 4a)
+- No transfer of user data to third parties, except Google Firebase for optional account connection and plan status (Section 2), Aullevo's own server for the Free plan's daily uses and pass (account token and feature use only; Section 2), the AI provider you select when you turn AI Smart Fill on or use Voice mode with it set up (Google Gemini, OpenAI, Anthropic, or a custom server you choose; Section 4), and ElevenLabs when you use Voice mode (Section 4a)
 - No use of your data to determine creditworthiness or for lending purposes
 
 ## 7. Chrome Web Store Limited Use

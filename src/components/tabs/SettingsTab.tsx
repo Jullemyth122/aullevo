@@ -6,9 +6,10 @@ import {
 } from '../../services/aiService';
 import { readVault, writeVault } from '../../services/vault';
 import { canUseTypingDelay } from '../../services/tier';
-import { freeLeft, usesLeft } from '../../services/rewards';
+import { formatTimeLeft, freeLeft, passActive, passMsLeft, usesLeft } from '../../services/rewards';
 import { usePlanRewards } from '../../hooks/useRewards';
 import { PlanUnlock, UnlockList } from '../UnlockCard';
+import { CollapsibleCard } from '../CollapsibleCard';
 import type { useAccount } from '../../hooks/useAccount';
 import { AULLEVO_WEB_URL } from '../../services/account';
 import { useEffect, useRef, useState } from 'react';
@@ -71,7 +72,7 @@ export function SettingsTab({
     onReplayTour
 }: SettingsTabProps) {
     const { account, isPro, isConnecting, connect, disconnect } = accountState;
-    // Free plan: a daily free allowance, then a short ad on aullevo-web unlocks more (rewards.ts)
+    // Free plan: a daily free allowance, and a pass (2 short ads on aullevo-web: everything for 5 hours; rewards.ts)
     const plan = usePlanRewards();
     const typingOk = isPro || plan.access.typing;
     const paginateOk = isPro || plan.access.paginate;
@@ -154,7 +155,7 @@ export function SettingsTab({
     const providerName = provider.id === 'custom' ? 'OpenAI-compatible' : provider.name;
 
     const hasAccess = hasAiAccess({ provider: provider.id, model: selectedModel, apiKey, baseUrl: aiSettings.baseUrl });
-    const isUnlimited = isPro && hasAccess;
+    const isUnlimited = (isPro || plan.access.pass) && hasAccess;
     const aiBadgeText = isUnlimited
         ? t('settings.ai.unlimited')
         : !hasAccess ? t('settings.ai.keyRequired')
@@ -164,15 +165,18 @@ export function SettingsTab({
     return (
         <>
             {/* Account & Plan Card (synced with aullevo-web) */}
-            <div className="av-card" data-tour="account">
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                    <div className="av-label" style={{ margin: 0 }}>{t('settings.account.title')}</div>
+            <CollapsibleCard
+                id="account"
+                tour="account"
+                title={t('settings.account.title')}
+                summary={account ? account.displayName || account.email : t('settings.sections.notConnected')}
+                badge={
                     <span className={`av-plan-badge ${isPro ? 'av-plan-badge--pro' : ''}`}>
                         {isPro && <Crown size={10} />}
                         {isPro ? 'PRO' : 'FREE'}
                     </span>
-                </div>
-
+                }
+            >
                 {account ? (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         {account.photoURL && (
@@ -210,12 +214,16 @@ export function SettingsTab({
                         <span>{account?.isPro ? t('settings.account.renew') : t('settings.account.upgrade')}</span>
                     </a>
                 )}
-            </div>
+            </CollapsibleCard>
 
-            {/* Free plan: everything a short ad can unlock, and what is running */}
+            {/* Free plan: the 2-ad pass and what is free every day */}
             {!isPro && (
-                <div className="av-card" data-tour="free-unlocks">
-                    <div className="av-label">{t('rewards.settings.title')}</div>
+                <CollapsibleCard
+                    id="free-plan"
+                    tour="free-unlocks"
+                    title={t('rewards.settings.title')}
+                    summary={passActive(plan.cache) ? t('rewards.pass.active', { time: formatTimeLeft(passMsLeft(plan.cache)) }) : undefined}
+                >
                     <div style={{ fontSize: 10.5, color: 'var(--av-text-muted)', lineHeight: 1.45, marginBottom: 6 }}>
                         {t('rewards.settings.intro')}
                     </div>
@@ -226,14 +234,17 @@ export function SettingsTab({
                             {!plan.cache.live && <> · {t('rewards.settings.testMode')}</>}
                         </div>
                     )}
-                </div>
+                </CollapsibleCard>
             )}
 
             {/* Language Card ("Language" always also in English, so it can be found in any language) */}
-            <div className="av-card" data-tour="language-settings">
-                <div className="av-label">
-                    {t('language.title')}{language !== DEFAULT_LANGUAGE && <span lang="en"> · Language</span>}
-                </div>
+            <CollapsibleCard
+                id="language"
+                tour="language-settings"
+                defaultOpen={false}
+                title={<>{t('language.title')}{language !== DEFAULT_LANGUAGE && <span lang="en"> · Language</span>}</>}
+                summary={getLanguage(language)?.native ?? 'English'}
+            >
                 <select
                     className="av-input"
                     value={preference}
@@ -251,11 +262,15 @@ export function SettingsTab({
                 <div style={{ fontSize: 10, color: 'var(--av-text-muted)', marginTop: 6 }}>
                     {t('language.settingsHint')}
                 </div>
-            </div>
+            </CollapsibleCard>
 
             {/* Theme Card */}
-            <div className="av-card">
-                <div className="av-label">{t('settings.theme.title')}</div>
+            <CollapsibleCard
+                id="theme"
+                defaultOpen={false}
+                title={t('settings.theme.title')}
+                summary={isDark ? t('settings.sections.dark') : t('settings.sections.light')}
+            >
                 <div className="av-toggle-row">
                     <div>
                         <div className="av-toggle-title">{t('settings.theme.dark')}</div>
@@ -270,11 +285,15 @@ export function SettingsTab({
                         <div className="av-toggle__thumb" />
                     </button>
                 </div>
-            </div>
+            </CollapsibleCard>
 
             {/* Autofill Mode Card */}
-            <div className="av-card" data-tour="ai-mode">
-                <div className="av-label">{t('settings.mode.title')}</div>
+            <CollapsibleCard
+                id="ai-mode"
+                tour="ai-mode"
+                title={t('settings.mode.title')}
+                summary={useAiFill ? t('settings.mode.aiActive') : t('settings.mode.standard')}
+            >
                 <div className="av-toggle-row">
                     <div>
                         <div className="av-toggle-title" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -305,18 +324,20 @@ export function SettingsTab({
                         <div className="av-toggle__thumb" />
                     </button>
                 </div>
-            </div>
+            </CollapsibleCard>
 
             {/* AI Smart Fill Configuration Card */}
             {useAiFill && (
-                <div className="av-card" style={{ border: '1px solid rgba(99, 102, 241, 0.25)' }} data-tour="ai-engine">
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700, fontSize: 12 }}>
-                            <Sparkles size={14} color="var(--av-accent, #6366f1)" />
-                            <span>{t('settings.ai.title')}</span>
-                        </div>
+                <CollapsibleCard
+                    id="ai-engine"
+                    tour="ai-engine"
+                    style={{ border: '1px solid rgba(99, 102, 241, 0.25)' }}
+                    title={<><Sparkles size={13} color="var(--av-accent, #6366f1)" /><span>{t('settings.ai.title')}</span></>}
+                    summary={provider.id === 'custom' ? providerName : `${providerName} · ${selectedModel}`}
+                    badge={
                         <span
                             style={{
+                                flexShrink: 0,
                                 fontSize: 10,
                                 fontWeight: 600,
                                 padding: '2px 8px',
@@ -328,7 +349,8 @@ export function SettingsTab({
                         >
                             {aiBadgeText}
                         </span>
-                    </div>
+                    }
+                >
                     {/* Privacy Shield Notice */}
                     <div
                         style={{
@@ -499,23 +521,26 @@ export function SettingsTab({
                                 : null}
                     </div>
                     {!isPro && hasAccess && <div style={{ marginTop: 8 }}><PlanUnlock feature="ai" /></div>}
-                </div>
+                </CollapsibleCard>
             )}
 
             {/* AI Memories (read by background.ts for AI Smart Fill) */}
             <MemoriesCard useAiFill={useAiFill} />
 
             {/* Auto-Pagination Card (Pro) */}
-            <div className="av-card" data-tour="auto-paginate">
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                    <div className="av-label" style={{ margin: 0 }}>{t('settings.paginate.title')}</div>
-                    {!paginateOk && (
-                        <span className="av-plan-badge av-plan-badge--pro">
-                            <Crown size={10} />
-                            PRO / AD
-                        </span>
-                    )}
-                </div>
+            <CollapsibleCard
+                id="auto-paginate"
+                tour="auto-paginate"
+                defaultOpen={false}
+                title={t('settings.paginate.title')}
+                summary={paginateOk && autoPaginate ? t('settings.sections.on') : t('settings.sections.off')}
+                badge={!paginateOk ? (
+                    <span className="av-plan-badge av-plan-badge--pro">
+                        <Crown size={10} />
+                        PRO / AD
+                    </span>
+                ) : undefined}
+            >
                 <div className="av-toggle-row">
                     <div>
                         <div className="av-toggle-title" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -536,11 +561,16 @@ export function SettingsTab({
                     </button>
                 </div>
                 {!isPro && <div style={{ marginTop: 8 }}><PlanUnlock feature="paginate" /></div>}
-            </div>
+            </CollapsibleCard>
 
             {/* Webpage Floating Trigger Card */}
-            <div className="av-card" data-tour="floating-icon">
-                <div className="av-label">{t('settings.floating.title')}</div>
+            <CollapsibleCard
+                id="floating-icon"
+                tour="floating-icon"
+                defaultOpen={false}
+                title={t('settings.floating.title')}
+                summary={showFloatingIcon ? t('settings.sections.on') : t('settings.sections.off')}
+            >
                 <div className="av-toggle-row">
                     <div>
                         <div className="av-toggle-title">{t('settings.floating.toggleTitle')}</div>
@@ -556,18 +586,18 @@ export function SettingsTab({
                         <div className="av-toggle__thumb" />
                     </button>
                 </div>
-            </div>
+            </CollapsibleCard>
 
             {/* Human Typing Speed Card */}
-            <div className="av-card" data-tour="typing-speed">
-                {/* Header Row with Badge */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700, fontSize: 12 }}>
-                        <Keyboard size={14} color="var(--av-violet, #6366f1)" />
-                        <span>{t('settings.typing.title')}</span>
-                    </div>
+            <CollapsibleCard
+                id="typing-speed"
+                tour="typing-speed"
+                defaultOpen={false}
+                title={<><Keyboard size={13} color="var(--av-violet, #6366f1)" /><span>{t('settings.typing.title')}</span></>}
+                badge={
                     <span
                         style={{
+                            flexShrink: 0,
                             fontSize: 10,
                             fontWeight: 600,
                             padding: '2px 8px',
@@ -579,7 +609,8 @@ export function SettingsTab({
                     >
                         {canUseTypingDelay(typingDelayMs, typingOk) ? getSpeedBadge(typingDelayMs) : t('settings.typing.naturalFree', { ms: 25 })}
                     </span>
-                </div>
+                }
+            >
 
                 {/* Subtitle Description */}
                 <div style={{ fontSize: 11, color: 'var(--av-text-muted)', marginBottom: 12, lineHeight: 1.4 }}>
@@ -670,12 +701,11 @@ export function SettingsTab({
                     </div>
                 </div>
                 {!isPro && <div style={{ marginTop: 10 }}><PlanUnlock feature="typing" /></div>}
-            </div>
+            </CollapsibleCard>
 
             {/* Guided Tour Card */}
             {onReplayTour && (
-                <div className="av-card" data-tour="replay-tour">
-                    <div className="av-label">{t('settings.tour.title')}</div>
+                <CollapsibleCard id="replay-tour" tour="replay-tour" defaultOpen={false} title={t('settings.tour.title')}>
                     <div className="av-toggle-row">
                         <div>
                             <div className="av-toggle-title">{t('settings.tour.toggleTitle')}</div>
@@ -688,7 +718,7 @@ export function SettingsTab({
                             <span>{t('settings.tour.replay')}</span>
                         </button>
                     </div>
-                </div>
+                </CollapsibleCard>
             )}
 
             {/* Per-account data stored on this device */}

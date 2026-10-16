@@ -87,9 +87,6 @@
       "upload": "Subir archivo",
       "import": "Importar"
     },
-    "quota": {
-      "downloadPro": "Descargar (exportar) es una función Pro."
-    },
     "errors": {
       "noFields": "No se encontraron campos válidos en el JSON proporcionado.",
       "invalidFormat": "Formato JSON no válido: {error}"
@@ -364,7 +361,6 @@
       "description": "Escribe un carácter cada vez a ritmo humano, para sitios que esperan pulsaciones reales.",
       "proFeature": "Función Pro",
       "customDelay": "Retardo personalizado:",
-      "customProFeature": "El retardo personalizado es una función Pro",
       "unitMs": "ms"
     },
     "tour": {
@@ -413,13 +409,7 @@
       "profileLimit": "El plan Free permite {max} perfiles activos. Desactiva los perfiles adicionales o pasa a Pro.",
       "activeLimit": "El plan Free permite {max} perfiles activos. Desactiva uno o pasa a Pro.",
       "createdOff": "Perfil creado como INACTIVO. El plan Free permite {max} perfiles activos. Desactiva uno o pasa a Pro.",
-      "autoPaginatePro": "La paginación automática es una función Pro. Pasa a Pro para rellenar formularios de varias páginas.",
-      "jsonImportLimit": "Has usado las {limit} importaciones de JSON gratis de estas 2 semanas. Se renuevan el {date}, o pasa a Pro para tener importaciones ilimitadas.",
-      "documentsSkipped": {
-        "one": "{count} documento no adjuntado: subir archivos a formularios es una función Pro.",
-        "many": "{count} de documentos no adjuntados: subir archivos a formularios es una función Pro.",
-        "other": "{count} documentos no adjuntados: subir archivos a formularios es una función Pro."
-      }
+      "jsonImportLimit": "Has usado las {limit} importaciones de JSON gratis de estas 2 semanas. Se renuevan el {date}, o pasa a Pro para tener importaciones ilimitadas."
     },
     "batch": {
       "starting": {
@@ -583,8 +573,7 @@
     "header": {
       "voice": {
         "title": "Modo de voz",
-        "body": "Habla con Aullevo en lugar de hacer clic. Este botón cambia el panel al asistente de voz: di \"fill this page\", \"fill the email\" o \"fill the first question\", y te responderá en voz alta. Haz clic de nuevo para volver a esta vista.",
-        "note": "Función Pro. Necesita tu propia clave de API de ElevenLabs, que se añade en Voice settings. Los comandos de voz funcionan en inglés y tagalo."
+        "body": "Habla con Aullevo en lugar de hacer clic. Este botón cambia el panel al asistente de voz: di \"fill this page\", \"fill the email\" o \"fill the first question\", y te responderá en voz alta. Haz clic de nuevo para volver a esta vista."
       },
       "language": {
         "title": "Idioma",
@@ -642,8 +631,7 @@
       },
       "documents": {
         "title": "Adjuntar documentos",
-        "body": "Elige el tipo de documento y sube tu currículum, carta de presentación, documento de identidad y más. Cuando un formulario pide subir un archivo, Aullevo adjunta tus documentos que estén ACTIVOS.",
-        "note": "Adjuntar documentos a formularios es una función Pro."
+        "body": "Elige el tipo de documento y sube tu currículum, carta de presentación, documento de identidad y más. Cuando un formulario pide subir un archivo, Aullevo adjunta tus documentos que estén ACTIVOS."
       },
       "attributes": {
         "title": "Campos específicos del perfil",
@@ -690,7 +678,6 @@
         "title": "Memorias de IA",
         "body": "Datos breves que la IA puede usar en preguntas abiertas, como \"Modalidad de trabajo: solo remoto\". Se envían al proveedor de IA que elegiste y no se cifran, así que nunca añadas contraseñas ni números de identificación."
       },
-      "autoPaginate": {},
       "floatingIcon": {
         "title": "Botón flotante",
         "body": "Una pequeña pestaña de Aullevo en el borde de las páginas web para acceder rápido. Desactívala si te estorba."

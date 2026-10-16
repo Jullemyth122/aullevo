@@ -83,9 +83,6 @@
       "upload": "Avaa tiedosto",
       "import": "Tuo"
     },
-    "quota": {
-      "downloadPro": "Lataaminen (vienti) on Pro-ominaisuus."
-    },
     "errors": {
       "noFields": "JSONista ei löytynyt kelvollisia kenttiä.",
       "invalidFormat": "Virheellinen JSON-muoto: {error}"
@@ -358,7 +355,6 @@
       "description": "Kirjoittaa merkki kerrallaan ihmisen tahtiin sivustoille, jotka odottavat oikeita näppäinpainalluksia.",
       "proFeature": "Pro-ominaisuus",
       "customDelay": "Oma viive:",
-      "customProFeature": "Oma viive on Pro-ominaisuus",
       "unitMs": "ms"
     },
     "tour": {
@@ -407,12 +403,7 @@
       "profileLimit": "Free-paketissa voi olla {max} aktiivista profiilia. Aseta ylimääräiset profiilit tilaan POIS tai päivitä Pro-versioon.",
       "activeLimit": "Free-paketissa voi olla {max} aktiivista profiilia. Aseta yksi tilaan POIS tai päivitä Pro-versioon.",
       "createdOff": "Profiili luotiin tilassa POIS. Free-paketissa voi olla {max} aktiivista profiilia. Aseta yksi tilaan POIS tai päivitä Pro-versioon.",
-      "autoPaginatePro": "Automaattinen sivutus on Pro-ominaisuus. Päivitä Pro-versioon, niin voit täyttää monisivuisia lomakkeita.",
-      "jsonImportLimit": "Olet käyttänyt näiden 2 viikon kaikki {limit} ilmaista JSON-tuontia. Kiintiö uusiutuu {date}, tai päivitä Pro-versioon, niin saat rajattomasti tuonteja.",
-      "documentsSkipped": {
-        "one": "{count} asiakirja jäi liittämättä: lataus lomakkeisiin on Pro-ominaisuus.",
-        "other": "{count} asiakirjaa jäi liittämättä: lataus lomakkeisiin on Pro-ominaisuus."
-      }
+      "jsonImportLimit": "Olet käyttänyt näiden 2 viikon kaikki {limit} ilmaista JSON-tuontia. Kiintiö uusiutuu {date}, tai päivitä Pro-versioon, niin saat rajattomasti tuonteja."
     },
     "batch": {
       "starting": {
@@ -564,8 +555,7 @@
     "header": {
       "voice": {
         "title": "Äänitila",
-        "body": "Puhu Aullevolle klikkaamisen sijaan. Tämä painike vaihtaa paneelin ääniavustajaan: sano \"fill this page\", \"fill the email\" tai \"fill the first question\", niin se vastaa ääneen. Palaa tähän näkymään klikkaamalla uudelleen.",
-        "note": "Pro-ominaisuus. Vaatii oman ElevenLabs-API-avaimen, jonka lisäät kohdassa Voice settings. Äänikomennot toimivat englanniksi ja tagalogiksi."
+        "body": "Puhu Aullevolle klikkaamisen sijaan. Tämä painike vaihtaa paneelin ääniavustajaan: sano \"fill this page\", \"fill the email\" tai \"fill the first question\", niin se vastaa ääneen. Palaa tähän näkymään klikkaamalla uudelleen."
       },
       "language": {
         "title": "Kieli",
@@ -623,8 +613,7 @@
       },
       "documents": {
         "title": "Liitä asiakirjoja",
-        "body": "Valitse asiakirjan tyyppi ja lataa CV, saatekirje, henkilöllisyystodistus ja muita. Kun lomakkeessa on tiedoston latauskysymys, Aullevo liittää ne asiakirjasi, jotka ovat PÄÄLLÄ.",
-        "note": "Asiakirjojen liittäminen lomakkeisiin on Pro-ominaisuus."
+        "body": "Valitse asiakirjan tyyppi ja lataa CV, saatekirje, henkilöllisyystodistus ja muita. Kun lomakkeessa on tiedoston latauskysymys, Aullevo liittää ne asiakirjasi, jotka ovat PÄÄLLÄ."
       },
       "attributes": {
         "title": "Profiilikohtaiset kentät",
@@ -671,7 +660,6 @@
         "title": "AI-muistit",
         "body": "Lyhyitä tietoja, joita AI voi käyttää avoimiin kysymyksiin, kuten ”Työtapa: vain etätyö”. Ne lähetetään valitsemallesi AI-palvelulle eikä niitä salata, joten älä koskaan lisää salasanoja tai henkilötunnuksia."
       },
-      "autoPaginate": {},
       "floatingIcon": {
         "title": "Kelluva painike",
         "body": "Pieni Aullevo-välilehti verkkosivujen reunassa nopeaa käyttöä varten. Poista se käytöstä, jos se on tiellä."

@@ -3,11 +3,11 @@
         "profileLimit": "Free plan allows {max} active profiles. Turn extra profiles OFF or upgrade to Pro.",
         "activeLimit": "Free plan allows {max} active profiles. Turn one OFF or upgrade to Pro.",
         "createdOff": "Profile created as OFF. Free plan allows {max} active profiles. Turn one OFF or upgrade to Pro.",
-        "autoPaginatePro": "Auto-pagination is a Pro feature. Upgrade to Pro to fill multi-page forms.",
+        "autoPaginatePro": "Auto-pagination: today's 2 free hours are used. Watch 2 short ads to unlock everything for 5 hours, or upgrade to Pro.",
         "jsonImportLimit": "You've used all {limit} free JSON imports for these 2 weeks. They reset on {date}, or upgrade to Pro for unlimited imports.",
         "documentsSkipped": {
-            "one": "{count} document not attached: upload into forms is a Pro feature.",
-            "other": "{count} documents not attached: upload into forms is a Pro feature."
+            "one": "{count} document not attached: upload into forms needs Pro or the 5-hour pass (2 short ads).",
+            "other": "{count} documents not attached: upload into forms needs Pro or the 5-hour pass (2 short ads)."
         }
     },
     "batch": {

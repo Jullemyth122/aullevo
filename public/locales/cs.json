@@ -91,9 +91,6 @@
       "upload": "Nahrát soubor",
       "import": "Importovat"
     },
-    "quota": {
-      "downloadPro": "Stahování (export) je funkce Pro."
-    },
     "errors": {
       "noFields": "V zadaném JSON nebyla nalezena žádná platná pole.",
       "invalidFormat": "Neplatný formát JSON: {error}"
@@ -370,7 +367,6 @@
       "description": "Píše po jednom znaku lidským tempem pro weby, které očekávají skutečné stisky kláves.",
       "proFeature": "Funkce Pro",
       "customDelay": "Vlastní prodleva:",
-      "customProFeature": "Vlastní prodleva je funkce Pro",
       "unitMs": "ms"
     },
     "tour": {
@@ -419,14 +415,7 @@
       "profileLimit": "Plán Free umožňuje {max} aktivní profily. Přepněte nadbytečné profily na VYP nebo přejděte na Pro.",
       "activeLimit": "Plán Free umožňuje {max} aktivní profily. Přepněte jeden na VYP nebo přejděte na Pro.",
       "createdOff": "Profil byl vytvořen jako VYP. Plán Free umožňuje {max} aktivní profily. Přepněte jeden na VYP nebo přejděte na Pro.",
-      "autoPaginatePro": "Auto-stránkování je funkce Pro. Pro vyplňování vícestránkových formulářů přejděte na Pro.",
-      "jsonImportLimit": "Za tyto 2 týdny jste vyčerpali limit bezplatných importů JSON ({limit}). Obnoví se {date}, nebo přejděte na Pro pro neomezené importy.",
-      "documentsSkipped": {
-        "one": "{count} dokument nebyl přiložen: nahrávání do formulářů je funkce Pro.",
-        "few": "{count} dokumenty nebyly přiloženy: nahrávání do formulářů je funkce Pro.",
-        "many": "{count} dokumentu nebylo přiloženo: nahrávání do formulářů je funkce Pro.",
-        "other": "{count} dokumentů nebylo přiloženo: nahrávání do formulářů je funkce Pro."
-      }
+      "jsonImportLimit": "Za tyto 2 týdny jste vyčerpali limit bezplatných importů JSON ({limit}). Obnoví se {date}, nebo přejděte na Pro pro neomezené importy."
     },
     "batch": {
       "starting": {
@@ -602,8 +591,7 @@
     "header": {
       "voice": {
         "title": "Hlasový režim",
-        "body": "Mluvte s Aullevo místo klikání. Toto tlačítko přepne panel na hlasového asistenta: řekněte \"fill this page\", \"fill the email\" nebo \"fill the first question\" a odpoví vám nahlas. Dalším kliknutím se vrátíte k tomuto zobrazení.",
-        "note": "Funkce Pro. Vyžaduje vlastní API klíč ElevenLabs, který přidáte ve Voice settings. Hlasové příkazy fungují v angličtině a tagalštině."
+        "body": "Mluvte s Aullevo místo klikání. Toto tlačítko přepne panel na hlasového asistenta: řekněte \"fill this page\", \"fill the email\" nebo \"fill the first question\" a odpoví vám nahlas. Dalším kliknutím se vrátíte k tomuto zobrazení."
       },
       "language": {
         "title": "Jazyk",
@@ -661,8 +649,7 @@
       },
       "documents": {
         "title": "Přiložení dokumentů",
-        "body": "Vyberte typ dokumentu a nahrajte životopis, motivační dopis, doklad a další. Když má formulář otázku s nahráním souboru, Aullevo přiloží vaše dokumenty, které jsou ZAP.",
-        "note": "Přikládání dokumentů do formulářů je funkce Pro."
+        "body": "Vyberte typ dokumentu a nahrajte životopis, motivační dopis, doklad a další. Když má formulář otázku s nahráním souboru, Aullevo přiloží vaše dokumenty, které jsou ZAP."
       },
       "attributes": {
         "title": "Pole podle typu profilu",
@@ -709,7 +696,6 @@
         "title": "Paměť AI",
         "body": "Krátká fakta, která AI může použít u otevřených otázek, např. „Styl práce: pouze na dálku“. Posílají se zvolenému poskytovateli AI a nejsou šifrovaná, proto nikdy nepřidávejte hesla ani čísla dokladů."
       },
-      "autoPaginate": {},
       "floatingIcon": {
         "title": "Plovoucí tlačítko",
         "body": "Malá záložka Aullevo na okraji webových stránek pro rychlý přístup. Pokud překáží, vypněte ji."
