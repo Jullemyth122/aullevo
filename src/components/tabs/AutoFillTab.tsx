@@ -1,4 +1,4 @@
-import { Zap, RefreshCw } from 'lucide-react';
+import { Zap, RefreshCw, Heart } from 'lucide-react';
 import type { UserData, CM } from '../../types';
 import { getProfileCustomFields } from '../../types';
 import { useT } from '../../i18n';
@@ -85,7 +85,15 @@ export function AutofillTab({
                 </div>
             )}
 
-            {/* Free plan: AI fills left today (free, then from a short ad; keyword fill stays free), auto-pagination hours */}
+            {/* Free plan: ads pay for keeping Aullevo running (Pro sees no ads) */}
+            {!plan.isPro && (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 10.5, color: 'var(--av-text-muted)', textAlign: 'center', marginTop: -2, marginBottom: 10, padding: '0 6px' }}>
+                    <Heart size={11} style={{ flexShrink: 0, color: 'var(--av-error)' }} />
+                    <span>{t('autofill.supportAds')}</span>
+                </div>
+            )}
+
+            {/* Free plan: AI fills left today (free, or unlimited during a pass; keyword fill stays free), auto-pagination hours */}
             {!plan.isPro && (useAiFill || autoPaginate) && (
                 <div style={{ display: 'grid', gap: 6, marginBottom: 10 }}>
                     {useAiFill && <PlanUnlock feature="ai" />}

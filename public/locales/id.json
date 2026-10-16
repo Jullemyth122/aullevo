@@ -79,9 +79,6 @@
       "upload": "Unggah File",
       "import": "Impor"
     },
-    "quota": {
-      "downloadPro": "Unduh (ekspor) adalah fitur Pro."
-    },
     "errors": {
       "noFields": "Tidak ada kolom valid dalam JSON yang diberikan.",
       "invalidFormat": "Format JSON tidak valid: {error}"
@@ -352,7 +349,6 @@
       "description": "Mengetik satu karakter demi satu karakter dengan kecepatan manusia, untuk situs yang mengharapkan ketukan tombol sungguhan.",
       "proFeature": "Fitur Pro",
       "customDelay": "Jeda Kustom:",
-      "customProFeature": "Jeda kustom adalah fitur Pro",
       "unitMs": "ms"
     },
     "tour": {
@@ -401,11 +397,7 @@
       "profileLimit": "Paket Free mengizinkan {max} profil aktif. Ubah profil tambahan ke NONAKTIF atau tingkatkan ke Pro.",
       "activeLimit": "Paket Free mengizinkan {max} profil aktif. Ubah salah satunya ke NONAKTIF atau tingkatkan ke Pro.",
       "createdOff": "Profil dibuat dalam keadaan NONAKTIF. Paket Free mengizinkan {max} profil aktif. Ubah salah satunya ke NONAKTIF atau tingkatkan ke Pro.",
-      "autoPaginatePro": "Paginasi Otomatis adalah fitur Pro. Tingkatkan ke Pro untuk mengisi formulir multi-halaman.",
-      "jsonImportLimit": "Anda sudah menggunakan semua {limit} impor JSON gratis untuk 2 minggu ini. Kuota direset pada {date}, atau tingkatkan ke Pro untuk impor tanpa batas.",
-      "documentsSkipped": {
-        "other": "{count} dokumen tidak dilampirkan: unggah ke formulir adalah fitur Pro."
-      }
+      "jsonImportLimit": "Anda sudah menggunakan semua {limit} impor JSON gratis untuk 2 minggu ini. Kuota direset pada {date}, atau tingkatkan ke Pro untuk impor tanpa batas."
     },
     "batch": {
       "starting": {
@@ -545,8 +537,7 @@
     "header": {
       "voice": {
         "title": "Mode suara",
-        "body": "Bicaralah dengan Aullevo alih-alih mengklik. Tombol ini mengalihkan panel ke asisten suara: ucapkan \"fill this page\", \"fill the email\", atau \"fill the first question\", dan asisten akan menjawab dengan suara. Klik lagi untuk kembali ke tampilan ini.",
-        "note": "Fitur Pro. Memerlukan kunci API ElevenLabs milik Anda sendiri, yang ditambahkan di Voice settings. Perintah suara berfungsi dalam bahasa Inggris dan Tagalog."
+        "body": "Bicaralah dengan Aullevo alih-alih mengklik. Tombol ini mengalihkan panel ke asisten suara: ucapkan \"fill this page\", \"fill the email\", atau \"fill the first question\", dan asisten akan menjawab dengan suara. Klik lagi untuk kembali ke tampilan ini."
       },
       "language": {
         "title": "Bahasa",
@@ -604,8 +595,7 @@
       },
       "documents": {
         "title": "Lampirkan dokumen",
-        "body": "Pilih jenis dokumen, lalu unggah CV, surat lamaran, kartu identitas, dan lainnya. Saat formulir memiliki pertanyaan unggah file, Aullevo melampirkan dokumen Anda yang AKTIF.",
-        "note": "Melampirkan dokumen ke formulir adalah fitur Pro."
+        "body": "Pilih jenis dokumen, lalu unggah CV, surat lamaran, kartu identitas, dan lainnya. Saat formulir memiliki pertanyaan unggah file, Aullevo melampirkan dokumen Anda yang AKTIF."
       },
       "attributes": {
         "title": "Kolom khusus profil",
@@ -652,7 +642,6 @@
         "title": "Memori AI",
         "body": "Fakta singkat yang dapat digunakan AI untuk pertanyaan terbuka, seperti \"Gaya kerja: hanya remote\". Memori dikirim ke penyedia AI pilihan Anda dan tidak dienkripsi, jadi jangan pernah menambahkan kata sandi atau nomor identitas."
       },
-      "autoPaginate": {},
       "floatingIcon": {
         "title": "Tombol mengambang",
         "body": "Tab kecil Aullevo di tepi halaman web untuk akses cepat. Nonaktifkan jika mengganggu."

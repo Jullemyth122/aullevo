@@ -39,14 +39,15 @@ export const AI_PROVIDERS: readonly AiProvider[] = [
         name: 'Gemini',
         sentTo: 'Google Gemini',
         keyUrl: 'https://aistudio.google.com/app/apikey',
+        // Default: 3.1 Flash-Lite. On a free API key the newer models hit their daily limit within a few fills.
         models: [
+            { id: 'gemini-3.1-flash-lite', name: 'Gemini 3.1 Flash-Lite', tier: 'legacy' },
             { id: 'gemini-3.5-flash-lite', name: 'Gemini 3.5 Flash-Lite', tier: 'fastest' },
             { id: 'gemini-3.5-flash', name: 'Gemini 3.5 Flash', tier: 'balanced' },
             { id: 'gemini-3.7-flash', name: 'Gemini 3.7 Flash', tier: 'capable' },
-            { id: 'gemini-3.8-flash', name: 'Gemini 3.8 Flash', tier: 'smartest' },
-            { id: 'gemini-3.1-flash-lite', name: 'Gemini 3.1 Flash-Lite', tier: 'legacy' }
+            { id: 'gemini-3.8-flash', name: 'Gemini 3.8 Flash', tier: 'smartest' }
         ],
-        defaultModel: 'gemini-3.5-flash-lite'
+        defaultModel: 'gemini-3.1-flash-lite'
     },
     {
         id: 'openai',
@@ -191,18 +192,18 @@ function missingAiSetupMessage(config: AiConfig): string {
     return `Add your ${getAiProvider(config.provider).name} API key in Settings to use AI Smart Fill.`;
 }
 
-export const AI_LOCKED_MESSAGE = "AI Smart Fill: no AI fills left today (Free: 6 a day with a connected account). Watch a 1-minute ad for 10 more (2 hours), or upgrade to Pro. Filled with keywords this time.";
+export const AI_LOCKED_MESSAGE = "AI Smart Fill: no AI fills left today (Free: 6 a day with a connected account). Watch 2 short ads to unlock everything for 5 hours, or upgrade to Pro. Filled with keywords this time.";
 
 /**
- * Whether AI Smart Fill may run now. Free: only with AI fills left from an ad unlock (rewards.ts, 6 fills per ad,
- * each AI-filled page uses one), even with the user's own key. Pro: unlimited.
+ * Whether AI Smart Fill may run now. Free: 6 AI fills a day, or any number during a pass (rewards.ts: 2 short ads,
+ * 5 hours; each AI-filled page uses one), even with the user's own key. Pro: unlimited.
  */
 export function checkAiPermission(
     isPro: boolean,
     config: AiConfig,
     aiUnlocked: boolean
 ): { allowed: boolean; reason?: string; locked?: boolean } {
-    // 1. Free plan: AI fills come from watching a short ad
+    // 1. Free plan: today's free AI fills, or a pass
     if (!isPro && !aiUnlocked) {
         return { allowed: false, locked: true, reason: AI_LOCKED_MESSAGE };
     }
@@ -657,7 +658,7 @@ export async function resolveFormQuestionsWithAI(
         });
 
         // 4. Execute API call with the provider chosen in Settings
-        const response = await withTransientRetry(() => callAi(config, `${systemPrompt}\n\nInput:\n${userPrompt}`, 0.1));
+        const response = await withTransientRetry(config, c => callAi(c, `${systemPrompt}\n\nInput:\n${userPrompt}`, 0.1));
 
         let parsedAnswers: unknown = [];
         try {
@@ -763,25 +764,48 @@ export function describeAiError(err: unknown, provider: AiProviderId = DEFAULT_A
     };
 }
 
-const RETRY_DELAYS_MS = [1500, 4000];
+const RETRY_DELAY_MS = 1500;
 // The content script gives up after 30s, so stop retrying well before that
 const RETRY_BUDGET_MS = 20_000;
+// Other models of the same provider tried after the chosen one
+const MAX_FALLBACK_MODELS = 2;
 
-/** Retries requests that failed because the AI service was briefly overloaded */
-async function withTransientRetry<T>(call: () => Promise<T>): Promise<T> {
+/**
+ * Retries requests that failed because the AI service was briefly overloaded, then moves on to other
+ * models of the same provider with the same key: "high demand" and the free tier's daily limit are
+ * both per model, so a free Gemini key whose model is busy or used up still works on the next one.
+ */
+async function withTransientRetry<T>(config: AiConfig, call: (config: AiConfig) => Promise<T>): Promise<T> {
     const startedAt = Date.now();
-    for (let attempt = 0; ; attempt++) {
-        try {
-            return await call();
-        } catch (err) {
-            const { kind, detail } = describeAiError(err);
-            const delay = RETRY_DELAYS_MS[attempt];
-            const transient = kind === 'busy' || kind === 'server' || kind === 'rate-limit';
-            if (!transient || delay === undefined || Date.now() - startedAt + delay > RETRY_BUDGET_MS) throw err;
-            console.info(`[Aullevo:AI] ${detail} — retrying in ${delay / 1000}s (attempt ${attempt + 2}/${RETRY_DELAYS_MS.length + 1})`);
-            await new Promise(resolve => setTimeout(resolve, delay));
+    const fallbacks = getAiProvider(config.provider).models.map(m => m.id).filter(id => id !== config.model);
+    const models = [config.model, ...fallbacks.slice(0, MAX_FALLBACK_MODELS)];
+    let lastErr: unknown;
+    for (const [index, model] of models.entries()) {
+        for (let attempt = 0; attempt < 2; attempt++) {
+            try {
+                const result = await call({ ...config, model });
+                if (index > 0) console.info(`[Aullevo:AI] ${config.model} was unavailable: answered by ${model} instead`);
+                return result;
+            } catch (err) {
+                lastErr = err;
+                const { kind, detail } = describeAiError(err, config.provider);
+                // A wrong key or a broken request fails the same way on every model
+                const nextModelMayWork = kind === 'busy' || kind === 'server' || kind === 'rate-limit' || (kind === 'model' && index > 0);
+                if (!nextModelMayWork) throw err;
+                // A busy model often answers a moment later; a used-up quota does not
+                const retrySame = attempt === 0 && (kind === 'busy' || kind === 'server') &&
+                    Date.now() - startedAt + RETRY_DELAY_MS <= RETRY_BUDGET_MS;
+                if (!retrySame) {
+                    console.info(`[Aullevo:AI] ${model}: ${detail}`);
+                    break;
+                }
+                console.info(`[Aullevo:AI] ${model}: ${detail} — retrying in ${RETRY_DELAY_MS / 1000}s`);
+                await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
+            }
         }
+        if (Date.now() - startedAt > RETRY_BUDGET_MS) break;
     }
+    throw lastErr;
 }
 
 
@@ -828,7 +852,7 @@ Return only JSON: {"intent": "..."} plus only the fields that action needs.
 Input: ${JSON.stringify({ speech: text, profiles })}`;
 
     try {
-        const response = await withTransientRetry(() => callAi(config, prompt, 0));
+        const response = await withTransientRetry(config, c => callAi(c, prompt, 0));
         const parsed = parseAiJson(response.text, '{}') as Record<string, unknown>;
         const intent = VOICE_INTENTS.includes(parsed.intent as any) ? parsed.intent as ParsedVoiceCommand['intent'] : 'none';
         const str = (v: unknown) => typeof v === 'string' && v.trim() ? v.trim().slice(0, 200) : undefined;
@@ -879,7 +903,7 @@ Return only JSON: {"matches": [question numbers]}.
 Input: ${JSON.stringify({ userSaid: said, namedTargets: targets, questions: questions.map((q, i) => ({ n: i + 1, ...q })) })}`;
 
     try {
-        const response = await withTransientRetry(() => callAi(config, prompt, 0));
+        const response = await withTransientRetry(config, c => callAi(c, prompt, 0));
         const parsed = parseAiJson(response.text, '{}') as { matches?: unknown };
         // Numbered from 1 for the model, from 0 here
         const matches = Array.isArray(parsed.matches)
@@ -942,7 +966,7 @@ Return only JSON: {"commands": [{"intent": "...", plus only the fields that acti
 Input: ${JSON.stringify({ userSaid: text, profiles, currentProfile, questions: questions.map((q, i) => ({ n: i + 1, ...q })) })}`;
 
     try {
-        const response = await withTransientRetry(() => callAi(config, prompt, 0));
+        const response = await withTransientRetry(config, c => callAi(c, prompt, 0));
         const parsed = parseAiJson(response.text, '{}') as { commands?: unknown };
         const list = Array.isArray(parsed.commands) ? parsed.commands.slice(0, 6) : [];
         const str = (v: unknown) => typeof v === 'string' && v.trim() ? v.trim().slice(0, 2000) : undefined;

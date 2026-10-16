@@ -15,6 +15,7 @@
         "standard": "Fill Form ({type})",
         "autoPaginate": "Auto-pagination on: fills every page, then submits"
     },
+    "supportAds": "Please watch our ads when they're offered: they keep Aullevo running. Thank you!",
     "activeProfile": {
         "title": "Active Profile",
         "summary": "{fields} • {docs} ready",

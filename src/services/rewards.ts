@@ -1,20 +1,21 @@
-// rewards.ts - Free plan: an allowance every day; once it is used, a short ad on aullevo-web unlocks more for a few
-// hours. Ads are only offered when the day's free allowance is used up. Each ad adds to what is running (uses and
-// hours stack up). When an unlock ends nothing is deleted: extra profiles and links are only paused.
+// rewards.ts - Free plan: an allowance every day, and the pass: 2 short ads on aullevo-web unlock EVERYTHING for
+// 5 hours, without limits, including document uploads and JSON export. The ads can be watched any time; 2 more ads
+// add 5 more hours. When a pass ends nothing is deleted: extra profiles and links are only paused.
 //
-//             free every day                       one ad
-//   ai        6 AI fills (server)                  10 AI fills, +2 hours
-//   voice     3 voice sessions (server)            6 voice sessions, +2 hours
-//   paginate  2 hours from the first use (server)  +4 hours
-//   typing    2 hours from the first use (server)  +4 hours
-//   json      4 imports (counted here, importQuota.ts)  10 imports, +5 hours
-//   links     5 links in the queue                 10 links, +5 hours
-//   profiles  3 active                             6 active, +2 hours
+//             free every day
+//   ai        6 AI fills (server)
+//   voice     3 voice sessions (server)
+//   paginate  2 hours from the first use (server)
+//   typing    2 hours from the first use (server)
+//   json      4 imports (counted here, importQuota.ts)
+//   links     5 links in the queue
+//   profiles  3 active
 //
 // The server decides what the account may use (aullevo-web api/rewards.ts, rules in api/_rewards-core.ts): free
-// uses left today, which unlocks are running, how many uses are left. This file keeps a copy in
-// chrome.storage.local (so the side panel and background.ts read it instantly), refreshes it from the server, and
-// spends uses there. Keep REWARD_RULES in sync with the server and the website (src/config/rewards.ts).
+// uses left today, the pass, and unlocks watched under the old per-feature ads (they run until they end). While a
+// pass runs it also reports every feature as unlocked, which is what older extensions read. This file keeps a copy
+// in chrome.storage.local (so the side panel and background.ts read it instantly), refreshes it from the server, and
+// spends uses there. Keep FREE_RULES / PASS_* in sync with the server and the website (src/config/rewards.ts).
 //
 // The extension signs in to the API with its own token, handed out when the account connects (WEB_AUTH_SYNC):
 // Firebase ID tokens from the website expire after an hour.
@@ -23,30 +24,32 @@ import { ACCOUNT_STORAGE_KEY, activeProfileLimit, getStoredAccount, type Account
 
 export type RewardFeature = 'ai' | 'profiles' | 'paginate' | 'typing' | 'json' | 'links' | 'voice';
 
-export interface RewardRule {
-    adSeconds: number;
-    hours: number;
-    uses?: number;
+export interface FreeRule {
+    counted: boolean;   // spent one use at a time (the others are a time window or a limit)
     freeUses?: number;  // free every day, counted on the server
     freeHours?: number; // one free window a day, from the first use
 }
 
-export const REWARD_RULES: Record<RewardFeature, RewardRule> = {
-    ai: { adSeconds: 60, hours: 2, uses: 10, freeUses: 6 },
-    profiles: { adSeconds: 30, hours: 2 },
-    paginate: { adSeconds: 60, hours: 4, freeHours: 2 },
-    typing: { adSeconds: 20, hours: 4, freeHours: 2 },
-    json: { adSeconds: 60, hours: 5, uses: 10 },
-    links: { adSeconds: 60, hours: 5 },
-    voice: { adSeconds: 60, hours: 2, uses: 6, freeUses: 3 },
+export const FREE_RULES: Record<RewardFeature, FreeRule> = {
+    ai: { counted: true, freeUses: 6 },
+    voice: { counted: true, freeUses: 3 },
+    json: { counted: true },
+    paginate: { counted: false, freeHours: 2 },
+    typing: { counted: false, freeHours: 2 },
+    links: { counted: false },
+    profiles: { counted: false },
 };
 
-export const REWARD_FEATURES = Object.keys(REWARD_RULES) as RewardFeature[];
-export const isCounted = (feature: RewardFeature) => typeof REWARD_RULES[feature].uses === 'number';
-/** Free uses (counted) or free windows (time) a day kept on the server; 0 = none. */
-export const dailyFree = (feature: RewardFeature) => REWARD_RULES[feature].freeUses ?? (REWARD_RULES[feature].freeHours ? 1 : 0);
+// The pass: this many ads unlock everything for this many hours
+export const PASS_ADS = 2;
+export const PASS_HOURS = 5;
 
-// Multi-link queue size: Free, and Free with the "links" unlock (Pro: no limit)
+export const REWARD_FEATURES = Object.keys(FREE_RULES) as RewardFeature[];
+export const isCounted = (feature: RewardFeature) => FREE_RULES[feature].counted;
+/** Free uses (counted) or free windows (time) a day kept on the server; 0 = none. */
+export const dailyFree = (feature: RewardFeature) => FREE_RULES[feature].freeUses ?? (FREE_RULES[feature].freeHours ? 1 : 0);
+
+// Multi-link queue size: Free, and Free with an old "links" unlock (Pro or a pass: no limit)
 export const FREE_LINK_LIMIT = 5;
 export const UNLOCKED_LINK_LIMIT = 10;
 
@@ -71,6 +74,8 @@ export interface RewardsCache {
     free?: Partial<Record<RewardFeature, number>>; // free uses (or free windows) left today
     freeResetsAt?: number;                          // server time; next UTC midnight
     voiceSessionUntil?: number; // server time; the voice session started last
+    passUntil?: number;         // server time; the running pass (everything unlocked) ends
+    passAds?: number;           // ads already watched toward the next pass
 }
 
 // Release builds always talk to the live site; `npm run build:dev` may point at a local aullevo-web
@@ -90,9 +95,17 @@ export function rewardsPageUrl(feature: RewardFeature): string {
 
 export const serverNow = (cache: Pick<RewardsCache, 'offset'> | null | undefined) => Date.now() + (cache?.offset ?? 0);
 
+/** A pass runs: everything is unlocked, without limits. */
+export const passActive = (cache: RewardsCache | null | undefined): boolean =>
+    Boolean(cache?.passUntil && cache.passUntil > serverNow(cache));
+
+/** Milliseconds until the running pass ends (0 when none). */
+export const passMsLeft = (cache: RewardsCache | null | undefined): number =>
+    passActive(cache) ? cache!.passUntil! - serverNow(cache) : 0;
+
 export function isUnlocked(cache: RewardsCache | null | undefined, feature: RewardFeature): boolean {
     if (!cache) return false;
-    if (cache.pro) return true;
+    if (cache.pro || passActive(cache)) return true;
     const u = cache.unlocks[feature];
     if (!u || u.until <= serverNow(cache)) return false;
     return !isCounted(feature) || (u.remaining ?? 0) > 0;
@@ -111,8 +124,9 @@ export function canUse(cache: RewardsCache | null | undefined, feature: RewardFe
     return Boolean(cache?.pro) || isUnlocked(cache, feature) || freeLeft(cache, feature) > 0;
 }
 
-/** Uses left on a counted unlock (0 when none is running). */
+/** Uses left on a counted unlock (0 when none is running; no limit during a pass). */
 export function usesLeft(cache: RewardsCache | null | undefined, feature: RewardFeature): number {
+    if (passActive(cache)) return Infinity;
     const u = cache?.unlocks[feature];
     return u && u.until > serverNow(cache) ? Math.max(0, u.remaining ?? 0) : 0;
 }
@@ -126,28 +140,40 @@ export function msLeft(cache: RewardsCache | null | undefined, feature: RewardFe
 export const voiceSessionActive = (cache: RewardsCache | null | undefined) =>
     Boolean(cache?.voiceSessionUntil && cache.voiceSessionUntil > serverNow(cache));
 
-/** What the Free plan may use right now: today's free allowance plus the ads watched (Pro: everything). */
+/** What the Free plan may use right now: today's free allowance plus a running pass (Pro: everything). */
 export interface PlanAccess {
-    profiles: boolean;  // the "profiles" ad unlock runs (UNLOCKED_MAX_ACTIVE_PROFILES active)
+    pass: boolean;      // a pass runs: everything below is unlocked, without limits
+    profiles: boolean;  // more than 3 active profiles (a pass, or an old "profiles" ad unlock)
     paginate: boolean;  // running, or today's free hours not started yet (they start on the first use)
     typing: boolean;    // Slow and custom typing speeds; same as paginate
-    ai: boolean;        // an AI fill is available (free today or from an ad)
-    json: boolean;      // a JSON import from an ad is available (the free ones: importQuota.ts)
+    ai: boolean;        // an AI fill is available (free today, or a pass)
+    json: boolean;      // a JSON import beyond the free ones (importQuota.ts) is available
     voice: boolean;     // a voice session is running (or Pro)
+    files: boolean;     // documents are uploaded into forms (Pro or a pass)
+    exportJson: boolean; // a profile can be downloaded as JSON (Pro or a pass)
     linkLimit: number;
     profileLimit: number;
 }
 
 export function planAccess(isPro: boolean, cache: RewardsCache | null | undefined): PlanAccess {
-    if (isPro) return { profiles: true, paginate: true, typing: true, ai: true, json: true, voice: true, linkLimit: Infinity, profileLimit: Infinity };
+    if (isPro || passActive(cache)) {
+        return {
+            pass: !isPro, profiles: true, paginate: true, typing: true, ai: true, json: true, files: true, exportJson: true,
+            voice: isPro || voiceSessionActive(cache), linkLimit: Infinity, profileLimit: Infinity
+        };
+    }
+    // Unlocks watched under the old per-feature ads keep their old limits until they end
     const profiles = isUnlocked(cache, 'profiles');
     return {
+        pass: false,
         profiles,
         paginate: canUse(cache, 'paginate'),
         typing: canUse(cache, 'typing'),
         ai: canUse(cache, 'ai'),
         json: isUnlocked(cache, 'json'),
         voice: voiceSessionActive(cache),
+        files: false,
+        exportJson: false,
         linkLimit: isUnlocked(cache, 'links') ? UNLOCKED_LINK_LIMIT : FREE_LINK_LIMIT,
         profileLimit: activeProfileLimit(false, profiles)
     };
@@ -174,6 +200,8 @@ interface ServerState {
     dailyLimit: number;
     free?: Partial<Record<RewardFeature, number>>;
     freeResetsAt?: number;
+    pass?: { until: number } | null;
+    passAds?: number;
 }
 
 async function callApi<T>(action: string, token: string, body?: unknown): Promise<T> {
@@ -204,6 +232,8 @@ async function saveState(uid: string, state: ServerState, keep?: RewardsCache | 
         dailyLimit: state.dailyLimit ?? 0,
         free: state.free ?? {},
         freeResetsAt: state.freeResetsAt,
+        ...(state.pass?.until ? { passUntil: state.pass.until } : {}),
+        passAds: state.passAds ?? 0,
         ...(keep?.uid === uid && keep.voiceSessionUntil ? { voiceSessionUntil: keep.voiceSessionUntil } : {})
     };
     await chrome.storage.local.set({ [REWARDS_STORAGE_KEY]: cache });
@@ -293,11 +323,6 @@ export async function clearRewards(): Promise<void> {
 // Wording shared by the panel and background.ts
 // ---------------------------------------------------------------------------
 
-/** "1-minute" / "30-second" */
-export function adLengthLabel(seconds: number): string {
-    return seconds >= 60 && seconds % 60 === 0 ? `${seconds / 60}-minute` : `${seconds}-second`;
-}
-
 /** "1h 32m" / "12m" / "45s" */
 export function formatTimeLeft(ms: number): string {
     const s = Math.max(0, Math.round(ms / 1000));
@@ -307,20 +332,8 @@ export function formatTimeLeft(ms: number): string {
     return `${s}s`;
 }
 
-const GIVES: Record<RewardFeature, string> = {
-    ai: '10 AI Smart Fills for 2 hours',
-    profiles: 'up to 6 active profiles for 2 hours',
-    paginate: 'auto-pagination for 4 hours',
-    typing: 'Slow and custom typing speeds for 4 hours',
-    json: '10 JSON imports for 5 hours',
-    links: 'up to 10 Multi-link links for 5 hours',
-    voice: '6 voice sessions for 2 hours'
-};
-
-/** "Watch a 1-minute ad to get 10 AI Smart Fills for 2 hours, or upgrade to Pro." (used in background messages) */
-export function unlockHint(feature: RewardFeature): string {
-    return `Watch a ${adLengthLabel(REWARD_RULES[feature].adSeconds)} ad to get ${GIVES[feature]}, or upgrade to Pro.`;
-}
+/** "Watch 2 short ads to unlock everything for 5 hours, or upgrade to Pro." (used in background messages) */
+export const PASS_HINT = `Watch ${PASS_ADS} short ads to unlock everything for ${PASS_HOURS} hours, or upgrade to Pro.`;
 
 /** "Next free uses: 8:00 AM" — when today's free allowance comes back, in local time. */
 export function freeResetTime(cache: RewardsCache | null | undefined): string {

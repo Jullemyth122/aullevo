@@ -79,9 +79,6 @@
       "upload": "Muat Naik Fail",
       "import": "Import"
     },
-    "quota": {
-      "downloadPro": "Muat turun (eksport) ialah ciri Pro."
-    },
     "errors": {
       "noFields": "Tiada medan yang sah ditemui dalam JSON yang diberikan.",
       "invalidFormat": "Format JSON tidak sah: {error}"
@@ -352,7 +349,6 @@
       "description": "Menaip satu aksara pada satu masa pada kelajuan manusia, untuk laman yang menjangkakan ketukan kekunci sebenar.",
       "proFeature": "Ciri Pro",
       "customDelay": "Lengah Tersuai:",
-      "customProFeature": "Lengah tersuai ialah ciri Pro",
       "unitMs": "ms"
     },
     "tour": {
@@ -401,11 +397,7 @@
       "profileLimit": "Pelan Free membenarkan {max} profil aktif. Tukar profil tambahan kepada MATI atau naik taraf ke Pro.",
       "activeLimit": "Pelan Free membenarkan {max} profil aktif. Tukar satu kepada MATI atau naik taraf ke Pro.",
       "createdOff": "Profil dicipta dalam keadaan MATI. Pelan Free membenarkan {max} profil aktif. Tukar satu kepada MATI atau naik taraf ke Pro.",
-      "autoPaginatePro": "Penomboran Auto ialah ciri Pro. Naik taraf ke Pro untuk mengisi borang berbilang halaman.",
-      "jsonImportLimit": "Anda telah menggunakan kesemua {limit} import JSON percuma untuk 2 minggu ini. Kuota ditetapkan semula pada {date}, atau naik taraf ke Pro untuk import tanpa had.",
-      "documentsSkipped": {
-        "other": "{count} dokumen tidak dilampirkan: muat naik ke dalam borang ialah ciri Pro."
-      }
+      "jsonImportLimit": "Anda telah menggunakan kesemua {limit} import JSON percuma untuk 2 minggu ini. Kuota ditetapkan semula pada {date}, atau naik taraf ke Pro untuk import tanpa had."
     },
     "batch": {
       "starting": {
@@ -545,8 +537,7 @@
     "header": {
       "voice": {
         "title": "Mod suara",
-        "body": "Bercakap dengan Aullevo dan bukannya mengklik. Butang ini menukar panel kepada ejen suara: sebut \"fill this page\", \"fill the email\" atau \"fill the first question\", dan ia akan menjawab dengan suara. Klik sekali lagi untuk kembali ke paparan ini.",
-        "note": "Ciri Pro. Memerlukan kunci API ElevenLabs anda sendiri, yang ditambah dalam Voice settings. Arahan suara berfungsi dalam bahasa Inggeris dan Tagalog."
+        "body": "Bercakap dengan Aullevo dan bukannya mengklik. Butang ini menukar panel kepada ejen suara: sebut \"fill this page\", \"fill the email\" atau \"fill the first question\", dan ia akan menjawab dengan suara. Klik sekali lagi untuk kembali ke paparan ini."
       },
       "language": {
         "title": "Bahasa",
@@ -604,8 +595,7 @@
       },
       "documents": {
         "title": "Lampirkan dokumen",
-        "body": "Pilih jenis dokumen, kemudian muat naik resume, surat iringan, kad pengenalan dan banyak lagi. Apabila borang mempunyai soalan muat naik fail, Aullevo melampirkan dokumen anda yang HIDUP.",
-        "note": "Melampirkan dokumen pada borang ialah ciri Pro."
+        "body": "Pilih jenis dokumen, kemudian muat naik resume, surat iringan, kad pengenalan dan banyak lagi. Apabila borang mempunyai soalan muat naik fail, Aullevo melampirkan dokumen anda yang HIDUP."
       },
       "attributes": {
         "title": "Medan khusus profil",
@@ -652,7 +642,6 @@
         "title": "Memori AI",
         "body": "Fakta ringkas yang boleh digunakan AI untuk soalan terbuka, seperti \"Gaya kerja: jarak jauh sahaja\". Memori dihantar kepada penyedia AI pilihan anda dan tidak disulitkan, jadi jangan sekali-kali tambah kata laluan atau nombor pengenalan."
       },
-      "autoPaginate": {},
       "floatingIcon": {
         "title": "Butang terapung",
         "body": "Tab kecil Aullevo di tepi halaman web untuk akses pantas. Matikannya jika ia mengganggu."

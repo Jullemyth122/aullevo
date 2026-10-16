@@ -3,7 +3,7 @@ import { ACCOUNT_STORAGE_KEY } from '../services/tier';
 import { REWARDS_STORAGE_KEY, consumeReward, planAccess, readRewards, type PlanAccess, type RewardFeature, type RewardsCache } from '../services/rewards';
 
 /**
- * The account's ad unlocks (Free plan), kept fresh: read from the cached copy, refreshed by background.ts when the
+ * The account's Free plan (daily allowance and pass), kept fresh: read from the cached copy, refreshed by background.ts when the
  * panel opens or regains focus (an ad watched on aullevo-web, or on another computer), re-rendered every 30 s so
  * the time left counts down.
  */

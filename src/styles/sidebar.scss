@@ -455,6 +455,71 @@ body {
   margin: 0;
 }
 
+/* ── Fold-out Settings card (CollapsibleCard.tsx): the whole title row opens and closes it ── */
+.av-collapse__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  user-select: none;
+
+  &:focus-visible {
+    outline: 2px solid var(--av-accent, #6366f1);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  &:hover .av-collapse__chevron {
+    color: var(--av-text);
+  }
+}
+
+/* The title takes the left; summary, badge and chevron line up on the right */
+.av-collapse__title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  margin-right: auto;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--av-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.av-collapse__summary {
+  flex: 0 1 auto;
+  min-width: 0;
+  font-size: 10.5px;
+  color: var(--av-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.av-collapse__chevron {
+  flex-shrink: 0;
+  color: var(--av-text-muted);
+  transition: transform 0.2s ease;
+
+  &--closed {
+    transform: rotate(-90deg);
+  }
+}
+
+.av-collapse__body {
+  margin-top: 8px;
+}
+
 /* ── Field Header & Label Wrap ── */
 .av-field__label-wrap {
   display: flex;

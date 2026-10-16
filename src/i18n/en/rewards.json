@@ -1,92 +1,93 @@
 {
     "card": {
-        "watch": "Watch ad · {length}",
         "connect": "Connect account",
-        "connectHint": "Ad unlocks are saved to your Aullevo account.",
+        "connectHint": "The pass is saved to your Aullevo account.",
         "connectFree": "Connect your Aullevo account to get the free daily uses.",
         "active": "Unlocked · {time} left",
         "activeUses": "{left} left · {time}",
-        "usedUp": "All used. Watch another ad for more.",
         "freeLeft": "{left} of {total} {unit} free today",
         "freeRunning": "Free today · {time} left",
         "freeReady": "{hours} free hours today · they start when you use it",
-        "freeUsed": "Today's free uses are used. Watch a short ad for {gives}, or wait until {time}.",
-        "freeAndAd": "Free: {free} · {length} ad → {gives}",
-        "useFreeFirst": "Use today's free allowance first; the ad unlocks after that.",
         "resets": "Free uses reset at {time}.",
-        "opened": "Opened Aullevo Web: watch the ad there, then come back here.",
-        "pro": "Pro: no ads, unlimited.",
-        "adds": "Each ad adds more uses and time."
+        "pro": "Pro: no ads, unlimited."
+    },
+    "pass": {
+        "title": "{hours}-hour pass",
+        "gives": "Watch {count} short ads to unlock everything for {hours} hours: no limits, resume uploads included.",
+        "freeUsed": "Today's free uses are used. Watch {count} short ads to unlock everything for {hours} hours, or wait until {time}.",
+        "running": "Everything is unlocked for {time} more. {count} more ads add {hours} hours.",
+        "active": "Everything unlocked · {time} left",
+        "watch": "Watch {count} ads · {hours} h of everything",
+        "watchNext": "Watch ad {next} of {total}",
+        "opened": "Opened Aullevo Web: watch the {count} ads there, then come back here.",
+        "freeEveryDay": "Free every day: {free}",
+        "dailyTitle": "What's free every day",
+        "extrasTitle": "Resume uploads · JSON export",
+        "extras": "With the pass or Pro",
+        "adds": "Every {count} ads add {hours} more hours."
     },
     "feature": {
         "ai": {
             "title": "AI Smart Fill",
             "free": "6 a day",
-            "gives": "10 AI fills for 2 hours",
             "unit": "AI fills"
         },
         "profiles": {
-            "title": "More active profiles",
+            "title": "Active profiles",
             "free": "3 active",
-            "gives": "up to 6 active profiles for 2 hours",
             "unit": ""
         },
         "paginate": {
             "title": "Auto-pagination",
             "free": "2 hours a day",
-            "gives": "auto-pagination for 4 hours",
             "unit": ""
         },
         "typing": {
             "title": "Typing speeds",
-            "free": "2 hours a day",
-            "gives": "Slow and custom speeds for 4 hours",
+            "free": "Slow and custom, 2 hours a day",
             "unit": ""
         },
         "json": {
             "title": "JSON imports",
             "free": "4 a day",
-            "gives": "10 JSON imports for 5 hours",
             "unit": "imports"
         },
         "links": {
             "title": "Multi-link queue",
             "free": "5 links",
-            "gives": "up to 10 links for 5 hours",
             "unit": ""
         },
         "voice": {
             "title": "Voice agent",
             "free": "3 sessions a day",
-            "gives": "6 voice sessions for 2 hours",
             "unit": "sessions"
         }
     },
     "links": {
         "count": "Links: {count} of {limit}",
-        "paused": "{count} more saved, paused until an ad or Pro"
+        "paused": "{count} more saved, paused until a pass or Pro"
     },
     "settings": {
         "title": "Free plan",
-        "intro": "Every day you get a part of each feature for free. When its free uses run out, a short ad on Aullevo Web unlocks more for a few hours, and every extra ad adds more. Nothing is deleted when an unlock ends. Pro unlocks everything, no ads.",
+        "intro": "Every day you get a part of each feature for free. Any time you want more, watch 2 short ads on Aullevo Web: everything is unlocked for 5 hours, resume uploads included. Nothing is deleted when a pass ends. Pro unlocks everything, no ads.",
         "adsToday": "Ads watched today: {count}",
         "testMode": "Test mode: the ad is a timer until real ads are switched on.",
         "aiLeft": "{left} AI fills left",
-        "aiLocked": "Out for today: watch an ad"
+        "aiLocked": "Out for today: watch 2 ads"
     },
     "status": {
-        "aiLocked": "AI Smart Fill: today's 6 free AI fills are used. Watch a 1-minute ad for 10 more (2 hours), or upgrade to Pro.",
-        "paginateLocked": "Auto-pagination: today's 2 free hours are used. Watch a 1-minute ad to use it for 4 hours, or upgrade to Pro.",
-        "typingLocked": "Slow and custom speeds: today's 2 free hours are used. Watch a 20-second ad to use them for 4 hours, or upgrade to Pro.",
-        "linkLimit": "The Free plan holds {max} links. Watch a 1-minute ad to queue up to {unlocked} for 5 hours.",
-        "jsonLocked": "Today's 4 free JSON imports are used. Watch a 1-minute ad for 10 more (5 hours), or upgrade to Pro.",
+        "aiLocked": "AI Smart Fill: today's 6 free AI fills are used. Watch 2 short ads to unlock everything for 5 hours, or upgrade to Pro.",
+        "paginateLocked": "Auto-pagination: today's 2 free hours are used. Watch 2 short ads to unlock everything for 5 hours, or upgrade to Pro.",
+        "typingLocked": "Slow and custom speeds: today's 2 free hours are used. Watch 2 short ads to unlock everything for 5 hours, or upgrade to Pro.",
+        "linkLimit": "The Free plan holds {max} links. Watch 2 short ads to queue as many as you like for 5 hours.",
+        "jsonLocked": "Today's 4 free JSON imports are used. Watch 2 short ads to unlock everything for 5 hours, or upgrade to Pro.",
         "jsonFailed": "Could not use a JSON import: {error}",
-        "voiceLocked": "Voice mode: today's 3 free voice sessions are used. Watch a 1-minute ad for 6 more (2 hours), or upgrade to Pro.",
+        "voiceLocked": "Voice mode: today's 3 free voice sessions are used. Watch 2 short ads to unlock everything for 5 hours, or upgrade to Pro.",
         "voiceFailed": "Could not start a voice session: {error}",
-        "profilesLocked": "The Free plan allows {max} active profiles. Watch a 30-second ad to use up to {unlocked} for 2 hours, or upgrade to Pro.",
-        "profilesMax": "{max} profiles are on, the most your ad unlock allows. Turn one off first, or upgrade to Pro for unlimited.",
-        "profilePaused": "This profile is paused: the Free plan uses {max} profiles at once and it is beyond that. It is still saved. Watch a 30-second ad, turn another profile OFF, or upgrade to Pro.",
-        "profilesPausedSome": "{count} of your profiles are paused (still saved): only {max} can be used at once on Free. Watch a 30-second ad to use up to 6 for 2 hours, or turn some OFF."
+        "profilesLocked": "The Free plan allows {max} active profiles. Watch 2 short ads to use as many as you like for 5 hours, or upgrade to Pro.",
+        "profilesMax": "{max} profiles are on, the most your unlock allows. Turn one off first, or upgrade to Pro for unlimited.",
+        "profilePaused": "This profile is paused: the Free plan uses {max} profiles at once and it is beyond that. It is still saved. Watch 2 short ads, turn another profile OFF, or upgrade to Pro.",
+        "profilesPausedSome": "{count} of your profiles are paused (still saved): only {max} can be used at once on Free. Watch 2 short ads to use them all for 5 hours, or turn some OFF."
     },
     "paused": "Paused"
 }

@@ -83,9 +83,6 @@
       "upload": "Datei hochladen",
       "import": "Importieren"
     },
-    "quota": {
-      "downloadPro": "Herunterladen (Export) ist eine Pro-Funktion."
-    },
     "errors": {
       "noFields": "Im angegebenen JSON wurden keine gültigen Felder gefunden.",
       "invalidFormat": "Ungültiges JSON-Format: {error}"
@@ -358,7 +355,6 @@
       "description": "Tippt Zeichen für Zeichen in menschlichem Tempo, für Websites, die echte Tastenanschläge erwarten.",
       "proFeature": "Pro-Funktion",
       "customDelay": "Eigene Verzögerung:",
-      "customProFeature": "Eigene Verzögerung ist eine Pro-Funktion",
       "unitMs": "ms"
     },
     "tour": {
@@ -407,12 +403,7 @@
       "profileLimit": "Im Free-Plan sind {max} aktive Profile erlaubt. Schalte überzählige Profile auf AUS oder upgrade auf Pro.",
       "activeLimit": "Im Free-Plan sind {max} aktive Profile erlaubt. Schalte eines auf AUS oder upgrade auf Pro.",
       "createdOff": "Profil wurde mit AUS erstellt. Im Free-Plan sind {max} aktive Profile erlaubt. Schalte eines auf AUS oder upgrade auf Pro.",
-      "autoPaginatePro": "Auto-Paginierung ist eine Pro-Funktion. Upgrade auf Pro, um mehrseitige Formulare auszufüllen.",
-      "jsonImportLimit": "Du hast alle {limit} kostenlosen JSON-Importe für diese 2 Wochen verbraucht. Sie werden am {date} zurückgesetzt, oder upgrade auf Pro für unbegrenzte Importe.",
-      "documentsSkipped": {
-        "one": "{count} Dokument nicht angehängt: Hochladen in Formulare ist eine Pro-Funktion.",
-        "other": "{count} Dokumente nicht angehängt: Hochladen in Formulare ist eine Pro-Funktion."
-      }
+      "jsonImportLimit": "Du hast alle {limit} kostenlosen JSON-Importe für diese 2 Wochen verbraucht. Sie werden am {date} zurückgesetzt, oder upgrade auf Pro für unbegrenzte Importe."
     },
     "batch": {
       "starting": {
@@ -564,8 +555,7 @@
     "header": {
       "voice": {
         "title": "Sprachmodus",
-        "body": "Sprich mit Aullevo, statt zu klicken. Diese Schaltfläche schaltet das Panel auf den Sprachassistenten um: Sag \"fill this page\", \"fill the email\" oder \"fill the first question\", und er antwortet laut. Klicke erneut, um zu dieser Ansicht zurückzukehren.",
-        "note": "Pro-Funktion. Benötigt deinen eigenen ElevenLabs-API-Schlüssel, den du unter Voice settings hinzufügst. Sprachbefehle funktionieren auf Englisch und Tagalog."
+        "body": "Sprich mit Aullevo, statt zu klicken. Diese Schaltfläche schaltet das Panel auf den Sprachassistenten um: Sag \"fill this page\", \"fill the email\" oder \"fill the first question\", und er antwortet laut. Klicke erneut, um zu dieser Ansicht zurückzukehren."
       },
       "language": {
         "title": "Sprache",
@@ -623,8 +613,7 @@
       },
       "documents": {
         "title": "Dokumente anhängen",
-        "body": "Wähle den Dokumenttyp und lade dann Lebenslauf, Anschreiben, Ausweis und mehr hoch. Hat ein Formular eine Datei-Upload-Frage, hängt Aullevo deine Dokumente an, die AN sind.",
-        "note": "Dokumente an Formulare anhängen ist eine Pro-Funktion."
+        "body": "Wähle den Dokumenttyp und lade dann Lebenslauf, Anschreiben, Ausweis und mehr hoch. Hat ein Formular eine Datei-Upload-Frage, hängt Aullevo deine Dokumente an, die AN sind."
       },
       "attributes": {
         "title": "Profilspezifische Felder",
@@ -671,7 +660,6 @@
         "title": "KI-Erinnerungen",
         "body": "Kurze Fakten, die die KI für offene Fragen nutzen kann, z. B. „Arbeitsweise: nur remote“. Sie werden an den gewählten KI-Anbieter gesendet und nicht verschlüsselt, also füge nie Passwörter oder Ausweisnummern hinzu."
       },
-      "autoPaginate": {},
       "floatingIcon": {
         "title": "Schwebender Button",
         "body": "Ein kleiner Aullevo-Tab am Rand von Webseiten für den Schnellzugriff. Schalte ihn aus, wenn er stört."

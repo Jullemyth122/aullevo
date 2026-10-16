@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { HardDrive, Trash2 } from 'lucide-react';
 import { LOCAL_OWNER, deleteOwnerData, listOwnersOnDevice, type OwnerDataSummary } from '../../services/owner';
 import { useT } from '../../i18n';
+import { CollapsibleCard } from '../CollapsibleCard';
 
 type Translate = ReturnType<typeof useT>['t'];
 
@@ -43,14 +44,13 @@ export function DeviceDataCard() {
     const total = owners.reduce((sum, o) => sum + o.bytes, 0);
 
     return (
-        <div className="av-card" data-tour="device-data">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                <div className="av-label" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <HardDrive size={12} />
-                    <span>{t('settings.deviceData.title')}</span>
-                </div>
-                <span style={{ fontSize: 10, color: 'var(--av-text-muted)' }}>{t('settings.deviceData.total', { size: formatBytes(total, t) })}</span>
-            </div>
+        <CollapsibleCard
+            id="device-data"
+            tour="device-data"
+            defaultOpen={false}
+            title={<><HardDrive size={12} /><span>{t('settings.deviceData.title')}</span></>}
+            badge={<span style={{ flexShrink: 0, fontSize: 10, color: 'var(--av-text-muted)' }}>{t('settings.deviceData.total', { size: formatBytes(total, t) })}</span>}
+        >
             <div style={{ fontSize: 10, color: 'var(--av-text-muted)', lineHeight: 1.4, marginBottom: 8 }}>
                 {t('settings.deviceData.description')}
             </div>
@@ -80,6 +80,6 @@ export function DeviceDataCard() {
                     )}
                 </div>
             ))}
-        </div>
+        </CollapsibleCard>
     );
 }

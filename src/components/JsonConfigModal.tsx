@@ -45,7 +45,7 @@ export const JsonConfigModal: React.FC<JsonConfigModalProps> = ({
         chrome.storage?.onChanged?.addListener(handleChange);
         return () => chrome.storage?.onChanged?.removeListener(handleChange);
     }, [isOpen, isPro]);
-    // After the free imports, each import uses one of the 10 a short ad unlocks (useProfileManager spends it)
+    // After the free imports: a pass (2 ads, 5 hours) allows any number (useProfileManager checks with the server)
     const plan = usePlanRewards();
     const freeLeft = jsonImportsLeft(importsUsed, isPro);
     const importsLeft = freeLeft > 0 ? freeLeft : plan.access.json ? usesLeft(plan.cache, 'json') : 0;
@@ -262,7 +262,7 @@ export const JsonConfigModal: React.FC<JsonConfigModalProps> = ({
                     placeholder={`[\n  {\n    "label": "Question Label",\n    "value": "Answer Value",\n    "enabled": true\n  }\n]`}
                 />
 
-                {!isPro && (
+                {!isPro && !plan.access.pass && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, padding: '6px 10px', color: '#eab308' }}>
                         <Crown size={12} />
                         <span>
@@ -273,7 +273,7 @@ export const JsonConfigModal: React.FC<JsonConfigModalProps> = ({
                         </span>
                     </div>
                 )}
-                {!isPro && freeLeft <= 0 && (
+                {!isPro && !plan.access.pass && freeLeft <= 0 && (
                     <div style={{ padding: '0 10px 8px' }}>
                         <PlanUnlock feature="json" reason={t('rewards.status.jsonLocked')} />
                     </div>
@@ -282,7 +282,7 @@ export const JsonConfigModal: React.FC<JsonConfigModalProps> = ({
                 {/* Footer */}
                 <div className="av-modal-footer">
                     <div style={{ display: 'flex', gap: 6 }}>
-                        <button type="button" className="av-btn-secondary" onClick={handleDownload} disabled={!isPro || Boolean(parseError)}>
+                        <button type="button" className="av-btn-secondary" onClick={handleDownload} disabled={!plan.access.exportJson || Boolean(parseError)}>
                             <Download size={12} />
                             <span>{t('json.actions.download')}</span>
                         </button>

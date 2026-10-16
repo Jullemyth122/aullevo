@@ -81,7 +81,7 @@ export function ProfilesTab({
                 onCreateProfile={onCreateProfile}
             />
 
-            {/* Free plan: a 4th active profile needs a short ad; profiles ON beyond the limit are paused, not deleted */}
+            {/* Free plan: a 4th active profile needs a pass (2 short ads); profiles ON beyond the limit are paused, not deleted */}
             {!plan.isPro && (countActiveProfiles(profiles) >= FREE_MAX_ACTIVE_PROFILES || plan.access.profiles) && (
                 <PlanUnlock feature="profiles" reason={pausedProfileKeys(profiles, plan.access.profileLimit).length > 0
                     ? t('rewards.status.profilesPausedSome', { count: pausedProfileKeys(profiles, plan.access.profileLimit).length, max: plan.access.profileLimit })

@@ -51,7 +51,7 @@
         "voice": {
             "title": "Voice mode",
             "body": "Talk to Aullevo instead of clicking. This button switches the panel to the voice agent: say \"fill this page\", \"fill the email\", or \"fill the first question\", and it answers out loud. Click it again to come back to this view.",
-            "note": "Pro, or on Free 2 voice sessions per short ad. Needs your own ElevenLabs API key, added in Voice settings. Voice commands work in English and Tagalog."
+            "note": "Pro, or on Free 3 sessions a day (any number during a 2-ad pass). Needs your own ElevenLabs API key, added in Voice settings. Voice commands work in English and Tagalog."
         },
         "language": {
             "title": "Language",
@@ -111,7 +111,7 @@
         "documents": {
             "title": "Attach documents",
             "body": "Choose the document type, then upload your resume, cover letter, ID, and more. When a form has a file-upload question, Aullevo attaches your documents that are ON.",
-            "note": "Attaching documents to forms is a Pro feature."
+            "note": "Attaching documents to forms needs Pro or the 5-hour pass (2 short ads)."
         },
         "attributes": {
             "title": "Profile-specific fields",
@@ -161,7 +161,7 @@
             "body": "Short facts the AI can use for open-ended questions, like \"Work style: remote only\". They're sent to the AI provider you chose and not encrypted, so never add passwords or ID numbers."
         },
         "autoPaginate": {
-            "body": "For forms with several pages: Aullevo fills each page, clicks Next or Continue, and presses Submit on the last page. Free: 2 hours a day (a short ad adds more). Pro: always on.",
+            "body": "For forms with several pages: Aullevo fills each page, clicks Next or Continue, and presses Submit on the last page. Free: 2 hours a day (2 short ads unlock everything for 5 hours). Pro: always on.",
             "titlePlan": "Auto-Pagination"
         },
         "floatingIcon": {

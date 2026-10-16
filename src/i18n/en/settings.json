@@ -14,6 +14,13 @@
         "dark": "Dark Theme",
         "description": "Toggle between Dark Slate and Light theme"
     },
+    "sections": {
+        "on": "On",
+        "off": "Off",
+        "dark": "Dark",
+        "light": "Light",
+        "notConnected": "Not connected"
+    },
     "mode": {
         "title": "Autofill Engine Mode",
         "aiActive": "AI Smart Fill (Active)",
@@ -110,7 +117,7 @@
         "description": "Types one character at a time at a human pace, for sites that expect real keystrokes.",
         "proFeature": "Pro feature",
         "customDelay": "Custom Delay:",
-        "customProFeature": "Custom delay is a Pro feature",
+        "customProFeature": "Custom delay: Pro, 2 free hours a day, or the 5-hour pass (2 short ads)",
         "unitMs": "ms"
     },
     "tour": {

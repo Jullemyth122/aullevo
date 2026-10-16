@@ -20,8 +20,8 @@
     },
     "quota": {
         "leftToday": "Free plan: {left} of {limit} JSON imports left today. They reset at midnight.",
-        "reachedToday": "You've used today's {limit} free JSON imports. They reset at midnight; a short ad gives 10 more, or upgrade to Pro for unlimited imports.",
-        "downloadPro": "Download (export) is a Pro feature."
+        "reachedToday": "You've used today's {limit} free JSON imports. They reset at midnight; 2 short ads unlock everything for 5 hours, or upgrade to Pro for unlimited imports.",
+        "downloadPro": "Download (export) needs Pro or the 5-hour pass (2 short ads)."
     },
     "errors": {
         "noFields": "No valid fields found in the provided JSON.",

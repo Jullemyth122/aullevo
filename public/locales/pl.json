@@ -91,9 +91,6 @@
       "upload": "Prześlij plik",
       "import": "Importuj"
     },
-    "quota": {
-      "downloadPro": "Pobieranie (eksport) to funkcja Pro."
-    },
     "errors": {
       "noFields": "W podanym JSON nie znaleziono prawidłowych pól.",
       "invalidFormat": "Nieprawidłowy format JSON: {error}"
@@ -370,7 +367,6 @@
       "description": "Wpisuje po jednym znaku w ludzkim tempie, dla stron, które oczekują prawdziwych naciśnięć klawiszy.",
       "proFeature": "Funkcja Pro",
       "customDelay": "Własne opóźnienie:",
-      "customProFeature": "Własne opóźnienie to funkcja Pro",
       "unitMs": "ms"
     },
     "tour": {
@@ -419,14 +415,7 @@
       "profileLimit": "Plan Free pozwala na {max} aktywne profile. Ustaw dodatkowe profile na WYŁ. lub przejdź na Pro.",
       "activeLimit": "Plan Free pozwala na {max} aktywne profile. Ustaw jeden na WYŁ. lub przejdź na Pro.",
       "createdOff": "Profil utworzono jako WYŁ. Plan Free pozwala na {max} aktywne profile. Ustaw jeden na WYŁ. lub przejdź na Pro.",
-      "autoPaginatePro": "Auto-stronicowanie to funkcja Pro. Przejdź na Pro, aby wypełniać formularze wielostronicowe.",
-      "jsonImportLimit": "Wykorzystano limit bezpłatnych importów JSON na te 2 tygodnie ({limit}). Odnowi się {date}. Możesz też przejść na Pro, aby importować bez limitu.",
-      "documentsSkipped": {
-        "one": "Nie załączono {count} dokumentu: przesyłanie do formularzy to funkcja Pro.",
-        "few": "Nie załączono {count} dokumentów: przesyłanie do formularzy to funkcja Pro.",
-        "many": "Nie załączono {count} dokumentów: przesyłanie do formularzy to funkcja Pro.",
-        "other": "Nie załączono {count} dokumentu: przesyłanie do formularzy to funkcja Pro."
-      }
+      "jsonImportLimit": "Wykorzystano limit bezpłatnych importów JSON na te 2 tygodnie ({limit}). Odnowi się {date}. Możesz też przejść na Pro, aby importować bez limitu."
     },
     "batch": {
       "starting": {
@@ -602,8 +591,7 @@
     "header": {
       "voice": {
         "title": "Tryb głosowy",
-        "body": "Rozmawiaj z Aullevo zamiast klikać. Ten przycisk przełącza panel na asystenta głosowego: powiedz \"fill this page\", \"fill the email\" lub \"fill the first question\", a odpowie na głos. Kliknij ponownie, aby wrócić do tego widoku.",
-        "note": "Funkcja Pro. Wymaga własnego klucza API ElevenLabs, który dodajesz w Voice settings. Polecenia głosowe działają po angielsku i tagalsku."
+        "body": "Rozmawiaj z Aullevo zamiast klikać. Ten przycisk przełącza panel na asystenta głosowego: powiedz \"fill this page\", \"fill the email\" lub \"fill the first question\", a odpowie na głos. Kliknij ponownie, aby wrócić do tego widoku."
       },
       "language": {
         "title": "Język",
@@ -661,8 +649,7 @@
       },
       "documents": {
         "title": "Załącz dokumenty",
-        "body": "Wybierz typ dokumentu, a następnie prześlij CV, list motywacyjny, dokument tożsamości i inne. Gdy formularz ma pole przesyłania pliku, Aullevo załącza Twoje dokumenty, które są WŁ.",
-        "note": "Załączanie dokumentów do formularzy to funkcja Pro."
+        "body": "Wybierz typ dokumentu, a następnie prześlij CV, list motywacyjny, dokument tożsamości i inne. Gdy formularz ma pole przesyłania pliku, Aullevo załącza Twoje dokumenty, które są WŁ."
       },
       "attributes": {
         "title": "Pola zależne od profilu",
@@ -709,7 +696,6 @@
         "title": "Pamięć AI",
         "body": "Krótkie fakty, których AI może użyć przy pytaniach otwartych, np. „Styl pracy: tylko zdalnie”. Są wysyłane do wybranego dostawcy AI i nie są szyfrowane, więc nigdy nie dodawaj haseł ani numerów dokumentów."
       },
-      "autoPaginate": {},
       "floatingIcon": {
         "title": "Pływający przycisk",
         "body": "Mała karta Aullevo przy krawędzi stron internetowych do szybkiego dostępu. Wyłącz ją, jeśli przeszkadza."

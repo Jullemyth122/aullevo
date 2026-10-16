@@ -87,9 +87,6 @@
       "upload": "Încarcă fișier",
       "import": "Importă"
     },
-    "quota": {
-      "downloadPro": "Descărcarea (exportul) este o funcție Pro."
-    },
     "errors": {
       "noFields": "Nu s-au găsit câmpuri valide în JSON-ul furnizat.",
       "invalidFormat": "Format JSON nevalid: {error}"
@@ -364,7 +361,6 @@
       "description": "Tastează câte un caracter, în ritm uman, pentru site-urile care așteaptă apăsări reale de taste.",
       "proFeature": "Funcție Pro",
       "customDelay": "Întârziere personalizată:",
-      "customProFeature": "Întârzierea personalizată este o funcție Pro",
       "unitMs": "ms"
     },
     "tour": {
@@ -413,13 +409,7 @@
       "profileLimit": "Planul Free permite {max} profiluri active. Setează profilurile în plus pe INACTIV sau treci la Pro.",
       "activeLimit": "Planul Free permite {max} profiluri active. Setează unul pe INACTIV sau treci la Pro.",
       "createdOff": "Profil creat ca INACTIV. Planul Free permite {max} profiluri active. Setează unul pe INACTIV sau treci la Pro.",
-      "autoPaginatePro": "Paginarea automată este o funcție Pro. Treci la Pro pentru a completa formulare cu mai multe pagini.",
-      "jsonImportLimit": "Ai epuizat limita de importuri JSON gratuite pentru aceste 2 săptămâni ({limit}). Se resetează pe {date}, sau treci la Pro pentru importuri nelimitate.",
-      "documentsSkipped": {
-        "one": "{count} document neatașat: încărcarea în formulare este o funcție Pro.",
-        "few": "{count} documente neatașate: încărcarea în formulare este o funcție Pro.",
-        "other": "{count} de documente neatașate: încărcarea în formulare este o funcție Pro."
-      }
+      "jsonImportLimit": "Ai epuizat limita de importuri JSON gratuite pentru aceste 2 săptămâni ({limit}). Se resetează pe {date}, sau treci la Pro pentru importuri nelimitate."
     },
     "batch": {
       "starting": {
@@ -583,8 +573,7 @@
     "header": {
       "voice": {
         "title": "Mod vocal",
-        "body": "Vorbește cu Aullevo în loc să dai clic. Acest buton comută panoul pe asistentul vocal: spune \"fill this page\", \"fill the email\" sau \"fill the first question\", iar el îți răspunde cu voce tare. Dă clic din nou ca să revii la această vizualizare.",
-        "note": "Funcție Pro. Necesită propria ta cheie API ElevenLabs, pe care o adaugi în Voice settings. Comenzile vocale funcționează în engleză și tagalog."
+        "body": "Vorbește cu Aullevo în loc să dai clic. Acest buton comută panoul pe asistentul vocal: spune \"fill this page\", \"fill the email\" sau \"fill the first question\", iar el îți răspunde cu voce tare. Dă clic din nou ca să revii la această vizualizare."
       },
       "language": {
         "title": "Limbă",
@@ -642,8 +631,7 @@
       },
       "documents": {
         "title": "Atașează documente",
-        "body": "Alege tipul documentului, apoi încarcă CV-ul, scrisoarea de intenție, actul de identitate și altele. Când un formular cere încărcarea unui fișier, Aullevo atașează documentele tale setate pe ACTIV.",
-        "note": "Atașarea documentelor în formulare este o funcție Pro."
+        "body": "Alege tipul documentului, apoi încarcă CV-ul, scrisoarea de intenție, actul de identitate și altele. Când un formular cere încărcarea unui fișier, Aullevo atașează documentele tale setate pe ACTIV."
       },
       "attributes": {
         "title": "Câmpuri specifice profilului",
@@ -690,7 +678,6 @@
         "title": "Memorii AI",
         "body": "Informații scurte pe care AI-ul le poate folosi pentru întrebări deschise, de exemplu „Stil de lucru: doar remote”. Sunt trimise către furnizorul AI ales și nu sunt criptate, așa că nu adăuga niciodată parole sau numere de identificare."
       },
-      "autoPaginate": {},
       "floatingIcon": {
         "title": "Buton plutitor",
         "body": "O filă Aullevo mică pe marginea paginilor web, pentru acces rapid. Dezactiveaz-o dacă te încurcă."

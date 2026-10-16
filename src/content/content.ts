@@ -2,8 +2,8 @@ import type { ProfileFile } from "../types";
 import type { PaginationBlocker, PaginationStepResult } from "../services/pagination";
 import CONTENT_EN from "../i18n/en/content.json";
 import {
-    cleanText, computeStringSimilarity, getFieldLabelAliases, coversLabelInLongQuestion,
-    FORMAT_HINT_RE, titleNeedsWriting, questionCoverage, INSTANT_FILL_SCORE, QUESTION_EXPLAINED
+    cleanText, computeStringSimilarity, getFieldLabelAliases, coversLabelInLongQuestion, wordsMatchStem,
+    FORMAT_HINT_RE, titleNeedsWriting, questionCoverage, fillsWithoutAi, INSTANT_FILL_SCORE, QUESTION_EXPLAINED
 } from "./matching";
 import { matchTargets, questionPosition } from "./target";
 
@@ -898,6 +898,13 @@ export function resolveControlLabels(control: HTMLElement, isChoice: boolean = f
     //     (No labels at all — context comes from table structure)
     // ──────────────────────────────────────────────────────────────────────
 
+    // A "label" without a letter or digit names nothing: Marketo-style forms put only the red "*" in the
+    // <label> and the field's name in the placeholder ("* First Name"). Counted as a label, it kept the
+    // fallbacks below from reading that name, and the field ended up with no label at all.
+    for (const text of Array.from(labels)) {
+        if (!/[\p{L}\p{N}]/u.test(text)) labels.delete(text);
+    }
+
     // 8.5a. Sibling <label> immediately before the control
     // Pattern: <label>Last Name</label><input type="text" />
     // The <label> has no `for` attribute and the <input> has no `id`,
@@ -1030,6 +1037,17 @@ export function resolveControlLabels(control: HTMLElement, isChoice: boolean = f
             if (cleaned.length >= 3) {
                 labels.add(cleaned);
             }
+        }
+    }
+
+    // 8.5f. A list's blank first option is its placeholder: <option value="">* Function</option>
+    if (!isChoice && labels.size === 0 && control instanceof HTMLSelectElement) {
+        const first = control.options[0];
+        const text = first ? first.text.replace(/^(?:-+\s*)?(?:please\s+)?(?:select|choose|pick)\s+(?:an?\s+|your\s+|the\s+)?/i, "").trim() : "";
+        // ("Select One" / "Choose an option" say nothing about the question)
+        if (first && (first.value.trim() === "" || first.disabled) && /[\p{L}\p{N}]/u.test(text) && text.length <= 120 &&
+            !/^(?:one|an?\s+)?(?:option|item|value|one)?$/i.test(text)) {
+            labels.add(text);
         }
     }
 
@@ -1958,9 +1976,11 @@ export function harvestActiveFileInputs(): { input: HTMLInputElement; container:
     for (const input of rawInputs) {
         if (input.disabled) continue;
 
-        // Visual dropzone or container
+        // Visual dropzone or container. Looked for from the parent: the input itself can carry the same
+        // marks (Workday's hidden <input data-automation-id="file-upload-input-ref">) and would count as its
+        // own box, hidden, so the upload was never found
         const container = (
-            input.closest<HTMLElement>(
+            input.parentElement?.closest<HTMLElement>(
                 ".drop-zone, [data-automation-id*='upload'], [data-automation-id*='drop-zone'], " +
                 "[data-testid*='FilePicker'], [data-testid*='file-upload'], .file-upload, " +
                 ".upload-container, .f, .form-group, fieldset, label"
@@ -1998,7 +2018,7 @@ export function extractFileContext(input: HTMLInputElement, container: HTMLEleme
     }
 
     // 3. Workday & Indeed
-    const workdayLabel = input.closest("[data-automation-id*='file-upload']")?.querySelector<HTMLElement>("label, [data-automation-id*='label']");
+    const workdayLabel = input.parentElement?.closest("[data-automation-id*='file-upload']")?.querySelector<HTMLElement>("label, [data-automation-id*='label']");
     if (workdayLabel?.textContent) texts.add(workdayLabel.textContent);
 
     const indeedLabel = input.closest("[data-testid*='FilePicker']")?.querySelector<HTMLElement>("h2, h3, label, p");
@@ -2049,6 +2069,14 @@ export function extractFileContext(input: HTMLInputElement, container: HTMLEleme
         if (boxLabel) texts.add(boxLabel);
     }
     textsBefore(container && container !== input ? container : input, 3).forEach(t => texts.add(t));
+
+    // 8. The title of the section the box sits in: Workday labels the box only "Upload a file (5MB max)"
+    //    under a "Resume/CV" heading
+    const heading = Array.from(root.querySelectorAll?.<HTMLElement>("h1, h2, h3, h4, h5, h6, [role='heading'], legend") ?? [])
+        .filter(h => h.getClientRects().length > 0 && (input.compareDocumentPosition(h) & Node.DOCUMENT_POSITION_PRECEDING) !== 0)
+        .pop();
+    const headingText = heading ? getCleanElementText(heading) : "";
+    if (headingText.length >= 2 && headingText.length <= 120) texts.add(headingText);
 
     if (input.name) texts.add(input.name);
     if (input.id) texts.add(input.id);
@@ -2715,6 +2743,11 @@ export async function applyValueToControl(
     exact: boolean = false
 ): Promise<boolean | string> {
     if (!element || fillCancelled) return false;
+    // Typing a whole list into a multi-select's search box adds nothing: each item is picked from its results
+    if (isMultiSelectSearch(element)) {
+        const picked = await fillMultiSelectSearch(element, value);
+        if (picked !== null) return picked;
+    }
 
     // Check for Google Forms 3-part split date field in parent question card
     const googleCard = element.closest<HTMLElement>(".geS5n, .Qr7Oae, [role='listitem']");
@@ -3083,13 +3116,14 @@ function extractFieldLabel(el: HTMLElement): string {
     if (el.id) {
         const labelEl = document.querySelector<HTMLElement>(`label[for="${CSS.escape(el.id)}"]`);
         const text = getCleanElementText(labelEl);
-        if (text) return `Field: "${text.substring(0, 45)}"`;
+        // (a label holding only "*" names nothing: the field's name is further down)
+        if (/[\p{L}\p{N}]/u.test(text)) return `Field: "${text.substring(0, 45)}"`;
     }
 
     // 3. Parent / Enclosing <label> tag
     const parentLabel = el.closest("label") as HTMLElement | null;
     const parentText = getCleanElementText(parentLabel);
-    if (parentText) return `Field: "${parentText.substring(0, 45)}"`;
+    if (/[\p{L}\p{N}]/u.test(parentText)) return `Field: "${parentText.substring(0, 45)}"`;
 
     // 4. NONSTANDARD COMPANY FORMS (Immediate sibling label or parent group label)
     const prev = el.previousElementSibling as HTMLElement | null;
@@ -3531,6 +3565,14 @@ export function computeDialCodeMatchScore(targetValue: string, optText: string):
         return 0.95;
     }
 
+    // Every word of the option is in the value, give or take an ending:
+    // "Bachelors" in "BSIT - Bachelor of Science in Information Technology"
+    const optionWords = oNorm.split(" ").filter(w => w.length >= 3);
+    const valueWords = tNorm.split(" ").filter(w => w.length >= 3);
+    if (optionWords.length > 0 && optionWords.every(o => valueWords.some(v => wordsMatchStem(o, v) >= 0.90))) {
+        return 0.90;
+    }
+
     return computeStringSimilarity(targetValue, optText);
 }
 
@@ -3623,6 +3665,139 @@ function dropdownOptionText(opt: HTMLElement): string {
         opt.textContent?.trim() ||
         opt.getAttribute("aria-label") ||
         opt.getAttribute("data-value") || "").replace(/\s+/g, " ").trim();
+}
+
+// The search box of a multi-select / prompt (Workday "Type to Add Skills", "Field of Study"): what is typed
+// there only searches, and answers are picked from its results. Recognised by what the page shows
+// ("Search" in the empty box) as well as by Workday's markup, which differs between its versions.
+function isMultiSelectSearch(el: HTMLElement): el is HTMLInputElement {
+    if (!(el instanceof HTMLInputElement) || !/^(text|search|)$/.test(el.type)) return false;
+    if (el.getAttribute("data-automation-id") === "searchBox" ||
+        /^(selectinput|multiselect)$/i.test(el.getAttribute("data-uxi-widget-type") || "") ||
+        el.closest("[data-automation-id='multiselectInputContainer'], [data-automation-id='multiSelectContainer'], [data-uxi-widget-type='multiselect']")) {
+        return true;
+    }
+    return /^\s*search\b/i.test(el.placeholder || "") && el.getAttribute("aria-autocomplete") !== "none";
+}
+
+// The results a multi-select shows for what was typed (not its chips)
+function multiSelectResults(): HTMLElement[] {
+    const visible = (selector: string) => Array.from(document.querySelectorAll<HTMLElement>(selector))
+        .filter(o => isElementVisible(o) && !o.closest(`${PICKED_ITEM_SELECTOR}, [data-automation-id='selectedItemList']`));
+    const workday = visible("[data-automation-id='promptOption']");
+    return workday.length > 0 ? workday : visible("[role='option']");
+}
+
+// How well a result names the wanted item. Containment only one way: "Java" is not "JavaScript".
+// Dots and dashes split words in results: "React" names "React.js".
+function multiSelectResultScore(wanted: string, result: string): number {
+    const w = cleanText(wanted);
+    const r = cleanText(result);
+    if (!w || !r) return 0;
+    if (w === r || w.replace(/\s+/g, "") === r.replace(/\s+/g, "")) return 1;
+    const words = ` ${r.replace(/[.\-]+/g, " ").replace(/\s+/g, " ")} `;
+    if (words.startsWith(` ${w} `)) return 0.96; // "React" -> "React.js", "Rust (Programming Language)"
+    if (words.includes(` ${w} `)) return 0.95;
+    return 0; // close spellings name other things here ("Java" / "JavaScript")
+}
+
+function typeSearchText(input: HTMLInputElement, text: string): void {
+    const nativeSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value")?.set;
+    if (nativeSetter) nativeSetter.call(input, text);
+    else input.value = text;
+    input.dispatchEvent(new Event("input", { bubbles: true, composed: true }));
+    input.dispatchEvent(new Event("change", { bubbles: true, composed: true }));
+}
+
+function pressEnter(el: HTMLElement): void {
+    for (const type of ["keydown", "keypress", "keyup"]) {
+        el.dispatchEvent(new KeyboardEvent(type, { key: "Enter", code: "Enter", keyCode: 13, which: 13, bubbles: true, cancelable: true, composed: true }));
+    }
+}
+
+// The button that keeps a picker's picks: Workday opens the list as a full-screen panel in a narrow window
+// ("Type to Add Skills" … Done), where Escape throws away everything ticked
+const PICKER_DONE_RE = /^(done|ok|apply|confirm|select)$/i;
+function visiblePickerDoneButtons(): HTMLElement[] {
+    return Array.from(document.querySelectorAll<HTMLElement>("button, [role='button']"))
+        .filter(b => isRendered(b) && PICKER_DONE_RE.test(getButtonText(b)));
+}
+
+// The site searches as it likes (Workday asks its server): wait until the results for this search show,
+// not the ones left from the previous search or the list's folders ("Partial List", "All")
+const MULTI_SELECT_SEARCH_PATIENCE_MS = 5000;
+
+/**
+ * A multi-select gets each item of a list value ("TypeScript, JavaScript, Python") on its own: type it,
+ * search, pick the result that names it. Items it has no result for are left out. Returns what was picked,
+ * false when nothing fit, or null when no results ever showed (a plain box: the caller types the value).
+ */
+async function fillMultiSelectSearch(input: HTMLInputElement, value: unknown): Promise<string | false | null> {
+    const wanted = parseTargetValues(value).slice(0, 12);
+    const chipTexts = () => {
+        let area: HTMLElement | null = input;
+        for (let i = 0; i < 4 && area?.parentElement; i++) area = area.parentElement;
+        return Array.from(area?.querySelectorAll<HTMLElement>(PICKED_ITEM_SELECTOR) ?? []).map(getCleanElementText);
+    };
+    const picked: string[] = [];
+    let sawResults = false;
+    // Done buttons already on the page belong to it, not to the picker about to open
+    const doneBefore = new Set(visiblePickerDoneButtons());
+    for (const item of wanted) {
+        if (fillCancelled) break;
+        if (chipTexts().some(t => multiSelectResultScore(item, t) >= 0.95)) {
+            picked.push(item);
+            sawResults = true;
+            continue;
+        }
+        const before = multiSelectResults().map(dropdownOptionText).join("|");
+        try { input.focus(); } catch { }
+        typeSearchText(input, item);
+        pressEnter(input);
+
+        // Poll until this search's results are in; once they are, give a slow list a moment to finish
+        let best: { el: HTMLElement; text: string; score: number } | null = null;
+        let freshSince = 0;
+        for (const startedAt = Date.now(); !best && Date.now() - startedAt < MULTI_SELECT_SEARCH_PATIENCE_MS;) {
+            await sleep(200);
+            const results = multiSelectResults();
+            if (results.length === 0) continue;
+            sawResults = true;
+            if (results.map(dropdownOptionText).join("|") === before) continue;
+            freshSince ||= Date.now();
+            for (const el of results) {
+                const text = dropdownOptionText(el);
+                const score = multiSelectResultScore(item, text);
+                // Ties keep the site's order: it ranks the closest result first
+                if (score >= 0.95 && (!best || score > best.score)) best = { el, text, score };
+            }
+            if (!best && Date.now() - freshSince > 800) break; // the results are in and none names it
+        }
+        if (best) {
+            // A result already ticked (an earlier run) would be unticked by clicking it again.
+            // Only a tick counts: the highlighted row (keyboard focus) is often aria-selected.
+            const row = best.el.closest<HTMLElement>("[role='option'], [data-automation-id='promptLeafNode'], li") || best.el;
+            const alreadyTicked = row.matches("[aria-checked='true']") ||
+                Boolean(row.querySelector("input:checked, [aria-checked='true']"));
+            if (!alreadyTicked) {
+                try { best.el.scrollIntoView({ block: "nearest" }); } catch { }
+                dispatchSinglePointerClick(best.el);
+            }
+            picked.push(best.text);
+            await sleep(300);
+        } else {
+            console.info(`[Aullevo] Multi-select: no result for "${item}" — left out.`);
+        }
+        typeSearchText(input, "");
+        await sleep(100);
+    }
+    // A picker with its own Done button keeps the ticks only through it; others close with Escape
+    const done = visiblePickerDoneButtons().find(b => !doneBefore.has(b));
+    if (done && picked.length > 0) dispatchSinglePointerClick(done);
+    else closeDropdownMenu();
+    await sleep(done ? 300 : 100);
+    if (picked.length > 0) return picked.join(", ");
+    return sawResults ? false : null;
 }
 
 function closeDropdownMenu(): void {
@@ -3810,6 +3985,10 @@ export async function fillCustomDropdown(dropdownEl: HTMLElement, targetValue: a
 
     if (isGoogleFormsDropdown(dropdownEl)) {
         return await fillGoogleFormsDropdown(dropdownEl, targetValue, matchedAlias);
+    }
+    if (isMultiSelectSearch(dropdownEl)) {
+        const picked = await fillMultiSelectSearch(dropdownEl, targetValue);
+        if (picked !== null) return picked;
     }
 
     console.log(`[Aullevo] Custom Dropdown -> target: "${targetValue}"`);
@@ -4111,11 +4290,13 @@ function choiceGroupMembers(control: HTMLElement): HTMLElement[] {
 
 /**
  * Which answers a fill leaves as they are:
- * - "touched": ones Aullevo or the user already gave on this page (so pressing Fill again after a
- *   pause continues instead of retyping everything, and never undoes what the user fixed by hand)
+ * - "valid": every answer already there unless the page flags it as wrong. Ones Aullevo or the user gave
+ *   stay even then (Fill again after a pause continues, and never undoes what the user fixed by hand;
+ *   Aullevo's own flagged answers are corrected from the site's error instead). The site's own answers
+ *   (saved from an earlier application, read from the resume) are only retyped when it flags them.
  * - "all": every control that already holds an answer (a catch-up pass for questions that appeared later)
  */
-type KeepAnswers = "touched" | "all";
+type KeepAnswers = "valid" | "all";
 
 // Words that mark a question as being about someone other than the user
 const OTHER_PERSON_RE = /\b(?:team\s*mates?|team\s+members?|members?\s*\d+|co-?applicants?|references?|referees?|emergency|next\s+of\s+kin|spouse|guardians?|parents?|mother|father|beneficiar(?:y|ies)|dependents?|recommenders?|contact\s+person)\b/i;
@@ -4167,11 +4348,13 @@ function pickOptionNamedInAddress(select: HTMLSelectElement, addresses: { value:
     return best;
 }
 
-function keepsExistingAnswer(item: HarvestedControl, keep: KeepAnswers | undefined): boolean {
+// flagged: the controls the page shows an error for (findFieldErrors), read once per fill
+function keepsExistingAnswer(item: HarvestedControl, keep: KeepAnswers | undefined, flagged: Set<HTMLElement> = new Set()): boolean {
     if (!keep || !hasExistingAnswer(item)) return false;
     if (keep === "all") return true;
     const members = item.isChoice ? choiceGroupMembers(item.control) : [item.control];
-    return members.some(m => filledOrigin.has(m) || userEdited.has(m));
+    if (members.some(m => filledOrigin.has(m) || userEdited.has(m))) return true;
+    return !members.some(m => flagged.has(m) || m.getAttribute("aria-invalid") === "true");
 }
 
 /**
@@ -4182,7 +4365,7 @@ function hasExistingAnswer(item: HarvestedControl): boolean {
     if (item.isChoice) return isChoiceGroupAnswered(el) || isControlChecked(el);
     if (el instanceof HTMLSelectElement) return isSelectAnswered(el);
     if (item.isCustomDropdown) return isDropdownAnswered(el);
-    return readControlText(el).length > 0;
+    return readControlText(el).length > 0 || showsPickedItem(el);
 }
 
 // The input's HTML5 type accepts this value as it is ("@handle" is not a URL, "Single" is not a number)
@@ -4515,7 +4698,9 @@ export async function injectFormFields(
 
 
     // Step 1: Harvest all visible controls & descriptors across all DOM roots
-    const pageControls = harvestAllControls().filter(c => !keepsExistingAnswer(c, options.keep));
+    const flagged = options.keep === "valid" ? new Set(findFieldErrors(true).map(e => e.el)) : new Set<HTMLElement>();
+    const keeps = (c: HarvestedControl) => keepsExistingAnswer(c, options.keep, flagged);
+    const pageControls = harvestAllControls().filter(c => !keeps(c));
     const voiceTarget = options.target ? await pickVoiceTarget(pageControls, options.target) : null;
     const harvestedControls = voiceTarget ? pageControls.filter(c => voiceTarget.controls.has(c.control)) : pageControls;
     const inTarget = (el: HTMLElement) => !voiceTarget || voiceTarget.controls.has(el);
@@ -4985,7 +5170,7 @@ export async function injectFormFields(
     if (remainingFields.length > 0 && !voiceTarget) {
         await sleep(150);
         const newlyVisibleControls = harvestAllControls()
-            .filter(c => !harvestedSet.has(c.control) && !assignedControls.has(c.control) && !c.isChoice && !c.isCustomDropdown && !keepsExistingAnswer(c, options.keep));
+            .filter(c => !harvestedSet.has(c.control) && !assignedControls.has(c.control) && !c.isChoice && !c.isCustomDropdown && !keeps(c));
 
         for (const field of remainingFields) {
             const fieldKey = cleanText(field.label);
@@ -5043,7 +5228,7 @@ export async function injectFormFields(
         for (const item of harvestAllControls()) {
             const select = item.control;
             if (!(select instanceof HTMLSelectElement) || assignedControls.has(select) || otherPersonControls.has(select) || !inTarget(select)) continue;
-            if (keepsExistingAnswer(item, options.keep) || isSelectAnswered(select) || aboutAnotherPerson(item)) continue;
+            if (keeps(item) || isSelectAnswered(select) || aboutAnotherPerson(item)) continue;
             if (!item.labelTexts.some(t => LOCATION_QUESTION_RE.test(t))) continue;
 
             const pick = pickOptionNamedInAddress(select, addressValues, item.labelTexts.some(t => /\bcountry\b/i.test(t)));
@@ -5071,7 +5256,8 @@ export async function injectFormFields(
         // A checkbox question only this fill ticked stays open: the AI may tick more of its boxes
         // (a targeted voice fill may replace what's there: the user asked for that question)
         const unfilled = harvestedControls.filter(c => !assignedControls.has(c.control) && !otherPersonControls.has(c.control) &&
-            (!hasExistingAnswer(c) || Boolean(voiceTarget) || (c.choiceType === "checkbox" && !isControlChecked(c.control) && checkboxGroupTickedOnlyBy(c.control, assignedControls))));
+            // (with keep "valid", an answered control still in the list is one the page flagged as wrong)
+            (!hasExistingAnswer(c) || Boolean(voiceTarget) || options.keep === "valid" || (c.choiceType === "checkbox" && !isControlChecked(c.control) && checkboxGroupTickedOnlyBy(c.control, assignedControls))));
 
         // Group choice controls (radios/checkboxes) by their question: its label AND its own container
         // (radio name, radiogroup, question block). By label alone, two quiz questions with the same
@@ -5130,19 +5316,24 @@ export async function injectFormFields(
 
             const tagName = item.control.tagName.toLowerCase();
             const isTextarea = tagName === 'textarea' || item.control.getAttribute('role') === 'textbox' || item.control.isContentEditable;
+            // A search-and-pick list (Workday "Field of Study", "Skills") shows folders, not its choices, until
+            // something is typed: the AI names what to search for, and the result that names it is picked
+            const searchPicker = isMultiSelectSearch(item.control);
             // The AI must answer a dropdown with one of its options: an answer it guesses blind matches none
-            const dropdownChoices = item.isCustomDropdown ? await readCustomDropdownChoices(item.control) : undefined;
+            const dropdownChoices = item.isCustomDropdown && !searchPicker ? await readCustomDropdownChoices(item.control) : undefined;
             if (dropdownChoices && dropdownChoices.length === 0) continue;
 
             const qId = `ai_q_${qIndex++}`;
             aiQuestions.push({
                 id: qId,
                 label: label,
-                type: isTextarea ? 'textarea' : (tagName === 'select' || item.isCustomDropdown ? 'select' : 'text'),
+                type: isTextarea ? 'textarea' : (tagName === 'select' || (item.isCustomDropdown && !searchPicker) ? 'select' : 'text'),
                 options: tagName === 'select'
                     ? Array.from((item.control as HTMLSelectElement).options || []).map(o => o.text).filter(Boolean)
                     : dropdownChoices,
-                format: isCalendarTrigger(item.control) || (item.control as HTMLInputElement).type === "date"
+                format: searchPicker
+                    ? "the usual name of each thing to pick from a searchable list (short, as a list would title it); several separated by commas when the question allows more than one"
+                    : isCalendarTrigger(item.control) || (item.control as HTMLInputElement).type === "date"
                     ? "a date as YYYY-MM-DD"
                     : describeFormat(readFormatFromControl(item.control)) || undefined,
                 context: hintFor(item) || undefined
@@ -5352,11 +5543,19 @@ export async function injectFormFields(
     }
 
     // Step 7: Keyword fallback for deferred matches the AI didn't fill (AI failed, timed out, or skipped them)
+    // A match through the words around a box, not its own title, is no answer: "Residential Address" fits
+    // the "Address" section heading over a "Postal Code" box, and the whole address does not belong in it.
+    const matchedOnlyAround = (pair: CandidatePair) => {
+        const title = labelsByControl.get(pair.control)?.[0] || "";
+        return !pair.isChoice && !pair.isCountryCode && Boolean(title) &&
+            cleanText(pair.matchedText) !== cleanText(title) && questionCoverage(pair.matchedAlias, title) === 0;
+    };
     if (deferredToAi.length > 0) {
         const before = filledCount;
         for (const pair of deferredToAi) {
             // Never override an answer the AI already picked in the same radio/checkbox question
             if (pair.isChoice && isChoiceGroupAnswered(pair.control)) continue;
+            if (matchedOnlyAround(pair)) continue;
             await tryAssignPair(pair);
         }
         if (filledCount > before) {
@@ -5383,11 +5582,12 @@ export async function injectFormFields(
     }
 
     // Step 8: Forms that check answers as they're typed (Google Forms' "Format: Surname, Given Names")
-    // already show their error: correct those answers now instead of leaving them red
+    // already show their error: correct those answers now instead of leaving them red.
+    // Answers an earlier Fill gave count too (pressing Fill again after a pause keeps them).
     await sleep(250);
-    const liveErrors = findFieldErrors().filter(e => assignedControls.has(e.el) && readControlText(e.el));
+    const liveErrors = findFieldErrors(true).filter(e => (assignedControls.has(e.el) || filledOrigin.has(e.el)) && readControlText(e.el));
     if (liveErrors.length > 0) {
-        const repaired = await repairRejectedFields(liveErrors, useAi, speedConfig);
+        const repaired = await repairRejectedFields(liveErrors, useAi, speedConfig, fields, true);
         if (repaired > 0) console.log(`[Aullevo] Corrected ${repaired} answer(s) the form flagged right after filling.`);
     }
 
@@ -5472,7 +5672,7 @@ const NOT_A_STEP_RE = /^(continue\s+(?:with|as|using|shopping|reading|browsing)|
 const SUBMIT_BUTTON_RE = /^(submit|apply|send|finish|complete|done|confirm|review\s*(?:&|and)\s*submit|enviar|soumettre|absenden|isumite)\b/i;
 const BACK_BUTTON_RE = /^(back|prev|previous|return|go\s+back|atr[aá]s|anterior|pr[eé]c[eé]dent|zur[uü]ck|bumalik)\b/i;
 // Next buttons of carousels, date pickers and search results are not form steps
-const NON_FORM_NAV_SELECTOR = "[class*='carousel' i], [class*='swiper' i], [class*='slick' i], [aria-roledescription='carousel'], [role='tablist'], [class*='datepicker' i], [class*='calendar' i], .pagination, [aria-label*='pagination' i]";
+const NON_FORM_NAV_SELECTOR = "[class*='carousel' i], [class*='swiper' i], [class*='slick' i], [class*='splide' i], [class*='glide' i], [class*='flickity' i], [class*='owl-' i], [class*='keen-slider' i], [class*='embla' i], [aria-roledescription='carousel'], [aria-roledescription='slide'], [role='tablist'], [class*='datepicker' i], [class*='calendar' i], .pagination, [aria-label*='pagination' i]";
 // Site chrome (search bars, newsletter boxes) never blocks a step
 const PAGE_CHROME_SELECTOR = "header, nav, footer, [role='banner'], [role='navigation'], [role='contentinfo'], [role='search']";
 // One question per card on these platforms (keeps grid rows and split dates under their title)
@@ -5553,9 +5753,36 @@ function getButtonText(el: HTMLElement): string {
     return text.replace(/[→›»←‹«✓✔>]+/g, " ").replace(/\s+/g, " ").trim();
 }
 
-function findPaginationButtons(): PaginationButton[] {
+// The block that holds the page's fields, a little beyond them (a Next button often sits just below the last one)
+function fieldsArea(controls: HTMLElement[]): HTMLElement | null {
+    if (controls.length === 0) return null;
+    let area: HTMLElement | null = lowestCommonAncestor(controls);
+    for (let i = 0; i < 2 && area && composedParent(area) && !/^(BODY|HTML)$/.test(composedParent(area)!.tagName); i++) {
+        area = composedParent(area);
+    }
+    return area;
+}
+
+/**
+ * Whether a Next / Submit candidate belongs to the form being filled, not to something else on the page:
+ * a newsletter or search form, or a "Next" arrow (often named only for screen readers) on a video slider.
+ * Platform markers (Workday's data-automation-id, test ids, Google's jsname) are trusted as they are.
+ */
+function belongsToFilledForm(el: HTMLElement, controls: HTMLElement[], area: HTMLElement | null, trusted: boolean): boolean {
+    if (trusted || controls.length === 0) return true;
+    const form = el.closest("form");
+    // Inside a form that holds none of the fields: another form's button
+    if (form) return controls.some(c => composedContains(form, c));
+    // A button that shows no words (an arrow, an icon) only counts next to the fields
+    const shownText = (el instanceof HTMLInputElement ? el.value : (el.innerText || el.textContent || "")).replace(/[→›»←‹«✓✔>\s]+/g, "");
+    if (!shownText) return Boolean(area && composedContains(area, el));
+    return true;
+}
+
+export function findPaginationButtons(controls: HTMLElement[] = harvestAllControls().map(c => c.control)): PaginationButton[] {
     const selector = "button, input[type='submit'], input[type='button'], input[type='image'], a, [role='button']";
     const found: PaginationButton[] = [];
+    const area = fieldsArea(controls);
 
     for (const root of getAllDOMRoots()) {
         let elements: HTMLElement[];
@@ -5612,6 +5839,9 @@ function findPaginationButtons(): PaginationButton[] {
                 kind = "submit";
             }
             if (!kind) continue;
+            const trusted = jsname === "ocpkoe" || jsname === "m2uyvd" || /next|submit/.test(automationId) ||
+                /(^|[-_])(next|continue|submit)([-_]|$)/.test(testId);
+            if (!belongsToFilledForm(el, controls, area, trusted)) continue;
 
             found.push({
                 element: el,
@@ -5799,7 +6029,30 @@ function isDropdownAnswered(el: HTMLElement): boolean {
         if (p.innerText) text = text.replace(p.innerText, "");
     });
     text = text.replace(/\s+/g, " ").trim();
-    return text.length > 0 && !PLACEHOLDER_CHOICE_RE.test(text);
+    return (text.length > 0 && !PLACEHOLDER_CHOICE_RE.test(text)) || showsPickedItem(el);
+}
+
+// The picks of a multi-select / tag box, shown as chips beside its search box (Workday's "× Philippines (+63)")
+const PICKED_ITEM_SELECTOR = `${DROPDOWN_VALUE_SELECTOR}, [data-automation-id='selectedItem'], [class*='chip' i], [class*='pill' i]`;
+
+// A multi-select keeps its search box empty once something is picked: the pick shows as a chip next to it.
+// Looks only as far as the box's own field: a block holding another input belongs to other questions too.
+function showsPickedItem(el: HTMLElement): boolean {
+    let area: HTMLElement = el;
+    for (let i = 0; i < 4; i++) {
+        const parent = composedParent(area);
+        if (!parent || /^(FORM|BODY|HTML)$/.test(parent.tagName)) break;
+        const otherInput = Array.from(parent.querySelectorAll<HTMLElement>("input:not([type='hidden']), textarea, select"))
+            .some(o => o !== el && isRendered(o));
+        if (otherInput) break;
+        area = parent;
+    }
+    if (area === el) return false;
+    return Array.from(area.querySelectorAll<HTMLElement>(PICKED_ITEM_SELECTOR)).some(chip => {
+        if (chip.contains(el) || !isRendered(chip)) return false;
+        const text = getCleanElementText(chip);
+        return text.length > 0 && !PLACEHOLDER_CHOICE_RE.test(text);
+    });
 }
 
 // Grows a file question's block past its neighbours (e.g. the selected-resume card around a hidden
@@ -5860,7 +6113,7 @@ function isQuestionAnswered(q: AuditQuestion, text: string): boolean {
         case "file":
             return hasUploadedFile(q, text);
         default:
-            return q.members.some(el => readControlText(el).length > 0);
+            return q.members.some(el => readControlText(el).length > 0 || showsPickedItem(el));
     }
 }
 
@@ -6177,7 +6430,8 @@ async function fillPage(fields: any[], useAi: boolean, speedPreset: string | Spe
     if (!target) await openEntryGate();
     const busyBeforeFill = new Set(getBusyIndicators());
     const controlsBeforeFill = new Set(harvestAllControls().map(c => c.control));
-    const fill = await injectFormFields(fields, useAi, speedPreset, files, { target });
+    // A voice fill of named questions may replace their answers; a plain Fill keeps what's right
+    const fill = await injectFormFields(fields, useAi, speedPreset, files, target ? { target } : { keep: "valid" });
     if (!fill.success) return fill;
     // A voice fill of named questions ("fill the email") stops here: it touched only those
     if (target || fill.stopped) return fill;
@@ -6248,9 +6502,14 @@ async function waitForStepChange(beforeUrl: string, before: Set<HTMLElement>, ti
 const SUBMIT_CONFIRMATION_RE = /\b(thank\s*you|thanks|(?:successfully\s+)?submitted|has\s+been\s+(?:received|recorded|sent)|response\s+(?:was\s+|has\s+been\s+)?recorded|application\s+(?:was\s+|has\s+been\s+)?(?:received|sent))\b/i;
 
 // A confirmation line that was not on the page before the Submit click
+// Content that changes by itself: a rotating testimonial ("Thank you, iCIMS!") is no confirmation
+const MOVING_CONTENT_SELECTOR = `${NON_FORM_NAV_SELECTOR}, [class*='slider' i], [class*='slide' i], [class*='testimonial' i], [class*='marquee' i], [class*='ticker' i], [class*='review' i]`;
+
 function hasNewSubmitConfirmation(beforeText: string): boolean {
-    const lines = (document.body?.innerText || "").split("\n").map(l => l.trim()).filter(Boolean);
-    return lines.some(line => line.length <= 200 && SUBMIT_CONFIRMATION_RE.test(line) && !beforeText.includes(line));
+    const toLines = (text: string) => text.split("\n").map(l => l.trim()).filter(Boolean);
+    const moving = new Set(Array.from(document.querySelectorAll<HTMLElement>(MOVING_CONTENT_SELECTOR)).flatMap(el => toLines(el.innerText || "")));
+    return toLines(document.body?.innerText || "")
+        .some(line => line.length <= 200 && SUBMIT_CONFIRMATION_RE.test(line) && !beforeText.includes(line) && !moving.has(line));
 }
 
 function collectValidationErrors(): string[] {
@@ -6288,7 +6547,7 @@ async function runPaginationStep(
     const busyBeforeFill = new Set(getBusyIndicators());
     const controlsBeforeFill = new Set(harvestAllControls().map(c => c.control));
     // Pressing Fill again after a pause continues: answers already given on this page (by Aullevo or by hand) stay
-    const fill = await injectFormFields(fields, useAi, speedPreset, files, { keep: "touched" });
+    const fill = await injectFormFields(fields, useAi, speedPreset, files, { keep: "valid" });
     if (!fill.success) {
         return { success: false, error: fill.error, pagination: { status: "error" } };
     }
@@ -6306,6 +6565,12 @@ async function runPaginationStep(
     // Answers the browser already knows break the field's format (pattern, e-mail, number range):
     // reshape them now instead of waiting for the site to refuse
     let repaired = await conformInvalidAnswers(speedConfig);
+    // Sites that check a box when it's left (Workday) show their error by now: fix those answers before
+    // the audit, which may stop on another question and never reach the click-and-retry below
+    const shownErrors = findFieldErrors(true).filter(e => filledOrigin.has(e.el) && readControlText(e.el));
+    if (shownErrors.length > 0) {
+        repaired += await repairRejectedFields(shownErrors, Boolean(fill.useAi), speedConfig, fields, true);
+    }
     if (repaired > 0) {
         await sleep(400);
         await waitForPageIdle(PAGE_LOAD_PATIENCE_MS, busyBeforeFill);
@@ -6364,7 +6629,7 @@ async function runPaginationStep(
         // The site refused: read the error under each field, correct those answers, press again
         lastFieldErrors = findFieldErrors();
         if (round >= MAX_REPAIR_ROUNDS || lastFieldErrors.length === 0) break;
-        const fixed = await repairRejectedFields(lastFieldErrors, Boolean(fill.useAi), speedConfig);
+        const fixed = await repairRejectedFields(lastFieldErrors, Boolean(fill.useAi), speedConfig, fields);
         if (fixed === 0) break;
         repaired += fixed;
         console.log(`[Aullevo] Auto-pagination: corrected ${fixed} rejected answer(s), retrying "${target.label}"`);
@@ -6645,6 +6910,8 @@ function conformValue(value: string, f: ValueFormat): string {
         if (f.max !== undefined) n = Math.min(f.max, n);
         v = String(n);
     } else if (f.digitsOnly) {
+        // "985-304-7403" -> 9853047403. Digits picked out of words ("Block 2, Lot 14" -> 214) are not the answer.
+        if (!/^[\d\s\-().+,/]+$/.test(v)) return "";
         v = v.replace(/\D/g, "");
     }
     if (f.maxLength && v.length > f.maxLength) {
@@ -6671,11 +6938,34 @@ function describeFormat(f: ValueFormat): string {
     return parts.join("; ");
 }
 
-// The site's error message for each text answer it rejected
-function findFieldErrors(): FieldError[] {
+// Error messages shown away from their field ("Errors Found: Enter a postal code in the valid format"),
+// each given to the question it names. The longest named label wins ("Phone Extension" over "Phone").
+function pageErrorsByQuestion(questions: AuditQuestion[]): Map<AuditQuestion, string> {
+    const byQuestion = new Map<AuditQuestion, string>();
+    const labels = questions.map(q => ({ q, label: cleanText(q.label) })).filter(({ label }) => label.length >= 4);
+    for (const root of getAllDOMRoots()) {
+        for (const box of Array.from(root.querySelectorAll<HTMLElement>(FIELD_ERROR_SELECTOR))) {
+            if (!isRendered(box) || box.closest(`${PAGE_CHROME_SELECTOR}, .aullevo-blocker-badge, .aullevo-field-badge, #aullevo-run-notice`)) continue;
+            const text = getCleanElementText(box);
+            if (text.length < 3 || text.length > 300 || !FIELD_ERROR_RE.test(text)) continue;
+            const said = ` ${cleanText(text)} `;
+            const named = labels.filter(({ label }) => said.includes(` ${label} `)).sort((a, b) => b.label.length - a.label.length)[0];
+            if (!named || labels.some(({ q }) => composedContains(box, q.members[0]))) continue;
+            const known = byQuestion.get(named.q);
+            if (!known || text.length < known.length) byQuestion.set(named.q, text); // innermost box: just the message
+        }
+    }
+    return byQuestion;
+}
+
+// The site's error message for each text answer it rejected.
+// strict: only real error signals (aria-invalid, error elements), for checks made before the site was asked
+// to move on: a hint under a box that merely reads like an error ("Please enter your full name") is no reason to retype it.
+function findFieldErrors(strict = false): FieldError[] {
     const result: FieldError[] = [];
-    for (const q of collectAuditQuestions(null)) {
-        if (q.kind !== "text") continue;
+    const questions = collectAuditQuestions(null).filter(q => q.kind === "text");
+    const pageErrors = pageErrorsByQuestion(questions);
+    for (const q of questions) {
         const el = q.members[0];
         const invalid = el.getAttribute("aria-invalid") === "true";
         let error = "";
@@ -6694,7 +6984,7 @@ function findFieldErrors(): FieldError[] {
             for (const id of (el.getAttribute(attr) || "").split(/\s+/).filter(Boolean)) {
                 const ref = (el.getRootNode() as Document | ShadowRoot).getElementById(id);
                 const text = ref && isRendered(ref) ? getCleanElementText(ref) : "";
-                if (text && (attr === "aria-errormessage" || invalid || FIELD_ERROR_RE.test(text))) {
+                if (text && (attr === "aria-errormessage" || invalid || (!strict && FIELD_ERROR_RE.test(text)))) {
                     error = text;
                     break;
                 }
@@ -6704,7 +6994,7 @@ function findFieldErrors(): FieldError[] {
 
         // 2. Shown under the field inside its question block (after it in the page, so not the question itself)
         if (!error) {
-            const candidates = Array.from(q.scope.querySelectorAll<HTMLElement>(`${FIELD_ERROR_SELECTOR}, div, span, p, small`))
+            const candidates = Array.from(q.scope.querySelectorAll<HTMLElement>(strict ? FIELD_ERROR_SELECTOR : `${FIELD_ERROR_SELECTOR}, div, span, p, small`))
                 .filter(e => !e.contains(el) && isRendered(e) && !e.closest(".aullevo-blocker-badge, .aullevo-field-badge") &&
                     (el.compareDocumentPosition(e) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0)
                 .map(e => ({ e, text: getCleanElementText(e) }))
@@ -6713,11 +7003,67 @@ function findFieldErrors(): FieldError[] {
             if (candidates[0]) error = candidates[0].text;
         }
 
+        // 3. Named in a message elsewhere on the page (an error summary at the top)
+        if (!error) error = pageErrors.get(q) || "";
+
         if (error || invalid) {
             result.push({ el, label: q.label, error: error || "The form marked this answer as invalid.", scope: q.scope });
         }
     }
     return result;
+}
+
+const PHONE_VALUE_RE = /^\+?[\d\s\-().]{7,20}$/;
+
+// The dial code picked near a phone box ("Philippines (+63)", "+63"), or ""
+function findDialCodeNear(el: HTMLElement): string {
+    let area: HTMLElement | null = composedParent(el);
+    for (let i = 0; i < 6 && area && !/^(FORM|BODY|HTML)$/.test(area.tagName); i++, area = composedParent(area)) {
+        const picked = [
+            getVisibleText(area, 2000),
+            ...Array.from(area.querySelectorAll("select")).map(s => s.selectedOptions[0]?.text || "")
+        ].join(" ");
+        const code = picked.match(/\(\s*\+\s?(\d{1,4})\s*\)|(?:^|\s)\+(\d{1,4})(?=\s|$)/);
+        if (code) return code[1] || code[2];
+    }
+    return "";
+}
+
+// The same phone number in the other ways sites ask for it, most likely first.
+// "+63-985-304-7403" with +63 picked beside it -> "985-304-7403", "9853047403", "09853047403", "+639853047403"
+function phoneCandidates(value: string, dialCode: string): string[] {
+    const v = value.trim();
+    const digits = v.replace(/\D/g, "");
+    // The country code in front: the one picked on the page, else the one the number's own spacing sets apart ("+63 985...")
+    const code = dialCode && v.startsWith("+") && digits.startsWith(dialCode) ? dialCode : (v.match(/^\+(\d{1,3})[\s\-.]/)?.[1] || "");
+    const list: string[] = [];
+    if (code) {
+        const national = digits.slice(code.length);
+        list.push(v.replace(new RegExp(`^\\+${code}[\\s\\-.]*`), ""), national, "0" + national);
+    }
+    list.push((v.startsWith("+") ? "+" : "") + digits, digits);
+    return [...new Set(list)].filter(c => c && c !== v);
+}
+
+// Tries each phone shape and keeps the first one the site stops complaining about. Sites that only
+// re-check on Next keep their error whatever is typed: they get the likeliest shape. "" when none applies.
+async function reshapeRejectedPhone(e: FieldError, current: string, speedConfig: SpeedConfig, strict: boolean): Promise<string> {
+    const candidates = phoneCandidates(current, findDialCodeNear(e.el))
+        .filter(c => !(e.el instanceof HTMLInputElement) || passesNativeFormat(e.el, c));
+    if (candidates.length === 0) return "";
+    const errorNow = () => findFieldErrors(strict).find(f => f.el === e.el)?.error ?? "";
+    let reacted = false;
+    for (const candidate of candidates) {
+        await applyValueToControl(e.el, candidate, e.label, speedConfig, true);
+        await sleep(400);
+        const error = errorNow();
+        if (!error) return candidate;
+        if (error !== e.error) reacted = true;
+    }
+    // The error followed every edit: none of the shapes fits, so the user's own value goes back
+    const fallback = reacted ? current : candidates[0];
+    await applyValueToControl(e.el, fallback, e.label, speedConfig, true);
+    return reacted ? "" : fallback;
 }
 
 // Same privacy pipeline as the fill: background.ts only sends AI SAFE values to Gemini
@@ -6734,8 +7080,37 @@ function askAiToCorrect(questions: object[]): Promise<Array<{ id: string; answer
     });
 }
 
+// A phone box: by its type, autocomplete hint or question
+function isPhoneField(e: FieldError): boolean {
+    const type = (e.el.getAttribute("type") || "").toLowerCase();
+    const autocomplete = (e.el.getAttribute("autocomplete") || "").toLowerCase();
+    return type === "tel" || /\btel\b/.test(autocomplete) || /\b(?:phone|mobile|cell(?:phone)?|telephone|contact\s+number)\b/i.test(e.label);
+}
+
+// The profile's own answer to a rejected question, when one fits it as well as a keyword fill needs
+// and the box holds something else ("Postal Code: 1427" for a box the site pre-filled with a whole address).
+// Runs on the page only: SENSITIVE values never leave it.
+function profileAnswerFor(e: FieldError, current: string, format: ValueFormat, fields: any[]): { value: string; sensitive: boolean } | null {
+    let best = { score: 0, value: "", sensitive: false };
+    for (const field of fields) {
+        if (!field?.label || field.value === undefined || field.value === null || field.value === "" || fieldNamesOtherPerson(field)) continue;
+        for (const alias of getFieldLabelAliases(field.label)) {
+            const score = computeStringSimilarity(alias, e.label);
+            if (score > best.score && fillsWithoutAi(score, alias, e.label)) {
+                best = { score, value: String(field.value).trim(), sensitive: Boolean(field.isSensitive) };
+            }
+        }
+    }
+    if (!best.value || best.value === current || !valueFitsInputType(e.el, best.value)) return null;
+    const value = conformValue(best.value, format);
+    if (!value || value === current) return null;
+    if (e.el instanceof HTMLInputElement && !passesNativeFormat(e.el, value)) return null;
+    return { value, sensitive: best.sensitive };
+}
+
 // Fixes rejected answers: by rule when the error says what it wants, otherwise by asking the AI. Returns how many changed.
-async function repairRejectedFields(errors: FieldError[], useAi: boolean, speedConfig: SpeedConfig): Promise<number> {
+// strict: the errors came from findFieldErrors(true) (checked before the site was asked to move on)
+async function repairRejectedFields(errors: FieldError[], useAi: boolean, speedConfig: SpeedConfig, fields: any[] = [], strict = false): Promise<number> {
     let fixed = 0;
     const apply = async (e: FieldError, value: string) => {
         await applyValueToControl(e.el, value, e.label, speedConfig, true);
@@ -6749,7 +7124,22 @@ async function repairRejectedFields(errors: FieldError[], useAi: boolean, speedC
         // What the user typed by hand is theirs to change: the error stays highlighted for them
         if (userEdited.has(e.el)) continue;
         const current = readControlText(e.el);
+        // A phone number is often SENSITIVE (the AI never sees it): reshape it here
+        if (PHONE_VALUE_RE.test(current) && isPhoneField(e)) {
+            const shaped = await reshapeRejectedPhone(e, current, speedConfig, strict);
+            if (shaped) {
+                highlightFilledElement(e.el, `Fixed: ${shaped}`);
+                fixed++;
+                continue;
+            }
+        }
         const format = { ...readFormatFromControl(e.el), ...readFormatFromError(e.error) };
+        const fromProfile = profileAnswerFor(e, current, format, fields);
+        if (fromProfile) {
+            await apply(e, fromProfile.value);
+            filledOrigin.set(e.el, fromProfile.sensitive ? "sensitive" : "profile");
+            continue;
+        }
         // The field's own rules (pattern, type) beat guesses from the error text
         const nativeBroken = e.el instanceof HTMLInputElement && breaksNativeFormat(e.el.validity);
         const conformed = !current ? "" : (nativeBroken && conformToControl(e.el, current)) || conformValue(current, format);

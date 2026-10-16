@@ -8,7 +8,7 @@ Based on the listing approved for 0.6.0 (`aullevo-notes/store/CHROME_WEB_STORE.m
 
 ## 0. Before you press "Submit for review"
 
-- [ ] **Deploy aullevo-web first.** The privacy policy URL must already show the policy dated October 15 2026 (it describes Voice mode, ElevenLabs, the Gemini voice use, and the Free plan's daily uses and ad unlocks). Reviewers open it.
+- [ ] **Deploy aullevo-web first.** The privacy policy URL must already show the policy dated October 16 2026 (it describes Voice mode, ElevenLabs, the Gemini voice use, and the Free plan's daily uses and the 5-hour pass from 2 short ads). Reviewers open it.
 - [ ] **Package tab:** upload `store/aullevo-v0.6.5.zip` (manifest at the zip root). Never the website zip (it has a `dist/` folder inside).
 - [ ] **Remote code:** "No, I am not using remote code" (section 3).
 - [ ] **Reviewer account** with Pro (`users/{uid}.isPro = true`, no `proExpiresAt`) for Auto-Pagination, document upload and **Voice mode**. Voice mode also needs an ElevenLabs API key: create one with Speech to Text + Text to Speech access and put it in the test instructions (section 5), or reviewers can't test it.
@@ -45,7 +45,7 @@ PRIVATE BY DESIGN
 • Aullevo never solves or bypasses CAPTCHAs.
 
 FREE AND PRO
-Aullevo is free to use: the keyword form engine, all profile types, the encrypted vault, custom fields, AI Memories, 3 active profiles, and Multi-link batch fill (5 links) are included. With a free Aullevo account you also get, every day: 6 AI fills, 3 voice sessions, 2 hours of Auto-Pagination, 2 hours of slower typing speeds, and 4 JSON imports. When a feature's free uses run out, you can watch a short ad on the Aullevo website to unlock more for a few hours (for example, one 1-minute ad gives 10 AI fills for 2 hours), and each extra ad adds more. The extension itself never shows ads.
+Aullevo is free to use: the keyword form engine, all profile types, the encrypted vault, custom fields, AI Memories, 3 active profiles, and Multi-link batch fill (5 links) are included. With a free Aullevo account you also get, every day: 6 AI fills, 3 voice sessions, 2 hours of Auto-Pagination, 2 hours of slower typing speeds, and 4 JSON imports. Any time you want more, watch 2 short ads on the Aullevo website: every feature is unlocked for 5 hours with no limits, including automatic document upload into forms, and 2 more ads add another 5 hours. The extension itself never shows ads.
 
 Aullevo Pro (bought on the Aullevo website, 30 days per payment, no auto-renewal) adds unlimited AI fills, unlimited active profiles, automatic document upload into forms, slow and custom typing speeds, JSON import and export, Voice mode, and Auto-Pagination: Aullevo fills each page of a multi-step form, clicks Next, and presses Submit on the last page. It pauses and highlights the field whenever a required answer is missing or the form reports an error it can't fix. You can turn Auto-Pagination off to submit every form yourself.
 
@@ -141,7 +141,7 @@ Declaring more than needed is safe; declaring less is a common rejection reason.
 | Personal communications | ✅ | **New in 0.6.4:** Voice mode records the user's spoken commands and sends them to ElevenLabs for speech-to-text, and the transcribed sentence to Google Gemini |
 | Location | ☐ | No location/IP/GPS collected (a typed address is covered by PII) |
 | Web history | ☐ | Not collected |
-| User activity | ✅ | Free plan only: which metered feature was used (one AI-filled page, one JSON import from an ad, one voice session, the first Auto-Pagination or slower-typing fill of the day) is reported to Aullevo's server to count the daily free uses and ad unlocks. No keystroke logging, click tracking, or analytics |
+| User activity | ✅ | Free plan only: which metered feature was used (one AI-filled page, one JSON import beyond the free ones, one voice session, the first Auto-Pagination or slower-typing fill of the day) is reported to Aullevo's server to count the daily free uses and check the 5-hour pass. No keystroke logging, click tracking, or analytics |
 | Website content | ✅ | Form questions and answer options are sent to Google Gemini (AI Smart Fill, and Voice mode to know which question the user means) |
 
 Then tick **all three** certifications:

@@ -79,9 +79,6 @@
       "upload": "上傳檔案",
       "import": "匯入"
     },
-    "quota": {
-      "downloadPro": "下載（匯出）是 Pro 功能。"
-    },
     "errors": {
       "noFields": "提供的 JSON 中沒有有效的欄位。",
       "invalidFormat": "JSON 格式無效：{error}"
@@ -352,7 +349,6 @@
       "description": "以真人的速度逐字輸入，適用於需要真實按鍵輸入的網站。",
       "proFeature": "Pro 功能",
       "customDelay": "自訂延遲：",
-      "customProFeature": "自訂延遲是 Pro 功能",
       "unitMs": "ms"
     },
     "tour": {
@@ -401,11 +397,7 @@
       "profileLimit": "Free 方案最多可啟用 {max} 個設定檔。請關閉多餘的設定檔，或升級至 Pro。",
       "activeLimit": "Free 方案最多可啟用 {max} 個設定檔。請關閉其中一個，或升級至 Pro。",
       "createdOff": "設定檔已建立，狀態為關閉。Free 方案最多可啟用 {max} 個設定檔。請關閉其中一個，或升級至 Pro。",
-      "autoPaginatePro": "自動翻頁是 Pro 功能。升級至 Pro 即可填寫多頁表單。",
-      "jsonImportLimit": "這 2 週的 {limit} 次免費 JSON 匯入已用完。次數將於 {date} 重設，或升級至 Pro 即可無限匯入。",
-      "documentsSkipped": {
-        "other": "{count} 份文件未附加：將檔案上傳至表單是 Pro 功能。"
-      }
+      "jsonImportLimit": "這 2 週的 {limit} 次免費 JSON 匯入已用完。次數將於 {date} 重設，或升級至 Pro 即可無限匯入。"
     },
     "batch": {
       "starting": {
@@ -545,8 +537,7 @@
     "header": {
       "voice": {
         "title": "語音模式",
-        "body": "用說話取代點擊來使用 Aullevo。這個按鈕會把面板切換成語音助理：說出 \"fill this page\"、\"fill the email\" 或 \"fill the first question\"，它會用語音回答。再按一次即可回到這個畫面。",
-        "note": "Pro 功能。需要你自己的 ElevenLabs API 金鑰，可在 Voice settings 中新增。語音指令支援英文和他加祿語。"
+        "body": "用說話取代點擊來使用 Aullevo。這個按鈕會把面板切換成語音助理：說出 \"fill this page\"、\"fill the email\" 或 \"fill the first question\"，它會用語音回答。再按一次即可回到這個畫面。"
       },
       "language": {
         "title": "語言",
@@ -604,8 +595,7 @@
       },
       "documents": {
         "title": "附加文件",
-        "body": "選擇文件類型，然後上傳履歷、求職信、身分證件等。當表單有檔案上傳題目時，Aullevo 會附加已開啟的文件。",
-        "note": "將文件附加到表單是 Pro 功能。"
+        "body": "選擇文件類型，然後上傳履歷、求職信、身分證件等。當表單有檔案上傳題目時，Aullevo 會附加已開啟的文件。"
       },
       "attributes": {
         "title": "設定檔專屬欄位",
@@ -652,7 +642,6 @@
         "title": "AI 記憶",
         "body": "AI 可用來回答開放式問題的簡短資訊，例如「工作型態：僅限遠端」。這些內容會傳送給你選擇的 AI 服務商 且不會加密，因此絕對不要新增密碼或證件號碼。"
       },
-      "autoPaginate": {},
       "floatingIcon": {
         "title": "浮動按鈕",
         "body": "網頁邊緣的 Aullevo 小標籤，方便快速存取。如果覺得礙事，可以將它關閉。"

@@ -6,8 +6,8 @@ export const AUTO_PAGINATE_STORAGE_KEY = 'aullevo_auto_paginate';
 // Safety limit: a run never clicks Next more than this many times
 export const AUTO_PAGINATE_MAX_PAGES = 12;
 
-// Free: auto-pagination needs the 4-hour ad unlock (rewards.ts); the side panel shows its own translated text for this
-export const AUTO_PAGINATE_PRO_MESSAGE = 'Auto-pagination: watch a 1-minute ad to use it for 4 hours, or upgrade to Pro.';
+// Free: after the 2 free hours, auto-pagination needs a pass (rewards.ts); the side panel shows its own translated text
+export const AUTO_PAGINATE_PRO_MESSAGE = 'Auto-pagination: watch 2 short ads to unlock everything for 5 hours, or upgrade to Pro.';
 
 export type PaginationStepStatus =
     | 'advanced'          // clicked Next / Continue and the page changed

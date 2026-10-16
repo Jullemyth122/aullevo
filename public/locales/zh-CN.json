@@ -79,9 +79,6 @@
       "upload": "上传文件",
       "import": "导入"
     },
-    "quota": {
-      "downloadPro": "下载（导出）是 Pro 功能。"
-    },
     "errors": {
       "noFields": "提供的 JSON 中没有有效字段。",
       "invalidFormat": "JSON 格式无效：{error}"
@@ -352,7 +349,6 @@
       "description": "按真人速度逐字输入，适用于需要真实键盘输入的网站。",
       "proFeature": "Pro 功能",
       "customDelay": "自定义延迟：",
-      "customProFeature": "自定义延迟是 Pro 功能",
       "unitMs": "ms"
     },
     "tour": {
@@ -401,11 +397,7 @@
       "profileLimit": "Free 方案最多可启用 {max} 个档案。请关闭多余的档案，或升级到 Pro。",
       "activeLimit": "Free 方案最多可启用 {max} 个档案。请关闭其中一个，或升级到 Pro。",
       "createdOff": "档案已创建，状态为关闭。Free 方案最多可启用 {max} 个档案。请关闭其中一个，或升级到 Pro。",
-      "autoPaginatePro": "自动翻页是 Pro 功能。升级到 Pro 即可填写多页表单。",
-      "jsonImportLimit": "这 2 周的 {limit} 次免费 JSON 导入已用完。次数将在 {date} 重置，或升级到 Pro 即可无限导入。",
-      "documentsSkipped": {
-        "other": "{count} 份文档未附加：上传文件到表单是 Pro 功能。"
-      }
+      "jsonImportLimit": "这 2 周的 {limit} 次免费 JSON 导入已用完。次数将在 {date} 重置，或升级到 Pro 即可无限导入。"
     },
     "batch": {
       "starting": {
@@ -545,8 +537,7 @@
     "header": {
       "voice": {
         "title": "语音模式",
-        "body": "用说话代替点击来使用 Aullevo。此按钮会将面板切换为语音助手：说出 \"fill this page\"、\"fill the email\" 或 \"fill the first question\"，它会用语音回答。再次点击即可返回此视图。",
-        "note": "Pro 功能。需要你自己的 ElevenLabs API 密钥，可在 Voice settings 中添加。语音命令支持英语和他加禄语。"
+        "body": "用说话代替点击来使用 Aullevo。此按钮会将面板切换为语音助手：说出 \"fill this page\"、\"fill the email\" 或 \"fill the first question\"，它会用语音回答。再次点击即可返回此视图。"
       },
       "language": {
         "title": "语言",
@@ -604,8 +595,7 @@
       },
       "documents": {
         "title": "附加文档",
-        "body": "选择文档类型，然后上传简历、求职信、身份证件等。当表单中有文件上传项时，Aullevo 会附加已开启的文档。",
-        "note": "将文档附加到表单是 Pro 功能。"
+        "body": "选择文档类型，然后上传简历、求职信、身份证件等。当表单中有文件上传项时，Aullevo 会附加已开启的文档。"
       },
       "attributes": {
         "title": "档案专属字段",
@@ -652,7 +642,6 @@
         "title": "AI 记忆",
         "body": "AI 可用于回答开放式问题的简短信息，例如“工作方式：仅远程”。这些内容会发送给你选择的 AI 服务商 且不加密，因此切勿添加密码或证件号码。"
       },
-      "autoPaginate": {},
       "floatingIcon": {
         "title": "悬浮按钮",
         "body": "网页边缘的 Aullevo 小标签，方便快速访问。如果碍事，可以将其关闭。"

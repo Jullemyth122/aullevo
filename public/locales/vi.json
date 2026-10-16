@@ -79,9 +79,6 @@
       "upload": "Tải tệp lên",
       "import": "Nhập"
     },
-    "quota": {
-      "downloadPro": "Tải xuống (xuất) là tính năng Pro."
-    },
     "errors": {
       "noFields": "Không tìm thấy trường hợp lệ nào trong JSON đã cung cấp.",
       "invalidFormat": "Định dạng JSON không hợp lệ: {error}"
@@ -352,7 +349,6 @@
       "description": "Gõ từng ký tự một với tốc độ như người thật, dành cho các trang yêu cầu thao tác gõ phím thực.",
       "proFeature": "Tính năng Pro",
       "customDelay": "Độ trễ tùy chỉnh:",
-      "customProFeature": "Độ trễ tùy chỉnh là tính năng Pro",
       "unitMs": "ms"
     },
     "tour": {
@@ -401,11 +397,7 @@
       "profileLimit": "Gói Free cho phép {max} hồ sơ đang bật. Hãy chuyển các hồ sơ thừa sang TẮT hoặc nâng cấp lên Pro.",
       "activeLimit": "Gói Free cho phép {max} hồ sơ đang bật. Hãy chuyển một hồ sơ sang TẮT hoặc nâng cấp lên Pro.",
       "createdOff": "Hồ sơ đã được tạo ở trạng thái TẮT. Gói Free cho phép {max} hồ sơ đang bật. Hãy chuyển một hồ sơ sang TẮT hoặc nâng cấp lên Pro.",
-      "autoPaginatePro": "Tự động chuyển trang là tính năng Pro. Nâng cấp lên Pro để điền biểu mẫu nhiều trang.",
-      "jsonImportLimit": "Bạn đã dùng hết {limit} lượt nhập JSON miễn phí của 2 tuần này. Số lượt sẽ được đặt lại vào ngày {date}, hoặc nâng cấp lên Pro để nhập không giới hạn.",
-      "documentsSkipped": {
-        "other": "{count} tài liệu chưa được đính kèm: tải tệp lên biểu mẫu là tính năng Pro."
-      }
+      "jsonImportLimit": "Bạn đã dùng hết {limit} lượt nhập JSON miễn phí của 2 tuần này. Số lượt sẽ được đặt lại vào ngày {date}, hoặc nâng cấp lên Pro để nhập không giới hạn."
     },
     "batch": {
       "starting": {
@@ -545,8 +537,7 @@
     "header": {
       "voice": {
         "title": "Chế độ giọng nói",
-        "body": "Nói chuyện với Aullevo thay vì nhấp chuột. Nút này chuyển bảng điều khiển sang trợ lý giọng nói: hãy nói \"fill this page\", \"fill the email\" hoặc \"fill the first question\", và trợ lý sẽ trả lời thành tiếng. Nhấp lại để quay về giao diện này.",
-        "note": "Tính năng Pro. Cần khóa API ElevenLabs của riêng bạn, thêm trong Voice settings. Lệnh giọng nói hoạt động bằng tiếng Anh và tiếng Tagalog."
+        "body": "Nói chuyện với Aullevo thay vì nhấp chuột. Nút này chuyển bảng điều khiển sang trợ lý giọng nói: hãy nói \"fill this page\", \"fill the email\" hoặc \"fill the first question\", và trợ lý sẽ trả lời thành tiếng. Nhấp lại để quay về giao diện này."
       },
       "language": {
         "title": "Ngôn ngữ",
@@ -604,8 +595,7 @@
       },
       "documents": {
         "title": "Đính kèm tài liệu",
-        "body": "Chọn loại tài liệu, rồi tải lên CV, thư xin việc, giấy tờ tùy thân và nhiều loại khác. Khi biểu mẫu có câu hỏi tải tệp lên, Aullevo sẽ đính kèm các tài liệu đang BẬT của bạn.",
-        "note": "Đính kèm tài liệu vào biểu mẫu là tính năng Pro."
+        "body": "Chọn loại tài liệu, rồi tải lên CV, thư xin việc, giấy tờ tùy thân và nhiều loại khác. Khi biểu mẫu có câu hỏi tải tệp lên, Aullevo sẽ đính kèm các tài liệu đang BẬT của bạn."
       },
       "attributes": {
         "title": "Trường riêng của hồ sơ",
@@ -652,7 +642,6 @@
         "title": "Ghi nhớ AI",
         "body": "Những thông tin ngắn AI có thể dùng cho câu hỏi mở, như \"Phong cách làm việc: chỉ làm từ xa\". Chúng được gửi tới nhà cung cấp AI bạn đã chọn và không được mã hóa, vì vậy đừng bao giờ thêm mật khẩu hay số giấy tờ tùy thân."
       },
-      "autoPaginate": {},
       "floatingIcon": {
         "title": "Nút nổi",
         "body": "Một thẻ Aullevo nhỏ ở cạnh trang web để truy cập nhanh. Hãy tắt nếu nó gây vướng."
